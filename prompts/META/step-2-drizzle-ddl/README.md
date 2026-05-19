@@ -1,5 +1,43 @@
 # Каркас миграций Drizzle (DDL) по моделям — готовый scaffold
 
+# step-2-drizzle-ddl/README.md
+
+## Title
+
+Step 2 — Drizzle DDL Overview
+
+## Objective
+
+Сконцентрированная документация по доменной схеме (Postgres + Drizzle ORM) для KCLUB-MVP. Фокус: строгие enum-типажи, уникальности, индексы под основные запросы, соответствие юридическим и комплаенс-требованиям.
+
+## Contents
+
+- 00-overview-entities-and-relations.md — Общая карта сущностей и enum’ов
+- 01-core-user-profile-membership-card.md — Пользователи, профили, членство, карты
+- 02-geo-country-city.md — Геосправочники
+- 03-catalog-business-category.md — Категории и бизнесы
+- 04-partner-offers-special-conditions.md — Приватные условия партнёров
+- 05-business-introductions-admin-only.md — Business Introductions (VIP-only, админ-процесс)
+- 06-stripe-subscriptions-and-status.md — Подписки Stripe и события
+- 07-auditlog-and-events.md — Аудит-лог
+- 08-indexes-uniques-constraints.md — Индексы, уникальности, ограничения
+- 09-seed-scripts-outline.md — План сидов и порядок
+
+## Commands
+
+- Генерация миграций: pnpm db:generate
+- Применение миграций: pnpm db:migrate
+- Локальная студия (опционально): pnpm db:studio
+
+## Guardrails
+
+- PII: публичные роуты не раскрывают email/телефоны/платежи/историю.
+- High-risk: запрещённые категории не должны появляться в сид-деплоях.
+- BI: без терминов MLM/affiliate/commission/earnings/passive income.
+- Refund: подписки невозвратны (кроме случаев по закону) — отражено в Legal, не в DDL.
+
+---
+
 ## Дерево файлов (предлагаемое)
 
 - drizzle.config.ts
