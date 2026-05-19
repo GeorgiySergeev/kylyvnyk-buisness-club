@@ -1,24 +1,27 @@
-05-premium-ui-presets.md
-Title
-Premium UI Presets — gold CTAs, cards, and sections
+# 05. Premium UI Presets
 
-Objective
-Create reusable, accessible UI presets aligned with black & gold: CTA buttons, premium cards, and section wrappers.
+## Objective
 
-Steps
-Add a gold CTA variant that composes shadcn Button.
-Create premium Card variant (shadow, borders, spacing).
-Add Section wrapper with mobile-first spacing and max-width.
-Provide sample CTA row for the landing hero.
-Files to add
-src/components/ui/gold-button.tsx
-src/components/ui/card-premium.tsx
-src/components/ui/section.tsx
-src/components/common/cta-row.tsx
-src/components/ui/gold-button.tsx
-tsx
+Create reusable, accessible UI presets aligned with the black & gold theme: CTA buttons, premium cards, and section wrappers.
 
-copy
+## Steps
+
+1. Add a gold CTA variant that composes the shadcn `Button` pattern.
+2. Create a premium `Card` variant with elevated shadows and defined borders.
+3. Add a `Section` wrapper with mobile-first spacing and constrained width.
+4. Provide a sample CTA row for the landing hero.
+
+## Files to Add
+
+- `src/components/ui/gold-button.tsx`
+- `src/components/ui/card-premium.tsx`
+- `src/components/ui/section.tsx`
+- `src/components/common/cta-row.tsx`
+- `src/lib/utils/cn.ts` (if missing)
+
+### `src/components/ui/gold-button.tsx`
+
+```tsx
 'use client';
 
 import { cn } from '@/lib/utils/cn'; // create a tiny cn util if not present
@@ -34,10 +37,11 @@ export function GoldButton({ className, size = 'lg', ...props }: Props) {
   const sizing = size === 'lg' ? 'px-6 py-4 text-base' : 'px-5 py-3 text-sm';
   return <button className={cn(base, sizing, 'shadow-cta', className)} {...props} />;
 }
-src/components/ui/card-premium.tsx
-tsx
+```
 
-copy
+### `src/components/ui/card-premium.tsx`
+
+```tsx
 import { cn } from '@/lib/utils/cn';
 import { HTMLAttributes } from 'react';
 
@@ -56,10 +60,11 @@ export function CardPremium({
     />
   );
 }
-src/components/ui/section.tsx
-tsx
+```
 
-copy
+### `src/components/ui/section.tsx`
+
+```tsx
 import { cn } from '@/lib/utils/cn';
 
 export function Section({
@@ -72,15 +77,16 @@ export function Section({
     </section>
   );
 }
-src/components/common/cta-row.tsx
-tsx
+```
 
-copy
+### `src/components/common/cta-row.tsx`
+
+```tsx
 import { GoldButton } from '@/components/ui/gold-button';
 
 export function CtaRow() {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+    <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
       <GoldButton>Get a Club Card</GoldButton>
       <GoldButton className="opacity-95 hover:opacity-100">Become VIP — $19.99/mo</GoldButton>
       <button className="px-6 py-4 text-base font-semibold rounded-md border border-border text-fg hover:bg-bgElev focus-gold">
@@ -89,14 +95,18 @@ export function CtaRow() {
     </div>
   );
 }
-src/lib/utils/cn.ts (if missing)
-ts
+```
 
-copy
+### `src/lib/utils/cn.ts`
+
+```ts
 export function cn(...args: Array<string | undefined | false | null>) {
   return args.filter(Boolean).join(' ');
 }
-Acceptance
-Buttons are at least 44px height on mobile.
-Premium card and section wrappers available and consistent.
-CTA row matches black & gold style and is keyboard-accessible (focus styles visible).
+```
+
+## Acceptance Criteria
+
+- Buttons are at least 44px in height on mobile.
+- Premium card and section wrappers are available and visually consistent.
+- CTA row matches the black & gold style and remains keyboard-accessible (focus styles visible).

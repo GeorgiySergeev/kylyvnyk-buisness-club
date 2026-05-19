@@ -1,21 +1,23 @@
-02-dark-theme-wcag-contrast.md
-Title
-Dark Theme Contrast — WCAG AA validation for black & gold
+# 02. Dark Theme & WCAG Contrast
 
-Objective
-Guarantee accessible contrast (WCAG 2.1 AA) for text/iconography on dark surfaces with gold accents.
+## Objective
 
-Steps
-Add a dev-only tokens preview page to visually validate contrast.
-Define safe text/background pairings (classes map).
-Document do/don’t combos and acceptance criteria for AA.
-Files to add
-src/app/(public)/tokens/page.tsx
-src/styles/a11y-notes.md (optional developer notes)
-src/app/(public)/tokens/page.tsx
-tsx
+Guarantee accessible contrast (WCAG 2.1 AA) for text and iconography on dark surfaces with gold accents.
 
-copy
+## Steps
+
+1. Add a development-only tokens preview page to visually validate contrast.
+2. Define safe text/background pairings with reusable utility classes.
+3. Document “do/don’t” color combinations alongside acceptance criteria for WCAG AA.
+
+## Files to Add
+
+- `src/app/(public)/tokens/page.tsx`
+- `src/styles/a11y-notes.md` (optional developer notes)
+
+### `src/app/(public)/tokens/page.tsx`
+
+```tsx
 'use client';
 
 export default function TokensPreview() {
@@ -44,13 +46,13 @@ export default function TokensPreview() {
     <main className="container space-y-8 py-8">
       <h1 className="text-2xl font-semibold">Tokens & Contrast Preview</h1>
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Cell title="bg" className="bg-bg" />
         <Cell title="bgElev" className="bg-bgElev" />
         <Cell title="card" className="bg-card" />
       </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Swatch bg="bg-bg" label="Text fg on bg" />
         <Swatch bg="bg-card" label="Text fg on card" />
         <Swatch bg="bg-bg gold-gradient" text="text-fgOnGold" label="Text on gold gradient" />
@@ -59,25 +61,26 @@ export default function TokensPreview() {
 
       <section>
         <p className="text-sm text-fgMuted">
-          Rules: Body text uses text-fg on dark surfaces (bg/card). Gold text is accent-only, not for long paragraphs.
-          Buttons/links need clear focus styles (focus-gold).
+          Rules: Body text uses text-fg on dark surfaces (bg/card). Gold text is accent-only—avoid long paragraphs.
+          Buttons and links need clear focus styles (`focus-gold`).
         </p>
       </section>
     </main>
   );
 }
-A11y rules (document in PR description or src/styles/a11y-notes.md)
-Body text: text-fg on bg/card surfaces — contrast ≥ 12:1 (passes AA/AAA).
-Gold usage:
-text-gold-400/DEFAULT on bg-bg only for short labels/icons; avoid long paragraphs.
-On gold backgrounds/gradients, use text-fgOnGold (near-black) to ensure contrast.
-Buttons:
-Default text-fg on dark with ring-gold on focus (focus-gold).
-Avoid gold text on gold background.
-Links:
-Use underline-offset-2 and decoration-gold on hover.
-Minimum touch sizes: 44x44px minimum target area.
-Acceptance
-Preview page renders token swatches without readability issues.
-No gold text on gold backgrounds.
-Small text (<18pt) contrast meets AA; large text (≥18pt or 14pt bold) meets AA.
+```
+
+## Accessibility Rules
+
+- **Body text:** `text-fg` on `bg`/`card` surfaces — contrast ≥ 12:1 (passes AA/AAA).
+- **Gold usage:** `text-gold-400`/`text-gold` on `bg-bg` only for short labels or icons; avoid long paragraphs.
+- **Gold backgrounds:** Use `text-fgOnGold` on gold gradients to ensure contrast.
+- **Buttons:** Default `text-fg` on dark surfaces with `focus-gold` focus styles; never use gold text on gold backgrounds.
+- **Links:** Apply `underline-offset-2` and `decoration-gold` on hover.
+- **Touch targets:** Maintain a minimum interactive area of 44×44px.
+
+## Acceptance Criteria
+
+- Preview page renders token swatches without readability issues.
+- No gold text appears on gold backgrounds.
+- Small text (<18pt) meets AA contrast; large text (≥18pt or 14pt bold) meets AA.

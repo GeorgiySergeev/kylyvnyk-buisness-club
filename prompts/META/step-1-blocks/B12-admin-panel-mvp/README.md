@@ -30,9 +30,6 @@ This block outlines the step-by-step instructions for implementing the **Admin P
 8. **[Audit Logs â€” minimal admin viewer (recent CRUD events)](./06-audit-logs-minimal.md)**
    Provide a minimal, read-only list of recent audit logs with paging.
 
-9. **[06-crud-action-logs.md](./06-crud-action-logs.md)**
-   
-
 ## Overall Acceptance Criteria
 
 Upon completion of this block:

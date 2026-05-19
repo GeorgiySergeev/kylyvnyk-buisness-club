@@ -1,26 +1,29 @@
-04-theme-provider-css-variables.md
-Title
-Theme Provider (dark baseline) — CSS variables and toggling skeleton
+# 04. Theme Provider & CSS Variables
 
-Objective
-Introduce a ThemeProvider to manage theme class on <html>. Default to dark-only now, enable future extensibility.
+## Objective
 
-Steps
-Install next-themes and create a Providers wrapper.
-Wrap RootLayout with ThemeProvider.
-Ensure CSS variables work either way (dark is default).
-Commands
-bash
+Introduce a `ThemeProvider` that manages the theme class on `<html>`. Default to a dark-only baseline while keeping room for future extensibility.
 
-copy
+## Steps
+
+1. Install `next-themes` and create a reusable providers wrapper.
+2. Wrap `RootLayout` with the `ThemeProvider`.
+3. Ensure CSS variables work regardless of theme (dark by default).
+
+## Command
+
+```bash
 pnpm add next-themes
-Files to add/modify
-src/components/providers/theme-provider.tsx
-src/app/layout.tsx (wrap provider)
-src/components/providers/theme-provider.tsx
-tsx
+```
 
-copy
+## Files to Add or Modify
+
+- `src/components/providers/theme-provider.tsx`
+- `src/app/layout.tsx`
+
+### `src/components/providers/theme-provider.tsx`
+
+```tsx
 'use client';
 
 import * as React from 'react';
@@ -38,10 +41,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     </NextThemesProvider>
   );
 }
-src/app/layout.tsx (patch)
-tsx
+```
 
-copy
+### `src/app/layout.tsx`
+
+```tsx
 import './globals.css';
 import '@/styles/typography.css';
 import { plusJakarta } from './fonts';
@@ -56,7 +60,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-Acceptance
-App renders with dark theme by default.
-No FOUC; switching themes later will be trivial if needed.
-CSS variables unaffected and consistent.
+```
+
+## Acceptance Criteria
+
+- [ ] App renders with the dark theme by default.
+- [ ] No FOUC appears; future theme switching remains simple.
+- [ ] CSS variables stay intact and consistent across themes.
