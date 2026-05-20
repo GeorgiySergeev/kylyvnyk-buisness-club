@@ -1,0 +1,32 @@
+---
+description: Master pointer — read this first, every Cursor session.
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Master rule
+
+You are working on **KCLUB-MVP** (kylyvnyk-business-club).
+
+Before doing ANYTHING, read these three files in order:
+
+1. `/AGENTS.md` — master rules for all AI agents
+2. `/prompts/META/INDEX.md` — prompt library execution order & supersedes
+3. `/docs/STACK-DECISION.md` — frozen stack decisions (ADR-001..010)
+
+When a Cursor rule below contradicts one of those three files, those three
+files win. Open a follow-up to update the rule, do not silently diverge.
+
+## Domain rules (load by file glob, see each rule's frontmatter)
+
+- `01-rsc-vs-client.mdc` — Server/client component decision tree
+- `02-drizzle-patterns.mdc` — DB schema, migrations, queries
+- `03-clerk-v6.mdc` — Authentication
+- `04-stripe-v17.mdc` — Billing
+- `05-next-intl-v3.mdc` — i18n
+- `06-zod-validation.mdc` — Input validation
+- `07-tailwind-v4.mdc` — Styling
+- `08-public-routes-pii.mdc` — PII contracts on public surfaces
+- `09-security-headers.mdc` — CSP, rate-limit, Turnstile
+- `10-legal-copy.mdc` — Forbidden vocabulary enforcement
+- `11-supabase-pg-pooling.mdc` — DB connection gotchas

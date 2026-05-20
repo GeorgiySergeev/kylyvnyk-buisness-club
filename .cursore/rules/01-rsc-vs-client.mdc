@@ -1,0 +1,65 @@
+---
+description: When to use Server Components, Server Actions, or client components in Next.js 15
+globs: ["app/**/*.tsx", "src/**/*.tsx", "app/**/*.ts", "src/**/*.ts"]
+alwaysApply: false
+---
+
+# RSC vs Client — decision tree
+
+Default to Server Components. Drop to client only when there is a concrete
+client-side need. The "concrete client-side needs" list is closed:
+
+1. Event handlers (`onClick`, `onSubmit`, `onChange`) on inputs/buttons.
+2. Browser-only APIs (`window`, `document`, `localStorage`, `IntersectionObserver`).
+3. React hooks that require client state (`useState`, `useEffect`, `useRef`,
+   `useReducer`, `useTransition`, `useContext` for client-side providers).
+4. Third-party libraries marked `"use client"` themselves
+   (recharts, framer-motion, most carousels).
+
+If none of those apply → keep it server.
+
+## Data fetching
+
+- Server Components: `await db.query.x.findFirst(...)` directly. No `useEffect`.
+- Server Actions: file marked `"use server"`, function returns
+  `Result<T, AppError>` (see `06-zod-validation.mdc`).
+- Client components NEVER import `@/db/*`. If you see that import in a
+  `"use client"` file, refuse and ask.
+
+## Mutations
+
+- Use Server Actions for form submissions. No Route Handlers for
+  internal mutations.
+- Route Handlers (`app/api/**/route.ts`) are reserved for:
+  - Webhooks (Stripe, Clerk).
+  - Third-party callbacks.
+  - Endpoints called by something other than our own UI (rare at MVP).
+
+## `import "server-only"`
+
+Required as the FIRST line of every module under:
+
+- `src/lib/auth/**`
+- `src/lib/stripe/**`
+- `src/lib/db/**`
+- `src/db/**`
+- any file that reads `process.env.<server-only var>`.
+
+If a `"use client"` file transitively imports a `"server-only"` module,
+Next will throw at build time. Good — that's how we know we leaked.
+
+## File header convention
+
+````ts
+// src/features/billing/actions/start-subscription.action.ts
+"use server";
+import "server-only";
+import { z } from "zod";
+// ...
+```ts
+// src/features/billing/components/billing-form.tsx
+"use client";
+
+import { useState } from "react";
+// ...
+````

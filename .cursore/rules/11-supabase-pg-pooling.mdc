@@ -1,0 +1,86 @@
+---
+description: Supabase Postgres connection pooling — pooled vs direct URL, prepare:false
+globs: ["src/db/client.ts", "drizzle.config.ts", "src/lib/env.ts"]
+alwaysApply: false
+---
+
+# Supabase Postgres pooling
+
+ADR-003. Two URLs. Don't mix them up.
+
+## Two URLs, two purposes
+
+| Var                   | Port | Mode                  | Used by                       |
+| --------------------- | ---- | --------------------- | ----------------------------- |
+| `DATABASE_URL`        | 6543 | PgBouncer transaction | App runtime (all queries)     |
+| `DATABASE_URL_DIRECT` | 5432 | Direct session        | `drizzle-kit` migrations ONLY |
+
+## App client — `prepare: false` is MANDATORY
+
+```ts
+// src/db/client.ts
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "./schema";
+import * as relations from "./schema/_relations";
+import { env } from "@/lib/env";
+
+const sql = postgres(env.DATABASE_URL, {
+  prepare: false, // ← REQUIRED. PgBouncer in transaction mode
+  //   doesn't preserve prepared statements
+  //   across queries. Without this, you get:
+  //   "prepared statement s1 already exists"
+  //   under load. Random, hard to reproduce.
+  max: 10, // small pool; the pool we actually use is PgBouncer's
+  idle_timeout: 30,
+});
+
+export const db = drizzle(sql, {
+  schema: { ...schema, ...relations },
+  logger: env.NODE_ENV === "development",
+});
+```
+
+## `drizzle-kit` — uses the DIRECT URL
+
+```ts
+// drizzle.config.ts
+import type { Config } from "drizzle-kit";
+import { env } from "@/lib/env";
+
+export default {
+  schema: "./src/db/schema/*.ts",
+  out: "./drizzle",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: env.DATABASE_URL_DIRECT, // direct, NOT pooled
+  },
+  verbose: true,
+  strict: true,
+} satisfies Config;
+```
+
+If you run `pnpm db:migrate` and see `CREATE TYPE` errors or `CONCURRENTLY` syntax errors, you're going through the pooler. Check the URL.
+
+## NEVER instantiate a second client
+
+```ts
+// ❌ Don't do this in /lib/something/db.ts
+import postgres from "postgres";
+
+const sql = postgres(env.DATABASE_URL); // forgot prepare: false
+// → random failures under load
+```
+
+All queries go through the single `db` export from `@/db/client`.
+
+## Migration in CI / production
+
+CI does NOT run migrations. Production migrations are manual:
+
+```bash
+DATABASE_URL_DIRECT="<prod direct>" pnpm db:migrate
+```
+
+See `RUNBOOK §3.6` for full procedure.
+

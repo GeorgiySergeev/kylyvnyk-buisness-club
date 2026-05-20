@@ -1,0 +1,79 @@
+---
+description: CSP allowlist, HSTS, Turnstile placement, Upstash rate-limit decorator
+globs: ["next.config.*", "src/middleware.ts", "src/lib/rate-limit/**", "src/lib/captcha/**"]
+alwaysApply: false
+---
+
+# Security headers + rate limit + Turnstile
+
+Source: `/docs/SECURITY.md` (when written) and `AGENTS.md §8`.
+
+## CSP allowlist (production)
+
+```
+default-src 'self';
+script-src 'self' 'wasm-unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com https://*.clerk.accounts.dev https://clerk.<your-domain>;
+style-src 'self' 'unsafe-inline';
+img-src 'self' data: blob: https://img.clerk.com https://*.stripe.com;
+connect-src 'self' https://*.clerk.accounts.dev https://clerk.<your-domain> https://api.stripe.com https://*.ingest.sentry.io https://plausible.io https://*.upstash.io;
+frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com https://*.clerk.accounts.dev;
+font-src 'self' data:;
+object-src 'none';
+base-uri 'self';
+form-action 'self' https://*.clerk.accounts.dev https://js.stripe.com;
+frame-ancestors 'none';
+upgrade-insecure-requests;
+```
+
+Apply via `next.config.js` headers function. Don't roll your own middleware for headers — Next 15 supports this natively.
+
+Always also set:
+
+- `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+- `X-Frame-Options: DENY`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+
+## Rate limit
+
+Wrapper lives in `src/lib/rate-limit/`. One file per surface:
+
+```ts
+// src/lib/rate-limit/verify-card.ts (Patch-08)
+// src/lib/rate-limit/server-action.ts (default 30/min per user)
+// src/lib/rate-limit/sign-up.ts (5/h per IP)
+```
+
+Wrappers fail closed: on Upstash unreachable, return `{ success: false }`. Documented in RUNBOOK §10.x — do not "improve" this to fail open.
+
+## Turnstile
+
+Server verification in `src/lib/captcha/turnstile.ts`:
+
+```ts
+import "server-only";
+
+export type TurnstileResult =
+  | { ok: true }
+  | { ok: false; reason: "INVALID_TOKEN" | "EXPIRED" | "NETWORK" };
+
+export async function verifyTurnstile(token: string, remoteIp?: string): Promise<TurnstileResult> {
+  // POST to https://challenges.cloudflare.com/turnstile/v0/siteverify
+  // body: { secret, response: token, remoteip: remoteIp }
+  // Return discriminated result; never throw.
+}
+```
+
+Turnstile required on:
+
+- Sign-up form.
+- Password reset form (when implemented).
+- `/verify-card` lookup form.
+- Any future public-facing form that hits DB.
+
+Not required on:
+
+- Sign-in (Clerk handles its own bot defense).
+- Stripe webhooks (signature-verified, not user input).
+

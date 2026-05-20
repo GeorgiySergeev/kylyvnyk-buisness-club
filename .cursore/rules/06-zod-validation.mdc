@@ -1,0 +1,108 @@
+---
+description: Zod schemas for all server inputs, Result types, error mapping
+globs: ["src/**/actions/**/*.ts", "app/api/**/*.ts", "src/features/**/schemas/**/*.ts"]
+alwaysApply: false
+---
+
+# Zod validation
+
+Every Server Action and every Route Handler validates input with Zod before reading any field. No exceptions.
+
+## Schema location
+
+Per feature:
+
+```
+src/features/billing/
+  schemas/
+    start-subscription.schema.ts
+  actions/
+    start-subscription.action.ts
+```
+
+The schema file exports:
+
+```ts
+// src/features/billing/schemas/start-subscription.schema.ts
+import { z } from "zod";
+
+export const startSubscriptionSchema = z.object({
+  priceCode: z.enum(["VIP_ANNUAL", "BUSINESS_ANNUAL"]),
+  turnstileToken: z.string().min(20).max(4096),
+});
+
+export type StartSubscriptionInput = z.infer<typeof startSubscriptionSchema>;
+```
+
+## Action shape
+
+```ts
+// src/features/billing/actions/start-subscription.action.ts
+"use server";
+import "server-only";
+import { startSubscriptionSchema } from "../schemas/start-subscription.schema";
+import { verifyTurnstile } from "@/lib/captcha/turnstile";
+import { ratelimitServerAction } from "@/lib/rate-limit/server-action";
+import { getCurrentUserOrThrow } from "@/lib/auth/current-user";
+
+export type StartSubscriptionResult =
+  | { ok: true; checkoutUrl: string }
+  | { ok: false; error: "RATE_LIMITED" | "INVALID_CAPTCHA" | "VALIDATION_FAILED" | "INTERNAL" };
+
+export async function startSubscription(
+  raw: unknown,
+): Promise<StartSubscriptionResult> {
+  // 1. Parse first — fail before any side effect.
+  const parsed = startSubscriptionSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false, error: "VALIDATION_FAILED" };
+
+  // 2. Auth.
+  const user = await getCurrentUserOrThrow();
+
+  // 3. Rate limit + Turnstile.
+  const rl = await ratelimitServerAction.limit(user.id);
+  if (!rl.success) return { ok: false, error: "RATE_LIMITED" };
+  const cap = await verifyTurnstile(parsed.data.turnstileToken);
+  if (!cap.ok) return { ok: false, error: "INVALID_CAPTCHA" };
+
+  // 4. Business logic.
+  try {
+    const checkoutUrl = await createCheckoutSession({ user, ... });
+    return { ok: true, checkoutUrl };
+  } catch (e) {
+    // log + return generic error (never leak to client)
+    return { ok: false, error: "INTERNAL" };
+  }
+}
+```
+
+## Why `Result<T, E>` instead of throwing
+
+- Throwing in Server Actions ends up in `error.tsx` boundaries and gives the user a generic error page. We want field-level feedback.
+- `safeParse` already returns a `Result`. Stay in that style end-to-end.
+- The discriminated union is exhaustively matchable on the client: `if (!res.ok) switch (res.error) { ... }`.
+
+## What to validate
+
+Not just shape, but also:
+
+- Length bounds (`.min(1).max(500)` on free-text).
+- Enum membership (`z.enum([...])` for status / type values).
+- Format (`.email()`, `.url()`, `.uuid()`).
+- Cross-field invariants (`.refine(...)` for "if A then B").
+
+## Errors mapped to i18n keys, not strings
+
+On the client:
+
+```tsx
+const messages: Record<typeof res.error, string> = {
+  RATE_LIMITED: t("errors.rateLimited"),
+  INVALID_CAPTCHA: t("errors.invalidCaptcha"),
+  VALIDATION_FAILED: t("errors.validationFailed"),
+  INTERNAL: t("errors.internal"),
+};
+```
+
+Never `toast(res.error)` directly — that ships the raw enum value to users.
+

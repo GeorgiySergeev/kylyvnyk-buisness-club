@@ -1,0 +1,44 @@
+---
+description: Forbidden vocabulary enforcement, allowed positioning terms, glossary discipline
+globs: ["**/*.ts", "**/*.tsx", "**/*.md", "messages/**/*.json"]
+alwaysApply: true
+---
+
+# Forbidden vocabulary
+
+`AGENTS.md §4`. CI greps for these terms; matches block merge.
+
+MLM, multi-level, affiliate, referral commission, referral bonus, passive income, earnings, income guarantee, bonus per user, wallet, investment, guaranteed savings, ROI promise, crypto, gambling, casino, betting, adult, firearms.
+
+Allowed: **`Business Introduction`** (singular noun phrase) for the admin-mediated B2B match feature. Never "referral", never "lead", never "partner program" in the affiliate sense.
+
+## Where this applies
+
+Everywhere except `docs/GUARDRAILS.md` (which documents the list itself):
+
+- All user-visible copy (messages/, components, page metadata).
+- Code identifiers (variable names, function names, audit-action enums).
+- Comments and commit messages.
+- Migration file names.
+- Branch names.
+- Prompts under `prompts/META/` (no escapism — the rule applies to plans too).
+
+## Why these specific terms
+
+- **MLM / multi-level / referral commission / passive income / earnings / income guarantee / bonus per user**: positioning as MLM triggers payment-processor freezes (Stripe explicitly disallows MLM under Restricted Businesses). Even ambiguous wording in marketing can trigger merchant review.
+- **Wallet / investment / guaranteed savings / ROI promise**: financial product positioning we are NOT licensed for; SEC / FCA / NBU concerns.
+- **Crypto / gambling / casino / betting / adult / firearms**: high-risk verticals Stripe also disallows and Cloudflare Turnstile can refuse service to. The forbidden list is not aesthetic — every entry maps to a real external risk. Adding terms requires an ADR.
+
+## Replacements (suggestion table)
+
+| Forbidden term | Suggested replacement |
+| ------------------------- | ------------------------------------------------ |
+| referral / referral bonus | Business Introduction |
+| affiliate program | partner network (only when describing structure) |
+| earnings / income | membership benefits |
+| wallet | account balance (only for refundable credit) |
+| guaranteed | (just remove; never promise) |
+| passive income | (remove; not part of the product) |
+
+When in doubt, leave the term out entirely. Rephrasing toward the forbidden term should not be the goal.
+

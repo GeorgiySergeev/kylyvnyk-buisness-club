@@ -76,14 +76,14 @@ Required patches before commit (see Phase 5 — Patches):
 
 ## Phase 3 — Implementations (`step-3-implementations/`)
 
-| Folder                      | Replaces       | Notes / Patches                                                                                               |
-| --------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------- |
-| `01-auth-clerk/`            | B04 step 02–06 | **Patch-01:** `await auth()` everywhere                                                                       |
+| Folder                      | Replaces       | Notes / Patches                                                                                                |
+| --------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------- |
+| `01-auth-clerk/`            | B04 step 02–06 | **Patch-01:** `await auth()` everywhere                                                                        |
 | `02-stripe-billing/`        | B05 step 01–06 | **Patch-02:** items-level `current_period_end`; **Patch-03:** `INSERT ... ON CONFLICT DO NOTHING RETURNING id` |
-| `03-forms-rhf-zod/`         | —              | —                                                                                                             |
-| `04-business-crud/`         | B09            | `partnerOffers.visibility` is admin-only                                                                      |
-| `05-digital-club-card/`     | B11 step 01–04 | —                                                                                                             |
-| `06-admin-tables-tanstack/` | B12            | —                                                                                                             |
+| `03-forms-rhf-zod/`         | —              | —                                                                                                              |
+| `04-business-crud/`         | B09            | `partnerOffers.visibility` is admin-only                                                                       |
+| `05-digital-club-card/`     | B11 step 01–04 | —                                                                                                              |
+| `06-admin-tables-tanstack/` | B12            | —                                                                                                              |
 
 ---
 
