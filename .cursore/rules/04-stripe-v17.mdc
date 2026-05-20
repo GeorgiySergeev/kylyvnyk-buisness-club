@@ -1,0 +1,100 @@
+---
+description: Stripe v17 — pinned apiVersion, items-level period_end, idempotent webhooks
+globs: ["src/lib/stripe/**", "app/api/stripe/**", "src/features/billing/**"]
+alwaysApply: false
+---
+
+# Stripe v17
+
+ADR-005. `apiVersion` is pinned. Webhooks are atomically idempotent.
+
+## API version
+
+```ts
+// src/lib/stripe/config.ts — DO NOT change apiVersion casually
+import Stripe from "stripe";
+
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-12-18.acacia",
+  typescript: true,
+});
+```
+
+Bumping the version requires a new ADR (or at minimum an entry in `/docs/BILLING-FLOWS.md` describing what changed).
+
+## Reading subscription period
+
+`current_period_end` is on `items.data[*]`, NOT on the subscription root, in `2024-12-*` and later:
+
+```ts
+import { getSubscriptionPeriod } from "@/lib/stripe/period";
+
+const { currentPeriodStart, currentPeriodEnd } = getSubscriptionPeriod(sub);
+// throws if the items array is empty — defensive, see Patch-02.
+```
+
+If you see `sub.current_period_end` in any new code, reject it.
+
+## Webhook handler shape
+
+Required pattern (Patch-03):
+
+```ts
+// 1. Verify signature
+const event = stripe.webhooks.constructEvent(raw, sig, secret);
+
+// 2. Atomic claim — race-safe idempotency
+const claimed = await db.insert(stripeEvents).values({...})
+  .onConflictDoNothing({ target: stripeEvents.eventId })
+  .returning({ id: stripeEvents.id });
+
+if (claimed.length === 0) {
+  return NextResponse.json({ duplicate: true }); // 200
+}
+
+// 3. Dispatch
+try {
+  await handleStripeEvent(event);
+  await db.update(stripeEvents).set({ succeeded: true, processedAt: new Date() })
+    .where(eq(stripeEvents.id, claimed[0].id));
+  return NextResponse.json({ ok: true });
+} catch (err) {
+  await db.update(stripeEvents).set({ error: String(err) })
+    .where(eq(stripeEvents.id, claimed[0].id));
+  return new Response("handler failed", { status: 500 });
+}
+```
+
+Do NOT replace `onConflictDoNothing(...).returning(...)` with a SELECT-then-INSERT or a try/catch around INSERT. Both lose the race.
+
+## Metadata
+
+When creating Checkout sessions / customers, metadata gets:
+
+```ts
+metadata: {
+  kclub_user_id: user.id, // our UUID, not Clerk's
+  kclub_membership_type: "VIP", // enum value
+}
+```
+
+NEVER put PII (email, name) in metadata. Stripe metadata is searchable in the Stripe Dashboard and shows up in support tickets.
+
+## Membership transitions
+
+Driven by webhook → call `applyMembershipTransition()`. Enforces the state machine in ADR-007. Never `UPDATE memberships.status` directly from a server action — go through the webhook (manual transitions are done by writing a synthetic event, which is rare and audit-logged).
+
+## Customer Portal
+
+Default account-management surface. Don't reimplement subscription cancel UI:
+
+```ts
+const session = await stripe.billingPortal.sessions.create({
+  customer: user.stripeCustomerId,
+  return_url: `${env.NEXT_PUBLIC_APP_URL}/m/billing`,
+  configuration: env.STRIPE_PORTAL_CONFIGURATION_ID,
+});
+
+return Response.redirect(session.url, 303);
+```
+

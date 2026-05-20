@@ -1,0 +1,76 @@
+---
+description: Tailwind v4 CSS-first config, tokens, dark-first design, no arbitrary colors
+globs: ["app/**/*.tsx", "src/**/*.tsx", "app/globals.css", "src/styles/**"]
+alwaysApply: false
+---
+
+# Tailwind v4
+
+CSS-first config. No `tailwind.config.ts`. Tokens live in `app/globals.css` under `@theme` directives.
+
+## Importing
+
+```css
+/* app/globals.css */
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0a0a0b; /* page bg, near-black */
+  --color-surface: #16161a; /* card bg */
+  --color-surface-2: #1f1f25; /* elevated card bg */
+  --color-border: #2a2a32;
+  --color-fg: #f5f5f0; /* primary text */
+  --color-fg-muted: #a8a8a0; /* secondary text */
+  --color-accent: #d4af37; /* signature gold */
+  --color-accent-hover: #e6c14a;
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+  /* ... etc ... */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
+}
+```
+
+## No arbitrary hex in components
+
+```tsx
+// ❌
+<div className="bg-[#d4af37]">
+
+// ✅
+<div className="bg-accent">
+```
+
+A reviewer rejects any `bg-[#...]`, `text-[#...]`, etc. that isn't a deliberate one-off (annotated with a comment).
+
+## Design tokens vs utility classes
+
+Use Tailwind utilities for layout (`flex`, `grid`, `gap-*`, `p-*`). Use token-backed semantic classes for colors, typography, radius:
+
+- `bg-bg`, `bg-surface`, `bg-surface-2`
+- `text-fg`, `text-fg-muted`, `text-accent`
+- `border-border`
+- `font-sans`, `font-display`
+
+## Dark-first
+
+KCLUB is dark-first (ADR-001 visual decision in B02 prompts; codified in SPEC follow-up). There is no light mode at MVP. Don't add `dark:` variants until light mode is in scope.
+
+## Components
+
+shadcn/ui copied into `src/components/ui/`. Edit freely — they are not imported from a remote registry. Updates from upstream are manual cherry-picks.
+
+```tsx
+import { Button } from "@/components/ui/button";
+
+<Button variant="default" size="lg">{t("cta")}</Button>
+```
+
+Variants live in `cva()` calls inside each component file. To add a variant, edit the file, don't wrap externally.
+
+## Accessibility
+
+- Min tap target: 44×44px. Use `min-h-11 min-w-11` (11 * 4 = 44).
+- Focus rings: shadcn defaults are fine. Don't `outline-none` without replacing the focus indicator.
+- Color contrast: every text-on-background combo passes WCAG 2.2 AA (4.5:1 normal, 3:1 large). The token palette above is pre-checked; arbitrary colors are not.
+

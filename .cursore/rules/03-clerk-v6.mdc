@@ -1,0 +1,95 @@
+---
+description: Clerk v6 conventions — auth() is async, role lookup, webhooks
+globs: ["src/lib/auth/**", "app/**/*.ts", "app/**/*.tsx", "src/middleware.ts"]
+alwaysApply: false
+---
+
+# Clerk v6
+
+ADR-004. Clerk holds identity. Our `users` table holds authorization.
+
+## `auth()` is ASYNC in v6
+
+```ts
+// ✅ Always:
+const { userId, sessionId } = await auth();
+
+// ❌ Never (broken in v6):
+const { userId } = auth();
+```
+
+If you see code without `await` in front of `auth()`, fix it immediately. This is the most common bug from agents trained on older Clerk examples.
+
+## Resolving the current user
+
+Use the canonical helper, do not roll your own:
+
+```ts
+// src/lib/auth/current-user.ts (canonical, do not duplicate)
+import "server-only";
+import { auth } from "@clerk/nextjs/server";
+import { db } from "@/db/client";
+import { users } from "@/db/schema/user";
+import { eq } from "drizzle-orm";
+
+export async function getCurrentUserOrThrow() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("UNAUTHENTICATED");
+  const row = await db.query.users.findFirst({
+    where: eq(users.clerkUserId, userId),
+  });
+  if (!row) throw new Error("USER_NOT_PROVISIONED");
+  return row;
+}
+```
+
+For optional auth: `getCurrentUser()` returns `User | null`. Use only for pages that render differently based on signed-in state, like the home page.
+
+## Role lookups
+
+Roles live in `users.role` in our DB. Never `publicMetadata.role` from Clerk. Clerk metadata is mirrored on webhook; the DB is authoritative.
+
+```ts
+// ✅
+const user = await getCurrentUserOrThrow();
+if (user.role !== "ADMIN") throw new Error("FORBIDDEN");
+
+// ❌
+const { sessionClaims } = await auth();
+if (sessionClaims?.publicMetadata?.role === "ADMIN") { /* ... */ }
+```
+
+## Webhooks
+
+Path: `/api/clerk/webhook`. Verify signature with `svix`:
+
+```ts
+const payload = await req.text();
+const headerPayload = await headers();
+const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
+let evt: WebhookEvent;
+
+try {
+  evt = wh.verify(payload, {
+    "svix-id": headerPayload.get("svix-id")!,
+    "svix-timestamp": headerPayload.get("svix-timestamp")!,
+    "svix-signature": headerPayload.get("svix-signature")!,
+  }) as WebhookEvent;
+} catch {
+  return new Response("invalid signature", { status: 400 });
+}
+```
+
+Subscribed events at minimum: `user.created`, `user.updated`, `user.deleted`. Mirror these into the `users` table. `user.deleted` does NOT hard-delete in our DB — soft-delete via `users.deleted_at`.
+
+## 2FA for admins
+
+Admin routes (`/admin/*`) middleware checks `twoFactorEnabled`:
+
+```ts
+const user = await clerkClient.users.getUser(userId);
+if (!user.twoFactorEnabled) return redirect("/m/2fa-required");
+```
+
+A Playwright test asserts this redirect happens. Don't remove it without a follow-up test.
+

@@ -1,0 +1,94 @@
+---
+description: next-intl v3 — locale routing, message scoping, what's allowed at MVP
+globs: ["app/**/*.tsx", "app/**/*.ts", "src/i18n/**", "messages/**"]
+alwaysApply: false
+---
+
+# next-intl v3
+
+ADR-006. MVP locale set: `['en']`. URLs are locale-prefixed from day 1.
+
+## Config
+
+```ts
+// src/i18n/config.ts
+import { defineRouting } from "next-intl/routing";
+
+export const routing = defineRouting({
+  locales: ["en"], // MVP. Adding ru/uk requires Phase-2 ADR review.
+  defaultLocale: "en",
+  localePrefix: "always", // /en/foo, never /foo
+});
+```
+
+## Component usage
+
+### Server Component
+
+```tsx
+import { getTranslations } from "next-intl/server";
+
+export default async function Page() {
+  const t = await getTranslations("billing.checkout");
+  return <h1>{t("title")}</h1>;
+}
+```
+
+### Client Component
+
+```tsx
+"use client";
+import { useTranslations } from "next-intl";
+
+export function CheckoutCTA() {
+  const t = useTranslations("billing.checkout");
+  return <button>{t("cta")}</button>;
+}
+```
+
+## Namespaces
+
+Top-level keys in `messages/<locale>/<namespace>.json` follow features: `auth`, `billing`, `cards`, `directory`, `admin`, `legal`, `common`.
+
+Within a namespace, nest by screen:
+
+```json
+{
+  "checkout": {
+    "title": "Activate your membership",
+    "cta": "Start subscription"
+  }
+}
+```
+
+Key path: `<namespace>.<screen>.<element>`. So the example above is `billing.checkout.title`. Component calls `useTranslations("billing.checkout")` then `t("title")`.
+
+## No hard-coded strings
+
+Any user-visible English text in a JSX block goes through `t()`. CI greps for naked text (heuristic; see RUNBOOK §6.2). False positives exist but the heuristic catches most lapses.
+
+## Plurals
+
+ICU MessageFormat:
+
+```json
+{
+  "list": {
+    "count": "{count, plural, =0 {no cards} one {# card} other {# cards}}"
+  }
+}
+```
+
+Don't write `count === 1 ? "card" : "cards"` in TSX. That breaks Phase-2 when ru/uk plural rules differ.
+
+## Phase-2 (not yet)
+
+When ru/uk lands:
+
+- `locales: ['en', 'ru', 'uk']` in config.
+- Duplicate message files; translate per `/docs/GLOSSARY.md`.
+- CI hard gate: `pnpm i18n:diff` (today: no-op).
+- Add a language switcher in the global header.
+
+Do NOT preemptively add ru / uk files with English fallback. Empty locale = production sees English; we want a hard fail on missing keys to force translations through review.
+

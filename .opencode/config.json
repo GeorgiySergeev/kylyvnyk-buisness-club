@@ -1,0 +1,168 @@
+{
+  "$schema": "https://opencode.ai/config.schema.json",
+  "version": 1,
+
+  "agent": {
+    "primary_model": "anthropic/claude-sonnet-4-5",
+    "fallback_model": "anthropic/claude-haiku-4-5",
+    "max_context_tokens": 200000,
+    "max_output_tokens": 8000,
+    "temperature": 0.2
+  },
+
+  "context": {
+    "always_load": [
+      "AGENTS.md",
+      "prompts/META/INDEX.md",
+      "docs/STACK-DECISION.md"
+    ],
+    "load_on_demand": [
+      "docs/SPEC.md",
+      "docs/ENV.md",
+      "docs/RUNBOOK.md",
+      "prompts/META/STYLE-GUIDE.md",
+      "prompts/META/NAMING-CONVENTIONS.md",
+      "prompts/META/PROMPT-GUIDELINES.md",
+      "prompts/META/PATCHES/*.md"
+    ],
+    "ignore": [
+      "node_modules/**",
+      ".next/**",
+      "drizzle/**/*.sql",
+      "pnpm-lock.yaml",
+      "**/*.snap",
+      "playwright-report/**",
+      "coverage/**",
+      "prompts/META/_archive/**"
+    ]
+  },
+
+  "tools": {
+    "allowed": [
+      "read_file",
+      "write_file",
+      "edit_file",
+      "list_files",
+      "search",
+      "bash"
+    ],
+    "denied": [],
+
+    "bash": {
+      "allow": [
+        "pnpm install",
+        "pnpm install --frozen-lockfile",
+        "pnpm lint",
+        "pnpm lint:fix",
+        "pnpm typecheck",
+        "pnpm format",
+        "pnpm format:check",
+        "pnpm test",
+        "pnpm test:run",
+        "pnpm test:coverage",
+        "pnpm e2e",
+        "pnpm build",
+        "pnpm dev",
+        "pnpm verify",
+        "pnpm vocab:check",
+        "pnpm env:check",
+        "pnpm i18n:diff",
+        "pnpm db:generate",
+        "pnpm db:migrate",
+        "pnpm db:studio",
+        "pnpm db:seed",
+        "pnpm stripe:listen",
+        "pnpm stripe:trigger",
+        "git status",
+        "git diff",
+        "git diff --cached",
+        "git log",
+        "git show",
+        "git branch",
+        "git ls-files",
+        "ls",
+        "cat",
+        "grep",
+        "head",
+        "tail",
+        "wc",
+        "find"
+      ],
+      "deny": [
+        "rm -rf",
+        "rm -r /",
+        "git push",
+        "git push --force",
+        "git push -f",
+        "git reset --hard",
+        "git clean -fdx",
+        "pnpm db:reset",
+        "pnpm db:push",
+        "drizzle-kit drop",
+        "DROP TABLE",
+        "DROP DATABASE",
+        "TRUNCATE",
+        "DELETE FROM",
+        "psql",
+        "curl * | sh",
+        "wget * | sh",
+        "sudo *",
+        "chmod 777 *",
+        "npm install",
+        "yarn add",
+        "yarn install",
+        "pnpm add *",
+        "pnpm remove *",
+        "pnpm update",
+        "pnpm dlx *"
+      ],
+      "require_confirmation": [
+        "pnpm db:migrate",
+        "git commit",
+        "git checkout *",
+        "git merge",
+        "git rebase",
+        "git stash *"
+      ]
+    },
+
+    "write_file": {
+      "deny_paths": [
+        ".env",
+        ".env.local",
+        ".env.development.local",
+        ".env.test.local",
+        ".env.production.local",
+        "pnpm-lock.yaml",
+        "drizzle/**/*.sql"
+      ],
+      "require_confirmation_paths": [
+        "package.json",
+        "tsconfig.json",
+        "next.config.*",
+        "drizzle.config.ts",
+        "src/db/schema/**/*.ts",
+        ".github/workflows/**",
+        "AGENTS.md",
+        "docs/STACK-DECISION.md",
+        "prompts/META/INDEX.md"
+      ]
+    }
+  },
+
+  "output": {
+    "default_format": "unified_diff",
+    "max_files_per_response": 12,
+    "snippet_max_lines": 80
+  },
+
+  "guardrails": {
+    "forbidden_vocabulary_file": "docs/GUARDRAILS.md",
+    "stop_on_missing_input": true,
+    "require_acceptance_criteria_quote": true
+  },
+
+  "commands": {
+    "directory": ".opencode/commands"
+  }
+}

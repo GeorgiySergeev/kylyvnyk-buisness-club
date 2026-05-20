@@ -1,0 +1,110 @@
+---
+description: Drizzle ORM schema conventions, migration workflow, query patterns
+globs: ["src/db/**/*.ts", "drizzle/**/*", "drizzle.config.ts"]
+alwaysApply: false
+---
+
+# Drizzle patterns
+
+Source of truth: `/src/db/schema/*.ts`. Migrations are generated, not hand-written.
+
+## Schema files
+
+One table per file. File name = kebab-case of table name without `s`:
+
+- `src/db/schema/user.ts` → table `users`
+- `src/db/schema/profile.ts` → table `profiles`
+- `src/db/schema/business.ts` → table `businesses`
+- `src/db/schema/partner-offer.ts` → table `partner_offers`
+- `src/db/schema/card.ts` → table `cards`
+- `src/db/schema/membership.ts` → table `memberships`
+- `src/db/schema/subscription.ts` → table `subscriptions`
+- `src/db/schema/stripe-events.ts` → table `stripe_events`
+- `src/db/schema/introduction.ts` → table `introductions`
+- `src/db/schema/audit.ts` → table `audit_logs`
+- `src/db/schema/country.ts` → table `countries`
+- `src/db/schema/city.ts` → table `cities`
+- `src/db/schema/category.ts` → table `categories`
+- `src/db/schema/_relations.ts` → ALL `relations()` declarations
+- `src/db/schema/index.ts` → re-export tables (NOT relations)
+
+**Never import a sibling table file from a schema file.** Relations live in `_relations.ts` to break circular imports (Patch-05).
+
+## Table conventions
+
+Every table:
+
+```ts
+import { pgTable, uuid, timestamp, ... } from "drizzle-orm/pg-core";
+
+export const someEntity = pgTable("some_entities", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  // ... domain columns ...
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  // deletedAt only when soft-delete is in scope:
+  // deletedAt: timestamp("deleted_at", { withTimezone: true }),
+}, (t) => ({
+  // indexes, see naming below
+}));
+```
+
+### Index naming
+
+`<table>_<col(s)>_<kind>` — kind is `idx` for non-unique, `ux` for unique:
+
+```ts
+(t) => ({
+  partnerOffersBusinessIdx: index("partner_offers_business_id_idx").on(t.businessId),
+  cardsNumberUx: uniqueIndex("cards_number_ux").on(t.number),
+})
+```
+
+Add the index BEFORE writing the query that uses it. Reviewers reject PRs that add a query without justifying that an index already exists.
+
+## Enums
+
+PG enum declared in its own file under `src/db/schema/enums/`:
+
+```ts
+// src/db/schema/enums/member-type.ts
+import { pgEnum } from "drizzle-orm/pg-core";
+
+export const memberTypeEnum = pgEnum("member_type", ["VIP", "BUSINESS", "FREE"]);
+export type MemberType = (typeof memberTypeEnum.enumValues)[number];
+```
+
+SQL enum: `snake_case`, values `UPPER_SNAKE`. TS type: `PascalCase`.
+
+## Queries
+
+Prefer `db.query.X.findFirst({ where, with })` over hand-built `select()`. The `with` clause uses relations from `_relations.ts`.
+
+For complex joins or aggregations, drop to `db.select()...from()...` and write the SQL plainly. Don't fight Drizzle's ergonomics — it's fine to mix styles.
+
+## Migrations
+
+```bash
+# Generate after schema change:
+pnpm db:generate
+
+# Drizzle-kit creates /drizzle/NNNN_descriptive_name.sql.
+
+# Review the SQL:
+cat drizzle/NNNN_*.sql
+
+# Apply locally:
+pnpm db:migrate
+```
+
+**Commit BOTH schema files AND migration in the same commit.**
+
+For renames: `drizzle-kit` can't detect them; edit the generated SQL to use `RENAME COLUMN` before applying. See `/docs/RUNBOOK.md §3.3`.
+
+## DO NOT
+
+- Do not call `db.insert(...).onConflictDoUpdate(...)` on memberships without confirming you're inside the membership state machine. See `STACK-DECISION.md` ADR-007.
+- Do not use `db.execute(sql`...`)` for routine queries — only for things Drizzle's builder can't express (CTEs, LATERAL, EXPLAIN).
+- Do not `pnpm db:push` against any shared DB. Use migrations.
+- Do not introduce `index.ts` barrel files that re-export both tables AND relations — that re-creates the circular import problem.
+

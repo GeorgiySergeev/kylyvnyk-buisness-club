@@ -1,0 +1,90 @@
+---
+description: PII contracts on public routes — DTO mapping, allowlist, Playwright assertion
+globs: ["app/(public)/**", "app/api/cards/**", "src/lib/cards/lookup-public.ts"]
+alwaysApply: false
+---
+
+# Public routes — PII contracts
+
+ADR + `AGENTS.md §5`. Every public surface returns through a typed DTO with an explicit field allowlist, asserted by a Playwright test.
+
+## `/verify-card/[number]` — frozen contract
+
+Allowed response fields, exactly:
+
+```ts
+type PublicCardDTO = {
+  number: string;
+  memberName: string | null;
+  memberType: "VIP" | "BUSINESS" | null;
+  status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "NOT_FOUND";
+  expiresAt: string | null; // ISO date
+};
+```
+
+Anything else is a leak. No `userId`, no `email`, no `phone`, no `stripeCustomerId`, no `createdAt`, no `country`, no `city`.
+
+## Constant-shape response
+
+`NOT_FOUND` returns the same 5 keys, only `status = "NOT_FOUND"`:
+
+```ts
+const NOT_FOUND: PublicCardDTO = {
+  number: "",
+  memberName: null,
+  memberType: null,
+  status: "NOT_FOUND",
+  expiresAt: null,
+};
+```
+
+**Why**: response-shape and length differences are an existence oracle. An attacker can enumerate which card numbers exist by comparing response sizes. Constant shape kills the oracle.
+
+## Cache policy
+
+```ts
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
+```
+
+NO ISR, NO `revalidate: 120`, NO `tags`. Cards can be revoked instantly; a 2-minute stale window is a security incident.
+
+## Rate limit + Turnstile
+
+Per IP: 10/min. Per card number: 5/10min. Turnstile token required on the lookup form. See `09-security-headers.mdc`.
+
+## Playwright assertion
+
+Every public surface that touches DB has this test shape:
+
+```ts
+test("verify-card response contains exactly the allowed PII keys", async ({ request }) => {
+  const res = await request.get("/api/cards/lookup/VIP-UA-XXXXX");
+  const body = await res.json();
+  expect(Object.keys(body).sort()).toEqual(
+    ["expiresAt", "memberName", "memberType", "number", "status"].sort(),
+  );
+});
+
+test("verify-card NOT_FOUND has same key shape as hit", async ({ request }) => {
+  const hit = await (await request.get("/api/cards/lookup/VIP-UA-XXXXX")).json();
+  const miss = await (await request.get("/api/cards/lookup/NOT-REAL-12345")).json();
+  expect(Object.keys(hit).sort()).toEqual(Object.keys(miss).sort());
+});
+```
+
+If you add a field, you update the test. If you forget, the test fails.
+
+## Adding a new public route
+
+Use the `/pii-audit` command to verify the new route has:
+
+1. A typed DTO (not a raw row spread).
+2. A constant-shape response.
+3. `cache: 'no-store'` if it touches per-user data.
+4. Rate limit + (where applicable) Turnstile.
+5. A Playwright assertion on the response key set.
+
+All five. No exceptions.
+
