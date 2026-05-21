@@ -6,7 +6,7 @@ Shared Form Components (A11y wrappers)
 
 ## Objective
 
-Создать UI-поля для форм с поддержкой лейблов, хелперов и вывода ошибок (с aria-атрибутами). 
+Создать UI-поля для форм с поддержкой лейблов, хелперов и вывода ошибок (с aria-атрибутами).
 
 ## Files
 
@@ -15,8 +15,9 @@ Shared Form Components (A11y wrappers)
 ```tsx
 'use client';
 
-import { useFormContext, Controller } from 'react-hook-form';
 import { ReactNode } from 'react';
+
+import { Controller, useFormContext } from 'react-hook-form';
 
 interface FormFieldProps {
   name: string;
@@ -37,7 +38,10 @@ export function FormField({ name, label, description, render }: FormFieldProps) 
       name={name}
       render={({ field, fieldState }) => (
         <div className="grid gap-1.5">
-          <label htmlFor={id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          <label
+            htmlFor={id}
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
             {label}
           </label>
           {description && (
@@ -64,7 +68,7 @@ export function FormField({ name, label, description, render }: FormFieldProps) 
 
 ### Пример использования: Input (src/components/ui/input.tsx)
 
-*Можно использовать стандартные из shadcn, но нужно убедиться, что они поддерживают aria-invalid и aria-describedby.*
+_Можно использовать стандартные из shadcn, но нужно убедиться, что они поддерживают aria-invalid и aria-describedby._
 
 ## Acceptance
 

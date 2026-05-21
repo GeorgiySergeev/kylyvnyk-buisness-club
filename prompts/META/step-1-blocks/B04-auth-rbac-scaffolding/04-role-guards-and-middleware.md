@@ -10,9 +10,9 @@ Protect member, business, and admin routes using server-side guards. Provide sim
 
 ## Steps
 
-1) Create server-only guards: requireAuth, requireVipActive, requireAdmin.
-2) Use guards in route-group layouts to block unauthorized access.
-3) Keep Clerk middleware publicRoutes broad; rely on guards per layout for RBAC.
+1. Create server-only guards: requireAuth, requireVipActive, requireAdmin.
+2. Use guards in route-group layouts to block unauthorized access.
+3. Keep Clerk middleware publicRoutes broad; rely on guards per layout for RBAC.
 
 ## Files to add
 
@@ -24,9 +24,10 @@ Protect member, business, and admin routes using server-side guards. Provide sim
 ### src/features/auth/server/guards.ts
 
 ```ts
-import 'server-only';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
+import 'server-only';
+
 import { getCurrentUserWithRole } from './roles';
 
 export async function requireAuth(signInUrl = '/sign-in') {
@@ -59,6 +60,7 @@ export async function requireAdmin(deniedUrl = '/') {
 
 ```tsx
 import { ReactNode } from 'react';
+
 import { requireAuth } from '@/features/auth/server/guards';
 
 export default async function MemberLayout({ children }: { children: ReactNode }) {
@@ -71,6 +73,7 @@ export default async function MemberLayout({ children }: { children: ReactNode }
 
 ```tsx
 import { ReactNode } from 'react';
+
 import { requireVipActive } from '@/features/auth/server/guards';
 
 export default async function BusinessLayout({ children }: { children: ReactNode }) {
@@ -83,6 +86,7 @@ export default async function BusinessLayout({ children }: { children: ReactNode
 
 ```tsx
 import { ReactNode } from 'react';
+
 import { requireAdmin } from '@/features/auth/server/guards';
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {

@@ -32,7 +32,11 @@ export default function TokensPreview() {
     bg,
     text = 'text-fg',
     label,
-  }: { bg: string; text?: string; label: string }) => (
+  }: {
+    bg: string;
+    text?: string;
+    label: string;
+  }) => (
     <div className={`rounded-md p-4 ${bg}`}>
       <p className={`text-sm ${text}`}>{label}</p>
       <p className={`mt-1 text-base font-medium ${text}`}>The quick brown fox</p>
@@ -61,8 +65,8 @@ export default function TokensPreview() {
 
       <section>
         <p className="text-sm text-fgMuted">
-          Rules: Body text uses text-fg on dark surfaces (bg/card). Gold text is accent-only—avoid long paragraphs.
-          Buttons and links need clear focus styles (`focus-gold`).
+          Rules: Body text uses text-fg on dark surfaces (bg/card). Gold text is accent-only—avoid
+          long paragraphs. Buttons and links need clear focus styles (`focus-gold`).
         </p>
       </section>
     </main>

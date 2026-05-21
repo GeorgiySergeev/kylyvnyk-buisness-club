@@ -22,9 +22,9 @@ Forbidden:
 
 ## Steps
 
-1) Create a pure transformer mapCardRowToPublicView(row).
-2) Use it in page loader (already in S03) and add a public JSON API endpoint.
-3) Add a minimal test note and usage doc.
+1. Create a pure transformer mapCardRowToPublicView(row).
+2. Use it in page loader (already in S03) and add a public JSON API endpoint.
+3. Add a minimal test note and usage doc.
 
 ## Files to add/modify
 
@@ -35,6 +35,7 @@ Forbidden:
 
 ```ts
 import type { InferModel } from 'drizzle-orm';
+
 import { cards } from '@/db/schema/membership';
 
 export function mapCardRowToPublicView(row: InferModel<typeof cards, 'select'>) {
@@ -58,11 +59,12 @@ export function mapCardRowToPublicView(row: InferModel<typeof cards, 'select'>) 
 ### src/app/api/public/verify-card/[number]/route.ts
 
 ```ts
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { cards } from '@/db/schema/membership';
 import { eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
+
+import { cards } from '@/db/schema/membership';
 import { mapCardRowToPublicView } from '@/features/membership/server/public-view';
+import { db } from '@/lib/db';
 
 export const runtime = 'edge'; // small JSON, cacheable
 export const revalidate = 120;

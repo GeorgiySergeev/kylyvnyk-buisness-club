@@ -6,13 +6,13 @@ TypeScript Path Aliases and Base TS Config
 
 ## Objective
 
-Enable @/* alias, strict mode, and a small ambient type.
+Enable @/\* alias, strict mode, and a small ambient type.
 
 ## Steps
 
-1) Update tsconfig.json (baseUrl, paths, strict flags)
-2) Add src/types/global.d.ts for SVG modules
-3) Verify an import via "@/..."
+1. Update tsconfig.json (baseUrl, paths, strict flags)
+2. Add src/types/global.d.ts for SVG modules
+3. Verify an import via "@/..."
 
 ## Files to modify/create
 

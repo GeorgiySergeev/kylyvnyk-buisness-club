@@ -18,9 +18,9 @@ No email, phone, payments, or history.
 
 ## Steps
 
-1) Add server function to fetch a card by number and map to public view.
-2) Add route /verify-card/[number]/page.tsx to display.
-3) Add not-found and error behavior.
+1. Add server function to fetch a card by number and map to public view.
+2. Add route /verify-card/[number]/page.tsx to display.
+3. Add not-found and error behavior.
 
 ## Files to add
 
@@ -31,10 +31,11 @@ No email, phone, payments, or history.
 ### src/features/membership/server/public-view.ts
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { cards } from '@/db/schema/membership';
 import { eq } from 'drizzle-orm';
+import 'server-only';
+
+import { cards } from '@/db/schema/membership';
+import { db } from '@/lib/db';
 
 export type CardPublicView = {
   number: string;
@@ -44,7 +45,10 @@ export type CardPublicView = {
   expiresAt: Date | null;
 };
 
-function deriveStatus(dbStatus: 'ACTIVE' | 'INACTIVE' | 'EXPIRED', expiresAt: Date | null): CardPublicView['status'] {
+function deriveStatus(
+  dbStatus: 'ACTIVE' | 'INACTIVE' | 'EXPIRED',
+  expiresAt: Date | null,
+): CardPublicView['status'] {
   if (dbStatus === 'INACTIVE') return 'INACTIVE';
   if (expiresAt && new Date(expiresAt).getTime() < Date.now()) return 'EXPIRED';
   if (dbStatus === 'EXPIRED') return 'EXPIRED';
@@ -69,10 +73,11 @@ export async function getPublicCardByNumber(number: string): Promise<CardPublicV
 
 ```tsx
 import { notFound } from 'next/navigation';
+
+import { Section } from '@/components/ui/section';
 import { getPublicCardByNumber } from '@/features/membership/server/public-view';
 import { StatusBadge } from '@/features/membership/status-badges';
 import { TypeBadge } from '@/features/membership/type-badge';
-import { Section } from '@/components/ui/section';
 
 export const revalidate = 120; // seconds, MVP caching
 
@@ -99,12 +104,15 @@ export default async function VerifyCardPage({ params }: { params: { number: str
           </div>
           <div>
             <div className="text-sm text-fgMuted">Expires</div>
-            <div className="text-base">{data.expiresAt ? new Date(data.expiresAt).toLocaleDateString() : '—'}</div>
+            <div className="text-base">
+              {data.expiresAt ? new Date(data.expiresAt).toLocaleDateString() : '—'}
+            </div>
           </div>
         </div>
       </div>
       <p className="mt-3 text-xs text-fgMuted">
-        KYLYVNYK CLUB is an independent private membership platform. We do not display contact or payment data on this page.
+        KYLYVNYK CLUB is an independent private membership platform. We do not display contact or
+        payment data on this page.
       </p>
     </Section>
   );

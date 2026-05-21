@@ -10,9 +10,9 @@ Render a QR code that encodes a public verification URL: /verify-card/:number. D
 
 ## Steps
 
-1) Install react QR library.
-2) Create CardQr component that builds absolute verify URL.
-3) Create MemberCardPanel to show number, type, status, expiry, and QR.
+1. Install react QR library.
+2. Create CardQr component that builds absolute verify URL.
+3. Create MemberCardPanel to show number, type, status, expiry, and QR.
 
 ## Commands
 
@@ -44,14 +44,15 @@ export function CardQr({ value, size = 168 }: { value: string; size?: number }) 
 ### src/features/membership/member-card-panel.tsx
 
 ```tsx
-import { db } from '@/lib/db';
-import { cards } from '@/db/schema/membership';
-import { eq } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
+import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
+
 import { CardQr } from '@/components/card/card-qr';
+import { cards } from '@/db/schema/membership';
 import { StatusBadge } from '@/features/membership/status-badges';
 import { TypeBadge } from '@/features/membership/type-badge';
+import { db } from '@/lib/db';
 
 function verifyUrl(number: string) {
   const base = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');

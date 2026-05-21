@@ -10,9 +10,9 @@ Create details page /catalog/[id] showing published business info: logo/monogram
 
 ## Steps
 
-1) Add server query to get business by id with joins + offers.
-2) Create dynamic route /catalog/[id]/page.tsx.
-3) Gate special conditions by auth(); never show for guests.
+1. Add server query to get business by id with joins + offers.
+2. Create dynamic route /catalog/[id]/page.tsx.
+3. Gate special conditions by auth(); never show for guests.
 
 ## Files to add
 
@@ -24,11 +24,12 @@ Create details page /catalog/[id] showing published business info: logo/monogram
 ### src/features/catalog/server/get-business.ts
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { businesses, categories, partnerOffers } from '@/db/schema/catalog';
-import { countries, cities } from '@/db/schema/geo';
 import { and, eq } from 'drizzle-orm';
+import 'server-only';
+
+import { businesses, categories, partnerOffers } from '@/db/schema/catalog';
+import { cities, countries } from '@/db/schema/geo';
+import { db } from '@/lib/db';
 
 export async function getPublishedBusiness(id: string) {
   const rows = await db
@@ -69,13 +70,20 @@ export async function getPublishedBusiness(id: string) {
 
 ```tsx
 import { auth } from '@clerk/nextjs/server';
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getPublishedBusiness } from '@/features/catalog/server/get-business';
+import { notFound } from 'next/navigation';
+
 import { CardPremium } from '@/components/ui/card-premium';
+import { getPublishedBusiness } from '@/features/catalog/server/get-business';
 
 function Monogram({ name }: { name: string }) {
-  const initials = name.split(' ').map(p => p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+  const initials = name
+    .split(' ')
+    .map((p) => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
   return (
     <div className="flex size-12 items-center justify-center rounded-md border border-border bg-bgElev text-gold font-bold">
       {initials}
@@ -115,9 +123,7 @@ export default async function PartnerDetailsPage({ params }: { params: { id: str
         </p>
       )}
 
-      {data.shortDescription && (
-        <p className="mt-5 body">{data.shortDescription}</p>
-      )}
+      {data.shortDescription && <p className="mt-5 body">{data.shortDescription}</p>}
 
       <section className="mt-8 space-y-3">
         <h2 className="h3">Special conditions</h2>
@@ -125,9 +131,14 @@ export default async function PartnerDetailsPage({ params }: { params: { id: str
         {!reveal && (
           <CardPremium className="text-sm text-fgMuted">
             Special conditions are available after registration. Please{' '}
-            <Link href="/sign-in" className="underline hover:text-gold-400">sign in</Link>{' '}
+            <Link href="/sign-in" className="underline hover:text-gold-400">
+              sign in
+            </Link>{' '}
             or{' '}
-            <Link href="/sign-up" className="underline hover:text-gold-400">create a free account</Link>.
+            <Link href="/sign-up" className="underline hover:text-gold-400">
+              create a free account
+            </Link>
+            .
           </CardPremium>
         )}
 

@@ -10,9 +10,9 @@ Render up to 3 “Recommended” partners on landing (isRecommended=true, status
 
 ## Steps
 
-1) Query recommended partners.
-2) Reuse BusinessCard with revealCondition=false.
-3) Add a “Show more” button linking to catalog.
+1. Query recommended partners.
+2. Reuse BusinessCard with revealCondition=false.
+3. Add a “Show more” button linking to catalog.
 
 ## Files to add
 
@@ -22,10 +22,11 @@ Render up to 3 “Recommended” partners on landing (isRecommended=true, status
 ### src/features/landing/server/recommended-partners.ts
 
 ```ts
+import { and, eq } from 'drizzle-orm';
 import 'server-only';
+
+import { businesses, categories, cities, countries } from '@/db/schema/catalog';
 import { db } from '@/lib/db';
-import { businesses, categories, countries, cities } from '@/db/schema/catalog';
-import { eq, and } from 'drizzle-orm';
 
 export type RecommendedPartner = {
   id: string;
@@ -58,9 +59,10 @@ export async function getRecommendedPartners(limit = 3): Promise<RecommendedPart
 ### src/features/landing/recommended-partners.tsx
 
 ```tsx
-import { getRecommendedPartners } from './server/recommended-partners';
 import { BusinessCard } from '@/components/cards/business-card';
 import { Section } from '@/components/ui/section';
+
+import { getRecommendedPartners } from './server/recommended-partners';
 
 export default async function RecommendedPartners() {
   const partners = await getRecommendedPartners(3);

@@ -10,10 +10,10 @@ Create public Catalog route that lists only PUBLISHED businesses in a responsive
 
 ## Steps
 
-1) Add app route for /catalog under (public) group.
-2) Create server query to fetch PUBLISHED partners with minimal fields (name, category, country, city).
-3) Render a responsive grid with BusinessCard. No open discounts in list.
-4) Add heading + small helper text about private conditions.
+1. Add app route for /catalog under (public) group.
+2. Create server query to fetch PUBLISHED partners with minimal fields (name, category, country, city).
+3. Render a responsive grid with BusinessCard. No open discounts in list.
+4. Add heading + small helper text about private conditions.
 
 ## Files to add/modify
 
@@ -24,11 +24,12 @@ Create public Catalog route that lists only PUBLISHED businesses in a responsive
 ### src/features/catalog/server/queries.ts
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { businesses, categories } from '@/db/schema/catalog';
-import { countries, cities } from '@/db/schema/geo';
 import { and, eq } from 'drizzle-orm';
+import 'server-only';
+
+import { businesses, categories } from '@/db/schema/catalog';
+import { cities, countries } from '@/db/schema/geo';
+import { db } from '@/lib/db';
 
 export type CatalogItem = {
   id: string;
@@ -62,8 +63,8 @@ export async function listPublishedBusinesses(limit = 12, offset = 0): Promise<C
 ### src/app/(public)/catalog/page.tsx
 
 ```tsx
-import { Section } from '@/components/ui/section';
 import { BusinessCard } from '@/components/cards/business-card';
+import { Section } from '@/components/ui/section';
 import { listPublishedBusinesses } from '@/features/catalog/server/queries';
 
 export const metadata = { title: 'Partners Catalog — KYLYVNYK CLUB' };

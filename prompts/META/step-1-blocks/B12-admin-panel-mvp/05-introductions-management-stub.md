@@ -15,9 +15,9 @@ Provide a simple admin UI to review “Introductions”:
 
 ## Steps
 
-1) Add server actions for updating introduction status/notes.
-2) Render a table of recent introductions.
-3) Add small inline form for status and notes.
+1. Add server actions for updating introduction status/notes.
+2. Render a table of recent introductions.
+3. Add small inline form for status and notes.
 
 ## Files to add/modify
 
@@ -30,18 +30,19 @@ Provide a simple admin UI to review “Introductions”:
 ```ts
 'use server';
 
-import 'server-only';
-import { db } from '@/lib/db';
-import { introductions } from '@/db/schema/membership';
 import { eq } from 'drizzle-orm';
+import 'server-only';
+
+import { introductions } from '@/db/schema/membership';
 import { logAudit } from '@/features/audit/server/log';
+import { db } from '@/lib/db';
 
 export async function updateIntroduction(formData: FormData) {
   const id = String(formData.get('id') || '');
   const status = String(formData.get('status') || '');
   const notes = String(formData.get('internalNotes') || '');
 
-  if (!id || !['APPROVED','REJECTED','CLOSED','SUBMITTED','DRAFT'].includes(status)) {
+  if (!id || !['APPROVED', 'REJECTED', 'CLOSED', 'SUBMITTED', 'DRAFT'].includes(status)) {
     throw new Error('Invalid payload');
   }
 
@@ -50,19 +51,25 @@ export async function updateIntroduction(formData: FormData) {
     .set({ status: status as any, internalNotes: notes || null, updatedAt: new Date() })
     .where(eq(introductions.id, id));
 
-  await logAudit({ action: 'INTRODUCTION_UPDATE', entity: 'introduction', entityId: id, meta: { status } });
+  await logAudit({
+    action: 'INTRODUCTION_UPDATE',
+    entity: 'introduction',
+    entityId: id,
+    meta: { status },
+  });
 }
 ```
 
 ### src/features/admin/server/introductions-list.ts
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { introductions } from '@/db/schema/membership';
-import { businesses } from '@/db/schema/catalog';
-import { users } from '@/db/schema/user';
 import { desc, eq } from 'drizzle-orm';
+import 'server-only';
+
+import { businesses } from '@/db/schema/catalog';
+import { introductions } from '@/db/schema/membership';
+import { users } from '@/db/schema/user';
+import { db } from '@/lib/db';
 
 export async function listRecentIntroductions(limit = 50) {
   const rows = await db
@@ -89,15 +96,19 @@ export async function listRecentIntroductions(limit = 50) {
 ### src/app/(admin)/introductions/page.tsx
 
 ```tsx
-import { listRecentIntroductions } from '@/features/admin/server/introductions-list';
-import { updateIntroduction } from '@/features/admin/server/introductions-actions';
 import { SsrTable } from '@/components/admin/ssr-table';
+import { updateIntroduction } from '@/features/admin/server/introductions-actions';
+import { listRecentIntroductions } from '@/features/admin/server/introductions-list';
 
 function StatusForm({ id, curr, notes }: { id: string; curr: string; notes: string | null }) {
   return (
     <form action={updateIntroduction} className="flex flex-col gap-2">
       <input type="hidden" name="id" value={id} />
-      <select name="status" defaultValue={curr} className="rounded-md border border-border bg-card px-2 py-1 text-xs">
+      <select
+        name="status"
+        defaultValue={curr}
+        className="rounded-md border border-border bg-card px-2 py-1 text-xs"
+      >
         <option value="SUBMITTED">SUBMITTED</option>
         <option value="APPROVED">APPROVED</option>
         <option value="REJECTED">REJECTED</option>
@@ -109,7 +120,9 @@ function StatusForm({ id, curr, notes }: { id: string; curr: string; notes: stri
         defaultValue={notes ?? ''}
         className="min-h-16 rounded-md border border-border bg-card px-2 py-1 text-xs"
       />
-      <button className="px-3 py-1 rounded-md border border-border hover:bg-bgElev text-xs">Save</button>
+      <button className="px-3 py-1 rounded-md border border-border hover:bg-bgElev text-xs">
+        Save
+      </button>
     </form>
   );
 }

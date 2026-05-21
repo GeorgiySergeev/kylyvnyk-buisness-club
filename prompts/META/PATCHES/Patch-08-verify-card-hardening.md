@@ -44,25 +44,26 @@ export default async function Page({ params }: { params: { number: string } }) {
 
 ```ts
 // src/lib/cards/lookup-public.ts
-import "server-only";
-import { db } from "@/db/client";
-import { cards } from "@/db/schema/card";
-import { users } from "@/db/schema/user";
-import { eq } from "drizzle-orm";
+import { eq } from 'drizzle-orm';
+import 'server-only';
+
+import { db } from '@/db/client';
+import { cards } from '@/db/schema/card';
+import { users } from '@/db/schema/user';
 
 export type PublicCardDTO = {
   number: string;
   memberName: string | null;
-  memberType: "VIP" | "BUSINESS" | null;
-  status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "NOT_FOUND";
+  memberType: 'VIP' | 'BUSINESS' | null;
+  status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'NOT_FOUND';
   expiresAt: string | null; // ISO date
 };
 
 const NOT_FOUND: PublicCardDTO = {
-  number: "",
+  number: '',
   memberName: null,
   memberType: null,
-  status: "NOT_FOUND",
+  status: 'NOT_FOUND',
   expiresAt: null,
 };
 
@@ -95,24 +96,24 @@ export async function lookupCardPublic(number: string): Promise<PublicCardDTO> {
 
 ```ts
 // src/lib/rate-limit/verify-card.ts
-import "server-only";
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+import 'server-only';
 
 const redis = Redis.fromEnv();
 
 // 10 lookups / IP / minute, 30 lookups / IP / hour.
 const perIp = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(10, "60 s"),
-  prefix: "rl:vc:ip",
+  limiter: Ratelimit.slidingWindow(10, '60 s'),
+  prefix: 'rl:vc:ip',
 });
 
 // 5 lookups / card-number / 10 minutes — kills enumeration.
 const perNumber = new Ratelimit({
   redis,
-  limiter: Ratelimit.fixedWindow(5, "600 s"),
-  prefix: "rl:vc:num",
+  limiter: Ratelimit.fixedWindow(5, '600 s'),
+  prefix: 'rl:vc:num',
 });
 
 export const rateLimitVerifyCard = {

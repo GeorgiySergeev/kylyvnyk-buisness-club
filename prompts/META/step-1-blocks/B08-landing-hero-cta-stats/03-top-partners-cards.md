@@ -12,9 +12,9 @@ Note: If logos are not yet stored in DB, render monogram avatar.
 
 ## Steps
 
-1) Create server query for top partners.
-2) Build BusinessCard component with graceful fallback logo.
-3) Render a 3-card grid; CTA “More details” navigates to partner page.
+1. Create server query for top partners.
+2. Build BusinessCard component with graceful fallback logo.
+3. Render a 3-card grid; CTA “More details” navigates to partner page.
 
 ## Files to add
 
@@ -25,10 +25,11 @@ Note: If logos are not yet stored in DB, render monogram avatar.
 ### src/features/landing/server/top-partners.ts
 
 ```ts
+import { and, desc, eq } from 'drizzle-orm';
 import 'server-only';
+
+import { businesses, categories, cities, countries } from '@/db/schema/catalog';
 import { db } from '@/lib/db';
-import { businesses, categories, countries, cities } from '@/db/schema/catalog';
-import { eq, and, desc } from 'drizzle-orm';
 
 export type TopPartner = {
   id: string;
@@ -62,8 +63,9 @@ export async function getTopPartners(limit = 3): Promise<TopPartner[]> {
 ### src/components/cards/business-card.tsx
 
 ```tsx
-import { CardPremium } from '@/components/ui/card-premium';
 import Link from 'next/link';
+
+import { CardPremium } from '@/components/ui/card-premium';
 
 function Monogram({ name }: { name: string }) {
   const initials = name
@@ -137,9 +139,11 @@ export function BusinessCard({
 
 ```tsx
 import { auth } from '@clerk/nextjs/server';
-import { getTopPartners } from './server/top-partners';
+
 import { BusinessCard } from '@/components/cards/business-card';
 import { Section } from '@/components/ui/section';
+
+import { getTopPartners } from './server/top-partners';
 
 export default async function TopPartners() {
   const { userId } = auth();
@@ -149,7 +153,9 @@ export default async function TopPartners() {
     <Section>
       <div className="flex items-end justify-between">
         <h2 className="h2">Top Partners</h2>
-        <a href="/catalog" className="text-sm hover:text-gold-400">View all</a>
+        <a href="/catalog" className="text-sm hover:text-gold-400">
+          View all
+        </a>
       </div>
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

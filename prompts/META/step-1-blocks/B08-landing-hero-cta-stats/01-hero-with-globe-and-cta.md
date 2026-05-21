@@ -16,10 +16,10 @@ Server-aware CTAs: if signed‑in, adapt the primary action.
 
 ## Steps
 
-1) Create a decorative globe background (CSS-only) with gold gradient highlights.
-2) Implement Hero component with headline, subline, and CTA row.
-3) Add VIP CTA button that starts checkout (client action posts to API).
-4) Use server-side auth() to mildly adapt CTA labels/targets for signed users.
+1. Create a decorative globe background (CSS-only) with gold gradient highlights.
+2. Implement Hero component with headline, subline, and CTA row.
+3. Add VIP CTA button that starts checkout (client action posts to API).
+4. Use server-side auth() to mildly adapt CTA labels/targets for signed users.
 
 ## Files to add/modify
 
@@ -45,18 +45,30 @@ Server-aware CTAs: if signed‑in, adapt the primary action.
   opacity: 0.45;
   filter: blur(10px) saturate(1.05);
   background:
-    radial-gradient(60% 60% at 60% 40%, hsla(46,85%,55%,0.2) 0%, transparent 60%),
-    radial-gradient(40% 40% at 40% 60%, hsla(46,85%,42%,0.18) 0%, transparent 60%),
-    radial-gradient(35% 35% at 70% 70%, rgba(255,255,255,0.06) 0%, transparent 60%);
+    radial-gradient(60% 60% at 60% 40%, hsla(46, 85%, 55%, 0.2) 0%, transparent 60%),
+    radial-gradient(40% 40% at 40% 60%, hsla(46, 85%, 42%, 0.18) 0%, transparent 60%),
+    radial-gradient(35% 35% at 70% 70%, rgba(255, 255, 255, 0.06) 0%, transparent 60%);
 }
 
 .hero-grid {
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(circle at 50% 40%, hsla(46,85%,55%,0.08), transparent 45%),
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.04), rgba(255,255,255,0.04) 1px, transparent 1px, transparent 24px),
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.04) 1px, transparent 1px, transparent 24px);
+    radial-gradient(circle at 50% 40%, hsla(46, 85%, 55%, 0.08), transparent 45%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px,
+      transparent 24px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px,
+      transparent 24px
+    );
   mask-image: radial-gradient(70% 70% at 60% 40%, black 0%, transparent 80%);
   opacity: 0.35;
 }
@@ -68,11 +80,10 @@ Server-aware CTAs: if signed‑in, adapt the primary action.
 'use client';
 
 import { useState } from 'react';
+
 import { GoldButton } from '@/components/ui/gold-button';
 
-export function VipCtaButton({
-  label = 'Become VIP — $19.99/mo'
-}: { label?: string }) {
+export function VipCtaButton({ label = 'Become VIP — $19.99/mo' }: { label?: string }) {
   const [loading, setLoading] = useState(false);
 
   async function startCheckout() {
@@ -89,7 +100,11 @@ export function VipCtaButton({
   }
 
   return (
-    <GoldButton onClick={startCheckout} loading={loading} aria-label="Start VIP membership checkout">
+    <GoldButton
+      onClick={startCheckout}
+      loading={loading}
+      aria-label="Start VIP membership checkout"
+    >
       {label}
     </GoldButton>
   );
@@ -100,10 +115,11 @@ export function VipCtaButton({
 
 ```tsx
 import { auth } from '@clerk/nextjs/server';
-import '@/styles/hero.css';
+
+import { VipCtaButton } from '@/components/common/vip-cta-button';
 import { KylyvnykLogo } from '@/components/icons/brand/kylyvnyk-logo';
 import { LinkButton } from '@/components/ui/link-button';
-import { VipCtaButton } from '@/components/common/vip-cta-button';
+import '@/styles/hero.css';
 
 export default async function LandingHero() {
   const { userId } = auth();
@@ -118,20 +134,14 @@ export default async function LandingHero() {
           <div className="text-lg font-semibold tracking-wide">KYLYVNYK CLUB</div>
         </div>
 
-        <h1 className="h1 mt-6 max-w-3xl">
-          Save more. Grow your business. Live better.
-        </h1>
+        <h1 className="h1 mt-6 max-w-3xl">Save more. Grow your business. Live better.</h1>
         <p className="body-lg mt-3 max-w-2xl text-fgMuted">
           International private membership platform and premium partner network.
         </p>
 
         <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
           {/* 1) Become a Member (Free) */}
-          <LinkButton
-            href={userId ? '/member' : '/sign-up'}
-            variant="gold"
-            className="min-h-11"
-          >
+          <LinkButton href={userId ? '/member' : '/sign-up'} variant="gold" className="min-h-11">
             {userId ? 'Go to Member Area' : 'Get a Club Card — Free'}
           </LinkButton>
 
@@ -145,10 +155,7 @@ export default async function LandingHero() {
           )}
 
           {/* 3) Business Partner */}
-          <LinkButton
-            href={userId ? '/business' : '/sign-up?intent=business'}
-            className="min-h-11"
-          >
+          <LinkButton href={userId ? '/business' : '/sign-up?intent=business'} className="min-h-11">
             Submit a Business — from $19.99/mo
           </LinkButton>
         </div>

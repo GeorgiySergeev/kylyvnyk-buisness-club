@@ -10,10 +10,10 @@ Prepare environment variables, minimal runtime env helper, and Vercel config stu
 
 ## Steps
 
-1) Add .env.example with all required keys
-2) Ensure next.config.js exists
-3) Add vercel.json with base headers
-4) Create src/env.ts for minimal runtime access
+1. Add .env.example with all required keys
+2. Ensure next.config.js exists
+3. Add vercel.json with base headers
+4. Create src/env.ts for minimal runtime access
 
 ## Files to add/modify
 
@@ -58,7 +58,7 @@ UPSTASH_REDIS_REST_TOKEN=
 const nextConfig = {
   reactStrictMode: true,
   experimental: {},
-  images: { remotePatterns: [] }
+  images: { remotePatterns: [] },
 };
 module.exports = nextConfig;
 ```
@@ -73,7 +73,10 @@ module.exports = nextConfig;
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" }
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        }
       ]
     }
   ]
@@ -96,7 +99,7 @@ export const env = {
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '',
   TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY ?? '',
   UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL ?? '',
-  UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN ?? ''
+  UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN ?? '',
 };
 ```
 

@@ -11,9 +11,9 @@ Secrets scanning & PR guards — prevent leaks and high‑risk content
 
 ## Steps
 
-1) Add Gitleaks workflow to scan repo.
-2) Add a custom guard script to scan staged diff for banned keywords.
-3) Wire both to PR checks.
+1. Add Gitleaks workflow to scan repo.
+2. Add a custom guard script to scan staged diff for banned keywords.
+3. Wire both to PR checks.
 
 ## Files
 
@@ -36,7 +36,7 @@ jobs:
         uses: zricethezav/gitleaks-action@v2
         with:
           # default config is fine; scanning full repo
-          args: "--verbose --redact"
+          args: '--verbose --redact'
   highrisk:
     runs-on: ubuntu-latest
     steps:
@@ -64,7 +64,7 @@ const banned = [
   'ico',
   'airdrop',
   'firearms',
-  'adult'
+  'adult',
 ];
 
 try {

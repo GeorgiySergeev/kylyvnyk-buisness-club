@@ -10,8 +10,8 @@ Run core quality gates on every PR and main. Ensure production build compiles.
 
 ## Steps
 
-1) Add workflow ci.yml for QA (lint, typecheck, unit).
-2) Add workflow build.yml to ensure next build works.
+1. Add workflow ci.yml for QA (lint, typecheck, unit).
+2. Add workflow build.yml to ensure next build works.
 
 ## Files
 
@@ -23,7 +23,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [main]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -67,7 +67,7 @@ name: Build
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [main]
 
 concurrency:
   group: build-${{ github.ref }}

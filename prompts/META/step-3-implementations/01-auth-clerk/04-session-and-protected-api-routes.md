@@ -16,14 +16,15 @@ Session Checks & Protected API Routes / Server Actions
 'use server';
 
 import 'server-only';
-import { requireAuth } from '@/features/auth/server/guards';
+
 import { logAudit } from '@/features/audit/server/log';
+import { requireAuth } from '@/features/auth/server/guards';
 
 export async function doProtectedAction() {
   const userId = await requireAuth();
-  
+
   // Бизнес-логика...
-  
+
   await logAudit({ action: 'PROTECTED_ACTION', entity: 'user', entityId: userId });
   return { success: true };
 }
@@ -46,5 +47,6 @@ export async function GET() {
 ```
 
 ## Acceptance
+
 - Доступ только при наличии userId.
 - Использование 'server-only' для защиты кода от попадания на клиент.

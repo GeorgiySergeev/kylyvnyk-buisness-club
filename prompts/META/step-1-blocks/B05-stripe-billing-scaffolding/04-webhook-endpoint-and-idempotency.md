@@ -10,10 +10,10 @@ Handle subscription lifecycle events and log all incoming Stripe events idempote
 
 ## Steps
 
-1) Create webhook route /api/webhooks/stripe.
-2) Verify signature using raw request body.
-3) Store event in stripe_events table for idempotency before processing.
-4) Handle core events: checkout.session.completed, customer.subscription.created/updated/deleted.
+1. Create webhook route /api/webhooks/stripe.
+2. Verify signature using raw request body.
+3. Store event in stripe_events table for idempotency before processing.
+4. Handle core events: checkout.session.completed, customer.subscription.created/updated/deleted.
 
 ## Files to add
 
@@ -23,12 +23,13 @@ Handle subscription lifecycle events and log all incoming Stripe events idempote
 ### src/lib/stripe/handlers.ts
 
 ```ts
+import { eq } from 'drizzle-orm';
 import 'server-only';
 import Stripe from 'stripe';
-import { db } from '@/lib/db';
-import { stripeEvents, subscriptions } from '@/db/schema/stripe';
+
 import { memberships } from '@/db/schema/membership';
-import { eq } from 'drizzle-orm';
+import { stripeEvents, subscriptions } from '@/db/schema/stripe';
+import { db } from '@/lib/db';
 
 function toDateOrNull(ts?: number | null): Date | null {
   return ts ? new Date(ts * 1000) : null;
@@ -62,10 +63,7 @@ export async function markEventDone(eventId: string, error?: string) {
     .where(eq(stripeEvents.eventId, eventId));
 }
 
-export async function upsertSubscriptionFromStripe(
-  userId: string,
-  s: Stripe.Subscription
-) {
+export async function upsertSubscriptionFromStripe(userId: string, s: Stripe.Subscription) {
   const statusRaw = s.status;
   const currentPeriodEnd = toDateOrNull(s.current_period_end);
   const cancelAtPeriodEnd = Boolean(s.cancel_at_period_end);
@@ -133,6 +131,7 @@ export function getUserIdFromMeta(obj: any): string | null {
 
 ```ts
 import { NextResponse } from 'next/server';
+
 import { stripe } from '@/lib/stripe/config';
 import { STRIPE_WEBHOOK_SECRET } from '@/lib/stripe/env';
 import {

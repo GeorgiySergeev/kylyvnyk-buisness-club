@@ -15,10 +15,10 @@ Create the member home that:
 
 ## Steps
 
-1) Ensure a card exists on first visit (server).
-2) Render MemberCardPanel (from B10 S02).
-3) Add actions row: Browse Catalog + Upgrade to VIP.
-4) Small note about private conditions and legal phrasing.
+1. Ensure a card exists on first visit (server).
+2. Render MemberCardPanel (from B10 S02).
+3. Add actions row: Browse Catalog + Upgrade to VIP.
+4. Small note about private conditions and legal phrasing.
 
 ## Files to add/modify
 
@@ -29,8 +29,9 @@ Create the member home that:
 
 ```ts
 import 'server-only';
-import { ensureMemberCard } from '@/features/membership/server/cards';
+
 import { getCurrentUserWithRole } from '@/features/auth/server/roles';
+import { ensureMemberCard } from '@/features/membership/server/cards';
 
 export async function ensureCardOnVisit() {
   const { user } = await getCurrentUserWithRole();
@@ -42,11 +43,11 @@ export async function ensureCardOnVisit() {
 ### src/app/(member)/page.tsx
 
 ```tsx
-import { ensureCardOnVisit } from '@/features/membership/server/ensure-on-visit';
-import MemberCardPanel from '@/features/membership/member-card-panel';
-import { LinkButton } from '@/components/ui/link-button';
 import { VipCtaButton } from '@/components/common/vip-cta-button';
+import { LinkButton } from '@/components/ui/link-button';
 import { Section } from '@/components/ui/section';
+import MemberCardPanel from '@/features/membership/member-card-panel';
+import { ensureCardOnVisit } from '@/features/membership/server/ensure-on-visit';
 
 export default async function MemberHomePage() {
   await ensureCardOnVisit();
@@ -55,7 +56,8 @@ export default async function MemberHomePage() {
     <Section>
       <h1 className="h2">Member</h1>
       <p className="mt-1 body-sm text-fgMuted">
-        Special conditions are available to club members after sign‑in. Browse partners in the catalog.
+        Special conditions are available to club members after sign‑in. Browse partners in the
+        catalog.
       </p>
 
       <div className="mt-6 grid gap-6 md:grid-cols-2">
@@ -67,12 +69,15 @@ export default async function MemberHomePage() {
         <div>
           <h2 className="h3 mb-3">Actions</h2>
           <div className="flex flex-col gap-3">
-            <LinkButton href="/catalog" variant="gold">Open Catalog</LinkButton>
+            <LinkButton href="/catalog" variant="gold">
+              Open Catalog
+            </LinkButton>
             <VipCtaButton label="Upgrade to VIP — $19.99/mo" />
           </div>
 
           <p className="mt-4 text-xs text-fgMuted">
-            KYLYVNYK CLUB is an independent private membership platform. Special conditions are provided by independent partners.
+            KYLYVNYK CLUB is an independent private membership platform. Special conditions are
+            provided by independent partners.
           </p>
         </div>
       </div>

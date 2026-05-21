@@ -10,21 +10,21 @@ from these rules; never improvises.
 
 ## 1. Files and folders
 
-| Kind                          | Convention                          | Example                                |
-| ----------------------------- | ----------------------------------- | -------------------------------------- |
-| Source files                  | `kebab-case.ts`                     | `lookup-public.ts`                     |
-| React components              | `PascalCase.tsx`                    | `VerifyCardView.tsx`                   |
-| Hooks                         | `use-<thing>.ts` (camelCase export) | `use-current-user.ts` → `useCurrentUser` |
-| Server actions                | `<verb>-<noun>.action.ts`           | `create-business.action.ts`            |
-| Route handlers (App Router)   | App Router convention: `route.ts`   | `app/api/stripe/webhook/route.ts`      |
-| Tests                         | `<subject>.spec.ts` (unit) / `<subject>.e2e.ts` (Playwright) | `lookup-public.spec.ts` |
-| Drizzle schema files          | one table per file, `kebab-case.ts` | `partner-offer.ts`                     |
-| Drizzle relations             | central `_relations.ts`             | `src/db/schema/_relations.ts`          |
-| Migrations                    | `drizzle-kit` default               | `0001_initial.sql` (auto)              |
-| Locale messages               | `messages/<locale>/<namespace>.json`| `messages/en/billing.json`             |
-| Docs                          | `UPPER-KEBAB.md`                    | `STACK-DECISION.md`                    |
-| Prompts                       | `<NN>-<kebab-slug>.md`              | `04-webhook-endpoint-and-idempotency.md` |
-| Block folders                 | `B<NN>-<kebab-slug>`                | `B05-billing-stripe`                   |
+| Kind                        | Convention                                                   | Example                                  |
+| --------------------------- | ------------------------------------------------------------ | ---------------------------------------- |
+| Source files                | `kebab-case.ts`                                              | `lookup-public.ts`                       |
+| React components            | `PascalCase.tsx`                                             | `VerifyCardView.tsx`                     |
+| Hooks                       | `use-<thing>.ts` (camelCase export)                          | `use-current-user.ts` → `useCurrentUser` |
+| Server actions              | `<verb>-<noun>.action.ts`                                    | `create-business.action.ts`              |
+| Route handlers (App Router) | App Router convention: `route.ts`                            | `app/api/stripe/webhook/route.ts`        |
+| Tests                       | `<subject>.spec.ts` (unit) / `<subject>.e2e.ts` (Playwright) | `lookup-public.spec.ts`                  |
+| Drizzle schema files        | one table per file, `kebab-case.ts`                          | `partner-offer.ts`                       |
+| Drizzle relations           | central `_relations.ts`                                      | `src/db/schema/_relations.ts`            |
+| Migrations                  | `drizzle-kit` default                                        | `0001_initial.sql` (auto)                |
+| Locale messages             | `messages/<locale>/<namespace>.json`                         | `messages/en/billing.json`               |
+| Docs                        | `UPPER-KEBAB.md`                                             | `STACK-DECISION.md`                      |
+| Prompts                     | `<NN>-<kebab-slug>.md`                                       | `04-webhook-endpoint-and-idempotency.md` |
+| Block folders               | `B<NN>-<kebab-slug>`                                         | `B05-billing-stripe`                     |
 
 **No `index.ts` re-exports** in `src/`. Import from the leaf file. Reason:
 agents otherwise generate barrel files that break tree-shaking and create
@@ -62,25 +62,25 @@ consumers — then it moves up.** No premature `lib/utils.ts` dumping ground.
 
 ## 3. Database
 
-| Object        | Convention                            | Example                            |
-| ------------- | ------------------------------------- | ---------------------------------- |
-| Table name    | `snake_case`, plural                  | `partner_offers`, `stripe_events`  |
-| Column name   | `snake_case`                          | `clerk_user_id`, `current_period_end` |
-| Primary key   | `id uuid` (unless documented)         | —                                  |
-| FK column     | `<referenced_table_singular>_id`      | `user_id`, `business_id`           |
-| Boolean       | `is_*` / `has_*`                      | `is_top_partner`, `has_2fa`        |
-| Timestamps    | `*_at`, always `timestamptz`          | `created_at`, `processed_at`       |
-| Soft delete   | `deleted_at timestamptz`              | —                                  |
-| Index         | `<table>_<col(s)>_<kind>`             | `cards_number_ux` (unique), `profiles_country_id_idx` |
-| Enum type     | `snake_case` SQL, `PascalCase` TS     | SQL: `member_type` / TS: `MemberType` |
-| Enum values   | `UPPER_SNAKE`                         | `VIP`, `BUSINESS`, `FREE`          |
+| Object      | Convention                        | Example                                               |
+| ----------- | --------------------------------- | ----------------------------------------------------- |
+| Table name  | `snake_case`, plural              | `partner_offers`, `stripe_events`                     |
+| Column name | `snake_case`                      | `clerk_user_id`, `current_period_end`                 |
+| Primary key | `id uuid` (unless documented)     | —                                                     |
+| FK column   | `<referenced_table_singular>_id`  | `user_id`, `business_id`                              |
+| Boolean     | `is_*` / `has_*`                  | `is_top_partner`, `has_2fa`                           |
+| Timestamps  | `*_at`, always `timestamptz`      | `created_at`, `processed_at`                          |
+| Soft delete | `deleted_at timestamptz`          | —                                                     |
+| Index       | `<table>_<col(s)>_<kind>`         | `cards_number_ux` (unique), `profiles_country_id_idx` |
+| Enum type   | `snake_case` SQL, `PascalCase` TS | SQL: `member_type` / TS: `MemberType`                 |
+| Enum values | `UPPER_SNAKE`                     | `VIP`, `BUSINESS`, `FREE`                             |
 
 Drizzle TS identifiers mirror SQL with camelCase:
 
 ```ts
-export const partnerOffers = pgTable("partner_offers", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  businessId: uuid("business_id").notNull(),
+export const partnerOffers = pgTable('partner_offers', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  businessId: uuid('business_id').notNull(),
   // ...
 });
 ```
@@ -89,17 +89,17 @@ export const partnerOffers = pgTable("partner_offers", {
 
 ## 4. TypeScript identifiers
 
-| Kind                  | Convention                    | Example                       |
-| --------------------- | ----------------------------- | ----------------------------- |
-| Variables, functions  | `camelCase`                   | `lookupCardPublic`            |
-| Types, interfaces     | `PascalCase`                  | `PublicCardDTO`               |
-| React components      | `PascalCase`                  | `VerifyCardView`              |
-| Constants (env-ish)   | `UPPER_SNAKE`                 | `MAX_LOOKUPS_PER_MIN`         |
-| Enums (TS)            | `PascalCase` name, `UPPER_SNAKE` members | `MemberType.VIP`   |
-| Zod schemas           | `<noun>Schema`                | `createBusinessSchema`        |
-| Zod inferred types    | `<Noun>Input` / `<Noun>Output`| `CreateBusinessInput`         |
-| Result types          | `Result<T, AppError>`         | —                             |
-| DTOs                  | `<Noun>DTO`                   | `PublicCardDTO`               |
+| Kind                 | Convention                               | Example                |
+| -------------------- | ---------------------------------------- | ---------------------- |
+| Variables, functions | `camelCase`                              | `lookupCardPublic`     |
+| Types, interfaces    | `PascalCase`                             | `PublicCardDTO`        |
+| React components     | `PascalCase`                             | `VerifyCardView`       |
+| Constants (env-ish)  | `UPPER_SNAKE`                            | `MAX_LOOKUPS_PER_MIN`  |
+| Enums (TS)           | `PascalCase` name, `UPPER_SNAKE` members | `MemberType.VIP`       |
+| Zod schemas          | `<noun>Schema`                           | `createBusinessSchema` |
+| Zod inferred types   | `<Noun>Input` / `<Noun>Output`           | `CreateBusinessInput`  |
+| Result types         | `Result<T, AppError>`                    | —                      |
+| DTOs                 | `<Noun>DTO`                              | `PublicCardDTO`        |
 
 No `I` prefix on interfaces. No `T` prefix on type aliases.
 
@@ -107,15 +107,15 @@ No `I` prefix on interfaces. No `T` prefix on type aliases.
 
 ## 5. URL paths
 
-| Surface              | Pattern                                   | Example                              |
-| -------------------- | ----------------------------------------- | ------------------------------------ |
-| Public marketing     | `/<locale>/<page>`                        | `/en/about`                          |
-| Public verify        | `/<locale>/verify-card/<number>`          | `/en/verify-card/VIP-UA-XXXXX`       |
-| Auth                 | `/<locale>/sign-in`, `/sign-up`           | —                                    |
-| Member area          | `/<locale>/m/<page>`                      | `/en/m/dashboard`                    |
-| Business area        | `/<locale>/b/<page>`                      | `/en/b/offers`                       |
-| Admin                | `/<locale>/admin/<resource>`              | `/en/admin/businesses`               |
-| API (route handlers) | `/api/<scope>/<resource>`                 | `/api/stripe/webhook`, `/api/cards/lookup` |
+| Surface              | Pattern                          | Example                                    |
+| -------------------- | -------------------------------- | ------------------------------------------ |
+| Public marketing     | `/<locale>/<page>`               | `/en/about`                                |
+| Public verify        | `/<locale>/verify-card/<number>` | `/en/verify-card/VIP-UA-XXXXX`             |
+| Auth                 | `/<locale>/sign-in`, `/sign-up`  | —                                          |
+| Member area          | `/<locale>/m/<page>`             | `/en/m/dashboard`                          |
+| Business area        | `/<locale>/b/<page>`             | `/en/b/offers`                             |
+| Admin                | `/<locale>/admin/<resource>`     | `/en/admin/businesses`                     |
+| API (route handlers) | `/api/<scope>/<resource>`        | `/api/stripe/webhook`, `/api/cards/lookup` |
 
 URL slugs are `kebab-case`. Never camelCase in URLs.
 

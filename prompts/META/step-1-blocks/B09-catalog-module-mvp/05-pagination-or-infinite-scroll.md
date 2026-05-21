@@ -10,9 +10,9 @@ Implement server pagination with page/pageSize query params and a client-side â€
 
 ## Steps
 
-1) Extend list API to return hasMore (already done in S03).
-2) Render first page on server; show LoadMore button if hasMore.
-3) LoadMore constructs next URL with incremented page and same filters.
+1. Extend list API to return hasMore (already done in S03).
+2. Render first page on server; show LoadMore button if hasMore.
+3. LoadMore constructs next URL with incremented page and same filters.
 
 ## Files to add/modify
 
@@ -24,8 +24,9 @@ Implement server pagination with page/pageSize query params and a client-side â€
 ```tsx
 'use client';
 
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
+
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 export function LoadMore({ hasMore }: { hasMore: boolean }) {
   const router = useRouter();
@@ -60,14 +61,18 @@ export function LoadMore({ hasMore }: { hasMore: boolean }) {
 ### src/app/(public)/catalog/page.tsx (patch with pagination)
 
 ```tsx
-import CatalogFilterBar from '@/features/catalog/filters';
-import { Section } from '@/components/ui/section';
 import { BusinessCard } from '@/components/cards/business-card';
+import { LoadMore } from '@/components/catalog/load-more';
+import { Section } from '@/components/ui/section';
+import CatalogFilterBar from '@/features/catalog/filters';
 import { parseCatalogQuery } from '@/features/catalog/params';
 import { listBusinessesWithFilters } from '@/features/catalog/server/queries';
-import { LoadMore } from '@/components/catalog/load-more';
 
-export default async function CatalogPage({ searchParams }: { searchParams: Record<string, string> }) {
+export default async function CatalogPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string>;
+}) {
   const qs = parseCatalogQuery(searchParams);
   const { rows, hasMore } = await listBusinessesWithFilters(qs);
 

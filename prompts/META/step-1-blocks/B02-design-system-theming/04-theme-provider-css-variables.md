@@ -27,6 +27,7 @@ pnpm add next-themes
 'use client';
 
 import * as React from 'react';
+
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -46,10 +47,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 ### `src/app/layout.tsx`
 
 ```tsx
-import './globals.css';
-import '@/styles/typography.css';
-import { plusJakarta } from './fonts';
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import '@/styles/typography.css';
+
+import { plusJakarta } from './fonts';
+import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -14,10 +14,11 @@ scripts/seed/businesses.ts
 
 ```ts
 import 'dotenv/config';
-import { db } from '@/lib/db';
-import { users } from '@/db/schema/user';
-import { businesses } from '@/db/schema/catalog';
 import { eq } from 'drizzle-orm';
+
+import { businesses } from '@/db/schema/catalog';
+import { users } from '@/db/schema/user';
+import { db } from '@/lib/db';
 
 async function getOrCreateShadowUser() {
   // Try to use any existing user
@@ -30,7 +31,7 @@ async function getOrCreateShadowUser() {
       clerkUserId: 'dev-shadow-user',
       email: 'shadow@example.com',
       isAdmin: false,
-      status: 'ACTIVE' as any
+      status: 'ACTIVE' as any,
     })
     .onConflictDoNothing()
     .returning({ id: users.id });
@@ -64,7 +65,7 @@ async function main() {
       shortDescription: 'Premium city hotel.',
       status: 'PUBLISHED' as any,
       isTopPartner: true,
-      isRecommended: false
+      isRecommended: false,
     },
     {
       name: 'Golden Fork',
@@ -78,7 +79,7 @@ async function main() {
       shortDescription: 'Fine dining experience.',
       status: 'PUBLISHED' as any,
       isTopPartner: false,
-      isRecommended: true
+      isRecommended: true,
     },
     {
       name: 'Swift Logistics',
@@ -92,8 +93,8 @@ async function main() {
       shortDescription: 'Fast and reliable logistics.',
       status: 'UNDER_REVIEW' as any,
       isTopPartner: false,
-      isRecommended: false
-    }
+      isRecommended: false,
+    },
   ];
 
   for (const s of samples) {

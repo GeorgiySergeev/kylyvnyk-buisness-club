@@ -2,21 +2,22 @@
 
 ```ts
 // src/lib/auth/current-user.ts
-import "server-only";
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { db } from "@/db/client";
-import { users } from "@/db/schema/user";
-import { eq } from "drizzle-orm";
+import { auth, currentUser } from '@clerk/nextjs/server';
+import { eq } from 'drizzle-orm';
+import 'server-only';
+
+import { db } from '@/db/client';
+import { users } from '@/db/schema/user';
 
 export async function getCurrentUserOrThrow() {
   // Clerk v6: auth() is async — MUST be awaited.
   const { userId } = await auth();
-  if (!userId) throw new Error("UNAUTHENTICATED");
+  if (!userId) throw new Error('UNAUTHENTICATED');
 
   const row = await db.query.users.findFirst({
     where: eq(users.clerkUserId, userId),
   });
-  if (!row) throw new Error("USER_NOT_PROVISIONED");
+  if (!row) throw new Error('USER_NOT_PROVISIONED');
   return row;
 }
 ```

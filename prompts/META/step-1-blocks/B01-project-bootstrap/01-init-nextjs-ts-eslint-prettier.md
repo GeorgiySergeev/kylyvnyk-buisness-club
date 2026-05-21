@@ -10,7 +10,7 @@ Create a Next.js 15 project with App Router, TypeScript, ESLint (next/core-web-v
 
 ## Steps
 
-1) Create project (prefer pnpm)
+1. Create project (prefer pnpm)
 
 - Name: kylyvnyk-club
 - App Router: Yes
@@ -18,15 +18,15 @@ Create a Next.js 15 project with App Router, TypeScript, ESLint (next/core-web-v
 - ESLint: Yes
 - Src directory: Yes (src/)
 - Tailwind: No (installed later)
-- Import alias: Yes (@/*)
+- Import alias: Yes (@/\*)
 
-1) Install Prettier + ESLint plugins
+1. Install Prettier + ESLint plugins
 
 - prettier, eslint-config-prettier, eslint-plugin-simple-import-sort, eslint-plugin-unused-imports, @trivago/prettier-plugin-sort-imports
 
-1) Configure ESLint rules for import sorting and unused imports
+1. Configure ESLint rules for import sorting and unused imports
 
-2) Add scripts: dev, build, start, lint, format, typecheck
+2. Add scripts: dev, build, start, lint, format, typecheck
 
 ## Commands
 

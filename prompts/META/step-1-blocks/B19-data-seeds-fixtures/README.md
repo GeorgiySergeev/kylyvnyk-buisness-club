@@ -1,4 +1,3 @@
-
 ## Title
 
 Seeds & Fixtures — bootstrapping data
@@ -21,10 +20,10 @@ Provide minimal, realistic datasets for local dev and E2E:
 
 ## Order of seeding (recommended)
 
-1) Countries/Cities
-2) Categories
-3) Users (optional; or rely on Clerk sync at runtime)
-4) Businesses
+1. Countries/Cities
+2. Categories
+3. Users (optional; or rely on Clerk sync at runtime)
+4. Businesses
 
 ## Commands (add to package.json)
 

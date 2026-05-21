@@ -10,10 +10,10 @@ Enforce code quality via pre-commit hooks and Conventional Commits.
 
 ## Steps
 
-1) Install tooling deps
-2) Init Husky
-3) Configure lint-staged and commitlint in package.json
-4) Add pre-commit and commit-msg hooks
+1. Install tooling deps
+2. Init Husky
+3. Configure lint-staged and commitlint in package.json
+4. Add pre-commit and commit-msg hooks
 
 ## Commands
 

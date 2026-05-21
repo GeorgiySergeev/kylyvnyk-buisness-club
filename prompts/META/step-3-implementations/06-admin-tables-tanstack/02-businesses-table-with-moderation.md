@@ -13,14 +13,21 @@ Admin — Businesses table with moderation
 ### src/app/(admin)/businesses/page.tsx
 
 ```tsx
+import type { ColumnDef } from '@tanstack/react-table';
+import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
+
+import { DataTable } from '@/components/admin/data-table';
+import { Pager } from '@/components/admin/ssr-table';
+import { businesses } from '@/db/schema/catalog';
+import {
+  hideBusiness,
+  markUnderReview,
+  publishBusiness,
+  toggleRecommended,
+  toggleTop,
+} from '@/features/admin/server/business-actions';
 import { parsePage } from '@/features/admin/server/listing';
 import { db } from '@/lib/db';
-import { businesses } from '@/db/schema/catalog';
-import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
-import { DataTable } from '@/components/admin/data-table';
-import type { ColumnDef } from '@tanstack/react-table';
-import { Pager } from '@/components/admin/ssr-table';
-import { publishBusiness, hideBusiness, markUnderReview, toggleTop, toggleRecommended } from '@/features/admin/server/business-actions';
 
 type Row = {
   id: string;
@@ -44,29 +51,78 @@ function buildWhere(search?: string, status?: string) {
   return and(...parts);
 }
 
-function ActionButtons({ id, status, isTop, isRec }: { id: string; status: Row['status']; isTop: boolean; isRec: boolean }) {
+function ActionButtons({
+  id,
+  status,
+  isTop,
+  isRec,
+}: {
+  id: string;
+  status: Row['status'];
+  isTop: boolean;
+  isRec: boolean;
+}) {
   return (
     <div className="flex flex-wrap gap-2">
-      <form action={async () => { 'use server'; await publishBusiness(id); }}>
-        <button className="px-3 py-1 rounded-md border border-border hover:bg-bgElev text-xs">Publish</button>
+      <form
+        action={async () => {
+          'use server';
+          await publishBusiness(id);
+        }}
+      >
+        <button className="px-3 py-1 rounded-md border border-border hover:bg-bgElev text-xs">
+          Publish
+        </button>
       </form>
-      <form action={async () => { 'use server'; await hideBusiness(id); }}>
-        <button className="px-3 py-1 rounded-md border border-border hover:bg-bgElev text-xs">Hide</button>
+      <form
+        action={async () => {
+          'use server';
+          await hideBusiness(id);
+        }}
+      >
+        <button className="px-3 py-1 rounded-md border border-border hover:bg-bgElev text-xs">
+          Hide
+        </button>
       </form>
-      <form action={async () => { 'use server'; await markUnderReview(id); }}>
-        <button className="px-3 py-1 rounded-md border border-border hover:bg-bgElev text-xs">Under Review</button>
+      <form
+        action={async () => {
+          'use server';
+          await markUnderReview(id);
+        }}
+      >
+        <button className="px-3 py-1 rounded-md border border-border hover:bg-bgElev text-xs">
+          Under Review
+        </button>
       </form>
-      <form action={async () => { 'use server'; await toggleTop(id, !isTop); }}>
-        <button className="px-3 py-1 rounded-md border border-border hover:bg-bgElev text-xs">{isTop ? 'Unset Top' : 'Set Top'}</button>
+      <form
+        action={async () => {
+          'use server';
+          await toggleTop(id, !isTop);
+        }}
+      >
+        <button className="px-3 py-1 rounded-md border border-border hover:bg-bgElev text-xs">
+          {isTop ? 'Unset Top' : 'Set Top'}
+        </button>
       </form>
-      <form action={async () => { 'use server'; await toggleRecommended(id, !isRec); }}>
-        <button className="px-3 py-1 rounded-md border border-border hover:bg-bgElev text-xs">{isRec ? 'Unset Rec' : 'Set Rec'}</button>
+      <form
+        action={async () => {
+          'use server';
+          await toggleRecommended(id, !isRec);
+        }}
+      >
+        <button className="px-3 py-1 rounded-md border border-border hover:bg-bgElev text-xs">
+          {isRec ? 'Unset Rec' : 'Set Rec'}
+        </button>
       </form>
     </div>
   );
 }
 
-export default async function AdminBusinessesPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function AdminBusinessesPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | undefined>;
+}) {
   const pg = parsePage(searchParams);
   const search = (searchParams.q || '').trim();
   const status = (searchParams.status || '').trim();
@@ -115,7 +171,12 @@ export default async function AdminBusinessesPage({ searchParams }: { searchPara
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => (
-        <ActionButtons id={row.original.id} status={row.original.status} isTop={row.original.isTop} isRec={row.original.isRec} />
+        <ActionButtons
+          id={row.original.id}
+          status={row.original.status}
+          isTop={row.original.isTop}
+          isRec={row.original.isRec}
+        />
       ),
     },
   ];
@@ -142,11 +203,18 @@ export default async function AdminBusinessesPage({ searchParams }: { searchPara
           <option value="PUBLISHED">PUBLISHED</option>
           <option value="HIDDEN">HIDDEN</option>
         </select>
-        <button className="px-4 py-2 rounded-md border border-border hover:bg-bgElev focus-gold">Apply</button>
+        <button className="px-4 py-2 rounded-md border border-border hover:bg-bgElev focus-gold">
+          Apply
+        </button>
       </form>
 
       <DataTable columns={columns} data={rows} className="mt-4" />
-      <Pager page={pg.page} pageSize={pg.pageSize} pathname="/admin/businesses" searchParams={searchParams as any} />
+      <Pager
+        page={pg.page}
+        pageSize={pg.pageSize}
+        pathname="/admin/businesses"
+        searchParams={searchParams as any}
+      />
     </section>
   );
 }

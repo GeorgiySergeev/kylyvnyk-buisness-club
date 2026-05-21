@@ -10,12 +10,12 @@ On first authenticated request, ensure a local users row exists, sync basic prof
 
 ## Steps
 
-1) Create user sync utility that upserts users by clerkUserId.
-2) Resolve role via DB:
+1. Create user sync utility that upserts users by clerkUserId.
+2. Resolve role via DB:
    - ADMIN: users.isAdmin = true
    - VIP: active membership of type 'VIP' (status ACTIVE, valid_to future or null)
    - FREE: otherwise
-3) Expose getCurrentUserWithRole() for server usage.
+3. Expose getCurrentUserWithRole() for server usage.
 
 ## Files to add
 
@@ -25,11 +25,12 @@ On first authenticated request, ensure a local users row exists, sync basic prof
 ### src/features/auth/server/user-sync.ts
 
 ```ts
-import 'server-only';
 import { currentUser } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
-import { users } from '@/db/schema/user';
 import { eq } from 'drizzle-orm';
+import 'server-only';
+
+import { users } from '@/db/schema/user';
+import { db } from '@/lib/db';
 
 export async function ensureUserSynced() {
   const cu = await currentUser();
@@ -60,12 +61,14 @@ export async function ensureUserSynced() {
 ### src/features/auth/server/roles.ts
 
 ```ts
-import 'server-only';
 import { auth } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
-import { users } from '@/db/schema/user';
+import { and, eq, gte, isNull, or } from 'drizzle-orm';
+import 'server-only';
+
 import { memberships } from '@/db/schema/membership';
-import { eq, and, gte, or, isNull } from 'drizzle-orm';
+import { users } from '@/db/schema/user';
+import { db } from '@/lib/db';
+
 import { ensureUserSynced } from './user-sync';
 
 export type AppRole = 'ADMIN' | 'VIP' | 'FREE';
@@ -87,7 +90,7 @@ export async function getCurrentUserWithRole() {
       eq(memberships.userId, user.id),
       eq(memberships.type, 'VIP' as any),
       eq(memberships.status, 'ACTIVE' as any),
-      or(isNull(memberships.validTo), gte(memberships.validTo, now))
+      or(isNull(memberships.validTo), gte(memberships.validTo, now)),
     ),
   });
 

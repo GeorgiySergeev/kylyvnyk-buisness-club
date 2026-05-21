@@ -10,10 +10,10 @@ Provide a minimal, accessible set of base UI components built on shadcn/ui and T
 
 ## Steps
 
-1) Ensure shadcn/ui is installed (B05). If not, run add commands for: input, textarea, label, select, card, badge, separator.
-2) Create a tiny cn helper.
-3) Add a base Fieldset wrapper for grouping fields.
-4) Create a barrel export for ui components.
+1. Ensure shadcn/ui is installed (B05). If not, run add commands for: input, textarea, label, select, card, badge, separator.
+2. Create a tiny cn helper.
+3. Add a base Fieldset wrapper for grouping fields.
+4. Create a barrel export for ui components.
 
 ## Commands (if needed)
 

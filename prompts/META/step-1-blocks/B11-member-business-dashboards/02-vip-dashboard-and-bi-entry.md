@@ -14,9 +14,9 @@ Create a VIP dashboard page with:
 
 ## Steps
 
-1) Add VIP dashboard route guarded by requireVipActive().
-2) Display VIP status + actions.
-3) Add “Request Business Introduction” entry page with minimal form.
+1. Add VIP dashboard route guarded by requireVipActive().
+2. Display VIP status + actions.
+3. Add “Request Business Introduction” entry page with minimal form.
 
 ## Files to add
 
@@ -27,10 +27,11 @@ Create a VIP dashboard page with:
 ### src/app/(member)/vip/page.tsx
 
 ```tsx
+import Link from 'next/link';
+
+import { Section } from '@/components/ui/section';
 import { requireVipActive } from '@/features/auth/server/guards';
 import MemberCardPanel from '@/features/membership/member-card-panel';
-import { Section } from '@/components/ui/section';
-import Link from 'next/link';
 
 export default async function VipDashboardPage() {
   await requireVipActive();
@@ -77,15 +78,16 @@ export default async function VipDashboardPage() {
 ```ts
 'use server';
 
+import { auth } from '@clerk/nextjs/server';
+import { eq } from 'drizzle-orm';
 import 'server-only';
 import { z } from 'zod';
-import { auth } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
-import { introductions } from '@/db/schema/membership';
+
 import { businesses } from '@/db/schema/catalog';
-import { eq } from 'drizzle-orm';
-import { requireVipActive } from '@/features/auth/server/guards';
+import { introductions } from '@/db/schema/membership';
 import { logAudit } from '@/features/audit/server/log';
+import { requireVipActive } from '@/features/auth/server/guards';
+import { db } from '@/lib/db';
 
 const schema = z.object({
   businessId: z.string().uuid(),
@@ -113,12 +115,15 @@ export async function submitIntroduction(formData: FormData) {
     return { ok: false, error: 'INVALID_BUSINESS' };
   }
 
-  const [row] = await db.insert(introductions).values({
-    createdByUserId: userId,
-    targetBusinessId: parsed.data.businessId,
-    status: 'SUBMITTED' as any,
-    internalNotes: parsed.data.note ?? null,
-  }).returning();
+  const [row] = await db
+    .insert(introductions)
+    .values({
+      createdByUserId: userId,
+      targetBusinessId: parsed.data.businessId,
+      status: 'SUBMITTED' as any,
+      internalNotes: parsed.data.note ?? null,
+    })
+    .returning();
 
   await logAudit({
     action: 'INTRODUCTION_SUBMIT',
@@ -134,10 +139,10 @@ export async function submitIntroduction(formData: FormData) {
 ### src/app/(member)/vip/introduction/page.tsx
 
 ```tsx
-import { requireVipActive } from '@/features/auth/server/guards';
-import { getPublishedBusinessOptions } from '@/features/introductions/server/select-options';
-import { submitIntroduction } from '@/features/introductions/server/actions';
 import { Section } from '@/components/ui/section';
+import { requireVipActive } from '@/features/auth/server/guards';
+import { submitIntroduction } from '@/features/introductions/server/actions';
+import { getPublishedBusinessOptions } from '@/features/introductions/server/select-options';
 
 export default async function IntroductionPage() {
   await requireVipActive();
@@ -152,7 +157,9 @@ export default async function IntroductionPage() {
 
       <form action={submitIntroduction} className="mt-6 max-w-lg space-y-4">
         <div className="space-y-1.5">
-          <label htmlFor="businessId" className="text-sm font-medium">Target Partner</label>
+          <label htmlFor="businessId" className="text-sm font-medium">
+            Target Partner
+          </label>
           <select
             id="businessId"
             name="businessId"
@@ -161,13 +168,17 @@ export default async function IntroductionPage() {
           >
             <option value="">Select partner…</option>
             {options.map((o) => (
-              <option key={o.id} value={o.id}>{o.name}</option>
+              <option key={o.id} value={o.id}>
+                {o.name}
+              </option>
             ))}
           </select>
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="note" className="text-sm font-medium">Note (optional)</label>
+          <label htmlFor="note" className="text-sm font-medium">
+            Note (optional)
+          </label>
           <textarea
             id="note"
             name="note"
@@ -193,10 +204,11 @@ export default async function IntroductionPage() {
 ### src/features/introductions/server/select-options.ts
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { businesses } from '@/db/schema/catalog';
 import { eq } from 'drizzle-orm';
+import 'server-only';
+
+import { businesses } from '@/db/schema/catalog';
+import { db } from '@/lib/db';
 
 export async function getPublishedBusinessOptions() {
   const rows = await db
@@ -213,10 +225,11 @@ export async function getPublishedBusinessOptions() {
 ```ts
 'use server';
 
-import 'server-only';
-import { db } from '@/lib/db';
-import { auditLogs } from '@/db/schema/audit';
 import { auth } from '@clerk/nextjs/server';
+import 'server-only';
+
+import { auditLogs } from '@/db/schema/audit';
+import { db } from '@/lib/db';
 
 export async function logAudit({
   action,

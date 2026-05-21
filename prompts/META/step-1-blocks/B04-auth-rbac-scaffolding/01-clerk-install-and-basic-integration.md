@@ -15,10 +15,10 @@ Install Clerk, wrap the app with ClerkProvider, and wire base middleware for aut
 
 ## Steps
 
-1) Install @clerk/nextjs.
-2) Wrap RootLayout with ClerkProvider.
-3) Add middleware.ts with Clerk authMiddleware and public routes.
-4) Add basic Clerk UI mounting check (no runtime errors).
+1. Install @clerk/nextjs.
+2. Wrap RootLayout with ClerkProvider.
+3. Add middleware.ts with Clerk authMiddleware and public routes.
+4. Add basic Clerk UI mounting check (no runtime errors).
 
 ## Commands
 
@@ -34,11 +34,13 @@ pnpm add @clerk/nextjs
 ### src/app/layout.tsx (patch)
 
 ```tsx
-import './globals.css';
-import '@/styles/typography.css';
 import { ClerkProvider } from '@clerk/nextjs';
-import { plusJakarta } from './fonts';
+
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import '@/styles/typography.css';
+
+import { plusJakarta } from './fonts';
+import './globals.css';
 
 export const metadata = {
   title: 'KYLYVNYK CLUB',
@@ -66,12 +68,12 @@ import { authMiddleware } from '@clerk/nextjs';
 export default authMiddleware({
   // Public pages (no auth required)
   publicRoutes: [
-    '/',                 // landing
-    '/tokens',           // design tokens preview (dev only - remove in prod)
-    '/catalog(.*)',      // public catalog list/details (offers gated in UI)
-    '/verify-card(.*)',  // public card verification
-    '/api/public(.*)',   // any public APIs
-    '/legal(.*)',        // legal pages
+    '/', // landing
+    '/tokens', // design tokens preview (dev only - remove in prod)
+    '/catalog(.*)', // public catalog list/details (offers gated in UI)
+    '/verify-card(.*)', // public card verification
+    '/api/public(.*)', // any public APIs
+    '/legal(.*)', // legal pages
     '/favicon.ico',
     '/sitemap.xml',
     '/robots.txt',

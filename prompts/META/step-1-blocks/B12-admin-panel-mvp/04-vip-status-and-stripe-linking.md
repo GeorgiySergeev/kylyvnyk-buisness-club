@@ -16,9 +16,9 @@ Note: Stripe remains source of truth. Manual override is for support-only.
 
 ## Steps
 
-1) Add user details page with membership/subscription panels.
-2) Add server action to upsert a VIP membership with valid_to.
-3) Provide helper link to Stripe (if subscription row exists).
+1. Add user details page with membership/subscription panels.
+2. Add server action to upsert a VIP membership with valid_to.
+3. Provide helper link to Stripe (if subscription row exists).
 
 ## Files to add/modify
 
@@ -30,18 +30,20 @@ Note: Stripe remains source of truth. Manual override is for support-only.
 ```ts
 'use server';
 
-import 'server-only';
-import { db } from '@/lib/db';
-import { memberships } from '@/db/schema/membership';
 import { eq } from 'drizzle-orm';
+import 'server-only';
+
+import { memberships } from '@/db/schema/membership';
 import { logAudit } from '@/features/audit/server/log';
 import { revalidateVerifyCardByUserId } from '@/features/membership/server/revalidate';
+import { db } from '@/lib/db';
 
 export async function upsertVipMembership(userId: string, validToIso?: string) {
   const validTo = validToIso ? new Date(validToIso) : null;
 
   // Upsert VIP membership row; ACTIVE if not expired, else CANCELED
-  const status = validTo && validTo.getTime() < Date.now() ? ('CANCELED' as any) : ('ACTIVE' as any);
+  const status =
+    validTo && validTo.getTime() < Date.now() ? ('CANCELED' as any) : ('ACTIVE' as any);
 
   await db
     .insert(memberships)
@@ -56,7 +58,12 @@ export async function upsertVipMembership(userId: string, validToIso?: string) {
       set: { validTo },
     });
 
-  await logAudit({ action: 'ADMIN_VIP_UPSERT', entity: 'membership', entityId: userId, meta: { validToIso } });
+  await logAudit({
+    action: 'ADMIN_VIP_UPSERT',
+    entity: 'membership',
+    entityId: userId,
+    meta: { validToIso },
+  });
   await revalidateVerifyCardByUserId(userId);
 }
 ```
@@ -64,14 +71,15 @@ export async function upsertVipMembership(userId: string, validToIso?: string) {
 ### src/app/(admin)/users/[id]/page.tsx
 
 ```tsx
-import { db } from '@/lib/db';
-import { users } from '@/db/schema/user';
+import { desc, eq } from 'drizzle-orm';
+import { notFound } from 'next/navigation';
+
+import { Section } from '@/components/ui/section';
 import { memberships } from '@/db/schema/membership';
 import { subscriptions } from '@/db/schema/stripe';
-import { eq, desc } from 'drizzle-orm';
-import { notFound } from 'next/navigation';
+import { users } from '@/db/schema/user';
 import { upsertVipMembership } from '@/features/admin/server/membership-actions';
-import { Section } from '@/components/ui/section';
+import { db } from '@/lib/db';
 
 async function getUserView(id: string) {
   const user = await db.query.users.findFirst({ where: eq(users.id, id) });
@@ -105,21 +113,36 @@ export default async function AdminUserDetails({ params }: { params: { id: strin
     <Section>
       <h1 className="h2">User</h1>
       <div className="mt-4 rounded-lg border border-border bg-card p-4 space-y-2">
-        <div className="text-sm"><span className="text-fgMuted">Email:</span> {view.user.email}</div>
-        <div className="text-sm"><span className="text-fgMuted">Status:</span> {String(view.user.status)}</div>
-        <div className="text-sm"><span className="text-fgMuted">Admin:</span> {view.user.isAdmin ? 'Yes' : 'No'}</div>
+        <div className="text-sm">
+          <span className="text-fgMuted">Email:</span> {view.user.email}
+        </div>
+        <div className="text-sm">
+          <span className="text-fgMuted">Status:</span> {String(view.user.status)}
+        </div>
+        <div className="text-sm">
+          <span className="text-fgMuted">Admin:</span> {view.user.isAdmin ? 'Yes' : 'No'}
+        </div>
       </div>
 
       <h2 className="h3 mt-6">Membership</h2>
       <div className="mt-2 rounded-lg border border-border bg-card p-4 space-y-2">
         <div className="text-sm">Type: {view.vip?.type ?? '—'}</div>
         <div className="text-sm">Status: {view.vip?.status ?? '—'}</div>
-        <div className="text-sm">Valid to: {view.vip?.validTo ? new Date(view.vip.validTo).toLocaleString() : '—'}</div>
+        <div className="text-sm">
+          Valid to: {view.vip?.validTo ? new Date(view.vip.validTo).toLocaleString() : '—'}
+        </div>
 
         <form action={action} className="mt-3 flex flex-wrap items-end gap-3">
           <div>
-            <label className="text-sm font-medium" htmlFor="validTo">Set VIP valid_to (ISO, optional)</label>
-            <input id="validTo" name="validTo" placeholder="2026-12-31T23:59:59Z" className="min-h-11 rounded-md border border-border bg-card px-3 py-2 focus-gold" />
+            <label className="text-sm font-medium" htmlFor="validTo">
+              Set VIP valid_to (ISO, optional)
+            </label>
+            <input
+              id="validTo"
+              name="validTo"
+              placeholder="2026-12-31T23:59:59Z"
+              className="min-h-11 rounded-md border border-border bg-card px-3 py-2 focus-gold"
+            />
           </div>
           <button className="px-5 py-3 rounded-md border border-border hover:bg-bgElev focus-gold">
             Upsert VIP Membership
@@ -135,10 +158,20 @@ export default async function AdminUserDetails({ params }: { params: { id: strin
       <div className="mt-2 rounded-lg border border-border bg-card p-4 space-y-2">
         <div className="text-sm">Subscription: {view.sub?.stripeSubscriptionId ?? '—'}</div>
         <div className="text-sm">Status: {view.sub?.statusRaw ?? '—'}</div>
-        <div className="text-sm">Current period end: {view.sub?.currentPeriodEnd ? new Date(view.sub.currentPeriodEnd).toLocaleString() : '—'}</div>
-        <div className="text-sm">Cancel at period end: {view.sub?.cancelAtPeriodEnd ? 'Yes' : 'No'}</div>
+        <div className="text-sm">
+          Current period end:{' '}
+          {view.sub?.currentPeriodEnd ? new Date(view.sub.currentPeriodEnd).toLocaleString() : '—'}
+        </div>
+        <div className="text-sm">
+          Cancel at period end: {view.sub?.cancelAtPeriodEnd ? 'Yes' : 'No'}
+        </div>
         {stripeDash && (
-          <a className="inline-block mt-2 px-4 py-2 rounded-md border border-border hover:bg-bgElev focus-gold text-sm" href={stripeDash} target="_blank" rel="noopener noreferrer">
+          <a
+            className="inline-block mt-2 px-4 py-2 rounded-md border border-border hover:bg-bgElev focus-gold text-sm"
+            href={stripeDash}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Open in Stripe Dashboard
           </a>
         )}

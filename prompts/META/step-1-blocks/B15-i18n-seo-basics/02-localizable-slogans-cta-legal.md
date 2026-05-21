@@ -10,10 +10,10 @@ Replace hardcoded strings in LandingHero, header nav, Catalog page, and LegalIns
 
 ## Steps
 
-1) Update LandingHero to use t('landing.*') and common CTA labels.
-2) Update SiteHeader to use t('nav.*').
-3) Update Catalog page to use t('catalog.*').
-4) Update LegalInserts to read from legal.footer namespace.
+1. Update LandingHero to use t('landing.\*') and common CTA labels.
+2. Update SiteHeader to use t('nav.\*').
+3. Update Catalog page to use t('catalog.\*').
+4. Update LegalInserts to read from legal.footer namespace.
 
 ## Files to modify
 
@@ -26,11 +26,12 @@ Replace hardcoded strings in LandingHero, header nav, Catalog page, and LegalIns
 
 ```tsx
 import { auth } from '@clerk/nextjs/server';
-import '@/styles/hero.css';
+import { getTranslations } from 'next-intl/server';
+
+import { VipCtaButton } from '@/components/common/vip-cta-button';
 import { KylyvnykLogo } from '@/components/icons/brand/kylyvnyk-logo';
 import { LinkButton } from '@/components/ui/link-button';
-import { VipCtaButton } from '@/components/common/vip-cta-button';
-import { getTranslations } from 'next-intl/server';
+import '@/styles/hero.css';
 
 export default async function LandingHero() {
   const { userId } = auth();
@@ -78,10 +79,12 @@ export default async function LandingHero() {
 ```tsx
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
-import { KylyvnykLogo } from '@/components/icons/brand/kylyvnyk-logo';
+
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+
+import { KylyvnykLogo } from '@/components/icons/brand/kylyvnyk-logo';
 
 export function SiteHeader({ compact = false }: { compact?: boolean }) {
   const [open, setOpen] = useState(false);
@@ -96,9 +99,15 @@ export function SiteHeader({ compact = false }: { compact?: boolean }) {
         </Link>
 
         <nav className="hidden sm:flex items-center gap-6 text-sm">
-          <Link href="/catalog" className="hover:text-gold-400">{t('partners')}</Link>
-          <Link href="/verify-card" className="hover:text-gold-400">{t('verifyCard')}</Link>
-          <Link href="/sign-in" className="hover:text-gold-400">{t('signIn')}</Link>
+          <Link href="/catalog" className="hover:text-gold-400">
+            {t('partners')}
+          </Link>
+          <Link href="/verify-card" className="hover:text-gold-400">
+            {t('verifyCard')}
+          </Link>
+          <Link href="/sign-in" className="hover:text-gold-400">
+            {t('signIn')}
+          </Link>
           <Link
             href="/sign-up"
             className="px-4 py-2 rounded-md border border-border hover:bg-bgElev focus-gold"
@@ -119,9 +128,15 @@ export function SiteHeader({ compact = false }: { compact?: boolean }) {
       {open && (
         <div className="sm:hidden border-t border-border bg-bg">
           <nav className="container py-3 flex flex-col gap-2">
-            <Link href="/catalog" onClick={() => setOpen(false)}>{t('partners')}</Link>
-            <Link href="/verify-card" onClick={() => setOpen(false)}>{t('verifyCard')}</Link>
-            <Link href="/sign-in" onClick={() => setOpen(false)}>{t('signIn')}</Link>
+            <Link href="/catalog" onClick={() => setOpen(false)}>
+              {t('partners')}
+            </Link>
+            <Link href="/verify-card" onClick={() => setOpen(false)}>
+              {t('verifyCard')}
+            </Link>
+            <Link href="/sign-in" onClick={() => setOpen(false)}>
+              {t('signIn')}
+            </Link>
             <Link
               href="/sign-up"
               onClick={() => setOpen(false)}
@@ -140,14 +155,19 @@ export function SiteHeader({ compact = false }: { compact?: boolean }) {
 ### src/app/(public)/catalog/page.tsx (patch headings/notes)
 
 ```tsx
-import CatalogFilterBar from '@/features/catalog/filters';
-import { Section } from '@/components/ui/section';
-import { BusinessCard } from '@/components/cards/business-card';
-import { parseCatalogQuery } from '@/features/catalog/params';
-import { listBusinessesWithFilters } from '@/features/catalog/server/queries';
 import { getTranslations } from 'next-intl/server';
 
-export default async function CatalogPage({ searchParams }: { searchParams: Record<string, string> }) {
+import { BusinessCard } from '@/components/cards/business-card';
+import { Section } from '@/components/ui/section';
+import CatalogFilterBar from '@/features/catalog/filters';
+import { parseCatalogQuery } from '@/features/catalog/params';
+import { listBusinessesWithFilters } from '@/features/catalog/server/queries';
+
+export default async function CatalogPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string>;
+}) {
   const t = await getTranslations('catalog');
   const qs = parseCatalogQuery(searchParams);
   const { rows, hasMore } = await listBusinessesWithFilters(qs);
@@ -194,7 +214,8 @@ export function LegalInserts({ className }: { className?: string }) {
   return (
     <div className={className}>
       <p className="text-sm text-fgMuted">
-        {t('platform')} {t('specialConditions')} {t('noGuarantees')} {t('partnerResponsibility')} {t('noParticipation')} {t('notEmployerInvestment')}
+        {t('platform')} {t('specialConditions')} {t('noGuarantees')} {t('partnerResponsibility')}{' '}
+        {t('noParticipation')} {t('notEmployerInvestment')}
       </p>
     </div>
   );

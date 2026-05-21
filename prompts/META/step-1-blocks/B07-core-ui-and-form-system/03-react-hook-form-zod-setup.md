@@ -10,9 +10,9 @@ Set up react-hook-form with zodResolver, create a sample schema, and a base Form
 
 ## Steps
 
-1) Install deps: react-hook-form, zod, @hookform/resolvers.
-2) Create a form schema example and types.
-3) Provide a FormProvider wrapper and a submit helper.
+1. Install deps: react-hook-form, zod, @hookform/resolvers.
+2. Create a form schema example and types.
+3. Provide a FormProvider wrapper and a submit helper.
 
 ## Commands
 
@@ -24,7 +24,7 @@ pnpm add react-hook-form zod @hookform/resolvers
 
 - src/lib/validation/zod-helpers.ts
 - src/components/forms/form-provider.tsx
-- Example: src/features/_examples/forms/sample-form.tsx
+- Example: src/features/\_examples/forms/sample-form.tsx
 
 ### src/lib/validation/zod-helpers.ts
 
@@ -51,8 +51,8 @@ export const optionalUrl = z
 ```tsx
 'use client';
 
-import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FormProvider, useForm } from 'react-hook-form';
 
 export function ZodFormProvider<TSchema>({
   schema,
@@ -75,13 +75,14 @@ export function ZodFormProvider<TSchema>({
 }
 ```
 
-### src/features/_examples/forms/sample-form.tsx
+### src/features/\_examples/forms/sample-form.tsx
 
 ```tsx
 'use client';
 
-import { z } from 'zod';
 import { useFormContext } from 'react-hook-form';
+import { z } from 'zod';
+
 import { ZodFormProvider } from '@/components/forms/form-provider';
 import { Input, Label } from '@/components/ui';
 import { useToast } from '@/components/ui/use-toast';
@@ -99,13 +100,20 @@ function Fields() {
 
   return (
     <form
-      onSubmit={handleSubmit((data) => toast({ title: 'Submitted', description: JSON.stringify(data) }))}
+      onSubmit={handleSubmit((data) =>
+        toast({ title: 'Submitted', description: JSON.stringify(data) }),
+      )}
       className="space-y-4"
       noValidate
     >
       <div className="space-y-1.5">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" type="email" {...register('email')} aria-invalid={!!formState.errors.email} />
+        <Input
+          id="email"
+          type="email"
+          {...register('email')}
+          aria-invalid={!!formState.errors.email}
+        />
         {formState.errors.email && (
           <p className="text-sm text-destructive">{formState.errors.email.message}</p>
         )}

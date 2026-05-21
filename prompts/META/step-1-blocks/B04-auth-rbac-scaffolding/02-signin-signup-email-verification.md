@@ -17,10 +17,10 @@ Create sign-in/sign-up pages using Clerk components. Ensure email verification i
 
 ## Steps
 
-1) Create sign-in and sign-up routes under (auth) group.
-2) Use <SignIn/> and <SignUp/> components.
-3) Configure afterSignInUrl and afterSignUpUrl.
-4) Provide links from landing CTAs to /sign-in and /sign-up.
+1. Create sign-in and sign-up routes under (auth) group.
+2. Use <SignIn/> and <SignUp/> components.
+3. Configure afterSignInUrl and afterSignUpUrl.
+4. Provide links from landing CTAs to /sign-in and /sign-up.
 
 ## Files to add
 

@@ -13,9 +13,9 @@ Ensure VIP Membership reflects Stripe status:
 
 ## Steps
 
-1) In webhook handler, map Stripe Subscription to DB (already done in 04).
-2) Provide a reusable service to read “effective VIP access” for a user.
-3) Add a nightly script outline (optional) to finalize expirations after valid_to.
+1. In webhook handler, map Stripe Subscription to DB (already done in 04).
+2. Provide a reusable service to read “effective VIP access” for a user.
+3. Add a nightly script outline (optional) to finalize expirations after valid_to.
 
 ## Files to add
 
@@ -25,10 +25,11 @@ Ensure VIP Membership reflects Stripe status:
 ### src/features/membership/server/access.ts
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { memberships } from '@/db/schema/membership';
 import { and, eq, gte, isNull, or } from 'drizzle-orm';
+import 'server-only';
+
+import { memberships } from '@/db/schema/membership';
+import { db } from '@/lib/db';
 
 export async function hasVipAccess(userId: string) {
   const now = new Date();
@@ -36,7 +37,7 @@ export async function hasVipAccess(userId: string) {
     where: and(
       eq(memberships.userId, userId),
       eq(memberships.type, 'VIP' as any),
-      or(isNull(memberships.validTo), gte(memberships.validTo, now))
+      or(isNull(memberships.validTo), gte(memberships.validTo, now)),
     ),
   });
   // VIP access is granted if record exists (ACTIVE or CANCELED) and valid_to not passed yet.

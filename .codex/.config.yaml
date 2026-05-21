@@ -1,0 +1,141 @@
+# .codex/config.yaml
+# OpenAI Codex CLI configuration for KCLUB-MVP
+
+model: o4-mini # fast, good for feature work
+# model: o3            # switch to o3 for complex refactors or security review
+
+approval_mode: auto-edit # suggest | auto-edit | full-auto
+
+context:
+  always_include:
+    - AGENTS.md
+    - CODEX.md
+    - prompts/META/INDEX.md
+    - docs/STACK-DECISION.md
+  include_on_demand:
+    - docs/DESIGN.md
+    - docs/RUNBOOK.md
+    - docs/ENV.md
+    - prompts/META/PATCHES/*.md
+    - prompts/META/NAMING-CONVENTIONS.md
+  exclude:
+    - node_modules/**
+    - .next/**
+    - drizzle/**/*.sql
+    - pnpm-lock.yaml
+    - '**/*.snap'
+    - playwright-report/**
+    - coverage/**
+    - prompts/META/_archive/**
+
+shell:
+  # Whitelist — only these commands run without confirmation
+  allow:
+    - pnpm lint
+    - pnpm lint:fix
+    - pnpm typecheck
+    - pnpm format
+    - pnpm format:check
+    - pnpm test
+    - pnpm test:run
+    - pnpm test:coverage
+    - pnpm e2e
+    - pnpm build
+    - pnpm dev
+    - pnpm verify
+    - pnpm vocab:check
+    - pnpm env:check
+    - pnpm i18n:diff
+    - pnpm db:generate
+    - pnpm db:studio
+    - pnpm db:seed
+    - pnpm stripe:listen
+    - pnpm stripe:trigger
+    - git status
+    - git diff
+    - git diff --cached
+    - git log
+    - git log --oneline
+    - git show
+    - git branch
+    - git ls-files
+    - ls
+    - cat
+    - grep
+    - find
+    - head
+    - tail
+    - wc
+    - npx madge --circular
+
+  # Require human confirmation before running
+  confirm:
+    - pnpm db:migrate
+    - git add
+    - git commit
+    - git checkout
+    - git merge
+    - git stash
+
+  # Hard deny — never run, even with confirmation
+  deny:
+    - 'rm -rf *'
+    - 'git push'
+    - 'git push --force'
+    - 'git reset --hard'
+    - 'git clean -fdx'
+    - pnpm db:reset
+    - pnpm db:push
+    - 'drizzle-kit drop'
+    - 'DROP TABLE'
+    - 'DROP DATABASE'
+    - 'TRUNCATE'
+    - 'DELETE FROM'
+    - 'npm install'
+    - 'npm i'
+    - 'yarn add'
+    - 'yarn install'
+    - 'pnpm add *'
+    - 'pnpm remove *'
+    - 'pnpm update'
+    - 'pnpm dlx *'
+    - 'sudo *'
+    - 'curl * | sh'
+    - 'wget * | sh'
+
+write:
+  # Never write to these paths
+  deny_paths:
+    - .env
+    - .env.local
+    - .env.*.local
+    - pnpm-lock.yaml
+    - 'drizzle/**/*.sql'
+
+  # Ask before writing to these critical files
+  confirm_paths:
+    - package.json
+    - tsconfig.json
+    - next.config.*
+    - drizzle.config.ts
+    - 'src/db/schema/**/*.ts'
+    - '.github/workflows/**'
+    - AGENTS.md
+    - CODEX.md
+    - docs/STACK-DECISION.md
+    - prompts/META/INDEX.md
+
+output:
+  format: unified_diff # default output format
+  max_files_per_turn: 12
+  snippet_max_lines: 80
+
+sandbox:
+  # Enable Docker sandbox for full-auto mode
+  # Never use full-auto without sandbox against real DB
+  enabled: false # set true only in isolated dev env
+  image: node:20-alpine
+
+
+
+skills/ ├── 01-block-execution.md ← как запускать B0X блоки ├── 02-drizzle-workflow.md ← DB workflow в Codex ├── 03-clerk-v6.md ← auth gotchas ├── 04-stripe-v17.md ← billing (future) ├── 05-pii-contracts.md ← PII safety ├── 06-testing-gates.md ← когда и как запускать тесты └── 07-legal-guardrails.md ← forbidden vocabulary

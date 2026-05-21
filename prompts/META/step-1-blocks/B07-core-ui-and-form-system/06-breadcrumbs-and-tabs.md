@@ -10,9 +10,9 @@ Create accessible breadcrumbs and standardized tabs for Member/Business/Admin da
 
 ## Steps
 
-1) Add Breadcrumbs component with aria-label and separators.
-2) Add Tabs wrapper with dark theme adjustments.
-3) Provide simple examples for dashboard pages.
+1. Add Breadcrumbs component with aria-label and separators.
+2. Add Tabs wrapper with dark theme adjustments.
+3. Provide simple examples for dashboard pages.
 
 ## Files to add
 
@@ -23,17 +23,12 @@ Create accessible breadcrumbs and standardized tabs for Member/Business/Admin da
 
 ```tsx
 import Link from 'next/link';
+
 import { cn } from '@/lib/utils/cn';
 
 type Crumb = { label: string; href?: string };
 
-export function Breadcrumbs({
-  items,
-  className,
-}: {
-  items: Crumb[];
-  className?: string;
-}) {
+export function Breadcrumbs({ items, className }: { items: Crumb[]; className?: string }) {
   return (
     <nav aria-label="Breadcrumb" className={cn('text-sm', className)}>
       <ol className="flex flex-wrap items-center gap-2 text-fgMuted">
@@ -63,7 +58,7 @@ export function Breadcrumbs({
 ```tsx
 'use client';
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export { Tabs, TabsList, TabsTrigger, TabsContent };
 
@@ -82,7 +77,7 @@ export { Tabs, TabsList, TabsTrigger, TabsContent };
 
 ```tsx
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/navigation/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/navigation/tabs';
 
 export default function MemberDashboard() {
   return (

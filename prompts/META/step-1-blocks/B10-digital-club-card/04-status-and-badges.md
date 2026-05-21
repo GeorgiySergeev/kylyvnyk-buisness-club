@@ -10,9 +10,9 @@ Provide clear, accessible badges for member type and card status. Derive “EXPI
 
 ## Steps
 
-1) Create TypeBadge (FREE/VIP styles).
-2) Create StatusBadge (ACTIVE/EXPIRED/INACTIVE styles; accepts expiresAt to derive).
-3) Reuse on member and verify pages.
+1. Create TypeBadge (FREE/VIP styles).
+2. Create StatusBadge (ACTIVE/EXPIRED/INACTIVE styles; accepts expiresAt to derive).
+3. Reuse on member and verify pages.
 
 ## Files to add
 

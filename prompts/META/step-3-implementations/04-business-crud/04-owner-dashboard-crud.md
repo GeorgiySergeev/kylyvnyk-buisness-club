@@ -13,10 +13,11 @@ Owner Dashboard — basic edit + re‑review
 ### src/features/business/server/queries.ts (добавить getMyBusiness)
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { businesses, categories } from '@/db/schema/catalog';
 import { eq } from 'drizzle-orm';
+import 'server-only';
+
+import { businesses, categories } from '@/db/schema/catalog';
+import { db } from '@/lib/db';
 
 export async function getMyBusiness(userId: string) {
   const row = await db
@@ -44,22 +45,37 @@ export async function getMyBusiness(userId: string) {
 ```ts
 'use server';
 
+import { auth } from '@clerk/nextjs/server';
+import { eq } from 'drizzle-orm';
 import 'server-only';
 import { z } from 'zod';
-import { auth } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
+
 import { businesses } from '@/db/schema/catalog';
-import { eq } from 'drizzle-orm';
-import { ensureNoBannedKeywords } from '@/features/compliance/guards';
 import { logAudit } from '@/features/audit/server/log';
+import { ensureNoBannedKeywords } from '@/features/compliance/guards';
+import { db } from '@/lib/db';
 
 const editSchema = z.object({
   id: z.string().uuid(),
   representativeName: z.string().min(2).max(160).optional(),
   email: z.string().email().max(256).optional(),
-  phone: z.string().min(5).max(50).optional().or(z.literal('').transform(() => undefined)),
-  websiteUrl: z.string().url().max(512).optional().or(z.literal('').transform(() => undefined)),
-  shortDescription: z.string().max(280).optional().or(z.literal('').transform(() => undefined)),
+  phone: z
+    .string()
+    .min(5)
+    .max(50)
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
+  websiteUrl: z
+    .string()
+    .url()
+    .max(512)
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
+  shortDescription: z
+    .string()
+    .max(280)
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
 });
 
 export async function updateBusinessBasics(formData: FormData) {
@@ -107,12 +123,13 @@ export async function updateBusinessBasics(formData: FormData) {
 ### src/app/(business)/page.tsx (владельческий дашборд с формой)
 
 ```tsx
-import { requireVipActive } from '@/features/auth/server/guards';
 import { auth } from '@clerk/nextjs/server';
+
 import { Section } from '@/components/ui/section';
-import { getMyBusiness } from '@/features/business/server/queries';
-import { updateBusinessBasics } from '@/features/business/server/actions';
+import { requireVipActive } from '@/features/auth/server/guards';
 import BusinessStatusPanel from '@/features/business/business-status-panel';
+import { updateBusinessBasics } from '@/features/business/server/actions';
+import { getMyBusiness } from '@/features/business/server/queries';
 
 export default async function BusinessHome() {
   await requireVipActive();
@@ -135,37 +152,81 @@ export default async function BusinessHome() {
           <h2 className="h3 mb-3">Edit basic info</h2>
           {!biz ? (
             <div className="rounded-lg border border-border bg-card p-6 text-sm text-fgMuted">
-              No business submitted yet. <a href="/business/submit" className="underline hover:text-gold-400">Submit now</a>.
+              No business submitted yet.{' '}
+              <a href="/business/submit" className="underline hover:text-gold-400">
+                Submit now
+              </a>
+              .
             </div>
           ) : (
             <form action={updateBusinessBasics} className="grid gap-3" noValidate>
               <input type="hidden" name="id" value={biz.id} />
               <div className="grid gap-1.5">
-                <label className="text-sm font-medium" htmlFor="representativeName">Representative name</label>
-                <input id="representativeName" name="representativeName" defaultValue={biz.representativeName ?? ''} className="min-h-11 rounded-md border border-border bg-card px-3 py-2 focus-gold" />
+                <label className="text-sm font-medium" htmlFor="representativeName">
+                  Representative name
+                </label>
+                <input
+                  id="representativeName"
+                  name="representativeName"
+                  defaultValue={biz.representativeName ?? ''}
+                  className="min-h-11 rounded-md border border-border bg-card px-3 py-2 focus-gold"
+                />
               </div>
 
               <div className="grid gap-1.5">
-                <label className="text-sm font-medium" htmlFor="email">Business email</label>
-                <input id="email" type="email" name="email" defaultValue={biz.email ?? ''} className="min-h-11 rounded-md border border-border bg-card px-3 py-2 focus-gold" />
+                <label className="text-sm font-medium" htmlFor="email">
+                  Business email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  defaultValue={biz.email ?? ''}
+                  className="min-h-11 rounded-md border border-border bg-card px-3 py-2 focus-gold"
+                />
               </div>
 
               <div className="grid gap-1.5">
-                <label className="text-sm font-medium" htmlFor="phone">Phone (optional)</label>
-                <input id="phone" name="phone" defaultValue={biz.phone ?? ''} className="min-h-11 rounded-md border border-border bg-card px-3 py-2 focus-gold" />
+                <label className="text-sm font-medium" htmlFor="phone">
+                  Phone (optional)
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  defaultValue={biz.phone ?? ''}
+                  className="min-h-11 rounded-md border border-border bg-card px-3 py-2 focus-gold"
+                />
               </div>
 
               <div className="grid gap-1.5">
-                <label className="text-sm font-medium" htmlFor="websiteUrl">Website or social link (optional)</label>
-                <input id="websiteUrl" name="websiteUrl" defaultValue={biz.websiteUrl ?? ''} placeholder="https://…" className="min-h-11 rounded-md border border-border bg-card px-3 py-2 focus-gold" />
+                <label className="text-sm font-medium" htmlFor="websiteUrl">
+                  Website or social link (optional)
+                </label>
+                <input
+                  id="websiteUrl"
+                  name="websiteUrl"
+                  defaultValue={biz.websiteUrl ?? ''}
+                  placeholder="https://…"
+                  className="min-h-11 rounded-md border border-border bg-card px-3 py-2 focus-gold"
+                />
               </div>
 
               <div className="grid gap-1.5">
-                <label className="text-sm font-medium" htmlFor="shortDescription">Short description (optional)</label>
-                <textarea id="shortDescription" name="shortDescription" defaultValue={biz.shortDescription ?? ''} maxLength={280} className="min-h-24 rounded-md border border-border bg-card px-3 py-2 focus-gold" />
+                <label className="text-sm font-medium" htmlFor="shortDescription">
+                  Short description (optional)
+                </label>
+                <textarea
+                  id="shortDescription"
+                  name="shortDescription"
+                  defaultValue={biz.shortDescription ?? ''}
+                  maxLength={280}
+                  className="min-h-24 rounded-md border border-border bg-card px-3 py-2 focus-gold"
+                />
               </div>
 
-              <button className="px-5 py-3 rounded-md border border-border hover:bg-bgElev focus-gold">Request re‑review</button>
+              <button className="px-5 py-3 rounded-md border border-border hover:bg-bgElev focus-gold">
+                Request re‑review
+              </button>
 
               <p className="mt-2 text-xs text-fgMuted">
                 After changes your business goes back to UNDER_REVIEW until an admin approves it.

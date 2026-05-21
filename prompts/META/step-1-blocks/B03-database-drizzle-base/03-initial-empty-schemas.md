@@ -24,13 +24,13 @@ ts
 
 copy
 // Centralized exports for Drizzle Kit
-export *from './enums';
-export* from './user';
-export *from './geo';
-export* from './catalog';
-export *from './membership';
-export* from './stripe';
-export * from './audit';
+export _from './enums';
+export_ from './user';
+export _from './geo';
+export_ from './catalog';
+export _from './membership';
+export_ from './stripe';
+export \* from './audit';
 Notes
 
 Keep files present even if initially minimal; Step 2 provides full DDL content.

@@ -13,12 +13,13 @@ Checkout & Customer Portal APIs
 ### src/app/api/stripe/checkout/route.ts
 
 ```ts
-import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { stripe } from '@/lib/stripe';
-import { db } from '@/lib/db';
-import { users } from '@/db/schema/users';
 import { eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
+
+import { users } from '@/db/schema/users';
+import { db } from '@/lib/db';
+import { stripe } from '@/lib/stripe';
 
 export async function POST(req: Request) {
   try {
@@ -60,12 +61,13 @@ export async function POST(req: Request) {
 ### src/app/api/stripe/portal/route.ts
 
 ```ts
-import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { stripe } from '@/lib/stripe';
-import { db } from '@/lib/db';
+import { desc, eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
+
 import { subscriptions } from '@/db/schema/users';
-import { eq, desc } from 'drizzle-orm';
+import { db } from '@/lib/db';
+import { stripe } from '@/lib/stripe';
 
 export async function POST(req: Request) {
   try {

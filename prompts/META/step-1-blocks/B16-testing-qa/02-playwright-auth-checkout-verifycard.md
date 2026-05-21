@@ -44,7 +44,7 @@ export default defineConfig({
 ### e2e/auth.signin.spec.ts
 
 ```ts
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test('sign in and land on member page', async ({ page }) => {
   await page.goto('/sign-in');
@@ -59,7 +59,7 @@ test('sign in and land on member page', async ({ page }) => {
 ### e2e/vip.checkout.redirect.spec.ts
 
 ```ts
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test('VIP checkout leads to Stripe Checkout', async ({ page }) => {
   await page.goto('/');
@@ -81,7 +81,7 @@ test('VIP checkout leads to Stripe Checkout', async ({ page }) => {
 ### e2e/verify.card.spec.ts
 
 ```ts
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test('verify-card shows public fields', async ({ page }) => {
   // Replace with an existing card number from your dev DB

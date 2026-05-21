@@ -14,9 +14,10 @@ scripts/seed/categories.ts
 
 ```ts
 import 'dotenv/config';
-import { db } from '@/lib/db';
-import { categories } from '@/db/schema/catalog';
 import { eq } from 'drizzle-orm';
+
+import { categories } from '@/db/schema/catalog';
+import { db } from '@/lib/db';
 
 const list = [
   { name: 'Hotels', slug: 'hotels' },
@@ -26,7 +27,7 @@ const list = [
   { name: 'Marketing', slug: 'marketing' },
   { name: 'Legal Services', slug: 'legal-services' },
   { name: 'Education', slug: 'education' },
-  { name: 'Healthcare', slug: 'healthcare' }
+  { name: 'Healthcare', slug: 'healthcare' },
 ];
 
 async function ensureCategory(name: string, slug: string) {

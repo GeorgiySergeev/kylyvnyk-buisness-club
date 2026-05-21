@@ -10,9 +10,9 @@ Admin — Users table with filters
 
 ## Steps
 
-1) DataTable базовый компонент
-2) UsersTable обёртка с колонками и фильтрами
-3) Серверная страница, которая получает данные и параметры из URL
+1. DataTable базовый компонент
+2. UsersTable обёртка с колонками и фильтрами
+3. Серверная страница, которая получает данные и параметры из URL
 
 ## Files
 
@@ -22,14 +22,16 @@ Admin — Users table with filters
 'use client';
 
 import * as React from 'react';
+
 import {
   ColumnDef,
+  SortingState,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
-  SortingState,
   useReactTable,
 } from '@tanstack/react-table';
+
 import { cn } from '@/lib/utils/cn';
 
 export type DataTableProps<TData, TValue> = {
@@ -67,7 +69,7 @@ export function DataTable<TData, TValue>({
                   key={header.id}
                   className={cn(
                     'px-3 py-2 text-left font-medium select-none',
-                    header.column.getCanSort() && 'cursor-pointer'
+                    header.column.getCanSort() && 'cursor-pointer',
                   )}
                   onClick={header.column.getToggleSortingHandler()}
                 >
@@ -110,13 +112,16 @@ export function DataTable<TData, TValue>({
 ### src/app/(admin)/users/page.tsx
 
 ```tsx
+import type { ColumnDef } from '@tanstack/react-table';
+import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
+
+import { DataTable } from '@/components/admin/data-table';
+import { Pager } from '@/components/admin/ssr-table';
+import { users } from '@/db/schema/user';
 import { parsePage } from '@/features/admin/server/listing';
 import { db } from '@/lib/db';
-import { users } from '@/db/schema/user';
-import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
-import { DataTable } from '@/components/admin/data-table';
-import type { ColumnDef } from '@tanstack/react-table';
-import { Pager } from '@/components/admin/ssr-table'; // Reuse simple pager from SSR variant
+
+// Reuse simple pager from SSR variant
 
 type Row = {
   id: string;
@@ -139,7 +144,11 @@ function buildWhere(search?: string, status?: string) {
   return and(...parts);
 }
 
-export default async function AdminUsersPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | undefined>;
+}) {
   const pg = parsePage(searchParams);
   const search = (searchParams.q || '').trim();
   const status = (searchParams.status || '').trim();
@@ -210,11 +219,18 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: R
           <option value="ACTIVE">ACTIVE</option>
           <option value="BLOCKED">BLOCKED</option>
         </select>
-        <button className="px-4 py-2 rounded-md border border-border hover:bg-bgElev focus-gold">Apply</button>
+        <button className="px-4 py-2 rounded-md border border-border hover:bg-bgElev focus-gold">
+          Apply
+        </button>
       </form>
 
       <DataTable columns={columns} data={rows} className="mt-4" />
-      <Pager page={pg.page} pageSize={pg.pageSize} pathname="/admin/users" searchParams={searchParams as any} />
+      <Pager
+        page={pg.page}
+        pageSize={pg.pageSize}
+        pathname="/admin/users"
+        searchParams={searchParams as any}
+      />
     </section>
   );
 }

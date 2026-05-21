@@ -10,9 +10,9 @@ Render basic server-side tables for core entities with essential columns and sim
 
 ## Steps
 
-1) Create reusable SSR Table component.
-2) Implement list queries for each entity.
-3) Render tables with page/pageSize from query params.
+1. Create reusable SSR Table component.
+2. Implement list queries for each entity.
+3. Render tables with page/pageSize from query params.
 
 ## Files to add/modify
 
@@ -48,7 +48,11 @@ export function SsrTable({
         <thead className="bg-bgElev">
           <tr>
             {columns.map((c) => (
-              <th key={c.key} className="text-left font-medium px-3 py-2" style={{ width: c.width }}>
+              <th
+                key={c.key}
+                className="text-left font-medium px-3 py-2"
+                style={{ width: c.width }}
+              >
                 {c.header}
               </th>
             ))}
@@ -88,14 +92,23 @@ export function Pager({
     sp.set('page', String(toPage));
     sp.set('pageSize', String(pageSize));
     return `${pathname}?${sp.toString()}`;
-    }
+  }
   return (
     <div className="mt-3 flex items-center gap-3">
-      <a className="px-3 py-2 border border-border rounded-md hover:bg-bgElev" href={link(Math.max(1, page - 1))}>
+      <a
+        className="px-3 py-2 border border-border rounded-md hover:bg-bgElev"
+        href={link(Math.max(1, page - 1))}
+      >
         Prev
       </a>
-      <span className="text-sm text-fgMuted">Page {page}{totalHint ? ` of ~${Math.ceil(totalHint / pageSize)}` : ''}</span>
-      <a className="px-3 py-2 border border-border rounded-md hover:bg-bgElev" href={link(page + 1)}>
+      <span className="text-sm text-fgMuted">
+        Page {page}
+        {totalHint ? ` of ~${Math.ceil(totalHint / pageSize)}` : ''}
+      </span>
+      <a
+        className="px-3 py-2 border border-border rounded-md hover:bg-bgElev"
+        href={link(page + 1)}
+      >
         Next
       </a>
     </div>
@@ -106,13 +119,14 @@ export function Pager({
 ### src/features/admin/server/listing.ts
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { users } from '@/db/schema/user';
-import { businesses, categories } from '@/db/schema/catalog';
-import { countries, cities } from '@/db/schema/geo';
-import { subscriptions } from '@/db/schema/stripe';
 import { desc, eq, sql } from 'drizzle-orm';
+import 'server-only';
+
+import { businesses, categories } from '@/db/schema/catalog';
+import { cities, countries } from '@/db/schema/geo';
+import { subscriptions } from '@/db/schema/stripe';
+import { users } from '@/db/schema/user';
+import { db } from '@/lib/db';
 
 export type PageArgs = { page: number; pageSize: number };
 
@@ -213,10 +227,14 @@ export async function listSubscriptions({ page, pageSize }: PageArgs) {
 
 ```tsx
 // src/app/(admin)/users/page.tsx
-import { parsePage, listUsers } from '@/features/admin/server/listing';
-import { SsrTable, Pager } from '@/components/admin/ssr-table';
+import { Pager, SsrTable } from '@/components/admin/ssr-table';
+import { listUsers, parsePage } from '@/features/admin/server/listing';
 
-export default async function AdminUsersPage({ searchParams }: { searchParams: Record<string, string> }) {
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string>;
+}) {
   const pg = parsePage(searchParams);
   const { rows, totalHint } = await listUsers(pg);
 
@@ -236,10 +254,20 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: R
           status: r.status,
           isAdmin: r.isAdmin ? 'Yes' : 'No',
           createdAt: new Date(r.createdAt).toLocaleString(),
-          actions: <a className="underline hover:text-gold-400" href={`/admin/users/${r.id}`}>Open</a>,
+          actions: (
+            <a className="underline hover:text-gold-400" href={`/admin/users/${r.id}`}>
+              Open
+            </a>
+          ),
         }))}
       />
-      <Pager totalHint={totalHint} page={pg.page} pageSize={pg.pageSize} pathname="/admin/users" searchParams={searchParams} />
+      <Pager
+        totalHint={totalHint}
+        page={pg.page}
+        pageSize={pg.pageSize}
+        pathname="/admin/users"
+        searchParams={searchParams}
+      />
     </section>
   );
 }

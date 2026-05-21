@@ -10,16 +10,16 @@ Create a $19.99/month VIP plan in Stripe, capture IDs in env, and optionally pre
 
 ## Steps
 
-1) In Stripe Dashboard → Products:
+1. In Stripe Dashboard → Products:
    - Create product: "VIP Membership"
    - Create recurring price: $19.99 USD, monthly.
-2) Copy IDs:
+2. Copy IDs:
    - Product ID → NEXT_PUBLIC_STRIPE_PRODUCT_VIP
    - Price ID → NEXT_PUBLIC_STRIPE_PRICE_VIP
-3) Optional: Payment Link for “Submit a Business” (owner pays from $19.99/mo):
+3. Optional: Payment Link for “Submit a Business” (owner pays from $19.99/mo):
    - Create a separate product/price if needed.
    - Store its Payment Link URL in env (optional).
-4) Update .env.local and .env.example accordingly.
+4. Update .env.local and .env.example accordingly.
 
 ## Files to modify
 

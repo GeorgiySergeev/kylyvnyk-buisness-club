@@ -11,11 +11,7 @@
   },
 
   "context": {
-    "always_load": [
-      "AGENTS.md",
-      "prompts/META/INDEX.md",
-      "docs/STACK-DECISION.md"
-    ],
+    "always_load": ["AGENTS.md", "prompts/META/INDEX.md", "docs/STACK-DECISION.md"],
     "load_on_demand": [
       "docs/SPEC.md",
       "docs/ENV.md",
@@ -38,14 +34,7 @@
   },
 
   "tools": {
-    "allowed": [
-      "read_file",
-      "write_file",
-      "edit_file",
-      "list_files",
-      "search",
-      "bash"
-    ],
+    "allowed": ["read_file", "write_file", "edit_file", "list_files", "search", "bash"],
     "denied": [],
 
     "bash": {

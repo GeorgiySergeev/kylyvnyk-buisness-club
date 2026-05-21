@@ -18,24 +18,25 @@ appended to the old ADR. Never edit an accepted ADR in place — append.
 
 ## Index
 
-| ID      | Decision                                                            | Status   |
-| ------- | ------------------------------------------------------------------- | -------- |
-| ADR-001 | Application framework: Next.js 15 + React 19 + TypeScript 5 strict  | ACCEPTED |
-| ADR-002 | Repo shape: single Next.js app, **NOT** Turborepo                    | ACCEPTED |
-| ADR-003 | Database: Postgres on Supabase via connection string + Drizzle ORM   | ACCEPTED |
-| ADR-004 | Authentication: Clerk v6 (not Supabase Auth)                         | ACCEPTED |
-| ADR-005 | Billing: Stripe v17 with pinned `apiVersion`                         | ACCEPTED |
-| ADR-006 | Localization: `en` only at MVP launch; `ru`, `uk` are Phase-2        | ACCEPTED |
+| ID      | Decision                                                                    | Status   |
+| ------- | --------------------------------------------------------------------------- | -------- |
+| ADR-001 | Application framework: Next.js 15 + React 19 + TypeScript 5 strict          | ACCEPTED |
+| ADR-002 | Repo shape: single Next.js app, **NOT** Turborepo                           | ACCEPTED |
+| ADR-003 | Database: Postgres on Supabase via connection string + Drizzle ORM          | ACCEPTED |
+| ADR-004 | Authentication: Clerk v6 (not Supabase Auth)                                | ACCEPTED |
+| ADR-005 | Billing: Stripe v17 with pinned `apiVersion`                                | ACCEPTED |
+| ADR-006 | Localization: `en` only at MVP launch; `ru`, `uk` are Phase-2               | ACCEPTED |
 | ADR-007 | Membership lifecycle: one active row per (user, type); history in audit_log | ACCEPTED |
-| ADR-008 | Bot defense + rate limiting: Cloudflare Turnstile + Upstash Redis    | ACCEPTED |
-| ADR-009 | Observability: Sentry (errors) + Plausible (privacy-first analytics) | ACCEPTED |
-| ADR-010 | Deployment: Vercel (production + previews); Supabase managed Postgres | ACCEPTED |
+| ADR-008 | Bot defense + rate limiting: Cloudflare Turnstile + Upstash Redis           | ACCEPTED |
+| ADR-009 | Observability: Sentry (errors) + Plausible (privacy-first analytics)        | ACCEPTED |
+| ADR-010 | Deployment: Vercel (production + previews); Supabase managed Postgres       | ACCEPTED |
 
 ---
 
 ## ADR-001 — Application framework
 
 ### Context
+
 The product is a content-heavy directory + transactional flows (sign-up,
 checkout, card verification, admin moderation). It must be fast on mobile,
 SEO-friendly, and shippable by a small team within an MVP timeframe.
@@ -45,6 +46,7 @@ The existing prompts (`B01-project-bootstrap`) already scaffold exactly that.
 The question was whether to lock those versions or remain on "latest".
 
 ### Decision
+
 Lock to:
 
 - `next@15.x` (App Router, RSC by default)
@@ -59,6 +61,7 @@ Exact versions live in `package.json`. Minor bumps are mechanical (Renovate
 PRs). Major bumps require a new ADR.
 
 ### Alternatives considered
+
 - **Remix / React Router 7.** Smaller ecosystem for what we need; weaker RSC
   story for SEO-heavy pages.
 - **Astro + islands.** Excellent for the marketing surface, awkward for the
@@ -66,9 +69,10 @@ PRs). Major bumps require a new ADR.
 - **Plain SPA + separate API.** Worse SEO, more infrastructure to run.
 
 ### Consequences
-+ One framework end-to-end; one router, one auth integration, one deploy target.
-+ RSC reduces client JS for marketing and directory pages.
-− Bleeding edge: Next 15 + React 19 + Tailwind v4 + shadcn/ui interop is
+
+- One framework end-to-end; one router, one auth integration, one deploy target.
+- RSC reduces client JS for marketing and directory pages.
+  − Bleeding edge: Next 15 + React 19 + Tailwind v4 + shadcn/ui interop is
   weeks-old at decision time. Mitigation: pin exact versions, Renovate,
   weekly upgrade window, "known issues" log under `/docs/KNOWN-ISSUES.md`.
 
@@ -77,6 +81,7 @@ PRs). Major bumps require a new ADR.
 ## ADR-002 — Repo shape
 
 ### Context
+
 The brief mentioned "Turborepo + pnpm workspaces". The prompts in
 `prompts/META/` assume a single Next.js app at the repo root. The question
 was whether to monorepo from day 1.
@@ -86,11 +91,13 @@ mobile app, a separate API, a worker, a shared design system used by an
 external partner). KCLUB-MVP has exactly one deployable.
 
 ### Decision
+
 **Single Next.js app at the repo root.** No Turborepo. No
 `pnpm-workspace.yaml`. `pnpm` is still the package manager (`packageManager`
 field in `package.json` pins the version).
 
 We may revisit if/when we add:
+
 - a mobile app (React Native / Expo),
 - a standalone admin SPA,
 - a long-running worker that can't live as a Vercel cron / function.
@@ -98,6 +105,7 @@ We may revisit if/when we add:
 Until then, "shared code" goes into `/src/lib/*` or `/src/features/*`.
 
 ### Alternatives considered
+
 - **Turborepo with `apps/web` + `packages/db` + `packages/ui`.** Adds build
   graph complexity, two `tsconfig.json` layers, workspace-aware tooling.
   Pure overhead for one deployable. Rejected.
@@ -106,9 +114,10 @@ Until then, "shared code" goes into `/src/lib/*` or `/src/features/*`.
   workspaces without packages just confuse tooling.
 
 ### Consequences
-+ Simpler `pnpm install`, simpler CI, simpler Vercel build.
-+ `tsconfig.json` paths resolve cleanly with `@/*` → `src/*`.
-− If a mobile app appears, we will need to extract `packages/db` and
+
+- Simpler `pnpm install`, simpler CI, simpler Vercel build.
+- `tsconfig.json` paths resolve cleanly with `@/*` → `src/*`.
+  − If a mobile app appears, we will need to extract `packages/db` and
   `packages/types` then. Cost estimate: 1–2 days of refactor. Acceptable.
 
 ---
@@ -116,6 +125,7 @@ Until then, "shared code" goes into `/src/lib/*` or `/src/features/*`.
 ## ADR-003 — Database layer
 
 ### Context
+
 We need Postgres for transactional data, full-text-ish search on businesses
 (initially `ILIKE`/`pg_trgm`, later possibly Meilisearch), and audit logs.
 The brief said "Supabase Postgres". The prompts use Drizzle ORM.
@@ -128,6 +138,7 @@ Two real options:
    a managed Postgres provider only; ignore the rest of the platform.
 
 ### Decision
+
 Option 2. Use Supabase **only** as managed Postgres (and as backup +
 point-in-time recovery). All data access goes through Drizzle ORM over a
 direct connection string. We do **not** install `@supabase/supabase-js`.
@@ -148,6 +159,7 @@ Schema source of truth: `/src/db/schema/*.ts`. Relations live in
 under `/drizzle/`.
 
 ### Alternatives considered
+
 - **Supabase Auth + RLS as the entire authorization model.** Powerful but
   ties us to Supabase forever, splits business logic between SQL policies
   and TypeScript code, and makes admin tooling painful. Rejected (see
@@ -161,13 +173,14 @@ under `/drizzle/`.
   traffic with zero ops effort.
 
 ### Consequences
-+ Portable: if Supabase pricing or reliability disappoints, swap the
+
+- Portable: if Supabase pricing or reliability disappoints, swap the
   connection string. No vendor lock-in beyond Postgres dialect.
-+ One language (TypeScript) for all data access; one place to read schema.
-− We give up RLS as a defense-in-depth layer. Mitigation: every public
+- One language (TypeScript) for all data access; one place to read schema.
+  − We give up RLS as a defense-in-depth layer. Mitigation: every public
   surface returns through a typed DTO with an explicit field allowlist,
   enforced by Playwright assertion tests (see `AGENTS.md §5`).
-− We must ourselves remember `prepare: false` for the pooled URL. Documented
+  − We must ourselves remember `prepare: false` for the pooled URL. Documented
   in `/docs/RUNBOOK.md`.
 
 ---
@@ -175,6 +188,7 @@ under `/drizzle/`.
 ## ADR-004 — Authentication
 
 ### Context
+
 The brief mentioned both Clerk (in the prompt library) and Supabase Auth (in
 the original engineering notes). They are not equivalent. Pick one.
 
@@ -189,6 +203,7 @@ KCLUB needs:
   burning weeks on auth UI for an MVP.
 
 ### Decision
+
 **Clerk v6.** Specifically:
 
 - `@clerk/nextjs@^6`.
@@ -205,6 +220,7 @@ KCLUB needs:
   `await clerkClient.users.getUser(userId)` and reads `twoFactorEnabled`.
 
 ### Alternatives considered
+
 - **Supabase Auth.** Comparable feature set, deeply tied to RLS (which we
   rejected in ADR-003). Self-hosting account UI is more work. Rejected.
 - **Auth.js (NextAuth).** Maximally flexible, but we own everything:
@@ -213,14 +229,15 @@ KCLUB needs:
 - **Lucia.** Same problem as Auth.js plus a smaller ecosystem.
 
 ### Consequences
-+ Auth UI ships in days, not weeks.
-+ 2FA, password policies, OAuth, email deliverability are Clerk's problem.
-+ Clear identity-vs-authorization split: Clerk owns identity, our DB owns
+
+- Auth UI ships in days, not weeks.
+- 2FA, password policies, OAuth, email deliverability are Clerk's problem.
+- Clear identity-vs-authorization split: Clerk owns identity, our DB owns
   roles and memberships.
-− Vendor lock-in on auth. Mitigation: webhook-synced mirror means we always
+  − Vendor lock-in on auth. Mitigation: webhook-synced mirror means we always
   have email + provider data in our DB; migrating to another provider later
   costs us a re-login event for every user, not data loss.
-− CSP must allow `*.clerk.accounts.dev` and Clerk's frontend domains.
+  − CSP must allow `*.clerk.accounts.dev` and Clerk's frontend domains.
   Documented in `/docs/SECURITY.md`.
 
 ---
@@ -228,11 +245,13 @@ KCLUB needs:
 ## ADR-005 — Billing
 
 ### Context
+
 Two paid tiers: VIP (annual subscription) and BUSINESS (annual + listing
 fees). Plus refund flow, dunning, invoice downloads, and the option of
 Payment Links for one-off promo cohorts.
 
 ### Decision
+
 **Stripe `^17`**, pinned `apiVersion: "2024-12-18.acacia"` in
 `/src/lib/stripe/config.ts`. Subscriptions + Customer Portal + Payment
 Links + webhooks.
@@ -241,7 +260,7 @@ Critical implementation invariants (also enforced by Patch-02 and Patch-03):
 
 1. `current_period_end` and `current_period_start` are read **from**
    `subscription.items.data[0]`, not from the Subscription root. The root
-   fields are removed in 2024-12-* API.
+   fields are removed in 2024-12-\* API.
 2. Webhook idempotency uses atomic claim:
    ```sql
    INSERT INTO stripe_events (event_id, ...) VALUES (...)
@@ -258,6 +277,7 @@ Critical implementation invariants (also enforced by Patch-02 and Patch-03):
    migration in `/docs/BILLING-FLOWS.md`).
 
 ### Alternatives considered
+
 - **Paddle.** Better for global VAT/MoSS, weaker subscription primitives
   and less mature webhook tooling. Rejected for MVP; revisit at international
   scale.
@@ -266,11 +286,12 @@ Critical implementation invariants (also enforced by Patch-02 and Patch-03):
   Trades vendor surface for our own bug surface. Rejected.
 
 ### Consequences
-+ Best-in-class subscription primitives (proration, trials, coupons).
-+ Customer Portal removes ~2 weeks of UI work.
-− We must keep up with API version changes — at least one breaking change
+
+- Best-in-class subscription primitives (proration, trials, coupons).
+- Customer Portal removes ~2 weeks of UI work.
+  − We must keep up with API version changes — at least one breaking change
   per year is normal. Documented as a quarterly task in RUNBOOK.
-− Stripe is US-domiciled — fine for our entity (see `LEGAL-PARAMS.md`),
+  − Stripe is US-domiciled — fine for our entity (see `LEGAL-PARAMS.md`),
   may matter for EU customer perception. Not a blocker for MVP.
 
 ---
@@ -278,6 +299,7 @@ Critical implementation invariants (also enforced by Patch-02 and Patch-03):
 ## ADR-006 — Localization
 
 ### Context
+
 The original brief asked for RU / EN / UK. The product spec is currently in
 RU. The prompts default to `en` only. Three locales at MVP means roughly
 3× the copy effort and 3× the QA on every UI change, plus translation
@@ -287,6 +309,7 @@ KCLUB's first paying audience is small and concentrated. Time-to-launch
 matters more than locale coverage.
 
 ### Decision
+
 **MVP launch: `en` only.** `ru` and `uk` are **Phase-2**, added after the
 first paying cohort confirms the product fits.
 
@@ -319,6 +342,7 @@ When Phase-2 starts (`ru`, `uk` enabled):
   to `en` in production.
 
 ### Alternatives considered
+
 - **Three locales at MVP.** Tripled translation review for marketing copy,
   legal pages (which must be reviewed by counsel per jurisdiction),
   error messages, email templates. Pushes launch by an estimated 3–4 weeks.
@@ -329,12 +353,13 @@ When Phase-2 starts (`ru`, `uk` enabled):
   card-verification copy). Rejected — translations stay human-reviewed.
 
 ### Consequences
-+ One locale to QA, write, and translate at MVP.
-+ URL structure already future-proof.
-− Russian and Ukrainian audiences won't see native copy at launch. For an
+
+- One locale to QA, write, and translate at MVP.
+- URL structure already future-proof.
+  − Russian and Ukrainian audiences won't see native copy at launch. For an
   English-speaking business-club positioning this is acceptable; for a
   primarily RU/UA audience this is a marketing risk to flag to stakeholders.
-− `docs/SPEC.md` (RU) vs `docs/SPEC.en.md` drift is a maintenance tax.
+  − `docs/SPEC.md` (RU) vs `docs/SPEC.en.md` drift is a maintenance tax.
   Mitigated by CI diff warning.
 
 ---
@@ -342,6 +367,7 @@ When Phase-2 starts (`ru`, `uk` enabled):
 ## ADR-007 — Membership lifecycle
 
 ### Context
+
 A `User` can hold memberships of different types over time: FREE today,
 VIP next month, BUSINESS later, lapse back to FREE, renew. The Phase-2 DDL
 draft has a `memberships` table with a unique index on
@@ -354,6 +380,7 @@ This is the most common source of billing bugs in subscription products,
 so it gets its own ADR.
 
 ### Decision
+
 **One active row per `(user_id, type)`.** History lives in `audit_logs`,
 not in `memberships`.
 
@@ -365,7 +392,7 @@ Concrete shape:
 - The row's `status` column reflects the **current** state:
   `ACTIVE | PAST_DUE | CANCELED | EXPIRED`.
 - Stripe webhook handler uses `INSERT ... ON CONFLICT (user_id, type)
-  DO UPDATE SET ...`. Every transition writes an `audit_log` entry with
+DO UPDATE SET ...`. Every transition writes an `audit_log` entry with
   action `MEMBERSHIP_<NEW_STATUS>` and a `payload` JSON containing the
   diff (`from_status`, `to_status`, `period_start`, `period_end`,
   `stripe_event_id`).
@@ -402,25 +429,27 @@ Transitions not on this diagram are rejected by the handler with an audit
 entry `MEMBERSHIP_TRANSITION_REJECTED`.
 
 ### Alternatives considered
+
 - **History inside `memberships` (one row per period).** Operational
   queries (`is this user VIP right now?`) become a `WHERE status='ACTIVE'
-  AND now() BETWEEN period_start AND period_end ORDER BY period_end
-  DESC LIMIT 1` — easy to get wrong, especially in dashboards. Rejected.
+AND now() BETWEEN period_start AND period_end ORDER BY period_end
+DESC LIMIT 1` — easy to get wrong, especially in dashboards. Rejected.
 - **Separate `membership_history` table.** Double-writes on every
   transition; `audit_logs` already exists and already carries `payload`.
   Reuse beats duplication.
 - **Eventually-consistent rebuild from Stripe.** Tempting but slow at
-  query time. Rejected; Stripe is the source for *billing* state, our
-  `memberships` row is the source for *access* state, and we sync the
+  query time. Rejected; Stripe is the source for _billing_ state, our
+  `memberships` row is the source for _access_ state, and we sync the
   former into the latter on webhook.
 
 ### Consequences
-+ `memberships` stays small (one row per user per type, ~ N×2 rows total).
-+ "Is X currently VIP?" is a single PK lookup.
-+ Renewals don't lose history — `audit_logs` carries it.
-− Reports that span periods must JOIN `audit_logs`. Documented query
+
+- `memberships` stays small (one row per user per type, ~ N×2 rows total).
+- "Is X currently VIP?" is a single PK lookup.
+- Renewals don't lose history — `audit_logs` carries it.
+  − Reports that span periods must JOIN `audit_logs`. Documented query
   patterns live in `/docs/BILLING-FLOWS.md`.
-− Reactivation (user resubscribes after cancellation) reuses the same
+  − Reactivation (user resubscribes after cancellation) reuses the same
   row. We accept that the `created_at` of the membership row is "first
   ever subscription", not "current period start". Period start lives on
   the row as `current_period_start`.
@@ -430,6 +459,7 @@ entry `MEMBERSHIP_TRANSITION_REJECTED`.
 ## ADR-008 — Bot defense and rate limiting
 
 ### Context
+
 Public surfaces in scope: marketing pages, business directory,
 `/verify-card/[number]`, sign-in / sign-up. Two distinct threats:
 
@@ -439,6 +469,7 @@ Public surfaces in scope: marketing pages, business directory,
    is the primary defense.
 
 ### Decision
+
 **Cloudflare Turnstile** (CAPTCHA) + **Upstash Redis ratelimit**.
 
 Turnstile placement:
@@ -453,20 +484,21 @@ Turnstile placement:
 
 Upstash limits (initial values, tunable per RUNBOOK):
 
-| Surface                         | Window         | Limit                                |
-| ------------------------------- | -------------- | ------------------------------------ |
-| `/verify-card/[number]` (IP)    | sliding 60s    | 10                                   |
-| `/verify-card/[number]` (number)| fixed 600s     | 5                                    |
-| Sign-up                         | sliding 3600s  | 5 per IP                             |
-| Sign-in                         | (Clerk-managed)| —                                    |
-| Stripe webhook                  | none           | (signature-verified, not user input) |
-| Server actions (any)            | sliding 60s    | 30 per user                          |
+| Surface                          | Window          | Limit                                |
+| -------------------------------- | --------------- | ------------------------------------ |
+| `/verify-card/[number]` (IP)     | sliding 60s     | 10                                   |
+| `/verify-card/[number]` (number) | fixed 600s      | 5                                    |
+| Sign-up                          | sliding 3600s   | 5 per IP                             |
+| Sign-in                          | (Clerk-managed) | —                                    |
+| Stripe webhook                   | none            | (signature-verified, not user input) |
+| Server actions (any)             | sliding 60s     | 30 per user                          |
 
 All rate-limit keys live under `rl:<scope>:` prefix in Redis.
 `Ratelimit.slidingWindow` for human-facing limits, `fixedWindow` for
 enumeration defenses (cheaper).
 
 ### Alternatives considered
+
 - **hCaptcha.** Comparable; Turnstile chosen because it's free, faster,
   and we may end up putting Cloudflare in front of the site anyway.
 - **reCAPTCHA v3.** Privacy concerns (Google-owned), and "invisible scoring"
@@ -476,12 +508,13 @@ enumeration defenses (cheaper).
   Redis with sub-100ms p99 for our region. Worth the dependency.
 
 ### Consequences
-+ Two clearly-scoped tools: bot defense (Turnstile) vs request rate
+
+- Two clearly-scoped tools: bot defense (Turnstile) vs request rate
   (Upstash). Easy to reason about.
-+ Both have generous free tiers — no infra cost at MVP scale.
-− CSP must allow `challenges.cloudflare.com`. Documented in
+- Both have generous free tiers — no infra cost at MVP scale.
+  − CSP must allow `challenges.cloudflare.com`. Documented in
   `docs/SECURITY.md`.
-− Upstash adds a network hop per protected request. Acceptable; the
+  − Upstash adds a network hop per protected request. Acceptable; the
   alternative (in-memory per-instance limiting) is broken in serverless.
 
 ---
@@ -489,12 +522,14 @@ enumeration defenses (cheaper).
 ## ADR-009 — Observability
 
 ### Context
+
 We need errors, performance, and basic product analytics. We also need to
 ship fast and not babysit observability dashboards. Privacy matters
 because we're a "private club" — leaking member emails into a third-party
 analytics blob would be a brand-fatal incident.
 
 ### Decision
+
 **Sentry for errors + Plausible for analytics.** No Google Analytics.
 
 Sentry:
@@ -521,6 +556,7 @@ Plausible:
   membership type, country code, and source page.
 
 ### Alternatives considered
+
 - **PostHog.** Excellent product but a lot of surface area we won't use
   at MVP. Revisit when we need session replay or feature flags at scale.
 - **Datadog / New Relic / Mixpanel.** Either overkill or PII-leaky by
@@ -530,11 +566,12 @@ Plausible:
   cookie-consent surface area.
 
 ### Consequences
-+ Two vendors, both privacy-respectful, both with a free tier sufficient
+
+- Two vendors, both privacy-respectful, both with a free tier sufficient
   for MVP traffic.
-+ Sentry catches the long tail of runtime errors that tests don't.
-− Sentry CSP entries needed (`sentry.io` ingest hostnames). Documented.
-− Plausible is cookieless — we lose cross-device user identification.
+- Sentry catches the long tail of runtime errors that tests don't.
+  − Sentry CSP entries needed (`sentry.io` ingest hostnames). Documented.
+  − Plausible is cookieless — we lose cross-device user identification.
   Acceptable; we have authenticated user IDs in our DB anyway.
 
 ---
@@ -542,11 +579,13 @@ Plausible:
 ## ADR-010 — Deployment
 
 ### Context
+
 We need a hosting target that (a) supports Next.js 15 RSC end-to-end, (b)
 gives us preview deployments per PR, (c) has cheap-to-zero cost at MVP
 traffic, and (d) doesn't require ops staff.
 
 ### Decision
+
 **Vercel for the app** (production + preview deployments) + **Supabase
 managed Postgres** (per ADR-003).
 
@@ -566,6 +605,7 @@ Specifics:
   pre-check (no DB).
 
 ### Alternatives considered
+
 - **Self-host on Fly.io / Railway / Render.** More control, more ops.
   Rejected for MVP.
 - **Cloudflare Pages + Workers.** Excellent for static + edge logic,
@@ -574,13 +614,14 @@ Specifics:
 - **AWS Amplify / ECS.** Overkill. Rejected.
 
 ### Consequences
-+ Zero ops effort; preview URLs per PR are a code-review superpower.
-+ Tight Next.js integration — no custom build config to maintain.
-− Vendor lock-in on hosting. Mitigation: nothing in the codebase
+
+- Zero ops effort; preview URLs per PR are a code-review superpower.
+- Tight Next.js integration — no custom build config to maintain.
+  − Vendor lock-in on hosting. Mitigation: nothing in the codebase
   depends on Vercel APIs; switching to a Node host is a Dockerfile +
   domain-cutover away. We do depend on `vercel.json` for cron
   configuration; that's the only non-portable bit.
-− Cold starts on rarely-hit routes. Acceptable at MVP traffic.
+  − Cold starts on rarely-hit routes. Acceptable at MVP traffic.
 
 ---
 

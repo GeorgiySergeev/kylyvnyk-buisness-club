@@ -14,16 +14,16 @@ Run webhook integration locally:
 
 ## Steps
 
-1) Install Stripe CLI and login.
-2) Start Next dev.
-3) Run:
+1. Install Stripe CLI and login.
+2. Start Next dev.
+3. Run:
 
 - stripe listen --forward-to localhost:3000/api/webhooks/stripe
 - stripe trigger customer.subscription.created
 - stripe trigger customer.subscription.updated
 - stripe trigger customer.subscription.deleted
 
-1) Validate DB:
+1. Validate DB:
 
 - subscriptions row updated
 - memberships VIP valid_to set

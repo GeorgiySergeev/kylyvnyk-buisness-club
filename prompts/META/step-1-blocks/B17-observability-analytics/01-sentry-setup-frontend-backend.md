@@ -10,31 +10,31 @@ Instrument client, Node (server actions, API routes), and edge runtime. Wire rel
 
 ## Steps
 
-1) Install Sentry SDK for Next:
+1. Install Sentry SDK for Next:
 
 - pnpm add @sentry/nextjs
 
-1) Initialize Sentry via wizard (recommended) or manual config:
+1. Initialize Sentry via wizard (recommended) or manual config:
 
 - npx @sentry/wizard -i nextjs
 - Fill DSN, environment, and sample rates.
 
-1) Create configs:
+1. Create configs:
 
 - sentry.client.config.ts
 - sentry.server.config.ts
 - sentry.edge.config.ts
 
-1) Wrap next.config.js with withSentryConfig (hide source maps from public).
+1. Wrap next.config.js with withSentryConfig (hide source maps from public).
 
-2) Add env vars:
+2. Add env vars:
 
 - SENTRY_DSN
 - SENTRY_ENV=development|staging|production
 - SENTRY_TRACES_SAMPLE_RATE=0.1 (adjust)
 - SENTRY_DEBUG=false (optional)
 
-1) CI: upload source maps on build (wizard can scaffold). Ensure auth token is in CI secrets.
+1. CI: upload source maps on build (wizard can scaffold). Ensure auth token is in CI secrets.
 
 ## Files
 
@@ -96,7 +96,7 @@ module.exports = withSentryConfig(
   {
     hideSourcemaps: true,
     widenClientFileUpload: true,
-  }
+  },
 );
 ```
 

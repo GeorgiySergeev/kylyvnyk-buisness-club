@@ -2,7 +2,7 @@
 
 ## Overview
 
-This block contains the step-by-step instructions for establishing the foundational design system and theming for the **KYLYVNYK CLUB** project. 
+This block contains the step-by-step instructions for establishing the foundational design system and theming for the **KYLYVNYK CLUB** project.
 
 The focus is on creating a premium, accessible, and scalable "black & gold" luxury aesthetic. It includes setting up design tokens, typography, accessible contrast guidelines, core UI components, and iconography.
 
@@ -29,6 +29,7 @@ The focus is on creating a premium, accessible, and scalable "black & gold" luxu
 ## Overall Acceptance Criteria
 
 Upon completion of this block:
+
 - The design system implements a consistent "black & gold" dark theme.
 - Tailwind CSS utilizes semantic tokens correctly (bg, fg, gold, border, ring).
 - Typography is clean and premium, utilizing the configured font and scale.

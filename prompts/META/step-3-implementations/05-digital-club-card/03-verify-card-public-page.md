@@ -13,11 +13,12 @@ ISR/Dynamic страница для проверки подлинности ка
 ### src/app/verify-card/[number]/page.tsx
 
 ```tsx
-import { db } from '@/lib/db';
-import { users, memberships } from '@/db/schema/users';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
+
 import { Section } from '@/components/ui/section';
+import { memberships, users } from '@/db/schema/users';
+import { db } from '@/lib/db';
 
 export const revalidate = 60; // ISR 60 секунд (или dynamic 'force-dynamic')
 
@@ -65,7 +66,7 @@ export default async function VerifyCardPage({ params }: { params: { number: str
             {data.status}
           </span>
         </div>
-        
+
         <div className="flex justify-between border-b border-border pb-3">
           <span className="text-fgMuted text-sm">Membership</span>
           <span className={`font-semibold ${data.tier === 'VIP' ? 'text-gold-400' : 'text-fg'}`}>
@@ -76,9 +77,7 @@ export default async function VerifyCardPage({ params }: { params: { number: str
         {data.tier === 'VIP' && data.validUntil && (
           <div className="flex justify-between">
             <span className="text-fgMuted text-sm">Valid until</span>
-            <span className="font-semibold text-fg">
-              {data.validUntil.toLocaleDateString()}
-            </span>
+            <span className="font-semibold text-fg">{data.validUntil.toLocaleDateString()}</span>
           </div>
         )}
       </div>

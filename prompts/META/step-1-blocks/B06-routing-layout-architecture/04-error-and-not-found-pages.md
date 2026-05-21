@@ -10,9 +10,9 @@ Provide branded error and 404 pages with accessible UI and clear navigation opti
 
 ## Steps
 
-1) Add global error.tsx and not-found.tsx under app/.
-2) Add a simple “Try again” client component for error boundary.
-3) Ensure consistent styling with design tokens.
+1. Add global error.tsx and not-found.tsx under app/.
+2. Add a simple “Try again” client component for error boundary.
+3. Ensure consistent styling with design tokens.
 
 ## Files to add
 
@@ -26,6 +26,7 @@ Provide branded error and 404 pages with accessible UI and clear navigation opti
 'use client';
 
 import { useEffect } from 'react';
+
 import { TryAgain } from '@/components/common/try-again';
 
 export default function GlobalError({ error, reset }: { error: Error; reset: () => void }) {
@@ -58,7 +59,10 @@ export default function NotFound() {
     <main className="container py-20">
       <h1 className="h2">Page not found</h1>
       <p className="mt-2 body-sm text-fgMuted">The page you’re looking for doesn’t exist.</p>
-      <a href="/" className="mt-6 inline-block px-5 py-3 rounded-md border border-border hover:bg-bgElev focus-gold">
+      <a
+        href="/"
+        className="mt-6 inline-block px-5 py-3 rounded-md border border-border hover:bg-bgElev focus-gold"
+      >
         Go back home
       </a>
     </main>

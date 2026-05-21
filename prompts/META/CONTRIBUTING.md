@@ -3,7 +3,7 @@
 How to add, change, supersede, or remove a prompt. Read before opening any
 PR under `prompts/META/`.
 
-> This file is about *prompts*. For the project's general contribution
+> This file is about _prompts_. For the project's general contribution
 > guide (commits, branches, code review), see `/CONTRIBUTING.md` at the
 > repo root (when it lands).
 
@@ -117,7 +117,7 @@ Example:
 
 > Phase: 1
 > Block: B04-auth-clerk-rbac
-> Step:  03
+> Step: 03
 > Depends on: B04.02
 > Superseded-By: prompts/META/step-3-implementations/01-auth-clerk/03-role-and-profile-attributes.md
 ```
@@ -126,50 +126,60 @@ Example:
 
 ## 7. Step template (copy-paste)
 
-```md
+````md
 # B<NN>.<SS> — <Short Title>
 
 > Phase: 1
 > Block: B<NN>-<slug>
-> Step:  <SS>
+> Step: <SS>
 > Depends on: <step IDs, or "—">
 > Superseded-By: —
 
 ## Objective
+
 <one sentence>
 
 ## Inputs
+
 - <precondition>
 - <precondition>
 
 ## Steps
+
 1. <atomic action>
 2. <atomic action>
 3. <atomic action>
 
 ## Files to add / modify
+
 - <path> — create | modify | delete
 
 ## Outputs
+
 - <env var, script, route, table, namespace>
 
 ## Acceptance
+
 - <command, assertion, or test name>
 - <command, assertion, or test name>
 
 ## Rollback
+
 <command or list>
 
 ## Verification command
+
 ```bash
 pnpm lint && pnpm typecheck && pnpm test && pnpm build
 ```
+````
 
 ## Snippets (optional)
 
 ## Notes (optional)
 
 ## Out of scope (optional)
+
 ```
 
 ---
@@ -217,11 +227,13 @@ Review turnaround target: 24 business hours.
 ## 11. Commit message examples
 
 ```
+
 feat(prompts/b20): add search infrastructure block
 fix(prompts/b05): pin stripe apiVersion 2024-12-18.acacia
 docs(prompts): add Patch-09 for CSP allowlist
 refactor(prompts/b04): split B04.03 into 03a auth and 03b profile
 chore(prompts): archive B0X-old-supabase-auth
+
 ```
 
 ---
@@ -239,3 +251,4 @@ chore(prompts): archive B0X-old-supabase-auth
 | "Snippet has no path comment"          | First line of every code block: `// path/to/file`           |
 | "Forbidden vocab grep failed"          | See `AGENTS.md §4`                                          |
 | "INDEX.md not updated"                 | Add the new step/block/patch row                            |
+```

@@ -21,7 +21,7 @@ SEO — Essentials for MVP
 
 ## Robots/Sitemap
 
-- [ ] robots.txt — блокирует /admin, /member, /business, /api/*.
+- [ ] robots.txt — блокирует /admin, /member, /business, /api/\*.
 - [ ] sitemap.xml — с абсолютными URL, с alternates.languages.
 
 ## Content/Semantics

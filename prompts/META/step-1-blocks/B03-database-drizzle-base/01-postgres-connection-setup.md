@@ -29,21 +29,21 @@ import { Pool } from 'pg';
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
-  throw new Error('DATABASE_URL is not set');
+throw new Error('DATABASE_URL is not set');
 }
 
 // Avoid creating multiple pools in dev (Next.js HMR)
 const globalForDb = globalThis as unknown as { pool?: Pool };
 
 export const pool =
-  globalForDb.pool ??
-  new Pool({
-    connectionString,
-    ssl:
-      process.env.NODE_ENV === 'production'
-        ? { rejectUnauthorized: false }
-        : undefined,
-  });
+globalForDb.pool ??
+new Pool({
+connectionString,
+ssl:
+process.env.NODE_ENV === 'production'
+? { rejectUnauthorized: false }
+: undefined,
+});
 
 if (process.env.NODE_ENV !== 'production') globalForDb.pool = pool;
 

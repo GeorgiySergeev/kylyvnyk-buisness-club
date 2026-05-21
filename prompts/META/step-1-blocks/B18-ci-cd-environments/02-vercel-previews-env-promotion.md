@@ -10,20 +10,20 @@ Enable preview URLs per PR with safe test secrets; restrict production deploys t
 
 ## Steps
 
-1) Connect GitHub repo to Vercel project.
-2) Configure environments in Vercel:
+1. Connect GitHub repo to Vercel project.
+2. Configure environments in Vercel:
    - Development/Preview:
      - Use Stripe test keys, test Redis, test DB.
      - Set NEXT_PUBLIC_SITE_URL to preview domain pattern.
    - Production:
      - Use live secrets; protect environment.
-3) Deployment policy:
+3. Deployment policy:
    - Previews on every PR automatically.
    - Production deploys only from main; require PR approvals.
-4) Secrets hygiene:
+4. Secrets hygiene:
    - Store secrets only in Vercel env manager.
    - Rotate on incident; separate keys per env.
-5) Optional: GitHub status check requires successful CI before Vercel deploy.
+5. Optional: GitHub status check requires successful CI before Vercel deploy.
 
 ## Example env mapping (Vercel UI)
 

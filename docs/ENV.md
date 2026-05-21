@@ -12,12 +12,12 @@ rotating it, what breaks if it's missing or wrong, and the security class.
 
 ## Security classes
 
-| Class    | Meaning                                                                | Examples                            |
-| -------- | ---------------------------------------------------------------------- | ----------------------------------- |
-| `public` | Safe to ship to browser; prefixed `NEXT_PUBLIC_`                       | publishable keys, app URL, DSN      |
-| `server` | Server-only secret; never embedded in client bundles                   | secret keys, webhook signing secrets |
-| `ci`     | Used by CI only; never present at runtime                              | source map upload tokens            |
-| `flag`   | Non-secret behavior switch                                             | `ALLOW_SEED`, `NODE_ENV`            |
+| Class    | Meaning                                              | Examples                             |
+| -------- | ---------------------------------------------------- | ------------------------------------ |
+| `public` | Safe to ship to browser; prefixed `NEXT_PUBLIC_`     | publishable keys, app URL, DSN       |
+| `server` | Server-only secret; never embedded in client bundles | secret keys, webhook signing secrets |
+| `ci`     | Used by CI only; never present at runtime            | source map upload tokens             |
+| `flag`   | Non-secret behavior switch                           | `ALLOW_SEED`, `NODE_ENV`             |
 
 CI greps for any non-`NEXT_PUBLIC_` env var read from a client component
 and fails the build. See `prompts/META/PATCHES/Patch-04` style for the
@@ -27,12 +27,12 @@ underlying rationale.
 
 ## Environments
 
-| Environment    | Source of values                       | Notes                                  |
-| -------------- | -------------------------------------- | -------------------------------------- |
-| `development`  | `.env.local` on developer machine      | Never committed                        |
-| `preview`      | Vercel project env vars (Preview scope)| Per-PR URLs; uses Stripe test mode     |
-| `production`   | Vercel project env vars (Production)   | Stripe live mode; Sentry live project  |
-| `test` / CI    | GitHub Actions secrets + ephemeral DB  | Stripe in test mode; mocked Clerk      |
+| Environment   | Source of values                        | Notes                                 |
+| ------------- | --------------------------------------- | ------------------------------------- |
+| `development` | `.env.local` on developer machine       | Never committed                       |
+| `preview`     | Vercel project env vars (Preview scope) | Per-PR URLs; uses Stripe test mode    |
+| `production`  | Vercel project env vars (Production)    | Stripe live mode; Sentry live project |
+| `test` / CI   | GitHub Actions secrets + ephemeral DB   | Stripe in test mode; mocked Clerk     |
 
 A variable is "missing" if it's empty in the active environment. The app's
 typed env loader (`src/lib/env.ts`) calls `zod.parse` on startup and
@@ -53,11 +53,13 @@ Format for each entry:
 ### App
 
 #### `NEXT_PUBLIC_APP_URL`
+
 public · required · `http://localhost:3000` in dev · set by hand or Vercel
 auto · owner: tech lead · rotates: on domain change · breaks: absolute URLs
 in emails, OG tags, Stripe redirect URLs, Clerk redirect URLs.
 
 #### `NODE_ENV`
+
 flag · required · platform-set · owner: platform · rotates: never · breaks:
 optimizations, log verbosity, `ALLOW_SEED` gating.
 
@@ -66,6 +68,7 @@ optimizations, log verbosity, `ALLOW_SEED` gating.
 ### Database (ADR-003)
 
 #### `DATABASE_URL`
+
 server · required · — · Supabase Dashboard → Project → Settings →
 Database → Connection Pooler (**Transaction** mode, port **6543**) · owner:
 DB owner · rotates: on Supabase password reset · breaks: every read/write
@@ -77,6 +80,7 @@ you copy a non-pooled URL here, you'll get
 `prepared statement "s1" already exists` under load.
 
 #### `DATABASE_URL_DIRECT`
+
 server · required · — · Supabase Dashboard → same page → **Session** mode,
 port **5432** · owner: DB owner · rotates: same as above · breaks:
 `pnpm db:migrate`, `pnpm db:generate`, `drizzle-kit studio`.
@@ -88,25 +92,29 @@ Used ONLY by `drizzle-kit`. The app never reads this at runtime.
 ### Authentication — Clerk (ADR-004)
 
 #### `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+
 public · required · — · Clerk Dashboard → API Keys → Publishable key ·
 owner: auth owner · rotates: rarely (only on instance migration) · breaks:
 sign-in / sign-up UI cannot mount.
 
 #### `CLERK_SECRET_KEY`
+
 server · required · — · Clerk Dashboard → API Keys → Secret key · owner:
 auth owner · rotates: on suspected leak · breaks: `auth()`, server-side
 Clerk API calls, role lookups.
 
 #### `CLERK_WEBHOOK_SECRET`
+
 server · required · — · Clerk Dashboard → Webhooks → your endpoint →
 Signing Secret · owner: auth owner · rotates: on endpoint change · breaks:
-`/api/clerk/webhook` signature verification (all incoming user.* events
+`/api/clerk/webhook` signature verification (all incoming user.\* events
 get 401).
 
 Why a separate secret per webhook endpoint: each endpoint signs with its
 own secret so we can rotate one without nuking the others.
 
 #### `NEXT_PUBLIC_CLERK_SIGN_IN_URL` / `..._SIGN_UP_URL`
+
 public · required · `/en/sign-in`, `/en/sign-up` · — · owner: tech lead ·
 rotates: on locale or URL strategy change · breaks: Clerk middleware
 redirects 404.
@@ -114,6 +122,7 @@ redirects 404.
 Must be absolute paths starting with `/[locale]/`.
 
 #### `NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL` / `..._AFTER_SIGN_UP_URL`
+
 public · required · `/en/m/dashboard`, `/en/m/onboarding` · — · owner:
 tech lead · rotates: on URL refactor · breaks: post-auth flow lands on
 home, breaking funnel analytics.
@@ -123,6 +132,7 @@ home, breaking funnel analytics.
 ### Billing — Stripe (ADR-005)
 
 #### `STRIPE_SECRET_KEY`
+
 server · required · — · Stripe Dashboard → Developers → API keys ·
 owner: billing owner · rotates: on suspected leak; quarterly review ·
 breaks: all server-side Stripe calls (Checkout, Portal, subscription
@@ -132,10 +142,12 @@ Use `sk_test_*` everywhere except production. Vercel preview deploys MUST
 use test keys — never paste a live key into preview env.
 
 #### `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+
 public · required · — · same page · owner: billing owner · rotates: with
 secret key · breaks: client-side Stripe.js (Checkout redirect).
 
 #### `STRIPE_WEBHOOK_SECRET`
+
 server · required · — · in dev: `stripe listen --print-secret`; in prod:
 Dashboard → Webhooks → endpoint → Signing secret · owner: billing owner ·
 rotates: on endpoint URL change · breaks: `/api/stripe/webhook` signature
@@ -145,6 +157,7 @@ verification — Stripe will mark events as failed and start retrying.
 `stripe listen` after a reboot and update `.env.local`. This is normal.
 
 #### `STRIPE_PRICE_VIP_ANNUAL` / `STRIPE_PRICE_BUSINESS_ANNUAL`
+
 server · required · — · Stripe Dashboard → Products → your product →
 Pricing → price ID · owner: billing owner · rotates: when product
 restructured · breaks: checkout sessions return "No such price".
@@ -155,6 +168,7 @@ and let the code branch on it. Existing subscribers must keep their
 original price.
 
 #### `STRIPE_PORTAL_CONFIGURATION_ID`
+
 server · required · — · Stripe Dashboard → Settings → Billing → Customer
 Portal → your configuration · owner: billing owner · rotates: when portal
 copy/flow changes · breaks: Customer Portal session creation fails.
@@ -164,11 +178,13 @@ copy/flow changes · breaks: Customer Portal session creation fails.
 ### Rate limiting — Upstash (ADR-008)
 
 #### `UPSTASH_REDIS_REST_URL`
+
 server · required · — · Upstash Console → your DB → REST API → URL ·
 owner: platform owner · rotates: on DB migration · breaks: every rate
 limit check (`/verify-card`, sign-up, server actions).
 
 #### `UPSTASH_REDIS_REST_TOKEN`
+
 server · required · — · Upstash Console → same page → REST API → Token ·
 owner: platform owner · rotates: on suspected leak · breaks: same as
 above.
@@ -182,6 +198,7 @@ in `/docs/SECURITY.md`. Do not change this behavior without an ADR.
 ### Bot defense — Turnstile (ADR-008)
 
 #### `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+
 public · required · — · Cloudflare Dashboard → Turnstile → your site ·
 owner: platform owner · rotates: on site migration · breaks: Turnstile
 widget fails to render on forms; submissions blocked because
@@ -191,6 +208,7 @@ Dev tip: Cloudflare ships always-pass and always-fail test keys
 (`1x00000000000000000000AA` etc.). Use them in unit/integration tests.
 
 #### `TURNSTILE_SECRET_KEY`
+
 server · required · — · same page · owner: platform owner · rotates: with
 site key · breaks: `siteverify` returns 401, server actions reject all
 form submissions.
@@ -200,16 +218,19 @@ form submissions.
 ### Observability — Sentry (ADR-009)
 
 #### `NEXT_PUBLIC_SENTRY_DSN`
+
 public · required · — · Sentry → Project → Settings → Client Keys (DSN) ·
 owner: observability owner · rotates: rarely · breaks: errors not
 captured (silent failure — alert via a synthetic test in CI).
 
 #### `SENTRY_ORG` / `SENTRY_PROJECT`
+
 ci · required at build · `kclub` / `kclub-web` · — · owner: observability
 owner · rotates: never · breaks: source map upload step in CI; runtime
 unaffected.
 
 #### `SENTRY_AUTH_TOKEN`
+
 ci · required in CI · — · Sentry → Settings → Account → API → Auth Tokens
 (scope `project:releases`) · owner: observability owner · rotates:
 quarterly · breaks: source maps not uploaded; stack traces in Sentry are
@@ -220,6 +241,7 @@ minified and unreadable. **Never** put in `.env.local`.
 ### Analytics — Plausible (ADR-009)
 
 #### `NEXT_PUBLIC_PLAUSIBLE_DOMAIN`
+
 public · required · — · the domain you registered in Plausible · owner:
 marketing/observability owner · rotates: on domain change · breaks: no
 pageviews recorded; custom events still fire but are unattributed.
@@ -229,6 +251,7 @@ pageviews recorded; custom events still fire but are unattributed.
 ### Email (optional at MVP)
 
 #### `RESEND_API_KEY` (optional)
+
 server · optional · — · Resend Dashboard → API Keys · owner: tech lead ·
 rotates: on suspected leak · breaks: transactional emails (none at MVP;
 Clerk sends auth emails itself).
@@ -237,6 +260,7 @@ Enable only when we add our own emails (welcome, payment receipt
 override, introduction notifications).
 
 #### `EMAIL_FROM` (optional)
+
 flag · optional · `"KCLUB <hello@kclub.example.com>"` · — · owner: tech
 lead · rotates: on domain or brand change · breaks: emails sent from
 default Resend domain (unbranded).
@@ -246,12 +270,14 @@ default Resend domain (unbranded).
 ### Internal flags
 
 #### `ALLOW_SEED`
+
 flag · optional · `""` (off) · — · owner: tech lead · breaks: `pnpm
 db:seed` refuses to run unless `NODE_ENV === "development"` OR
 `ALLOW_SEED === "1"`. The second clause exists for staging-only seed
 events; production seeds are forbidden by code.
 
 #### `DISABLE_VOCAB_GREP`
+
 flag · optional · `""` (off) · — · owner: contributor temporarily editing
 `docs/GUARDRAILS.md` · breaks: local pre-commit hook lets forbidden words
 through. CI **ignores** this flag and always greps.
@@ -286,16 +312,16 @@ rather than guessing.
 
 > One-page summary; full procedure in `/docs/RUNBOOK.md`.
 
-| Secret                    | Rotation window         | Method                                       | Downtime |
-| ------------------------- | ----------------------- | -------------------------------------------- | -------- |
-| `CLERK_SECRET_KEY`        | quarterly + on leak     | Clerk → API Keys → "Rotate" → update Vercel  | none     |
-| `CLERK_WEBHOOK_SECRET`    | on endpoint change      | Re-create endpoint, update Vercel, test event | none    |
-| `STRIPE_SECRET_KEY`       | on leak only            | Stripe → roll key → update Vercel            | none     |
-| `STRIPE_WEBHOOK_SECRET`   | on leak / endpoint move | Stripe → roll secret on endpoint             | none     |
-| `DATABASE_URL` (password) | on leak                 | Supabase → reset password → update Vercel    | ~30s     |
-| `UPSTASH_REDIS_REST_TOKEN`| on leak                 | Upstash → rotate token → update Vercel       | none (fails closed during gap) |
-| `TURNSTILE_SECRET_KEY`    | on site migration       | Cloudflare → site → rotate                   | none     |
-| `SENTRY_AUTH_TOKEN`       | quarterly               | Sentry → new token → update GitHub Secrets   | CI only  |
+| Secret                     | Rotation window         | Method                                        | Downtime                       |
+| -------------------------- | ----------------------- | --------------------------------------------- | ------------------------------ |
+| `CLERK_SECRET_KEY`         | quarterly + on leak     | Clerk → API Keys → "Rotate" → update Vercel   | none                           |
+| `CLERK_WEBHOOK_SECRET`     | on endpoint change      | Re-create endpoint, update Vercel, test event | none                           |
+| `STRIPE_SECRET_KEY`        | on leak only            | Stripe → roll key → update Vercel             | none                           |
+| `STRIPE_WEBHOOK_SECRET`    | on leak / endpoint move | Stripe → roll secret on endpoint              | none                           |
+| `DATABASE_URL` (password)  | on leak                 | Supabase → reset password → update Vercel     | ~30s                           |
+| `UPSTASH_REDIS_REST_TOKEN` | on leak                 | Upstash → rotate token → update Vercel        | none (fails closed during gap) |
+| `TURNSTILE_SECRET_KEY`     | on site migration       | Cloudflare → site → rotate                    | none                           |
+| `SENTRY_AUTH_TOKEN`        | quarterly               | Sentry → new token → update GitHub Secrets    | CI only                        |
 
 Rotation rule: never rotate two secrets in the same deploy. One at a
 time, verify, then the next.

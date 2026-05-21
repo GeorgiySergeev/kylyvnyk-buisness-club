@@ -23,14 +23,14 @@ import { eq } from 'drizzle-orm';
 
 // RSC-safe read
 export async function getPublishedBusinesses(limit = 12) {
-  // Adjust 'status' literal to match enum in Step 2
-  const rows = await db
-    .select()
-    .from(businesses)
-    .where(eq(businesses.status, 'PUBLISHED' as any))
-    .limit(limit);
+// Adjust 'status' literal to match enum in Step 2
+const rows = await db
+.select()
+.from(businesses)
+.where(eq(businesses.status, 'PUBLISHED' as any))
+.limit(limit);
 
-  return rows;
+return rows;
 }
 src/features/catalog/server/actions.ts
 ts
@@ -44,45 +44,45 @@ import { db } from '@/lib/db';
 import { businesses } from '@/db/schema/catalog';
 
 const createBusinessSchema = z.object({
-  name: z.string().min(2).max(200),
-  representativeName: z.string().min(2).max(160),
-  email: z.string().email().max(256),
-  phone: z.string().optional(),
-  countryId: z.number().int().positive(),
-  cityId: z.number().int().positive(),
-  categoryId: z.number().int().positive(),
-  websiteUrl: z.string().url().max(512).optional(),
-  shortDescription: z.string().max(280).optional(),
+name: z.string().min(2).max(200),
+representativeName: z.string().min(2).max(160),
+email: z.string().email().max(256),
+phone: z.string().optional(),
+countryId: z.number().int().positive(),
+cityId: z.number().int().positive(),
+categoryId: z.number().int().positive(),
+websiteUrl: z.string().url().max(512).optional(),
+shortDescription: z.string().max(280).optional(),
 });
 
 export async function createBusinessAction(formData: FormData) {
-  const input = Object.fromEntries(formData.entries());
-  const parsed = createBusinessSchema.safeParse({
-    name: input.name,
-    representativeName: input.representativeName,
-    email: input.email,
-    phone: input.phone,
-    countryId: Number(input.countryId),
-    cityId: Number(input.cityId),
-    categoryId: Number(input.categoryId),
-    websiteUrl: input.websiteUrl,
-    shortDescription: input.shortDescription,
-  });
+const input = Object.fromEntries(formData.entries());
+const parsed = createBusinessSchema.safeParse({
+name: input.name,
+representativeName: input.representativeName,
+email: input.email,
+phone: input.phone,
+countryId: Number(input.countryId),
+cityId: Number(input.cityId),
+categoryId: Number(input.categoryId),
+websiteUrl: input.websiteUrl,
+shortDescription: input.shortDescription,
+});
 
-  if (!parsed.success) {
-    return { ok: false, errors: parsed.error.flatten() };
-  }
+if (!parsed.success) {
+return { ok: false, errors: parsed.error.flatten() };
+}
 
-  // Default to UNDER_REVIEW per MVP
-  await db.insert(businesses).values({
-    id: undefined, // use default uuid if configured
-    ownerUserId: undefined as any, // set from session in real impl
-    status: 'UNDER_REVIEW' as any,
-    ...parsed.data,
-  });
+// Default to UNDER_REVIEW per MVP
+await db.insert(businesses).values({
+id: undefined, // use default uuid if configured
+ownerUserId: undefined as any, // set from session in real impl
+status: 'UNDER_REVIEW' as any,
+...parsed.data,
+});
 
-  revalidateTag('catalog:list'); // ensure listings re-fetch
-  return { ok: true };
+revalidateTag('catalog:list'); // ensure listings re-fetch
+return { ok: true };
 }
 Notes
 

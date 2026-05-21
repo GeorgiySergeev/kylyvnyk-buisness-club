@@ -10,9 +10,9 @@ Cache public verification responses to reduce DB load, while ensuring timely upd
 
 ## Steps
 
-1) Use Next revalidate = 120 on page and API (done).
-2) Add a helper to revalidate the specific verify page after membership changes (Stripe webhook).
-3) Optional: add Upstash Redis layer for ultra‑fast cache (TTL 2–5 min).
+1. Use Next revalidate = 120 on page and API (done).
+2. Add a helper to revalidate the specific verify page after membership changes (Stripe webhook).
+3. Optional: add Upstash Redis layer for ultra‑fast cache (TTL 2–5 min).
 
 ## Files to add/modify
 
@@ -23,11 +23,12 @@ Cache public verification responses to reduce DB load, while ensuring timely upd
 ### src/features/membership/server/revalidate.ts
 
 ```ts
-import 'server-only';
-import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db';
-import { cards } from '@/db/schema/membership';
 import { eq } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
+import 'server-only';
+
+import { cards } from '@/db/schema/membership';
+import { db } from '@/lib/db';
 
 export async function revalidateVerifyCardByUserId(userId: string) {
   const row = await db.query.cards.findFirst({ where: eq(cards.userId, userId) });
@@ -58,8 +59,8 @@ pnpm add @upstash/redis
 File: src/lib/redis/client.ts
 
 ```ts
-import 'server-only';
 import { Redis } from '@upstash/redis';
+import 'server-only';
 
 export const redis =
   process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN

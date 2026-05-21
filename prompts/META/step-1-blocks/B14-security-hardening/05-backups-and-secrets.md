@@ -14,10 +14,10 @@ Ensure data resilience and secret hygiene:
 
 ## Steps
 
-1) Prefer managed backups:
+1. Prefer managed backups:
    - Neon/Supabase: enable PITR/scheduled snapshots (daily).
-2) Optional: nightly pg_dump to object storage (R2/S3) with encryption.
-3) Enforce secrets hygiene: .env handling, Vercel envs, GitHub environments.
+2. Optional: nightly pg_dump to object storage (R2/S3) with encryption.
+3. Enforce secrets hygiene: .env handling, Vercel envs, GitHub environments.
 
 ## Files to add
 
@@ -72,7 +72,7 @@ echo "[*] Done: $OUT"
 # Secrets Hygiene
 
 - Use Vercel environment variables for prod/staging; restrict edit access.
-- Never commit .env.* to Git; .env.example only (no secrets).
+- Never commit .env.\* to Git; .env.example only (no secrets).
 - Rotate keys on incident or staff changes.
 - Limit blast radius:
   - Separate Stripe keys per environment.

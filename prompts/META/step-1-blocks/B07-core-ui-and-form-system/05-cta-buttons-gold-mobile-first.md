@@ -10,9 +10,9 @@ Provide high-contrast, accessible CTA buttons consistent with black & gold theme
 
 ## Steps
 
-1) If GoldButton from B05 exists, keep it; add LoadingButton and LinkButton variants.
-2) Ensure minimum touch target (≥44px).
-3) Provide ARIA and focus ring.
+1. If GoldButton from B05 exists, keep it; add LoadingButton and LinkButton variants.
+2. Ensure minimum touch target (≥44px).
+3. Provide ARIA and focus ring.
 
 ## Files to add/modify
 
@@ -33,7 +33,15 @@ export function LoadingSpinner({ size = 18, className }: { size?: number; classN
       role="status"
       aria-label="Loading"
     >
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" opacity="0.2" />
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="3"
+        fill="none"
+        opacity="0.2"
+      />
       <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="3" fill="none">
         <animateTransform
           attributeName="transform"
@@ -54,8 +62,10 @@ export function LoadingSpinner({ size = 18, className }: { size?: number; classN
 ```tsx
 'use client';
 
-import { cn } from '@/lib/utils/cn';
 import { ButtonHTMLAttributes } from 'react';
+
+import { cn } from '@/lib/utils/cn';
+
 import { LoadingSpinner } from './loading-spinner';
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -86,6 +96,7 @@ export function GoldButton({ className, size = 'lg', loading, children, ...props
 
 ```tsx
 import Link from 'next/link';
+
 import { cn } from '@/lib/utils/cn';
 
 export function LinkButton({
@@ -101,7 +112,13 @@ export function LinkButton({
 }) {
   if (variant === 'gold') {
     return (
-      <Link href={href} className={cn('gold-gradient text-fgOnGold px-6 py-4 rounded-md focus-gold shadow-cta', className)}>
+      <Link
+        href={href}
+        className={cn(
+          'gold-gradient text-fgOnGold px-6 py-4 rounded-md focus-gold shadow-cta',
+          className,
+        )}
+      >
         {children}
       </Link>
     );
@@ -111,7 +128,7 @@ export function LinkButton({
       href={href}
       className={cn(
         'px-6 py-4 rounded-md border border-border text-fg hover:bg-bgElev focus-gold',
-        className
+        className,
       )}
     >
       {children}

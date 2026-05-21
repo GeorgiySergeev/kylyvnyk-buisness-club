@@ -10,9 +10,9 @@ Demonstrate session access on server, a protected API route, and a server action
 
 ## Steps
 
-1) Create a protected API route that returns current user info.
-2) Create a server action that requires auth and echoes minimal data.
-3) Provide a small UI component to call the API and render session.
+1. Create a protected API route that returns current user info.
+2. Create a server action that requires auth and echoes minimal data.
+3. Provide a small UI component to call the API and render session.
 
 ## Files to add
 
@@ -85,7 +85,7 @@ export function SessionInfo() {
 Notes
 
 - For server actions, always call auth() server-side; never trust client input.
-- Public API routes should live under /api/public/* and must not leak PII.
+- Public API routes should live under /api/public/\* and must not leak PII.
 
 ## Acceptance
 

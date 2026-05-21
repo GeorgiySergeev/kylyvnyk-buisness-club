@@ -2,8 +2,8 @@
 
 ```ts
 // src/lib/stripe/period.ts
-import "server-only";
-import type Stripe from "stripe";
+import 'server-only';
+import type Stripe from 'stripe';
 
 /**
  * In Stripe API 2024-12-* and later, current_period_{start,end} were removed
@@ -13,9 +13,7 @@ import type Stripe from "stripe";
 export function getSubscriptionPeriod(s: Stripe.Subscription) {
   const item = s.items.data[0];
   if (!item?.current_period_end || !item?.current_period_start) {
-    throw new Error(
-      `Stripe subscription ${s.id} has no item period — check apiVersion pin`,
-    );
+    throw new Error(`Stripe subscription ${s.id} has no item period — check apiVersion pin`);
   }
   return {
     currentPeriodStart: new Date(item.current_period_start * 1000),
@@ -26,9 +24,10 @@ export function getSubscriptionPeriod(s: Stripe.Subscription) {
 
 ```ts
 // src/lib/stripe/config.ts  — PIN THE API VERSION
-import Stripe from "stripe";
+import Stripe from 'stripe';
+
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-12-18.acacia", // bump only via an ADR
+  apiVersion: '2024-12-18.acacia', // bump only via an ADR
   typescript: true,
 });
 ```

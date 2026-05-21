@@ -13,14 +13,15 @@ Admin — Audit Logs table with filters
 ### src/app/(admin)/logs/page.tsx
 
 ```tsx
-import { parsePage } from '@/features/admin/server/listing';
-import { db } from '@/lib/db';
+import type { ColumnDef } from '@tanstack/react-table';
+import { and, desc, eq, gte, lte, or, sql } from 'drizzle-orm';
+
+import { DataTable } from '@/components/admin/data-table';
+import { Pager } from '@/components/admin/ssr-table';
 import { auditLogs } from '@/db/schema/audit';
 import { users } from '@/db/schema/user';
-import { and, desc, gte, lte, or, sql, eq } from 'drizzle-orm';
-import { DataTable } from '@/components/admin/data-table';
-import type { ColumnDef } from '@tanstack/react-table';
-import { Pager } from '@/components/admin/ssr-table';
+import { parsePage } from '@/features/admin/server/listing';
+import { db } from '@/lib/db';
 
 type Row = {
   id: string;
@@ -51,7 +52,11 @@ function buildWhere(action?: string, entity?: string, from?: string, to?: string
   return and(...parts);
 }
 
-export default async function AdminLogsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function AdminLogsPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | undefined>;
+}) {
   const pg = parsePage(searchParams);
   const action = (searchParams.action || '').trim();
   const entity = (searchParams.entity || '').trim();
@@ -113,13 +118,30 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Re
           placeholder="Filter entity (e.g. business)"
           className="min-h-10 rounded-md border border-border bg-card px-3 py-2 focus-gold"
         />
-        <input type="date" name="from" defaultValue={from} className="min-h-10 rounded-md border border-border bg-card px-3 py-2 focus-gold" />
-        <input type="date" name="to" defaultValue={to} className="min-h-10 rounded-md border border-border bg-card px-3 py-2 focus-gold" />
-        <button className="px-4 py-2 rounded-md border border-border hover:bg-bgElev focus-gold">Apply</button>
+        <input
+          type="date"
+          name="from"
+          defaultValue={from}
+          className="min-h-10 rounded-md border border-border bg-card px-3 py-2 focus-gold"
+        />
+        <input
+          type="date"
+          name="to"
+          defaultValue={to}
+          className="min-h-10 rounded-md border border-border bg-card px-3 py-2 focus-gold"
+        />
+        <button className="px-4 py-2 rounded-md border border-border hover:bg-bgElev focus-gold">
+          Apply
+        </button>
       </form>
 
       <DataTable columns={columns} data={rows} className="mt-4" />
-      <Pager page={pg.page} pageSize={pg.pageSize} pathname="/admin/logs" searchParams={searchParams as any} />
+      <Pager
+        page={pg.page}
+        pageSize={pg.pageSize}
+        pathname="/admin/logs"
+        searchParams={searchParams as any}
+      />
 
       <p className="mt-3 text-xs text-fgMuted">
         Metadata is stored internally and not displayed to avoid exposing PII.

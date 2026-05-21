@@ -10,9 +10,9 @@ Create reusable Field, FieldLabel, FieldError, and FieldHelper components that i
 
 ## Steps
 
-1) Build Field container to compute ids for label/help/error.
-2) Add Label, Helper, and Error components that bind to RHF state.
-3) Provide controlled wrappers for Input and Textarea with error styles.
+1. Build Field container to compute ids for label/help/error.
+2. Add Label, Helper, and Error components that bind to RHF state.
+3. Provide controlled wrappers for Input and Textarea with error styles.
 
 ## Files to add
 
@@ -25,7 +25,9 @@ Create reusable Field, FieldLabel, FieldError, and FieldHelper components that i
 'use client';
 
 import { ReactNode, useId } from 'react';
-import { useFormContext, FieldError } from 'react-hook-form';
+
+import { FieldError, useFormContext } from 'react-hook-form';
+
 import { Label as BaseLabel } from '@/components/ui';
 import { cn } from '@/lib/utils/cn';
 
@@ -60,7 +62,11 @@ export function Field({
 
 export function FieldHelperText({ id, children }: { id: string; children?: ReactNode }) {
   if (!children) return null;
-  return <p id={id} className="text-sm text-fgMuted">{children}</p>;
+  return (
+    <p id={id} className="text-sm text-fgMuted">
+      {children}
+    </p>
+  );
 }
 
 export function FieldErrorText({ name, id }: { name: string; id: string }) {
@@ -81,7 +87,8 @@ export function FieldErrorText({ name, id }: { name: string; id: string }) {
 'use client';
 
 import { useFormContext } from 'react-hook-form';
-import { Input, Textarea, Select } from '@/components/ui';
+
+import { Input, Select, Textarea } from '@/components/ui';
 import { cn } from '@/lib/utils/cn';
 
 export function InputControl({
@@ -141,9 +148,10 @@ export function TextareaControl({
 'use client';
 
 import { z } from 'zod';
-import { ZodFormProvider } from '@/components/forms/form-provider';
-import { Field, FieldHelperText } from '@/components/forms/field';
+
 import { InputControl, TextareaControl } from '@/components/forms/controls';
+import { Field, FieldHelperText } from '@/components/forms/field';
+import { ZodFormProvider } from '@/components/forms/form-provider';
 
 const schema = z.object({
   title: z.string().min(3),
