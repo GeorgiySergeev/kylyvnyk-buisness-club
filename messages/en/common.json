@@ -1,0 +1,21 @@
+{
+  "site": {
+    "name": "KCLUB",
+    "tagline": "Private Business Club"
+  },
+  "nav": {
+    "directory": "Directory",
+    "verifyCard": "Verify Card",
+    "signIn": "Sign In",
+    "joinNow": "Join Now",
+    "dashboard": "Dashboard",
+    "recommend": "Recommend a Client",
+    "admin": "Admin",
+    "signOut": "Sign Out"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "unauthorized": "Access denied",
+    "internal": "Something went wrong"
+  }
+}

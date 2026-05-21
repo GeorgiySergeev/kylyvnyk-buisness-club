@@ -1,68 +1,74 @@
-import "server-only";
-
-import { z } from "zod";
+import {createEnv} from "@t3-oss/env-nextjs";
+import {z} from "zod";
 
 const flagSchema = z.enum(["", "1"]).default("");
 const nonEmptyStringSchema = z.string().trim().min(1);
+const urlSchema = z.string().trim().url();
 
-const envSchema = z.object({
-  ALLOW_SEED: flagSchema,
-  CLERK_SECRET_KEY: nonEmptyStringSchema,
-  CLERK_WEBHOOK_SECRET: nonEmptyStringSchema,
-  DATABASE_URL: nonEmptyStringSchema,
-  DATABASE_URL_DIRECT: nonEmptyStringSchema,
-  DISABLE_VOCAB_GREP: flagSchema,
-  EMAIL_FROM: nonEmptyStringSchema.optional(),
-  NEXT_PUBLIC_APP_URL: nonEmptyStringSchema,
-  NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: nonEmptyStringSchema,
-  NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: nonEmptyStringSchema,
-  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: nonEmptyStringSchema,
-  NEXT_PUBLIC_CLERK_SIGN_IN_URL: nonEmptyStringSchema,
-  NEXT_PUBLIC_CLERK_SIGN_UP_URL: nonEmptyStringSchema,
-  NEXT_PUBLIC_PLAUSIBLE_DOMAIN: nonEmptyStringSchema,
-  NEXT_PUBLIC_SENTRY_DSN: nonEmptyStringSchema,
-  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: nonEmptyStringSchema,
-  NEXT_PUBLIC_TURNSTILE_SITE_KEY: nonEmptyStringSchema,
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  RESEND_API_KEY: nonEmptyStringSchema.optional(),
-  SENTRY_ORG: nonEmptyStringSchema,
-  SENTRY_PROJECT: nonEmptyStringSchema,
-  STRIPE_PORTAL_CONFIGURATION_ID: nonEmptyStringSchema,
-  STRIPE_PRICE_BUSINESS_ANNUAL: nonEmptyStringSchema,
-  STRIPE_PRICE_VIP_ANNUAL: nonEmptyStringSchema,
-  STRIPE_SECRET_KEY: nonEmptyStringSchema,
-  STRIPE_WEBHOOK_SECRET: nonEmptyStringSchema,
-  TURNSTILE_SECRET_KEY: nonEmptyStringSchema,
-  UPSTASH_REDIS_REST_TOKEN: nonEmptyStringSchema,
-  UPSTASH_REDIS_REST_URL: nonEmptyStringSchema,
+export const env = createEnv({
+  server: {
+    ALLOW_SEED: flagSchema,
+    CLERK_SECRET_KEY: nonEmptyStringSchema,
+    CLERK_WEBHOOK_SECRET: nonEmptyStringSchema,
+    DATABASE_URL: urlSchema,
+    DATABASE_URL_DIRECT: urlSchema,
+    DISABLE_VOCAB_GREP: flagSchema,
+    EMAIL_FROM: nonEmptyStringSchema.optional(),
+    NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+    RESEND_API_KEY: nonEmptyStringSchema.optional(),
+    SENTRY_ORG: nonEmptyStringSchema,
+    SENTRY_PROJECT: nonEmptyStringSchema,
+    STRIPE_PORTAL_CONFIGURATION_ID: nonEmptyStringSchema,
+    STRIPE_PRICE_BUSINESS_ANNUAL: nonEmptyStringSchema,
+    STRIPE_PRICE_VIP_ANNUAL: nonEmptyStringSchema,
+    STRIPE_SECRET_KEY: nonEmptyStringSchema,
+    STRIPE_WEBHOOK_SECRET: nonEmptyStringSchema,
+    TURNSTILE_SECRET_KEY: nonEmptyStringSchema,
+    UPSTASH_REDIS_REST_TOKEN: nonEmptyStringSchema,
+    UPSTASH_REDIS_REST_URL: urlSchema,
+  },
+  client: {
+    NEXT_PUBLIC_APP_URL: urlSchema,
+    NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: nonEmptyStringSchema,
+    NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: nonEmptyStringSchema,
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: nonEmptyStringSchema,
+    NEXT_PUBLIC_CLERK_SIGN_IN_URL: nonEmptyStringSchema,
+    NEXT_PUBLIC_CLERK_SIGN_UP_URL: nonEmptyStringSchema,
+    NEXT_PUBLIC_PLAUSIBLE_DOMAIN: nonEmptyStringSchema,
+    NEXT_PUBLIC_SENTRY_DSN: nonEmptyStringSchema,
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: nonEmptyStringSchema,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: nonEmptyStringSchema,
+  },
+  runtimeEnv: {
+    ALLOW_SEED: process.env.ALLOW_SEED,
+    CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
+    CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET,
+    DATABASE_URL: process.env.DATABASE_URL,
+    DATABASE_URL_DIRECT: process.env.DATABASE_URL_DIRECT,
+    DISABLE_VOCAB_GREP: process.env.DISABLE_VOCAB_GREP,
+    EMAIL_FROM: process.env.EMAIL_FROM,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL,
+    NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_CLERK_SIGN_IN_URL: process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL,
+    NEXT_PUBLIC_CLERK_SIGN_UP_URL: process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL,
+    NEXT_PUBLIC_PLAUSIBLE_DOMAIN: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN,
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    NODE_ENV: process.env.NODE_ENV,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    SENTRY_ORG: process.env.SENTRY_ORG,
+    SENTRY_PROJECT: process.env.SENTRY_PROJECT,
+    STRIPE_PORTAL_CONFIGURATION_ID: process.env.STRIPE_PORTAL_CONFIGURATION_ID,
+    STRIPE_PRICE_BUSINESS_ANNUAL: process.env.STRIPE_PRICE_BUSINESS_ANNUAL,
+    STRIPE_PRICE_VIP_ANNUAL: process.env.STRIPE_PRICE_VIP_ANNUAL,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+    TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
+    UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+  },
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
 });
-
-type EnvShape = z.infer<typeof envSchema>;
-type EnvSource = Record<string, string | undefined>;
-
-function formatEnvIssues(rawEnv: EnvSource, issues: z.ZodIssue[]): string {
-  const formattedIssues = issues.map((issue) => {
-    const key = issue.path.join(".");
-    const value = rawEnv[key];
-    const reason =
-      value === undefined || value === ""
-        ? "is missing"
-        : issue.message.toLowerCase();
-
-    return `- ${key}: ${reason}`;
-  });
-
-  return `Invalid environment variables:\n${formattedIssues.join("\n")}`;
-}
-
-function parseEnv(rawEnv: EnvSource): EnvShape {
-  const parsed = envSchema.safeParse(rawEnv);
-
-  if (!parsed.success) {
-    throw new Error(formatEnvIssues(rawEnv, parsed.error.issues));
-  }
-
-  return parsed.data;
-}
-
-export const env = parseEnv(process.env);
