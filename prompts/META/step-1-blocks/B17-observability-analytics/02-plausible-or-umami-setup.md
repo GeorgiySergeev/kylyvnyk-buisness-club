@@ -10,10 +10,10 @@ Add simple, privacy-friendly analytics with minimal JS. Track custom events for 
 
 ## Steps
 
-1) Choose a provider (example shows Plausible Cloud).
-2) Add your domain in Plausible UI.
-3) Insert script in <head> of RootLayout.
-4) Track custom events from critical UI.
+1. Choose a provider (example shows Plausible Cloud).
+2. Add your domain in Plausible UI.
+3. Insert script in <head> of RootLayout.
+4. Track custom events from critical UI.
 
 ## Files
 
@@ -21,8 +21,10 @@ Add simple, privacy-friendly analytics with minimal JS. Track custom events for 
 
 ```tsx
 // inside <head> of RootLayout
-{/* Plausible */}
-<script defer data-domain="yourdomain.com" src="https://plausible.io/js/script.js" />
+{
+  /* Plausible */
+}
+<script defer data-domain="yourdomain.com" src="https://plausible.io/js/script.js" />;
 ```
 
 ### Track events
@@ -54,7 +56,11 @@ Call trackVipClick() inside the VIP CTA onClick handler (before starting checkou
 // src/app/(public)/verify-card/[number]/page.tsx
 // For server page, append a tiny client component to call plausible on mount:
 'use client';
+
 import { useEffect } from 'react';
+
+// src/app/(public)/verify-card/[number]/page.tsx
+// For server page, append a tiny client component to call plausible on mount:
 
 export function TrackVerifyView() {
   useEffect(() => {

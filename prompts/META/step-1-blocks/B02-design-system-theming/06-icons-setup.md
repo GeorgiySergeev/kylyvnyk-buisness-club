@@ -52,12 +52,7 @@ export function Icon({
 ```tsx
 export function KylyvnykLogo({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 64 64"
-      aria-label="KYLYVNYK CLUB"
-      className={className}
-      role="img"
-    >
+    <svg viewBox="0 0 64 64" aria-label="KYLYVNYK CLUB" className={className} role="img">
       <defs>
         <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="hsl(46, 85%, 42%)" />
@@ -66,7 +61,14 @@ export function KylyvnykLogo({ className }: { className?: string }) {
         </linearGradient>
       </defs>
       <circle cx="32" cy="32" r="30" fill="url(#goldGrad)" />
-      <text x="50%" y="54%" textAnchor="middle" fontSize="18" fontWeight="800" fill="hsl(0, 0%, 8%)">
+      <text
+        x="50%"
+        y="54%"
+        textAnchor="middle"
+        fontSize="18"
+        fontWeight="800"
+        fill="hsl(0, 0%, 8%)"
+      >
         KC
       </text>
     </svg>

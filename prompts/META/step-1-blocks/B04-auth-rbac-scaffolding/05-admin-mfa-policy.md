@@ -14,9 +14,9 @@ Require that admin users have MFA enabled. If not, redirect them to security set
 
 ## Steps
 
-1) Create a guard requireAdminWithMfa().
-2) In admin layout, use the stricter guard.
-3) Provide a friendly message page if needed.
+1. Create a guard requireAdminWithMfa().
+2. In admin layout, use the stricter guard.
+3. Provide a friendly message page if needed.
 
 ## Files to add/modify
 
@@ -27,8 +27,9 @@ Require that admin users have MFA enabled. If not, redirect them to security set
 ### src/features/auth/server/guards.ts (append)
 
 ```ts
-import { clerkClient, auth } from '@clerk/nextjs/server';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
+
 import { getCurrentUserWithRole } from './roles';
 
 export async function requireAdminWithMfa() {
@@ -59,6 +60,7 @@ export async function requireAdminWithMfa() {
 
 ```tsx
 import { ReactNode } from 'react';
+
 import { requireAdminWithMfa } from '@/features/auth/server/guards';
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {

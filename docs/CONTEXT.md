@@ -6,7 +6,7 @@
 
 ## Full (рекомендуется)
 
-```md
+````md
 # KCLUB-MVP — Pinned Context Header
 
 - Context-ID: KCLUB/2026-05-19/ddl-v1.0-mvp/commit-<COMMIT_SHA>
@@ -22,28 +22,35 @@
 - Modules baseline: Auth/RBAC (Clerk), Billing (Stripe), Catalog (PUBLISHED-only), Digital Card + /verify-card/:number, Admin moderation, Security (CSP, Turnstile, rate-limit), i18n (en), Sentry + Plausible.
 
 # Block & Step (to fill per request)
+
 - Block: B<##> — <Block name>
 - Step: S<0#> — </prompts/... file name>
 
 # Goal
+
 <1–3 bullets of what to produce>
 
 # Scope
+
 - In: <…>
 - Out: <…>
 
 # Files to touch (ordered)
+
 - create: <paths>
 - modify: <paths>
 - remove: <paths>
 
 # Existing code excerpts
+
 // file: <path> (ANCHOR-1)
+
 ```tsx
 // START:anchor-1
 <only relevant fragment 30–120 lines>
 // END:anchor-1
 ```
+````
 
 # Contracts/DB
 
@@ -71,7 +78,7 @@
 
 If any file/excerpt/env/ID is missing — ask before generating code.
 
-```
+````
 
 ---
 
@@ -96,7 +103,7 @@ Excerpts:
 ```tsx
 // file: <path> (ANCHOR)
 <only relevant lines>
-```
+````
 
 Output: unified diff (or full files in code fences)
 Acceptance: build/lint/types OK; route works; policies OK
@@ -110,3 +117,4 @@ Ask-back allowed if context is missing
 - Дату и версию схемы можете оставить как v1.0-mvp (2026-05-19) до следующей правки DDL; при изменениях повышайте минор: v1.1, v1.2, …
 - Context-ID повторяйте в каждом чате — это “нитка” для привязки ко времени/схеме/коммиту.
 - В Excerpts вставляйте только релевантные куски (30–120 строк) и используйте якоря START/END, чтобы ассистент правил точечно.
+```

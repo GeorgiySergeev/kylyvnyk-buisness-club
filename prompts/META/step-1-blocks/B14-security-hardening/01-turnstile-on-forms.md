@@ -10,9 +10,9 @@ Add Turnstile CAPTCHA to critical forms (Submit Business, Request Business Intro
 
 ## Steps
 
-1) Add Turnstile widget component and loader script.
-2) Add server verification utility.
-3) Embed widget in forms and verify token in server actions.
+1. Add Turnstile widget component and loader script.
+2. Add server verification utility.
+3. Embed widget in forms and verify token in server actions.
 
 ## Prereqs
 
@@ -137,12 +137,15 @@ src/app/(business)/submit/page.tsx (inside form, above submit button)
 
 ```tsx
 import { TurnstileWidget } from '@/components/captcha/turnstile-widget';
+
 // ...
 <form action={submitBusiness} className="mt-6 grid gap-4 max-w-2xl">
   {/* ...existing fields... */}
   <TurnstileWidget />
-  <button className="gold-gradient text-fgOnGold rounded-md px-6 py-3 shadow-cta focus-gold">Submit for review</button>
-</form>
+  <button className="gold-gradient text-fgOnGold rounded-md px-6 py-3 shadow-cta focus-gold">
+    Submit for review
+  </button>
+</form>;
 ```
 
 ### Patch Introduction form (embed widget)
@@ -151,6 +154,7 @@ src/app/(member)/vip/introduction/page.tsx (inside form, above submit)
 
 ```tsx
 import { TurnstileWidget } from '@/components/captcha/turnstile-widget';
+
 // ...
 <form action={submitIntroduction} className="mt-6 max-w-lg space-y-4">
   {/* ...existing fields... */}
@@ -158,7 +162,7 @@ import { TurnstileWidget } from '@/components/captcha/turnstile-widget';
   <button className="gold-gradient text-fgOnGold rounded-md px-6 py-3 shadow-cta focus-gold">
     Submit request
   </button>
-</form>
+</form>;
 ```
 
 ### Verify token in server actions
@@ -167,6 +171,7 @@ src/features/business/server/actions.ts (top)
 
 ```ts
 import { headers } from 'next/headers';
+
 import { verifyTurnstile } from '@/lib/captcha/turnstile';
 ```
 

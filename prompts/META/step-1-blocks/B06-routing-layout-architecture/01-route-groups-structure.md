@@ -10,9 +10,9 @@ Create and standardize App Router groups for public pages, auth, member/VIP, bus
 
 ## Steps
 
-1) Create/verify route groups: (public), (auth), (member), (business), (admin).
-2) Add minimal layout shells per group to prepare for navigation and guards.
-3) Add placeholder pages to confirm routing works.
+1. Create/verify route groups: (public), (auth), (member), (business), (admin).
+2. Add minimal layout shells per group to prepare for navigation and guards.
+3. Add placeholder pages to confirm routing works.
 
 ## Files to add/modify
 
@@ -31,8 +31,9 @@ Create and standardize App Router groups for public pages, auth, member/VIP, bus
 
 ```tsx
 import { ReactNode } from 'react';
-import { SiteHeader } from '@/components/layout/site-header';
+
 import { SiteFooter } from '@/components/layout/site-footer';
+import { SiteHeader } from '@/components/layout/site-header';
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
@@ -62,6 +63,7 @@ export default function LandingPage() {
 
 ```tsx
 import { ReactNode } from 'react';
+
 import { SiteHeader } from '@/components/layout/site-header';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
@@ -91,6 +93,7 @@ export default function AuthIndexPage() {
 
 ```tsx
 import { ReactNode } from 'react';
+
 import { requireAuth } from '@/features/auth/server/guards';
 
 export default async function MemberLayout({ children }: { children: ReactNode }) {
@@ -116,6 +119,7 @@ export default function MemberHome() {
 
 ```tsx
 import { ReactNode } from 'react';
+
 import { requireVipActive } from '@/features/auth/server/guards';
 
 export default async function BusinessLayout({ children }: { children: ReactNode }) {
@@ -141,6 +145,7 @@ export default function BusinessHome() {
 
 ```tsx
 import { ReactNode } from 'react';
+
 import { requireAdminWithMfa } from '@/features/auth/server/guards';
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {

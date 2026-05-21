@@ -10,11 +10,11 @@ Provide a reusable LegalArticle component to compose long-form legal pages with 
 
 ## Steps
 
-1) Create a LegalArticle component that:
+1. Create a LegalArticle component that:
    - Accepts title, updatedAt, and sections: { id, title, content }[].
    - Renders a right/inline TOC linking to section anchors.
-2) Refactor one page (e.g., Terms) to use LegalArticle.
-3) Keep content pure JSX to avoid extra MDX setup.
+2. Refactor one page (e.g., Terms) to use LegalArticle.
+3. Keep content pure JSX to avoid extra MDX setup.
 
 ## Files to add/modify
 
@@ -24,8 +24,9 @@ Provide a reusable LegalArticle component to compose long-form legal pages with 
 ### src/features/legal/legal-article.tsx
 
 ```tsx
-import { LEGAL } from '@/config/legal';
 import Link from 'next/link';
+
+import { LEGAL } from '@/config/legal';
 
 export type LegalSection = {
   id: string;
@@ -90,10 +91,10 @@ export default function TermsPage() {
       content: (
         <p>
           {LEGAL.entityName} is an {LEGAL.entityDescription}. Special conditions are provided
-          directly by independent third‑party partners. {LEGAL.entityName} does not guarantee savings,
-          income, commissions, bonuses, clients or business results. Partners are responsible for their
-          own licenses, permits and compliance. {LEGAL.entityName} does not participate in transactions,
-          negotiations or agreements between users and partners.
+          directly by independent third‑party partners. {LEGAL.entityName} does not guarantee
+          savings, income, commissions, bonuses, clients or business results. Partners are
+          responsible for their own licenses, permits and compliance. {LEGAL.entityName} does not
+          participate in transactions, negotiations or agreements between users and partners.
         </p>
       ),
     },
@@ -134,7 +135,8 @@ export default function TermsPage() {
       content: (
         <p>
           {LEGAL.entityName} provides the platform “as is” without warranties of any kind, including
-          implied warranties of merchantability, fitness for a particular purpose, and non‑infringement.
+          implied warranties of merchantability, fitness for a particular purpose, and
+          non‑infringement.
         </p>
       ),
     },
@@ -143,10 +145,10 @@ export default function TermsPage() {
       title: 'Limitation of Liability',
       content: (
         <p>
-          To the maximum extent permitted by law, {LEGAL.entityName} and its affiliates are not liable
-          for indirect, incidental, special, consequential, exemplary, or punitive damages, or any loss
-          of profits, revenues, data, or goodwill, arising from or related to your use of the platform
-          or interactions with partners.
+          To the maximum extent permitted by law, {LEGAL.entityName} and its affiliates are not
+          liable for indirect, incidental, special, consequential, exemplary, or punitive damages,
+          or any loss of profits, revenues, data, or goodwill, arising from or related to your use
+          of the platform or interactions with partners.
         </p>
       ),
     },
@@ -157,8 +159,9 @@ export default function TermsPage() {
         <>
           <p>These Terms are governed by the laws of the {LEGAL.governingLaw}.</p>
           <p>
-            Any dispute will be resolved by binding individual arbitration administered by the {LEGAL.arbitrationProvider}.
-            You and {LEGAL.entityName} waive any right to a jury trial or to participate in a class action.
+            Any dispute will be resolved by binding individual arbitration administered by the{' '}
+            {LEGAL.arbitrationProvider}. You and {LEGAL.entityName} waive any right to a jury trial
+            or to participate in a class action.
           </p>
         </>
       ),

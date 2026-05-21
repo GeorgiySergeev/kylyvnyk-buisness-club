@@ -50,16 +50,18 @@ Next will throw at build time. Good — that's how we know we leaked.
 
 ## File header convention
 
-````ts
+```ts
 // src/features/billing/actions/start-subscription.action.ts
 "use server";
 import "server-only";
 import { z } from "zod";
 // ...
+```
+
 ```ts
 // src/features/billing/components/billing-form.tsx
 "use client";
 
 import { useState } from "react";
 // ...
-````
+```

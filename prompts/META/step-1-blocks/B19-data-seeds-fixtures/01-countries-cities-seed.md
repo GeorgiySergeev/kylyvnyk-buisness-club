@@ -14,9 +14,10 @@ scripts/seed/countries-cities.ts
 
 ```ts
 import 'dotenv/config';
-import { db } from '@/lib/db';
-import { countries, cities } from '@/db/schema/geo';
 import { eq } from 'drizzle-orm';
+
+import { cities, countries } from '@/db/schema/geo';
+import { db } from '@/lib/db';
 
 async function ensureCountry(iso2: string, name: string) {
   // Try insert
@@ -40,17 +41,14 @@ async function ensureCountry(iso2: string, name: string) {
 }
 
 async function ensureCity(countryId: number, name: string) {
-  await db
-    .insert(cities)
-    .values({ countryId, name })
-    .onConflictDoNothing();
+  await db.insert(cities).values({ countryId, name }).onConflictDoNothing();
 }
 
 async function main() {
   const data = [
     { iso2: 'US', name: 'United States', cities: ['New York', 'Los Angeles', 'Miami'] },
     { iso2: 'UA', name: 'Ukraine', cities: ['Kyiv', 'Lviv', 'Odesa'] },
-    { iso2: 'GB', name: 'United Kingdom', cities: ['London', 'Manchester', 'Edinburgh'] }
+    { iso2: 'GB', name: 'United Kingdom', cities: ['London', 'Manchester', 'Edinburgh'] },
   ];
 
   for (const c of data) {

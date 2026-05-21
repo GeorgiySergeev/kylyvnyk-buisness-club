@@ -10,10 +10,10 @@ Install shadcn/ui CLI and scaffold baseline UI components aligned with black & g
 
 ## Steps
 
-1) Install shadcn/ui CLI and init
-2) Configure to use Tailwind and variables
-3) Add base components (Button, Input, Label, Select, Dialog, Sheet, Card, Badge, Tabs, Separator, Tooltip)
-4) Place components under src/components/ui
+1. Install shadcn/ui CLI and init
+2. Configure to use Tailwind and variables
+3. Add base components (Button, Input, Label, Select, Dialog, Sheet, Card, Badge, Tabs, Separator, Tooltip)
+4. Place components under src/components/ui
 
 ## Commands
 

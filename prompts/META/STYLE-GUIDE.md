@@ -44,36 +44,44 @@ Every step file MUST have these sections, in this order:
 
 > Phase: 1 | 2 | 3 | 4
 > Block: B0X-<slug>
-> Step:  0Y
+> Step: 0Y
 > Depends on: <previous step IDs, or "—">
 > Superseded-By: <path, or "—">
 
 ## Objective
+
 One sentence. What this step achieves. No "why" here — that's for SPEC.
 
 ## Inputs (preconditions)
+
 - Repo state expected before running this step (files, env, packages).
 - Tools available to the agent.
 
 ## Steps
+
 Numbered, imperative. Each item is one atomic action.
 
 ## Files to add / modify
+
 - `path/to/file.ts` — create | modify | delete
 
 ## Outputs (postconditions)
+
 - New files / modified files
 - New env vars (mirror to `.env.example` + `docs/ENV.md`)
 - New scripts in `package.json`
 - New routes / actions / DB tables
 
 ## Acceptance
+
 - Verifiable bullets. Each one is a command, an assertion, or a test name.
 
 ## Rollback
+
 How to undo the step cleanly. One command or one short list.
 
 ## Verification command
+
 A single shell snippet the agent can run to confirm success.
 ```
 
@@ -101,7 +109,9 @@ Optional appendix sections (use when relevant, in this order):
 - First line of every code block is a path comment:
   ```ts
   // src/lib/foo.ts
-  export function foo() { /* ... */ }
+  export function foo() {
+    /* ... */
+  }
   ```
   For shell blocks, no path comment — start with the command.
 - No `// TODO` in committed snippets. Either implement it or move it out
@@ -140,7 +150,7 @@ the same repo state. Enforce:
 ## 8. References and links
 
 - Reference other prompts and docs by repo-relative path:
-  ` /docs/SPEC.md§3 ` or ` prompts/META/step-2-drizzle-ddl/README.md `.
+  `/docs/SPEC.md§3` or `prompts/META/step-2-drizzle-ddl/README.md`.
 - Do NOT link external blogs or Medium articles. SDK docs only.
 - If an SDK link is essential, copy the relevant snippet into the prompt
   (with the SDK version) so the prompt survives broken links.
@@ -182,16 +192,20 @@ Forbidden as acceptance: "looks good", "works", "no errors".
 ## 12. Examples — good vs bad
 
 **Bad:**
+
 > Let's add Stripe webhook handling. We should make it robust and handle
 > common edge cases. Don't forget idempotency.
 
 **Good:**
+
 > ## Objective
+>
 > Add `POST /api/stripe/webhook` that verifies signature, claims the event
 > atomically in `stripe_events`, dispatches to `handleStripeEvent`, and
 > returns 200 on success, 500 on handler failure (so Stripe retries).
 >
 > ## Acceptance
+>
 > - Replay test: same `event.id` sent twice → handler invoked once.
 > - Bad signature → 400, no row inserted.
 > - Handler throws → 500, `stripe_events.error` populated, row remains

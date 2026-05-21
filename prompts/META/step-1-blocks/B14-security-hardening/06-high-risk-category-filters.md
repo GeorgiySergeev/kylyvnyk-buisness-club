@@ -10,9 +10,9 @@ Enforce MVP restriction: reject crypto, gambling, adult, firearms, unlicensed fi
 
 ## Steps
 
-1) Add compliance constants and helper guards.
-2) Call guards in submitBusiness (server action).
-3) Re-check in admin publish action to prevent accidental exposure.
+1. Add compliance constants and helper guards.
+2. Call guards in submitBusiness (server action).
+3. Re-check in admin publish action to prevent accidental exposure.
 
 ## Files to add/modify
 
@@ -53,11 +53,13 @@ export const BANNED_KEYWORDS = [
 ### src/features/compliance/guards.ts
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { categories } from '@/db/schema/catalog';
 import { eq } from 'drizzle-orm';
-import { HIGH_RISK_CATEGORY_SLUGS, BANNED_KEYWORDS } from './constants';
+import 'server-only';
+
+import { categories } from '@/db/schema/catalog';
+import { db } from '@/lib/db';
+
+import { BANNED_KEYWORDS, HIGH_RISK_CATEGORY_SLUGS } from './constants';
 
 export async function ensureNotHighRiskCategory(categoryId: number) {
   const cat = await db.query.categories.findFirst({ where: eq(categories.id, categoryId) });
@@ -86,15 +88,11 @@ export function ensureNoBannedKeywords(texts: Array<string | null | undefined>) 
 Inside submitBusiness() before insert:
 
 ```ts
-import { ensureNotHighRiskCategory, ensureNoBannedKeywords } from '@/features/compliance/guards';
+import { ensureNoBannedKeywords, ensureNotHighRiskCategory } from '@/features/compliance/guards';
 
 // ...
 await ensureNotHighRiskCategory(parsed.data.categoryId);
-ensureNoBannedKeywords([
-  parsed.data.name,
-  parsed.data.shortDescription,
-  parsed.data.websiteUrl,
-]);
+ensureNoBannedKeywords([parsed.data.name, parsed.data.shortDescription, parsed.data.websiteUrl]);
 ```
 
 ### Patch publishBusiness (admin action)
@@ -102,10 +100,11 @@ ensureNoBannedKeywords([
 src/features/admin/server/business-actions.ts (inside publishBusiness before update):
 
 ```ts
-import { db } from '@/lib/db';
-import { businesses, categories } from '@/db/schema/catalog';
 import { eq } from 'drizzle-orm';
+
+import { businesses, categories } from '@/db/schema/catalog';
 import { HIGH_RISK_CATEGORY_SLUGS } from '@/features/compliance/constants';
+import { db } from '@/lib/db';
 
 // ...
 const row = await db
@@ -115,7 +114,11 @@ const row = await db
   .limit(1);
 
 const cat = row[0]
-  ? await db.select({ slug: categories.slug }).from(categories).where(eq(categories.id, row[0].categoryId)).limit(1)
+  ? await db
+      .select({ slug: categories.slug })
+      .from(categories)
+      .where(eq(categories.id, row[0].categoryId))
+      .limit(1)
   : [];
 
 if (cat[0] && HIGH_RISK_CATEGORY_SLUGS.has((cat[0].slug || '').toLowerCase())) {

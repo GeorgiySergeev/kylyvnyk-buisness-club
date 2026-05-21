@@ -10,9 +10,9 @@ Show a minimal list of recent actions (last 20) performed by the current user fo
 
 ## Steps
 
-1) Add server query to fetch last 20 audit logs by actor_user_id.
-2) Render a simple list with action, entity, timestamp.
-3) Link from Member dashboard.
+1. Add server query to fetch last 20 audit logs by actor_user_id.
+2. Render a simple list with action, entity, timestamp.
+3. Link from Member dashboard.
 
 ## Files to add
 
@@ -23,11 +23,12 @@ Show a minimal list of recent actions (last 20) performed by the current user fo
 ### src/features/audit/server/my-logs.ts
 
 ```ts
-import 'server-only';
 import { auth } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
-import { auditLogs } from '@/db/schema/audit';
 import { desc, eq } from 'drizzle-orm';
+import 'server-only';
+
+import { auditLogs } from '@/db/schema/audit';
+import { db } from '@/lib/db';
 
 export async function getMyRecentLogs() {
   const { userId } = auth();
@@ -83,7 +84,9 @@ export default async function ActivityPage() {
 // ...existing imports and code
 // Inside the Actions section, add:
 <div className="mt-2">
-  <a href="/member/activity" className="underline hover:text-gold-400 text-sm">View Activity</a>
+  <a href="/member/activity" className="underline hover:text-gold-400 text-sm">
+    View Activity
+  </a>
 </div>
 ```
 

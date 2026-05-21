@@ -15,13 +15,14 @@ Cancel Membership (At Period End)
 ```ts
 'use server';
 
-import 'server-only';
 import { auth } from '@clerk/nextjs/server';
-import { stripe } from '@/lib/stripe';
-import { db } from '@/lib/db';
+import { desc, eq } from 'drizzle-orm';
+import 'server-only';
+
 import { subscriptions } from '@/db/schema/users';
-import { eq, desc } from 'drizzle-orm';
 import { logAudit } from '@/features/audit/server/log';
+import { db } from '@/lib/db';
+import { stripe } from '@/lib/stripe';
 
 export async function cancelSubscriptionAtPeriodEnd() {
   const { userId } = auth();
@@ -47,7 +48,9 @@ export async function cancelSubscriptionAtPeriodEnd() {
       .update(subscriptions)
       .set({
         cancelAtPeriodEnd: true,
-        currentPeriodEnd: updated.current_period_end ? new Date(updated.current_period_end * 1000) : sub.currentPeriodEnd,
+        currentPeriodEnd: updated.current_period_end
+          ? new Date(updated.current_period_end * 1000)
+          : sub.currentPeriodEnd,
         statusRaw: updated.status,
         updatedAt: new Date(),
       })

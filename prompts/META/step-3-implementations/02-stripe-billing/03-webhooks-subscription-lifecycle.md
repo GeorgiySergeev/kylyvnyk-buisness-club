@@ -13,12 +13,13 @@ Webhooks & Idempotency (Subscription Lifecycle)
 ### src/app/api/stripe/webhook/route.ts
 
 ```ts
-import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
-import { db } from '@/lib/db';
-import { stripeEvents, subscriptions, memberships } from '@/db/schema/users';
 import { eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+
+import { memberships, stripeEvents, subscriptions } from '@/db/schema/users';
+import { db } from '@/lib/db';
+import { stripe } from '@/lib/stripe';
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -27,17 +28,17 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
   } catch (error: any) {
     return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
   }
 
   // Idempotency check
-  const [existingEvent] = await db.select().from(stripeEvents).where(eq(stripeEvents.id, event.id)).limit(1);
+  const [existingEvent] = await db
+    .select()
+    .from(stripeEvents)
+    .where(eq(stripeEvents.id, event.id))
+    .limit(1);
   if (existingEvent) {
     return new NextResponse('Event already processed', { status: 200 });
   }
@@ -53,11 +54,11 @@ export async function POST(req: Request) {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
       const userId = session.metadata?.userId;
-      
+
       if (userId && session.subscription) {
         const subscriptionId = session.subscription as string;
         const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
-        
+
         await db.insert(subscriptions).values({
           userId,
           stripeSubscriptionId: stripeSubscription.id,
@@ -69,15 +70,21 @@ export async function POST(req: Request) {
         });
 
         // Update membership
-        await db.update(memberships)
-          .set({ tier: 'VIP', status: 'ACTIVE', currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000) })
+        await db
+          .update(memberships)
+          .set({
+            tier: 'VIP',
+            status: 'ACTIVE',
+            currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+          })
           .where(eq(memberships.userId, userId));
       }
     }
-    
+
     if (event.type === 'customer.subscription.updated') {
       const sub = event.data.object as Stripe.Subscription;
-      await db.update(subscriptions)
+      await db
+        .update(subscriptions)
         .set({
           statusRaw: sub.status,
           currentPeriodEnd: new Date(sub.current_period_end * 1000),
@@ -85,27 +92,38 @@ export async function POST(req: Request) {
           updatedAt: new Date(),
         })
         .where(eq(subscriptions.stripeSubscriptionId, sub.id));
-        
+
       if (sub.status === 'active' || sub.status === 'trialing') {
-         // Find user by customer id (via subscriptions) and update membership
-         const [dbSub] = await db.select().from(subscriptions).where(eq(subscriptions.stripeSubscriptionId, sub.id)).limit(1);
-         if (dbSub) {
-           await db.update(memberships)
-             .set({ status: 'ACTIVE', currentPeriodEnd: new Date(sub.current_period_end * 1000) })
-             .where(eq(memberships.userId, dbSub.userId));
-         }
+        // Find user by customer id (via subscriptions) and update membership
+        const [dbSub] = await db
+          .select()
+          .from(subscriptions)
+          .where(eq(subscriptions.stripeSubscriptionId, sub.id))
+          .limit(1);
+        if (dbSub) {
+          await db
+            .update(memberships)
+            .set({ status: 'ACTIVE', currentPeriodEnd: new Date(sub.current_period_end * 1000) })
+            .where(eq(memberships.userId, dbSub.userId));
+        }
       }
     }
 
     if (event.type === 'customer.subscription.deleted') {
       const sub = event.data.object as Stripe.Subscription;
-      await db.update(subscriptions)
+      await db
+        .update(subscriptions)
         .set({ statusRaw: sub.status, updatedAt: new Date() })
         .where(eq(subscriptions.stripeSubscriptionId, sub.id));
-        
-      const [dbSub] = await db.select().from(subscriptions).where(eq(subscriptions.stripeSubscriptionId, sub.id)).limit(1);
+
+      const [dbSub] = await db
+        .select()
+        .from(subscriptions)
+        .where(eq(subscriptions.stripeSubscriptionId, sub.id))
+        .limit(1);
       if (dbSub) {
-        await db.update(memberships)
+        await db
+          .update(memberships)
           .set({ tier: 'FREE', status: 'EXPIRED' }) // downgrades to free
           .where(eq(memberships.userId, dbSub.userId));
       }
@@ -113,7 +131,7 @@ export async function POST(req: Request) {
 
     // Mark event processed
     await db.update(stripeEvents).set({ status: 'processed' }).where(eq(stripeEvents.id, event.id));
-    
+
     return new NextResponse(null, { status: 200 });
   } catch (error) {
     await db.update(stripeEvents).set({ status: 'failed' }).where(eq(stripeEvents.id, event.id));

@@ -17,9 +17,9 @@ Notes
 
 ## Steps
 
-1) Add server utils to generate a card number with retries.
-2) Add ensureMemberCard(userId, opts?) to create the card if absent.
-3) Store memberName using profile or Clerk name fallback.
+1. Add server utils to generate a card number with retries.
+2. Add ensureMemberCard(userId, opts?) to create the card if absent.
+3. Store memberName using profile or Clerk name fallback.
 
 ## Files to add/modify
 
@@ -52,7 +52,11 @@ export function buildCardNumber({
   suffix?: string;
 }) {
   const type = memberType.toUpperCase();
-  const cc = (countryCode || 'INTL').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 5) || 'INTL';
+  const cc =
+    (countryCode || 'INTL')
+      .toUpperCase()
+      .replace(/[^A-Z]/g, '')
+      .slice(0, 5) || 'INTL';
   return `${type}-${cc}-${suffix}`;
 }
 ```
@@ -60,13 +64,15 @@ export function buildCardNumber({
 ### src/features/membership/server/cards.ts
 
 ```ts
+import { currentUser } from '@clerk/nextjs/server';
+import { eq } from 'drizzle-orm';
 import 'server-only';
-import { db } from '@/lib/db';
+
 import { cards } from '@/db/schema/membership';
 import { users } from '@/db/schema/user';
-import { eq } from 'drizzle-orm';
-import { buildCardNumber, type MemberType } from './card-number';
-import { currentUser } from '@clerk/nextjs/server';
+import { db } from '@/lib/db';
+
+import { type MemberType, buildCardNumber } from './card-number';
 
 async function getMemberNameFallback(userId: string) {
   // Attempt Clerk names; fallback to email local-part
@@ -84,7 +90,10 @@ async function getMemberNameFallback(userId: string) {
   }
 }
 
-export async function ensureMemberCard(userId: string, opts?: { memberType?: MemberType; countryCode?: string; expiresAt?: Date | null }) {
+export async function ensureMemberCard(
+  userId: string,
+  opts?: { memberType?: MemberType; countryCode?: string; expiresAt?: Date | null },
+) {
   const existing = await db.query.cards.findFirst({ where: eq(cards.userId, userId) });
   if (existing) return existing;
 
@@ -95,14 +104,17 @@ export async function ensureMemberCard(userId: string, opts?: { memberType?: Mem
   for (let i = 0; i < 5; i++) {
     const number = buildCardNumber({ memberType, countryCode: opts?.countryCode });
     try {
-      const [row] = await db.insert(cards).values({
-        userId,
-        number,
-        memberName,
-        memberType: memberType as any,
-        status: 'ACTIVE' as any,
-        expiresAt: opts?.expiresAt ?? null,
-      }).returning();
+      const [row] = await db
+        .insert(cards)
+        .values({
+          userId,
+          number,
+          memberName,
+          memberType: memberType as any,
+          status: 'ACTIVE' as any,
+          expiresAt: opts?.expiresAt ?? null,
+        })
+        .returning();
       if (row) return row;
     } catch (e: any) {
       // Unique violation → retry with new suffix

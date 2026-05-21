@@ -26,6 +26,7 @@ npx oha -z 20s -c 20 http://localhost:3000/catalog
 
 ```md
 # Load Smoke
+
 - Warm server with 5 requests.
 - Run 20s at 20 concurrency.
 - Expect < 1% 5xx, median TTFB under 300ms locally (hardware dependent).

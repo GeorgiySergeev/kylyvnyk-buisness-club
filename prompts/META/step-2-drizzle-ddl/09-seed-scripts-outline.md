@@ -10,11 +10,11 @@ Seed Scripts — Outline & Order
 
 ## Order
 
-1) Countries/Cities
-2) Categories
-3) Users (ADMIN/VIP/FREE) — опционально связать с Clerk test users
-4) Businesses (2 PUBLISHED, 1 UNDER_REVIEW)
-5) (Опционально) Partner Offers — PRIVATE_AFTER_LOGIN
+1. Countries/Cities
+2. Categories
+3. Users (ADMIN/VIP/FREE) — опционально связать с Clerk test users
+4. Businesses (2 PUBLISHED, 1 UNDER_REVIEW)
+5. (Опционально) Partner Offers — PRIVATE_AFTER_LOGIN
 
 ## Idempotency
 

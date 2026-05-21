@@ -30,6 +30,6 @@ pnpm add @tanstack/react-table
 
 ## Guardrails
 
-- Все /admin-* страницы защищены requireAdminWithMfa
+- Все /admin-\* страницы защищены requireAdminWithMfa
 - Никаких PII в логах/мета; только необходимые поля для управления
 - Действия модерации — через Server Actions с ауди́том

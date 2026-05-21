@@ -10,10 +10,10 @@ Add remaining legal/compliance pages. Explicitly prohibit MLM/affiliate/income l
 
 ## Steps
 
-1) Add Partner Rules (for business profiles).
-2) Add Business Introduction Rules (no MLM, no payouts; admin‑managed).
-3) Add general Disclaimer page.
-4) Add Contact Us page with email and minimal info.
+1. Add Partner Rules (for business profiles).
+2. Add Business Introduction Rules (no MLM, no payouts; admin‑managed).
+3. Add general Disclaimer page.
+4. Add Contact Us page with email and minimal info.
 
 ## Files to add
 
@@ -40,7 +40,9 @@ export default function PartnerRulesPage() {
         <li>Special conditions must be accurate, lawful, and honored to verified members.</li>
         <li>No misleading claims, unlawful incentives, or high‑risk categories.</li>
         <li>{LEGAL.entityName} may request proof of compliance or remove listings at any time.</li>
-        <li>Partners remain solely responsible for their services, pricing, and legal obligations.</li>
+        <li>
+          Partners remain solely responsible for their services, pricing, and legal obligations.
+        </li>
       </ul>
     </>
   );
@@ -61,10 +63,21 @@ export default function BiRulesPage() {
       <p>Last updated: {new Date(LEGAL.lastUpdatedISO).toLocaleDateString()}</p>
 
       <ul>
-        <li>Business Introductions are available to VIP members only and processed by the admin team.</li>
-        <li>No commissions, no earnings, no affiliate, no MLM, and no passive income mechanics are involved.</li>
-        <li>Limits, ratings, and internal criteria are managed by admins and are not displayed publicly.</li>
-        <li>{LEGAL.entityName} does not participate in negotiations or agreements between users and partners.</li>
+        <li>
+          Business Introductions are available to VIP members only and processed by the admin team.
+        </li>
+        <li>
+          No commissions, no earnings, no affiliate, no MLM, and no passive income mechanics are
+          involved.
+        </li>
+        <li>
+          Limits, ratings, and internal criteria are managed by admins and are not displayed
+          publicly.
+        </li>
+        <li>
+          {LEGAL.entityName} does not participate in negotiations or agreements between users and
+          partners.
+        </li>
       </ul>
     </>
   );
@@ -86,8 +99,9 @@ export default function DisclaimerPage() {
 
       <p>
         {LEGAL.entityName} provides platform access “as is” and does not guarantee savings, income,
-        or business outcomes. Partners are independent and solely responsible for their offers and compliance.
-        Nothing on this site constitutes financial, legal, or tax advice. Consult qualified advisors.
+        or business outcomes. Partners are independent and solely responsible for their offers and
+        compliance. Nothing on this site constitutes financial, legal, or tax advice. Consult
+        qualified advisors.
       </p>
     </>
   );
@@ -106,7 +120,8 @@ export default function ContactPage() {
     <>
       <h1>Contact Us</h1>
       <p className="mt-2">
-        For support and inquiries, email <a href={`mailto:${LEGAL.contactEmail}`}>{LEGAL.contactEmail}</a>.
+        For support and inquiries, email{' '}
+        <a href={`mailto:${LEGAL.contactEmail}`}>{LEGAL.contactEmail}</a>.
       </p>
       <p className="mt-2 text-sm text-fgMuted">
         Response times may vary. Please avoid sending sensitive information via email.

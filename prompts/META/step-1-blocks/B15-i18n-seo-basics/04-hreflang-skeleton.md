@@ -10,9 +10,9 @@ Expose alternates.languages metadata for hreflang. Single locale now, easy to ex
 
 ## Steps
 
-1) Add a small helper to compute alternates per route.
-2) Use generateMetadata on landing to include alternates.
-3) Keep locales array in i18n config for future growth.
+1. Add a small helper to compute alternates per route.
+2. Use generateMetadata on landing to include alternates.
+3. Keep locales array in i18n config for future growth.
 
 ## Files to add
 
@@ -22,15 +22,16 @@ Expose alternates.languages metadata for hreflang. Single locale now, easy to ex
 ### src/i18n/alternates.ts
 
 ```ts
-import { i18n } from './config';
 import { getSiteUrl } from '@/lib/seo/site';
+
+import { i18n } from './config';
 
 export function buildAlternates(pathname = '') {
   const base = getSiteUrl();
   const clean = pathname.startsWith('/') ? pathname : `/${pathname}`;
   // MVP single-locale
   const languages: Record<string, string> = {
-    'en': `${base}${clean}`,
+    en: `${base}${clean}`,
   };
   return { languages };
 }
@@ -40,8 +41,10 @@ export function buildAlternates(pathname = '') {
 
 ```tsx
 import type { Metadata } from 'next';
+
 import { buildAlternates } from '@/i18n/alternates';
-import { getSiteUrl, DEFAULT_SEO } from '@/lib/seo/site';
+import { DEFAULT_SEO, getSiteUrl } from '@/lib/seo/site';
+
 // ...existing imports
 
 export async function generateMetadata(): Promise<Metadata> {

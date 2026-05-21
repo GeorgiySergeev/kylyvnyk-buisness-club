@@ -10,9 +10,9 @@ Prevent abuse with IP-based rate limits on write endpoints: Submit Business, Int
 
 ## Steps
 
-1) Install Upstash Redis + Ratelimit.
-2) Create a reusable limiter by route key.
-3) Apply in API routes and server actions.
+1. Install Upstash Redis + Ratelimit.
+2. Create a reusable limiter by route key.
+3. Apply in API routes and server actions.
 
 ## Commands
 
@@ -34,8 +34,8 @@ pnpm add @upstash/redis @upstash/ratelimit
 ### src/lib/redis/client.ts
 
 ```ts
-import 'server-only';
 import { Redis } from '@upstash/redis';
+import 'server-only';
 
 export const redis =
   process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
@@ -49,10 +49,11 @@ export const redis =
 ### src/lib/security/rate-limit.ts
 
 ```ts
-import 'server-only';
 import { Ratelimit } from '@upstash/ratelimit';
-import { redis } from '@/lib/redis/client';
 import { headers } from 'next/headers';
+import 'server-only';
+
+import { redis } from '@/lib/redis/client';
 
 const limiter = redis
   ? new Ratelimit({

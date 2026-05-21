@@ -2,7 +2,7 @@
 
 ## Overview
 
-This block contains the step-by-step instructions for bootstrapping the development environment, tooling, and foundational folder structure for the **KYLYVNYK CLUB** project. 
+This block contains the step-by-step instructions for bootstrapping the development environment, tooling, and foundational folder structure for the **KYLYVNYK CLUB** project.
 
 The process is divided into modular steps to ensure a robust, scalable, and maintainable foundation, leveraging modern web development tools and best practices.
 
@@ -32,6 +32,7 @@ The process is divided into modular steps to ensure a robust, scalable, and main
 ## Overall Acceptance Criteria
 
 Upon completion of this block:
+
 - The Next.js application runs successfully locally.
 - TypeScript, ESLint, and Prettier are strictly enforcing code quality, formatting, and type safety, catching errors pre-commit.
 - Tailwind CSS and `shadcn/ui` components render correctly, respecting the dark/gold theme tokens.

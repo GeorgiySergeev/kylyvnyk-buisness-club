@@ -10,9 +10,9 @@ Add JSON-LD for Organization and Website, align meta/OG with i18n, and expose a 
 
 ## Steps
 
-1) Create JsonLd components (Organization, Website).
-2) Mount on the landing page.
-3) Keep DEFAULT_SEO and metadataBase as-is; wire translated titles/descriptions where applicable.
+1. Create JsonLd components (Organization, Website).
+2. Mount on the landing page.
+3. Keep DEFAULT_SEO and metadataBase as-is; wire translated titles/descriptions where applicable.
 
 ## Files to add
 
@@ -26,10 +26,7 @@ Add JSON-LD for Organization and Website, align meta/OG with i18n, and expose a 
 
 export function JsonLd({ data }: { data: Record<string, any> }) {
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -84,13 +81,16 @@ export function WebsiteJsonLd({
 
 ```tsx
 import dynamic from 'next/dynamic';
-import { getSiteUrl, DEFAULT_SEO } from '@/lib/seo/site';
+
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/seo/jsonld';
+import { DEFAULT_SEO, getSiteUrl } from '@/lib/seo/site';
 
 const LandingHero = dynamic(() => import('@/features/landing/hero'), { ssr: true });
 const LandingStats = dynamic(() => import('@/features/landing/stats'), { ssr: true });
 const TopPartners = dynamic(() => import('@/features/landing/top-partners'), { ssr: true });
-const RecommendedPartners = dynamic(() => import('@/features/landing/recommended-partners'), { ssr: true });
+const RecommendedPartners = dynamic(() => import('@/features/landing/recommended-partners'), {
+  ssr: true,
+});
 
 export default async function LandingPage() {
   const base = getSiteUrl();

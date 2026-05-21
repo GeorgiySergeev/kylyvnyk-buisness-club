@@ -13,9 +13,9 @@ Provide simple, readable panels for:
 
 ## Steps
 
-1) Create BusinessStatusPanel.
-2) Create SubscriptionStatusPanel.
-3) Mount BusinessStatusPanel in /business (home), and SubscriptionStatusPanel in /member/subscription.
+1. Create BusinessStatusPanel.
+2. Create SubscriptionStatusPanel.
+3. Mount BusinessStatusPanel in /business (home), and SubscriptionStatusPanel in /member/subscription.
 
 ## Files to add/modify
 
@@ -28,10 +28,11 @@ Provide simple, readable panels for:
 ### src/features/business/server/queries.ts
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { businesses, categories } from '@/db/schema/catalog';
 import { eq } from 'drizzle-orm';
+import 'server-only';
+
+import { businesses, categories } from '@/db/schema/catalog';
+import { db } from '@/lib/db';
 
 export async function getMyBusiness(userId: string) {
   const row = await db
@@ -53,9 +54,11 @@ export async function getMyBusiness(userId: string) {
 
 ```tsx
 import { auth } from '@clerk/nextjs/server';
-import { getMyBusiness } from './server/queries';
-import { CardPremium } from '@/components/ui/card-premium';
 import Link from 'next/link';
+
+import { CardPremium } from '@/components/ui/card-premium';
+
+import { getMyBusiness } from './server/queries';
 
 export default async function BusinessStatusPanel() {
   const { userId } = auth();
@@ -65,7 +68,11 @@ export default async function BusinessStatusPanel() {
   if (!biz) {
     return (
       <CardPremium className="text-sm text-fgMuted">
-        No business submitted yet. <Link href="/business/submit" className="underline hover:text-gold-400">Submit now</Link>.
+        No business submitted yet.{' '}
+        <Link href="/business/submit" className="underline hover:text-gold-400">
+          Submit now
+        </Link>
+        .
       </CardPremium>
     );
   }
@@ -80,8 +87,8 @@ export default async function BusinessStatusPanel() {
         {biz.status === 'UNDER_REVIEW'
           ? 'Under review'
           : biz.status === 'PUBLISHED'
-          ? 'Published'
-          : 'Hidden'}
+            ? 'Published'
+            : 'Hidden'}
       </div>
     </CardPremium>
   );
@@ -92,11 +99,12 @@ export default async function BusinessStatusPanel() {
 
 ```tsx
 import { auth } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
-import { subscriptions } from '@/db/schema/stripe';
 import { eq } from 'drizzle-orm';
-import { CardPremium } from '@/components/ui/card-premium';
+
 import { CancelVipButton } from '@/components/member/cancel-vip-button';
+import { CardPremium } from '@/components/ui/card-premium';
+import { subscriptions } from '@/db/schema/stripe';
+import { db } from '@/lib/db';
 
 export default async function SubscriptionStatusPanel() {
   const { userId } = auth();
@@ -140,8 +148,8 @@ export default async function SubscriptionStatusPanel() {
 ### src/app/(business)/page.tsx (patch)
 
 ```tsx
-import { requireVipActive } from '@/features/auth/server/guards';
 import { Section } from '@/components/ui/section';
+import { requireVipActive } from '@/features/auth/server/guards';
 import BusinessStatusPanel from '@/features/business/business-status-panel';
 
 export default async function BusinessHome() {

@@ -20,7 +20,7 @@ name: DB Migrate
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
 
 concurrency:
   group: migrate-${{ github.ref }}

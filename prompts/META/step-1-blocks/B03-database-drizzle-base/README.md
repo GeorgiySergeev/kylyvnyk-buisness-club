@@ -2,7 +2,7 @@
 
 ## Overview
 
-This block outlines the foundational steps for setting up the PostgreSQL database and integrating Drizzle ORM into the **KYLYVNYK CLUB** project. 
+This block outlines the foundational steps for setting up the PostgreSQL database and integrating Drizzle ORM into the **KYLYVNYK CLUB** project.
 
 The focus is on establishing a robust, scalable, and type-safe database layer that works seamlessly with Next.js App Router features like React Server Components (RSC) and Server Actions.
 
@@ -29,6 +29,7 @@ The focus is on establishing a robust, scalable, and type-safe database layer th
 ## Overall Acceptance Criteria
 
 Upon completion of this block:
+
 - The Drizzle ORM is successfully connected to the PostgreSQL database via a connection pool.
 - Drizzle Kit is fully configured to read the schema and generate/apply migrations.
 - The schema directory is properly structured and exported.

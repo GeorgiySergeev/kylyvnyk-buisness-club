@@ -33,5 +33,6 @@ export async function requireAdminWithMfa() {
 ```
 
 ## Acceptance
+
 - Пользователи с `tier === 'ADMIN'` без MFA перенаправляются.
 - Роль ADMIN надежно защищена.

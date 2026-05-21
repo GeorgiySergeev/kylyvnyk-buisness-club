@@ -36,5 +36,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 ```
 
 ## Acceptance
+
 - ClerkProvider обертывает приложение.
 - Применена темная тема (соответствие B02).

@@ -10,11 +10,11 @@ Establish a scalable folder layout for features, UI, and infra modules.
 
 ## Steps
 
-1) Create route groups
+1. Create route groups
 
 - src/app/(public), (auth), (member), (business), (admin)
 
-1) Create base infra and features folders
+1. Create base infra and features folders
 
 - src/components/ui, src/components/common
 - src/features/{auth,membership,catalog,business,stripe,admin,legal}
@@ -22,7 +22,7 @@ Establish a scalable folder layout for features, UI, and infra modules.
 - src/db/schema
 - src/styles, src/types, src/config
 
-1) Add placeholder files and a sample page
+1. Add placeholder files and a sample page
 
 ## Example tree
 

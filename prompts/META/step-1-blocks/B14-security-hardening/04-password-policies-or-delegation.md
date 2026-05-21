@@ -10,11 +10,11 @@ Use Clerk’s password policy controls for production. Provide reusable validato
 
 ## Steps
 
-1) In Clerk Dashboard → Authentication → Password policy:
+1. In Clerk Dashboard → Authentication → Password policy:
    - Enforce minimum length (>=8), mixed case, digit, and symbol.
    - Enable email verification (already on).
-2) Add a local Zod validator for any password fields you might add later (e.g., change-password UI).
-3) Document hashing best practices if ever storing passwords (bcrypt/argon2).
+2. Add a local Zod validator for any password fields you might add later (e.g., change-password UI).
+3. Document hashing best practices if ever storing passwords (bcrypt/argon2).
 
 ## Files to add
 

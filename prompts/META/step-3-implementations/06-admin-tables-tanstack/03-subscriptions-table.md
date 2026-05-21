@@ -13,13 +13,14 @@ Admin — Subscriptions table
 ### src/app/(admin)/subscriptions/page.tsx
 
 ```tsx
+import type { ColumnDef } from '@tanstack/react-table';
+import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
+
+import { DataTable } from '@/components/admin/data-table';
+import { Pager } from '@/components/admin/ssr-table';
+import { subscriptions } from '@/db/schema/stripe';
 import { parsePage } from '@/features/admin/server/listing';
 import { db } from '@/lib/db';
-import { subscriptions } from '@/db/schema/stripe';
-import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
-import { DataTable } from '@/components/admin/data-table';
-import type { ColumnDef } from '@tanstack/react-table';
-import { Pager } from '@/components/admin/ssr-table';
 
 type Row = {
   id: string;
@@ -35,7 +36,12 @@ function buildWhere(search?: string, status?: string) {
   const parts: any[] = [];
   if (search) {
     const pattern = `%${search}%`;
-    parts.push(or(ilike(subscriptions.stripeCustomerId, pattern as any), ilike(subscriptions.stripeSubscriptionId, pattern as any)));
+    parts.push(
+      or(
+        ilike(subscriptions.stripeCustomerId, pattern as any),
+        ilike(subscriptions.stripeSubscriptionId, pattern as any),
+      ),
+    );
   }
   if (status) {
     const pattern = `%${status}%`;
@@ -49,7 +55,11 @@ function stripeCustomerUrl(id: string) {
   return `https://dashboard.stripe.com/customers/${id}`;
 }
 
-export default async function AdminSubscriptionsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function AdminSubscriptionsPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | undefined>;
+}) {
   const pg = parsePage(searchParams);
   const search = (searchParams.q || '').trim();
   const status = (searchParams.status || '').trim();
@@ -89,7 +99,12 @@ export default async function AdminSubscriptionsPage({ searchParams }: { searchP
       accessorKey: 'customer',
       header: 'Customer',
       cell: ({ row }) => (
-        <a className="underline hover:text-gold-400" href={stripeCustomerUrl(row.original.customer)} target="_blank" rel="noreferrer">
+        <a
+          className="underline hover:text-gold-400"
+          href={stripeCustomerUrl(row.original.customer)}
+          target="_blank"
+          rel="noreferrer"
+        >
           {row.original.customer}
         </a>
       ),
@@ -122,11 +137,18 @@ export default async function AdminSubscriptionsPage({ searchParams }: { searchP
           placeholder="Filter status contains (e.g. active)"
           className="min-h-10 rounded-md border border-border bg-card px-3 py-2 focus-gold"
         />
-        <button className="px-4 py-2 rounded-md border border-border hover:bg-bgElev focus-gold">Apply</button>
+        <button className="px-4 py-2 rounded-md border border-border hover:bg-bgElev focus-gold">
+          Apply
+        </button>
       </form>
 
       <DataTable columns={columns} data={rows} className="mt-4" />
-      <Pager page={pg.page} pageSize={pg.pageSize} pathname="/admin/subscriptions" searchParams={searchParams as any} />
+      <Pager
+        page={pg.page}
+        pageSize={pg.pageSize}
+        pathname="/admin/subscriptions"
+        searchParams={searchParams as any}
+      />
     </section>
   );
 }

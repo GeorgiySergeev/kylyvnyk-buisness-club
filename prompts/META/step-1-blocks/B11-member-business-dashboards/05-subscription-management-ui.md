@@ -10,9 +10,9 @@ Provide a consolidated, mobile-first UI for subscription management within /memb
 
 ## Steps
 
-1) Reuse SubscriptionStatusPanel (S04).
-2) Ensure POST /api/stripe/portal works (existing from B05).
-3) Ensure CancelVipButton (B05 S06) is visible and shows message.
+1. Reuse SubscriptionStatusPanel (S04).
+2. Ensure POST /api/stripe/portal works (existing from B05).
+3. Ensure CancelVipButton (B05 S06) is visible and shows message.
 
 ## Files to verify
 

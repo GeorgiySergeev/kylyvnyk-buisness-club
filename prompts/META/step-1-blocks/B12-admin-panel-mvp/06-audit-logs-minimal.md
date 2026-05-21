@@ -10,9 +10,9 @@ Provide a minimal, read-only list of recent audit logs with paging.
 
 ## Steps
 
-1) Add server list with basic filters (later expandable).
-2) Render SSR table with action, entity, timestamp, actor.
-3) Do not display PII in meta; show length or keys count only if needed.
+1. Add server list with basic filters (later expandable).
+2. Render SSR table with action, entity, timestamp, actor.
+3. Do not display PII in meta; show length or keys count only if needed.
 
 ## Files to add/modify
 
@@ -22,11 +22,12 @@ Provide a minimal, read-only list of recent audit logs with paging.
 ### src/features/admin/server/audit-list.ts
 
 ```ts
+import { desc, eq } from 'drizzle-orm';
 import 'server-only';
-import { db } from '@/lib/db';
+
 import { auditLogs } from '@/db/schema/audit';
 import { users } from '@/db/schema/user';
-import { desc, eq } from 'drizzle-orm';
+import { db } from '@/lib/db';
 
 export async function listAudit({ page, pageSize }: { page: number; pageSize: number }) {
   const offset = (page - 1) * pageSize;
@@ -52,11 +53,15 @@ export async function listAudit({ page, pageSize }: { page: number; pageSize: nu
 ### src/app/(admin)/logs/page.tsx
 
 ```tsx
+import { Pager, SsrTable } from '@/components/admin/ssr-table';
 import { listAudit } from '@/features/admin/server/audit-list';
 import { parsePage } from '@/features/admin/server/listing';
-import { SsrTable, Pager } from '@/components/admin/ssr-table';
 
-export default async function AdminLogsPage({ searchParams }: { searchParams: Record<string, string> }) {
+export default async function AdminLogsPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string>;
+}) {
   const pg = parsePage(searchParams);
   const { rows, totalHint } = await listAudit(pg);
 
@@ -79,8 +84,16 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Re
           when: new Date(r.createdAt).toLocaleString(),
         }))}
       />
-      <Pager totalHint={totalHint} page={pg.page} pageSize={pg.pageSize} pathname="/admin/logs" searchParams={searchParams} />
-      <p className="mt-3 text-xs text-fgMuted">Metadata may be stored internally but is not displayed here to avoid PII exposure.</p>
+      <Pager
+        totalHint={totalHint}
+        page={pg.page}
+        pageSize={pg.pageSize}
+        pathname="/admin/logs"
+        searchParams={searchParams}
+      />
+      <p className="mt-3 text-xs text-fgMuted">
+        Metadata may be stored internally but is not displayed here to avoid PII exposure.
+      </p>
     </section>
   );
 }

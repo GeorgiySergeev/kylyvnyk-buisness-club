@@ -96,7 +96,11 @@ export const userStatusEnum = pgEnum('user_status', ['ACTIVE', 'BLOCKED']);
 export const membershipTypeEnum = pgEnum('membership_type', ['FREE', 'VIP']);
 export const membershipStatusEnum = pgEnum('membership_status', ['ACTIVE', 'CANCELED']);
 
-export const businessStatusEnum = pgEnum('business_status', ['UNDER_REVIEW', 'PUBLISHED', 'HIDDEN']);
+export const businessStatusEnum = pgEnum('business_status', [
+  'UNDER_REVIEW',
+  'PUBLISHED',
+  'HIDDEN',
+]);
 
 export const cardStatusEnum = pgEnum('card_status', ['ACTIVE', 'INACTIVE', 'EXPIRED']);
 
@@ -172,17 +176,11 @@ export const profilesRelations = relations(profiles, ({ one }) => ({
 src/db/schema/geo.ts
 
 ```ts
-import {
-  pgTable,
-  serial,
-  varchar,
-  timestamp,
-  index,
-  uniqueIndex,
-} from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { profiles } from './user';
+import { index, pgTable, serial, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
+
 import { businesses } from './catalog';
+import { profiles } from './user';
 
 export const countries = pgTable('countries', {
   id: serial('id').primaryKey(),
@@ -191,15 +189,21 @@ export const countries = pgTable('countries', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const cities = pgTable('cities', {
-  id: serial('id').primaryKey(),
-  countryId: serial('country_id').notNull().references(() => countries.id, { onDelete: 'cascade' }),
-  name: varchar('name', { length: 160 }).notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => ({
-  countryNameIdx: index('idx_cities_country').on(t.countryId),
-  uniqueCountryCity: uniqueIndex('ux_cities_country_name').on(t.countryId, t.name),
-}));
+export const cities = pgTable(
+  'cities',
+  {
+    id: serial('id').primaryKey(),
+    countryId: serial('country_id')
+      .notNull()
+      .references(() => countries.id, { onDelete: 'cascade' }),
+    name: varchar('name', { length: 160 }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    countryNameIdx: index('idx_cities_country').on(t.countryId),
+    uniqueCountryCity: uniqueIndex('ux_cities_country_name').on(t.countryId, t.name),
+  }),
+);
 
 export const countriesRelations = relations(countries, ({ many }) => ({
   cities: many(cities),
@@ -221,21 +225,22 @@ export const profilesGeoRelations = relations(profiles, ({ one }) => ({
 src/db/schema/catalog.ts
 
 ```ts
+import { relations } from 'drizzle-orm';
 import {
-  pgTable,
-  uuid,
-  serial,
-  varchar,
-  text,
-  timestamp,
-  integer,
   boolean,
   index,
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  uuid,
+  varchar,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
-import { users } from './user';
-import { countries, cities } from './geo';
+
 import { businessStatusEnum, offerVisibilityEnum } from './enums';
+import { cities, countries } from './geo';
+import { users } from './user';
 
 export const categories = pgTable('categories', {
   id: serial('id').primaryKey(),
@@ -244,33 +249,47 @@ export const categories = pgTable('categories', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const businesses = pgTable('businesses', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  ownerUserId: uuid('owner_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  name: varchar('name', { length: 200 }).notNull(),
-  representativeName: varchar('representative_name', { length: 160 }).notNull(),
-  email: varchar('email', { length: 256 }).notNull(),
-  phone: varchar('phone', { length: 50 }),
-  countryId: integer('country_id').notNull().references(() => countries.id),
-  cityId: integer('city_id').notNull().references(() => cities.id),
-  categoryId: integer('category_id').notNull().references(() => categories.id),
-  websiteUrl: varchar('website_url', { length: 512 }),
-  shortDescription: varchar('short_description', { length: 280 }),
-  status: businessStatusEnum('status').notNull().default('UNDER_REVIEW'),
-  isTopPartner: boolean('is_top_partner').notNull().default(false), // для хедера на главной (3 карточки)
-  isRecommended: boolean('is_recommended').notNull().default(false), // для блока "Рекомендуемые"
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-  publishedAt: timestamp('published_at', { withTimezone: true }),
-}, (t) => ({
-  idxStatus: index('idx_businesses_status').on(t.status),
-  idxFilters: index('idx_businesses_filters').on(t.countryId, t.cityId, t.categoryId),
-  idxTop: index('idx_businesses_top').on(t.isTopPartner, t.isRecommended),
-}));
+export const businesses = pgTable(
+  'businesses',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    ownerUserId: uuid('owner_user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: varchar('name', { length: 200 }).notNull(),
+    representativeName: varchar('representative_name', { length: 160 }).notNull(),
+    email: varchar('email', { length: 256 }).notNull(),
+    phone: varchar('phone', { length: 50 }),
+    countryId: integer('country_id')
+      .notNull()
+      .references(() => countries.id),
+    cityId: integer('city_id')
+      .notNull()
+      .references(() => cities.id),
+    categoryId: integer('category_id')
+      .notNull()
+      .references(() => categories.id),
+    websiteUrl: varchar('website_url', { length: 512 }),
+    shortDescription: varchar('short_description', { length: 280 }),
+    status: businessStatusEnum('status').notNull().default('UNDER_REVIEW'),
+    isTopPartner: boolean('is_top_partner').notNull().default(false), // для хедера на главной (3 карточки)
+    isRecommended: boolean('is_recommended').notNull().default(false), // для блока "Рекомендуемые"
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    publishedAt: timestamp('published_at', { withTimezone: true }),
+  },
+  (t) => ({
+    idxStatus: index('idx_businesses_status').on(t.status),
+    idxFilters: index('idx_businesses_filters').on(t.countryId, t.cityId, t.categoryId),
+    idxTop: index('idx_businesses_top').on(t.isTopPartner, t.isRecommended),
+  }),
+);
 
 export const partnerOffers = pgTable('partner_offers', {
   id: uuid('id').primaryKey().defaultRandom(),
-  businessId: uuid('business_id').notNull().references(() => businesses.id, { onDelete: 'cascade' }),
+  businessId: uuid('business_id')
+    .notNull()
+    .references(() => businesses.id, { onDelete: 'cascade' }),
   shortText: varchar('short_text', { length: 280 }).notNull(), // special condition текст (не показывать гостям)
   details: text('details'),
   visibility: offerVisibilityEnum('visibility').notNull().default('PRIVATE_AFTER_LOGIN'),
@@ -312,59 +331,79 @@ export const partnerOffersRelations = relations(partnerOffers, ({ one }) => ({
 src/db/schema/membership.ts
 
 ```ts
-import {
-  pgTable,
-  uuid,
-  varchar,
-  timestamp,
-  index,
-  uniqueIndex,
-} from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { users } from './user';
-import { cardStatusEnum, membershipStatusEnum, membershipTypeEnum, introductionStatusEnum } from './enums';
+import { index, pgTable, timestamp, uniqueIndex, uuid, varchar } from 'drizzle-orm/pg-core';
+
 import { businesses } from './catalog';
+import {
+  cardStatusEnum,
+  introductionStatusEnum,
+  membershipStatusEnum,
+  membershipTypeEnum,
+} from './enums';
+import { users } from './user';
 
-export const cards = pgTable('cards', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().unique().references(() => users.id, { onDelete: 'cascade' }), // 1 карта на пользователя
-  number: varchar('number', { length: 64 }).notNull().unique(), // напр. VIP-UA-000501
-  memberName: varchar('member_name', { length: 200 }).notNull(), // дублируем ФИО для печати на карте
-  memberType: membershipTypeEnum('member_type').notNull().default('FREE'),
-  status: cardStatusEnum('status').notNull().default('ACTIVE'),
-  expiresAt: timestamp('expires_at', { withTimezone: true }),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => ({
-  idxStatus: index('idx_cards_status').on(t.status),
-}));
+export const cards = pgTable(
+  'cards',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .unique()
+      .references(() => users.id, { onDelete: 'cascade' }), // 1 карта на пользователя
+    number: varchar('number', { length: 64 }).notNull().unique(), // напр. VIP-UA-000501
+    memberName: varchar('member_name', { length: 200 }).notNull(), // дублируем ФИО для печати на карте
+    memberType: membershipTypeEnum('member_type').notNull().default('FREE'),
+    status: cardStatusEnum('status').notNull().default('ACTIVE'),
+    expiresAt: timestamp('expires_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    idxStatus: index('idx_cards_status').on(t.status),
+  }),
+);
 
-export const memberships = pgTable('memberships', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  type: membershipTypeEnum('type').notNull().default('FREE'),
-  status: membershipStatusEnum('status').notNull().default('ACTIVE'),
-  validTo: timestamp('valid_to', { withTimezone: true }),
-  cardId: uuid('card_id').references(() => cards.id, { onDelete: 'set null' }),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => ({
-  uxUserActive: uniqueIndex('ux_membership_user_type_active').on(t.userId, t.type, t.status), // гарантирует уникальность активной комбинации
-  idxUser: index('idx_membership_user').on(t.userId),
-}));
+export const memberships = pgTable(
+  'memberships',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    type: membershipTypeEnum('type').notNull().default('FREE'),
+    status: membershipStatusEnum('status').notNull().default('ACTIVE'),
+    validTo: timestamp('valid_to', { withTimezone: true }),
+    cardId: uuid('card_id').references(() => cards.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    uxUserActive: uniqueIndex('ux_membership_user_type_active').on(t.userId, t.type, t.status), // гарантирует уникальность активной комбинации
+    idxUser: index('idx_membership_user').on(t.userId),
+  }),
+);
 
-export const introductions = pgTable('introductions', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  createdByUserId: uuid('created_by_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  targetBusinessId: uuid('target_business_id').notNull().references(() => businesses.id, { onDelete: 'cascade' }),
-  status: introductionStatusEnum('status').notNull().default('DRAFT'),
-  internalNotes: varchar('internal_notes', { length: 1000 }),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => ({
-  idxCreator: index('idx_introductions_creator').on(t.createdByUserId),
-  idxBusiness: index('idx_introductions_business').on(t.targetBusinessId),
-}));
+export const introductions = pgTable(
+  'introductions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    createdByUserId: uuid('created_by_user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    targetBusinessId: uuid('target_business_id')
+      .notNull()
+      .references(() => businesses.id, { onDelete: 'cascade' }),
+    status: introductionStatusEnum('status').notNull().default('DRAFT'),
+    internalNotes: varchar('internal_notes', { length: 1000 }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    idxCreator: index('idx_introductions_creator').on(t.createdByUserId),
+    idxBusiness: index('idx_introductions_business').on(t.targetBusinessId),
+  }),
+);
 
 export const cardsRelations = relations(cards, ({ one }) => ({
   user: one(users, {
@@ -386,7 +425,10 @@ export const membershipsRelations = relations(memberships, ({ one }) => ({
 
 export const introductionsRelations = relations(introductions, ({ one }) => ({
   creator: one(users, { fields: [introductions.createdByUserId], references: [users.id] }),
-  business: one(businesses, { fields: [introductions.targetBusinessId], references: [businesses.id] }),
+  business: one(businesses, {
+    fields: [introductions.targetBusinessId],
+    references: [businesses.id],
+  }),
 }));
 ```
 
@@ -394,33 +436,40 @@ src/db/schema/stripe.ts
 
 ```ts
 import {
+  boolean,
+  index,
+  jsonb,
   pgTable,
-  uuid,
-  varchar,
   text,
   timestamp,
   uniqueIndex,
-  index,
-  boolean,
-  jsonb,
+  uuid,
+  varchar,
 } from 'drizzle-orm/pg-core';
+
 import { users } from './user';
 
-export const subscriptions = pgTable('subscriptions', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  stripeCustomerId: varchar('stripe_customer_id', { length: 120 }).notNull(),
-  stripeSubscriptionId: varchar('stripe_subscription_id', { length: 120 }).notNull().unique(),
-  statusRaw: varchar('status_raw', { length: 60 }).notNull(), // храним raw статус Stripe
-  currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }),
-  cancelAtPeriodEnd: boolean('cancel_at_period_end').notNull().default(false),
-  canceledAt: timestamp('canceled_at', { withTimezone: true }),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => ({
-  uxUserCustomer: uniqueIndex('ux_subscriptions_user_customer').on(t.userId, t.stripeCustomerId),
-  idxUser: index('idx_subscriptions_user').on(t.userId),
-}));
+export const subscriptions = pgTable(
+  'subscriptions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    stripeCustomerId: varchar('stripe_customer_id', { length: 120 }).notNull(),
+    stripeSubscriptionId: varchar('stripe_subscription_id', { length: 120 }).notNull().unique(),
+    statusRaw: varchar('status_raw', { length: 60 }).notNull(), // храним raw статус Stripe
+    currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }),
+    cancelAtPeriodEnd: boolean('cancel_at_period_end').notNull().default(false),
+    canceledAt: timestamp('canceled_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    uxUserCustomer: uniqueIndex('ux_subscriptions_user_customer').on(t.userId, t.stripeCustomerId),
+    idxUser: index('idx_subscriptions_user').on(t.userId),
+  }),
+);
 
 export const stripeEvents = pgTable('stripe_events', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -438,32 +487,29 @@ export const stripeEvents = pgTable('stripe_events', {
 src/db/schema/audit.ts
 
 ```ts
-import {
-  pgTable,
-  uuid,
-  varchar,
-  text,
-  timestamp,
-  jsonb,
-  index,
-} from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
+import { index, jsonb, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+
 import { users } from './user';
 
-export const auditLogs = pgTable('audit_logs', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  actorUserId: uuid('actor_user_id').references(() => users.id, { onDelete: 'set null' }), // может быть null (система)
-  action: varchar('action', { length: 120 }).notNull(), // e.g. USER_CREATE, BUSINESS_PUBLISH
-  entity: varchar('entity', { length: 120 }).notNull(), // e.g. user, business, membership
-  entityId: varchar('entity_id', { length: 191 }).notNull(),
-  ip: varchar('ip', { length: 64 }),
-  userAgent: text('user_agent'),
-  meta: jsonb('meta'), // дополнительные поля (без PII)
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => ({
-  idxEntity: index('idx_audit_entity').on(t.entity, t.entityId),
-  idxActor: index('idx_audit_actor').on(t.actorUserId),
-}));
+export const auditLogs = pgTable(
+  'audit_logs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    actorUserId: uuid('actor_user_id').references(() => users.id, { onDelete: 'set null' }), // может быть null (система)
+    action: varchar('action', { length: 120 }).notNull(), // e.g. USER_CREATE, BUSINESS_PUBLISH
+    entity: varchar('entity', { length: 120 }).notNull(), // e.g. user, business, membership
+    entityId: varchar('entity_id', { length: 191 }).notNull(),
+    ip: varchar('ip', { length: 64 }),
+    userAgent: text('user_agent'),
+    meta: jsonb('meta'), // дополнительные поля (без PII)
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    idxEntity: index('idx_audit_entity').on(t.entity, t.entityId),
+    idxActor: index('idx_audit_actor').on(t.actorUserId),
+  }),
+);
 
 export const auditRelations = relations(auditLogs, ({ one }) => ({
   actor: one(users, {

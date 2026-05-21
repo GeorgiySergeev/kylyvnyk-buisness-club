@@ -10,7 +10,7 @@ Run core quality gates on every PR and push to main.
 
 ## Steps
 
-1) Create .github/workflows/ci.yml:
+1. Create .github/workflows/ci.yml:
 
 - Setup Node 20.x, pnpm
 - Cache pnpm store
@@ -27,7 +27,7 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
 
 jobs:

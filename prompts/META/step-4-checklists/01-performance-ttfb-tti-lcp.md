@@ -80,7 +80,7 @@ pnpm add -D @next/bundle-analyzer
 # dev build perf (пример)
 pnpm build && pnpm start
 # oha (20s / 20 conc)
-npx oha -z 20s -c 20 https://<preview>/ 
+npx oha -z 20s -c 20 https://<preview>/
 npx oha -z 20s -c 20 https://<preview>/catalog
 ```
 

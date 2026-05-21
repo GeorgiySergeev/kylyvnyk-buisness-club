@@ -10,10 +10,10 @@ Add a server-side FilterBar with three selects (All Countries, All Cities, All C
 
 ## Steps
 
-1) Create server queries to list countries, categories, and cities by country.
-2) Build FilterBar as a GET form that preserves query params.
-3) Place FilterBar above the grid on /catalog.
-4) Use large, touch-friendly controls and a gold submit button.
+1. Create server queries to list countries, categories, and cities by country.
+2. Build FilterBar as a GET form that preserves query params.
+3. Place FilterBar above the grid on /catalog.
+4. Use large, touch-friendly controls and a gold submit button.
 
 ## Files to add/modify
 
@@ -24,11 +24,12 @@ Add a server-side FilterBar with three selects (All Countries, All Cities, All C
 ### src/features/catalog/server/dicts.ts
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { countries, cities } from '@/db/schema/geo';
-import { categories } from '@/db/schema/catalog';
 import { eq } from 'drizzle-orm';
+import 'server-only';
+
+import { categories } from '@/db/schema/catalog';
+import { cities, countries } from '@/db/schema/geo';
+import { db } from '@/lib/db';
 
 export async function getAllCountries() {
   return db.select().from(countries).orderBy(countries.name);
@@ -47,8 +48,9 @@ export async function getCitiesByCountry(countryId?: number) {
 ### src/features/catalog/filters.tsx
 
 ```tsx
-import { getAllCountries, getCategories, getCitiesByCountry } from './server/dicts';
 import { LinkButton } from '@/components/ui/link-button';
+
+import { getAllCountries, getCategories, getCitiesByCountry } from './server/dicts';
 
 type Props = {
   searchParams: Record<string, string | string[] | undefined>;
@@ -128,14 +130,18 @@ export default async function CatalogFilterBar({ searchParams }: Props) {
 ### src/app/(public)/catalog/page.tsx (patch)
 
 ```tsx
-import CatalogFilterBar from '@/features/catalog/filters';
-import { Section } from '@/components/ui/section';
 import { BusinessCard } from '@/components/cards/business-card';
+import { Section } from '@/components/ui/section';
+import CatalogFilterBar from '@/features/catalog/filters';
 import { listPublishedBusinesses } from '@/features/catalog/server/queries';
 
 export const metadata = { title: 'Partners Catalog — KYLYVNYK CLUB' };
 
-export default async function CatalogPage({ searchParams }: { searchParams: Record<string, string> }) {
+export default async function CatalogPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string>;
+}) {
   // For now, ignore params in data — wired in S03
   const items = await listPublishedBusinesses(12, 0);
 

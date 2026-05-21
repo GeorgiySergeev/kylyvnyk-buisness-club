@@ -10,9 +10,9 @@ Provide user-friendly skeletons and empty states for Catalog list and Details pa
 
 ## Steps
 
-1) Add loading.tsx for /catalog and /catalog/[id].
-2) Create skeleton grid and card skeleton.
-3) Render an empty state when no results match filters.
+1. Add loading.tsx for /catalog and /catalog/[id].
+2. Create skeleton grid and card skeleton.
+3. Render an empty state when no results match filters.
 
 ## Files to add/modify
 
@@ -50,8 +50,8 @@ export function GridSkeleton({ count = 6 }: { count?: number }) {
 ### src/app/(public)/catalog/loading.tsx
 
 ```tsx
-import { Section } from '@/components/ui/section';
 import { GridSkeleton } from '@/components/catalog/skeletons';
+import { Section } from '@/components/ui/section';
 
 export default function CatalogLoading() {
   return (
@@ -67,8 +67,8 @@ export default function CatalogLoading() {
 ### src/app/(public)/catalog/[id]/loading.tsx
 
 ```tsx
-import { Section } from '@/components/ui/section';
 import { CardSkeleton } from '@/components/catalog/skeletons';
+import { Section } from '@/components/ui/section';
 
 export default function PartnerDetailsLoading() {
   return (
@@ -87,7 +87,11 @@ export default function PartnerDetailsLoading() {
 ```tsx
 // ...imports unchanged
 
-export default async function CatalogPage({ searchParams }: { searchParams: Record<string, string> }) {
+export default async function CatalogPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string>;
+}) {
   const qs = parseCatalogQuery(searchParams);
   const { rows, hasMore } = await listBusinessesWithFilters(qs);
 
@@ -102,7 +106,11 @@ export default async function CatalogPage({ searchParams }: { searchParams: Reco
 
       {rows.length === 0 ? (
         <div className="mt-10 rounded-lg border border-border bg-card p-6 text-sm text-fgMuted">
-          No partners found. Try adjusting filters or <a href="/catalog" className="underline hover:text-gold-400">reset</a>.
+          No partners found. Try adjusting filters or{' '}
+          <a href="/catalog" className="underline hover:text-gold-400">
+            reset
+          </a>
+          .
         </div>
       ) : (
         <>

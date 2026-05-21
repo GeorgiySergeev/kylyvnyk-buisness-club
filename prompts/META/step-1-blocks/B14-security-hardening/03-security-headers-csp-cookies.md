@@ -10,9 +10,9 @@ Set strict security headers (HSTS, X-Content-Type-Options, Referrer-Policy, Perm
 
 ## Steps
 
-1) Extend middleware.ts afterAuth to set headers on every response.
-2) Provide a CSP that allows required third parties.
-3) Confirm cookies are Secure+HttpOnly+SameSite where applicable (ours minimal; Clerk handles its cookies).
+1. Extend middleware.ts afterAuth to set headers on every response.
+2. Provide a CSP that allows required third parties.
+3. Confirm cookies are Secure+HttpOnly+SameSite where applicable (ours minimal; Clerk handles its cookies).
 
 ## Files to modify
 
@@ -37,9 +37,9 @@ function setSecurityHeaders(res: Response) {
     // API/WS connections
     "connect-src 'self' https: wss: https://*.clerk.com https://api.clerk.com https://api.stripe.com",
     // Embeds/iframes
-    "frame-src https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com",
+    'frame-src https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com',
     // Form destinations
-    "form-action 'self' https://checkout.stripe.com"
+    "form-action 'self' https://checkout.stripe.com",
   ].join('; ');
 
   const headers = new Headers(res.headers);
@@ -47,7 +47,7 @@ function setSecurityHeaders(res: Response) {
   headers.set('X-Content-Type-Options', 'nosniff');
   headers.set('X-Frame-Options', 'DENY');
   headers.set('Referrer-Policy', 'no-referrer');
-  headers.set('Permissions-Policy', "geolocation=(), microphone=(), camera=()");
+  headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   headers.set('Content-Security-Policy', csp);
 
   return new Response(res.body, {

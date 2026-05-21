@@ -28,31 +28,31 @@ import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Pool } from 'pg';
 
 async function main() {
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URL!,
-    ssl:
-      process.env.NODE_ENV === 'production'
-        ? { rejectUnauthorized: false }
-        : undefined,
-  });
-  const db = drizzle(pool);
-  await migrate(db, { migrationsFolder: './drizzle' });
-  await pool.end();
-  console.log('Migrations applied');
+const pool = new Pool({
+connectionString: process.env.DATABASE_URL!,
+ssl:
+process.env.NODE_ENV === 'production'
+? { rejectUnauthorized: false }
+: undefined,
+});
+const db = drizzle(pool);
+await migrate(db, { migrationsFolder: './drizzle' });
+await pool.end();
+console.log('Migrations applied');
 }
 
 main().catch((e) => {
-  console.error(e);
-  process.exit(1);
+console.error(e);
+process.exit(1);
 });
 package.json (scripts — optional)
 json
 
 copy
 {
-  "scripts": {
-    "db:migrate:node": "tsx src/db/run-migrate.ts"
-  }
+"scripts": {
+"db:migrate:node": "tsx src/db/run-migrate.ts"
+}
 }
 Acceptance
 

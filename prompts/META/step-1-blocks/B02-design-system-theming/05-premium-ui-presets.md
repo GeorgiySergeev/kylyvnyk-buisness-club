@@ -24,8 +24,10 @@ Create reusable, accessible UI presets aligned with the black & gold theme: CTA 
 ```tsx
 'use client';
 
-import { cn } from '@/lib/utils/cn'; // create a tiny cn util if not present
+// create a tiny cn util if not present
 import { ButtonHTMLAttributes } from 'react';
+
+import { cn } from '@/lib/utils/cn';
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: 'md' | 'lg';
@@ -42,20 +44,14 @@ export function GoldButton({ className, size = 'lg', ...props }: Props) {
 ### `src/components/ui/card-premium.tsx`
 
 ```tsx
-import { cn } from '@/lib/utils/cn';
 import { HTMLAttributes } from 'react';
 
-export function CardPremium({
-  className,
-  ...props
-}: HTMLAttributes<HTMLDivElement>) {
+import { cn } from '@/lib/utils/cn';
+
+export function CardPremium({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn(
-        'rounded-lg bg-card border border-border shadow-soft',
-        'p-5 md:p-6',
-        className
-      )}
+      className={cn('rounded-lg bg-card border border-border shadow-soft', 'p-5 md:p-6', className)}
       {...props}
     />
   );
@@ -67,10 +63,7 @@ export function CardPremium({
 ```tsx
 import { cn } from '@/lib/utils/cn';
 
-export function Section({
-  className,
-  children,
-}: React.PropsWithChildren<{ className?: string }>) {
+export function Section({ className, children }: React.PropsWithChildren<{ className?: string }>) {
   return (
     <section className={cn('py-10 md:py-14', className)}>
       <div className="container">{children}</div>

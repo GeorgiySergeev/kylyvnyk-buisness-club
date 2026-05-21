@@ -6,7 +6,7 @@ Seed — Test Users (FREE/VIP/ADMIN) linkage
 
 ## Objective
 
-Create test DB users linked to Clerk test accounts (optional) or shadow users for local dev. If Clerk IDs are not provided, fallback to dev-* placeholders.
+Create test DB users linked to Clerk test accounts (optional) or shadow users for local dev. If Clerk IDs are not provided, fallback to dev-\* placeholders.
 
 ## Env (optional)
 
@@ -20,9 +20,10 @@ scripts/seed/users.ts
 
 ```ts
 import 'dotenv/config';
-import { db } from '@/lib/db';
-import { users } from '@/db/schema/user';
+
 import { memberships } from '@/db/schema/membership';
+import { users } from '@/db/schema/user';
+import { db } from '@/lib/db';
 
 async function ensureUser(clerkUserId: string, email: string, isAdmin = false) {
   const inserted = await db
@@ -57,7 +58,7 @@ async function main() {
         userId: vipId,
         type: 'VIP' as any,
         status: 'ACTIVE' as any,
-        validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // +30 days
+        validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // +30 days
       })
       .onConflictDoNothing();
   }

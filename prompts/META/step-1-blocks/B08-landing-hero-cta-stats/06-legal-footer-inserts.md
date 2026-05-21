@@ -19,9 +19,9 @@ Required phrases:
 
 ## Steps
 
-1) Create a reusable LegalInserts component.
-2) Ensure SiteFooter uses this component (B06 step already has text — refactor to reuse).
-3) Optionally include a short inline note on landing sections when appropriate.
+1. Create a reusable LegalInserts component.
+2. Ensure SiteFooter uses this component (B06 step already has text — refactor to reuse).
+3. Optionally include a short inline note on landing sections when appropriate.
 
 ## Files to add/modify
 
@@ -60,12 +60,36 @@ export function SiteFooter() {
         <div className="grid gap-6 md:grid-cols-2">
           <LegalInserts />
           <ul className="space-y-2">
-            <li><a className="hover:text-gold-400" href="/legal/terms">Terms of Use</a></li>
-            <li><a className="hover:text-gold-400" href="/legal/privacy">Privacy Policy</a></li>
-            <li><a className="hover:text-gold-400" href="/legal/cookie">Cookie Policy</a></li>
-            <li><a className="hover:text-gold-400" href="/legal/refund">Refund Policy</a></li>
-            <li><a className="hover:text-gold-400" href="/legal/rules/club">Club Rules</a></li>
-            <li><a className="hover:text-gold-400" href="/contact">Contact Us</a></li>
+            <li>
+              <a className="hover:text-gold-400" href="/legal/terms">
+                Terms of Use
+              </a>
+            </li>
+            <li>
+              <a className="hover:text-gold-400" href="/legal/privacy">
+                Privacy Policy
+              </a>
+            </li>
+            <li>
+              <a className="hover:text-gold-400" href="/legal/cookie">
+                Cookie Policy
+              </a>
+            </li>
+            <li>
+              <a className="hover:text-gold-400" href="/legal/refund">
+                Refund Policy
+              </a>
+            </li>
+            <li>
+              <a className="hover:text-gold-400" href="/legal/rules/club">
+                Club Rules
+              </a>
+            </li>
+            <li>
+              <a className="hover:text-gold-400" href="/contact">
+                Contact Us
+              </a>
+            </li>
           </ul>
         </div>
         <div className="mt-6 text-fgMuted">© {new Date().getFullYear()} KYLYVNYK CLUB</div>

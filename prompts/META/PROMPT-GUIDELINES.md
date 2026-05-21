@@ -41,9 +41,10 @@ Missing any → reject in review.
 
 ## 3. Inputs section — what to list
 
-Inputs are *preconditions* the agent can rely on. Be specific.
+Inputs are _preconditions_ the agent can rely on. Be specific.
 
 Good:
+
 ```
 - Repo at HEAD of branch `chore/<...>` after merging Patch-01..05.
 - `package.json` already contains `@clerk/nextjs@^6`, `drizzle-orm@^0.36`.
@@ -52,6 +53,7 @@ Good:
 ```
 
 Bad:
+
 ```
 - The project is set up.
 - Clerk is configured.
@@ -69,6 +71,7 @@ stop and report (per `AGENTS.md §11`).
 - No nested numbering. Use sub-bullets only for parameters of the same step.
 
 Good:
+
 ```
 1. Add `src/lib/stripe/period.ts` with `getSubscriptionPeriod`.
 2. Update `app/api/stripe/webhook/route.ts` to use `getSubscriptionPeriod`.
@@ -78,6 +81,7 @@ Good:
 ```
 
 Bad:
+
 ```
 1. Set up Stripe properly.
 2. Make sure idempotency works.
@@ -98,6 +102,7 @@ If the agent touches a file not in this list, the PR is rejected. This is
 the main lever against scope creep.
 
 Example:
+
 ```
 - src/lib/stripe/period.ts                   — create
 - src/lib/stripe/period.spec.ts              — create

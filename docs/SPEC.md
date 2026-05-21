@@ -1,274 +1,274 @@
-# ФИНАЛЬНОЕ ТЕХНИЧЕСКОЕ ЗАДАНИЕ
+# FINAL TECHNICAL SPECIFICATION
 
 **KYLYVNYK CLUB — MVP MOBILE-FIRST VERSION**
 
 ---
 
-## КОНЦЕПЦИЯ ПРОЕКТА
+## PROJECT CONCEPT
 
 **KYLYVNYK CLUB** — international private membership platform,
-зарегистрированная в США.
+registered in the USA.
 
-**Проект позиционируется как:**
+**The project is positioned as:**
 
-- международный бизнес-клуб;
+- international business club;
 - private membership platform;
 - premium partner network;
-- каталог проверенных партнёров;
-- система доступа к special conditions.
+- verified partners directory;
+- access system to special conditions.
 
-**Проект НЕ позиционируется как:**
+**The project is NOT positioned as:**
 
 - MLM;
 - affiliate system;
-- инвестиционная платформа;
-- финансовая система;
+- investment platform;
+- financial system;
 - wallet/payment platform;
 - marketplace;
-- сайт заработка;
+- income-generating site;
 - passive income system.
 
 ---
 
-## ГЛАВНАЯ ЦЕЛЬ MVP
+## MAIN MVP GOAL
 
-**Создать:**
+**Create:**
 
-- простой;
+- simple;
 - premium;
 - mobile-first;
-- быстрый;
-- масштабируемый;
-- юридически осторожный сайт.
+- fast;
+- scalable;
+- legally cautious website.
 
-**Основная задача MVP:**
+**Primary MVP task:**
 
-- регистрация участников;
+- member registration;
 - digital club card;
-- каталог партнёров;
-- подписка VIP;
-- размещение бизнес-партнёров;
-- Business Introductions без MLM-механик.
+- partners directory;
+- VIP subscription;
+- business partner placement;
+- Business Introductions without MLM mechanics.
 
 ---
 
-## ОСНОВНОЙ СТИЛЬ САЙТА
+## MAIN WEBSITE STYLE
 
-**Стиль:**
+**Style:**
 
 - black & gold;
 - luxury minimalism;
-- крупные элементы;
-- минимум текста;
+- large elements;
+- minimum text;
 - premium UI;
 - mobile-first UX.
 
-**Основной акцент:** максимально простое и понятное использование.
+**Main focus:** maximum simplicity and clarity of use.
 
 ---
 
 ## HERO BLOCK
 
-**На первом экране:**
+**On the first screen:**
 
-- логотип KYLYVNYK CLUB;
-- международный визуал;
-- планета / глобус;
+- KYLYVNYK CLUB logo;
+- international visual;
+- planet / globe;
 - premium atmosphere.
 
-**Слоган:**
+**Slogan:**
 
-> Экономьте. Развивайте бизнес. Живите лучше.
+> Save. Develop your business. Live better.
 
-**Под слоганом:** 3 главные CTA-кнопки.
-
----
-
-## ТРИ ОСНОВНЫЕ КНОПКИ
-
-### 1. СТАТЬ УЧАСТНИКОМ
-
-_Бесплатно_
-
-- **Подтекст:** Клубная карта и доступ к предложениям партнёров.
-- **Кнопка:** Получить карту
-
-### 2. VIP-УЧАСТНИК
-
-_$19.99 / месяц_
-
-- **Подтекст:** Расширенные возможности клуба и Business Introductions.
-- **Кнопка:** Стать VIP-участником
-
-### 3. БИЗНЕС-ПАРТНЁР
-
-_от $19.99 / месяц_
-
-- **Подтекст:** Размещение бизнеса после проверки клуба.
-- **Кнопка:** Подать бизнес
+**Under the slogan:** 3 main CTA buttons.
 
 ---
 
-## СТАТИСТИКА
+## THREE MAIN BUTTONS
 
-**3 круглых блока:**
+### 1. BECOME A MEMBER
 
-- участники;
-- страны;
-- партнёры.
+_Free_
 
-**Пример:**
+- **Context:** Club card and access to partner offers.
+- **Button:** Get Card
 
-- 10 245+ участников;
-- 35+ стран;
-- 1 250+ партнёров.
+### 2. VIP MEMBER
 
-_Важно: использовать только реальные либо приблизительно подтверждённые данные._
+_$19.99 / month_
+
+- **Context:** Enhanced club features and Business Introductions.
+- **Button:** Become a VIP Member
+
+### 3. BUSINESS PARTNER
+
+_from $19.99 / month_
+
+- **Context:** Business placement after club verification.
+- **Button:** Submit Business
 
 ---
 
-## ТОП-ПАРТНЁРЫ
+## STATISTICS
 
-На главной странице: только 3 карточки.
+**3 circular blocks:**
 
-**Карточка содержит:**
+- members;
+- countries;
+- partners.
 
-- логотип;
-- название;
-- категория;
-- страна;
-- город;
+**Example:**
+
+- 10,245+ members;
+- 35+ countries;
+- 1,250+ partners.
+
+_Important: use only real or approximately confirmed data._
+
+---
+
+## TOP PARTNERS
+
+On the main page: only 3 cards.
+
+**Card contains:**
+
+- logo;
+- name;
+- category;
+- country;
+- city;
 - special condition;
-- кнопка Подробнее.
+- Details button.
 
-_Допускается отображение: реальных скидок либо специальных условий._
-
----
-
-## КАК ЭТО РАБОТАЕТ
-
-**4 шага:**
-
-1. **Регистрация**  
-   Быстрая регистрация в клубе.
-2. **Получение карты**  
-   Digital club card в личном кабинете.
-3. **Поиск партнёров**  
-   Поиск по странам, городам и категориям.
-4. **Доступ к special conditions**  
-   Предложения доступны участникам клуба после входа.
+_Allowed display: real discounts or special conditions._
 
 ---
 
-## ФИЛЬТР ПАРТНЁРОВ
+## HOW IT WORKS
 
-**Фильтры:**
+**4 steps:**
 
-- Все страны;
-- Все города;
-- Все категории;
-- Найти партнёра.
+1. **Registration**  
+   Fast registration in the club.
+2. **Receiving the Card**  
+   Digital club card in the personal account.
+3. **Search for Partners**  
+   Search by countries, cities, and categories.
+4. **Access to Special Conditions**  
+   Offers are available to club members after login.
 
-**Все кнопки:**
+---
 
-- крупные;
-- золотые;
+## PARTNER FILTER
+
+**Filters:**
+
+- All countries;
+- All cities;
+- All categories;
+- Find a partner.
+
+**All buttons:**
+
+- large;
+- gold;
 - mobile-friendly.
 
 ---
 
-## РЕКОМЕНДУЕМЫЕ ПАРТНЁРЫ
+## RECOMMENDED PARTNERS
 
-На главной: 3 карточки.  
-Без открытых скидок.
+On the main page: 3 cards.  
+Without open discounts.
 
-**Текст:** Special conditions доступны после регистрации.  
-**Кнопка:** Показать ещё
-
----
-
-## КАТАЛОГ ПАРТНЁРОВ
-
-Отображаются только бизнесы со статусом: `PUBLISHED`
-
-**Карточка:**
-
-- логотип;
-- название;
-- страна;
-- город;
-- категория;
-- краткое описание;
-- кнопка Подробнее.
+**Text:** Special conditions available after registration.  
+**Button:** Show More
 
 ---
 
-## ТИПЫ ПОЛЬЗОВАТЕЛЕЙ
+## PARTNER CATALOG
+
+Only businesses with the status `PUBLISHED` are displayed.
+
+**Card:**
+
+- logo;
+- name;
+- country;
+- city;
+- category;
+- brief description;
+- Details button.
+
+---
+
+## USER TYPES
 
 ### FREE MEMBER
 
-**Может:**
+**Can:**
 
-- зарегистрироваться;
-- получить digital card;
-- просматривать каталог;
-- видеть предложения после входа.
+- register;
+- get a digital card;
+- browse the catalog;
+- see offers after login.
 
-**Не может:**
+**Cannot:**
 
-- подавать бизнес;
-- использовать VIP-функции.
+- submit a business;
+- use VIP features.
 
 ### VIP MEMBER
 
-**Стоимость:** $19.99 / месяц
+**Cost:** $19.99 / month
 
-**Может:**
+**Can:**
 
-- использовать VIP-функции;
-- подать 1 бизнес;
-- использовать Business Introductions.
+- use VIP features;
+- submit 1 business;
+- use Business Introductions.
 
 ### BUSINESS PROFILE
 
-Это: бизнес-профиль пользователя после одобрения администрацией.
+This is: the user's business profile after administration approval.
 
-**Даёт:**
+**Provides:**
 
-- публикацию бизнеса;
-- размещение в каталоге;
-- участие в Business Introductions.
+- business publication;
+- placement in the catalog;
+- participation in Business Introductions.
 
 ---
 
 ## BUSINESS INTRODUCTIONS
 
-**Использовать только термин:** Business Introduction
+**Use only the term:** Business Introduction
 
-**НЕ использовать:**
+**DO NOT use:**
 
-- комиссия;
-- заработок;
+- commission;
+- earnings;
 - affiliate;
 - MLM;
 - passive income;
-- бонус за людей.
+- bonus per user.
 
-_В MVP: без автоматических выплат и без MLM-механик._
+_In MVP: without automatic payouts and without MLM mechanics._
 
 ---
 
-## ЛОГИКА BUSINESS INTRODUCTIONS
+## BUSINESS INTRODUCTIONS LOGIC
 
-Только для VIP.  
-Лимиты и ограничения: только через админ-панель.
+Only for VIP.  
+Limits and restrictions: only via admin panel.
 
-**Не показывать публично:**
+**Do not show publicly:**
 
-- лимиты;
-- уровни;
-- рейтинги;
-- топ участников.
+- limits;
+- levels;
+- ratings;
+- top members.
 
 ---
 
@@ -276,32 +276,32 @@ _В MVP: без автоматических выплат и без MLM-меха
 
 ### FREE MEMBER
 
-**Минимум данных:**
+**Minimum data:**
 
 - email;
 - password.
 
-**Опционально:**
+**Optional:**
 
-- телефон.
+- phone.
 
-**Подтверждение:**
+**Confirmation:**
 
-- email verification; или
+- email verification; or
 - SMS verification.
 
 ### VIP MEMBER
 
-**Дополнительно:**
+**Additionally:**
 
-- имя;
-- фамилия;
-- страна;
-- город.
+- first name;
+- last name;
+- country;
+- city.
 
 ### BUSINESS PROFILE
 
-**Минимум:**
+**Minimum:**
 
 - business name;
 - representative name;
@@ -314,46 +314,46 @@ _В MVP: без автоматических выплат и без MLM-меха
 
 ---
 
-## НЕ СОБИРАТЬ В MVP
+## DO NOT COLLECT IN MVP
 
-**Не собирать:**
+**Do not collect:**
 
-- паспорт;
+- passport;
 - ID;
-- дату рождения;
-- адрес проживания;
-- банковские данные;
-- налоговые документы;
-- внутренний баланс;
-- фото документов.
+- date of birth;
+- residential address;
+- bank details;
+- tax documents;
+- internal balance;
+- document photos.
 
 ---
 
 ## DIGITAL CLUB CARD
 
-**QR ведёт на:** `/verify-card/VIP-UA-000501`
+**QR leads to:** `/verify-card/VIP-UA-000501`
 
-**Показывать:**
+**Show:**
 
-- имя;
-- номер карты;
-- статус;
-- тип участника;
-- срок действия.
+- name;
+- card number;
+- status;
+- member type;
+- expiry date.
 
-**НЕ показывать:**
+**DO NOT show:**
 
 - email;
-- телефон;
-- платежи;
-- историю;
+- phone;
+- payments;
+- history;
 - introductions.
 
 ---
 
 ## STRIPE
 
-**Использовать:**
+**Use:**
 
 - Stripe Subscriptions;
 - Stripe Payment Links;
@@ -362,20 +362,20 @@ _В MVP: без автоматических выплат и без MLM-меха
 
 ---
 
-## ОТМЕНА ПОДПИСКИ
+## SUBSCRIPTION CANCELLATION
 
-**В кабинете:** Отменить VIP Membership
+**In the account:** Cancel VIP Membership
 
-**Логика:**
+**Logic:**
 
-- отмена онлайн;
-- VIP действует до конца периода;
-- следующий месяц не списывается;
-- бизнес скрывается после окончания подписки.
+- online cancellation;
+- VIP remains active until the end of the period;
+- next month is not charged;
+- business is hidden after the subscription ends.
 
 ---
 
-## СТАТУСЫ
+## STATUSES
 
 ### USER
 
@@ -395,54 +395,54 @@ _В MVP: без автоматических выплат и без MLM-меха
 
 ---
 
-## ЛИЧНЫЙ КАБИНЕТ
+## PERSONAL ACCOUNT
 
 ### FREE MEMBER
 
 - digital card;
-- каталог;
+- catalog;
 - special conditions;
 - upgrade to VIP;
-- профиль.
+- profile.
 
 ### VIP MEMBER
 
 - VIP access;
-- каталог;
+- catalog;
 - Business Introductions;
-- подача бизнеса;
-- подписка;
-- профиль.
+- business submission;
+- subscription;
+- profile.
 
 ### BUSINESS PROFILE
 
-- мой бизнес;
-- статус публикации;
-- подписка;
-- профиль.
+- my business;
+- publication status;
+- subscription;
+- profile.
 
 ---
 
-## АДМИН-ПАНЕЛЬ
+## ADMIN PANEL
 
-**Администратор управляет:**
+**Administrator manages:**
 
-- пользователями;
+- users;
 - VIP;
-- бизнесами;
-- категориями;
-- странами;
+- businesses;
+- categories;
+- countries;
 - Business Introductions;
 - Stripe links;
-- подписками;
-- блокировками;
-- логами.
+- subscriptions;
+- blocks;
+- logs.
 
 ---
 
-## ЮРИДИЧЕСКИЕ СТРАНИЦЫ
+## LEGAL PAGES
 
-**Обязательно:**
+**Mandatory:**
 
 - Terms of Use;
 - Privacy Policy;
@@ -456,9 +456,9 @@ _В MVP: без автоматических выплат и без MLM-меха
 
 ---
 
-## ГЛАВНЫЕ ЮРИДИЧЕСКИЕ ФОРМУЛИРОВКИ
+## MAIN LEGAL WORDING
 
-**Добавить в footer и Terms:**
+**Add to footer and Terms:**
 
 > KYLYVNYK CLUB is an independent private membership platform.
 >
@@ -480,7 +480,7 @@ _В MVP: без автоматических выплат и без MLM-меха
 
 ## ARBITRATION & LIABILITY
 
-**Добавить в Terms:**
+**Add to Terms:**
 
 - governing law;
 - arbitration clause;
@@ -492,7 +492,7 @@ _В MVP: без автоматических выплат и без MLM-меха
 
 ## REFUND POLICY
 
-**Добавить:**
+**Add:**
 
 > Subscription fees are non-refundable except where required by law.
 
@@ -500,7 +500,7 @@ _В MVP: без автоматических выплат и без MLM-меха
 
 ## HIGH-RISK CATEGORIES
 
-**Не допускать на MVP:**
+**Do not allow in MVP:**
 
 - crypto;
 - gambling;
@@ -511,13 +511,13 @@ _В MVP: без автоматических выплат и без MLM-меха
 
 ---
 
-## БЕЗОПАСНОСТЬ
+## SECURITY
 
-**Обязательно:**
+**Mandatory:**
 
 - HTTPS;
 - CAPTCHA;
 - password hashing;
 - email verification;
 - admin 2FA;
-- backups
+- backups.

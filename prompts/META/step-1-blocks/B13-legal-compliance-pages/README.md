@@ -21,6 +21,7 @@ This block outlines the step-by-step instructions for implementing the **Legal C
 ## Overall Acceptance Criteria
 
 Upon completion of this block:
+
 - All configuration and implementations described in the steps are completed.
 - The application runs correctly without errors.
 - Code aligns with the project's quality and architectural standards.

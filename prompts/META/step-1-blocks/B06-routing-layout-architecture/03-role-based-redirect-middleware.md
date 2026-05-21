@@ -10,9 +10,9 @@ Enhance middleware to improve UX: redirect signed-in users away from auth pages,
 
 ## Steps
 
-1) Extend existing Clerk authMiddleware with afterAuth to redirect from auth routes if already signed-in.
-2) Add simple canonical redirect for trailing slashes.
-3) Do not add DB-based role checks here (handled by guards).
+1. Extend existing Clerk authMiddleware with afterAuth to redirect from auth routes if already signed-in.
+2. Add simple canonical redirect for trailing slashes.
+3. Do not add DB-based role checks here (handled by guards).
 
 ## Files to modify
 

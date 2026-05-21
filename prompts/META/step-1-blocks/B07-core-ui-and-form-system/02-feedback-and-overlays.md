@@ -10,10 +10,10 @@ Add non-blocking feedback (toast), inline alerts, and overlay components (Dialog
 
 ## Steps
 
-1) Install and wire shadcn toast utilities.
-2) Create Alert variants (info/success/warning/destructive).
-3) Ensure Dialog and Sheet are available via shadcn/ui.
-4) Add Toaster to RootLayout.
+1. Install and wire shadcn toast utilities.
+2. Create Alert variants (info/success/warning/destructive).
+3. Ensure Dialog and Sheet are available via shadcn/ui.
+4. Add Toaster to RootLayout.
 
 ## Commands
 
@@ -30,8 +30,8 @@ pnpm dlx shadcn@latest add toast dialog sheet
 ### src/components/ui/alert.tsx
 
 ```tsx
-import { cn } from '@/lib/utils/cn';
 import { Icon } from '@/components/icons/icon';
+import { cn } from '@/lib/utils/cn';
 
 type Variant = 'info' | 'success' | 'warning' | 'destructive';
 
@@ -64,11 +64,7 @@ export function Alert({
   return (
     <div
       role="status"
-      className={cn(
-        'rounded-md border p-4 bg-card shadow-soft',
-        STYLES[variant],
-        className
-      )}
+      className={cn('rounded-md border p-4 bg-card shadow-soft', STYLES[variant], className)}
     >
       <div className="flex gap-3">
         <span className="mt-0.5 text-gold-500">
@@ -112,6 +108,7 @@ Toast:
 
 ```tsx
 'use client';
+
 import { useToast } from '@/components/ui/use-toast';
 
 export function DemoToast() {
@@ -131,8 +128,16 @@ Dialog:
 
 ```tsx
 'use client';
+
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 export function DemoDialog() {
   return (
@@ -157,6 +162,7 @@ Sheet:
 
 ```tsx
 'use client';
+
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 export function DemoSheet() {

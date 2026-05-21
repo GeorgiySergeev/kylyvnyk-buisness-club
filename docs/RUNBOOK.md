@@ -352,7 +352,7 @@ Before flipping live mode:
       live keys are pinned to.
 - [ ] Tested at least one full subscription lifecycle on staging:
       `created → updated → invoice.paid → invoice.payment_failed →
-    customer.subscription.deleted`.
+  customer.subscription.deleted`.
 
 Preview deployments must NEVER have live keys. The check is mechanical:
 `STRIPE_SECRET_KEY` in preview must start with `sk_test_`.
@@ -524,11 +524,11 @@ key set **exactly**:
 
 ```ts
 // e2e/verify-card.e2e.ts
-test("verify-card returns only the allowed PII keys", async ({ request }) => {
-  const res = await request.get("/api/cards/lookup/VIP-UA-XXXXX");
+test('verify-card returns only the allowed PII keys', async ({ request }) => {
+  const res = await request.get('/api/cards/lookup/VIP-UA-XXXXX');
   const body = await res.json();
   expect(Object.keys(body).sort()).toEqual(
-    ["expiresAt", "memberName", "memberType", "number", "status"].sort(),
+    ['expiresAt', 'memberName', 'memberType', 'number', 'status'].sort(),
   );
 });
 ```

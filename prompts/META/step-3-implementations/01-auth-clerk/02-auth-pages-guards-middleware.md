@@ -16,7 +16,14 @@ Auth Pages, Middleware, and Roles
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
-const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign-up(.*)', '/api/stripe/webhook', '/verify-card(.*)', '/catalog(.*)']);
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/api/stripe/webhook',
+  '/verify-card(.*)',
+  '/catalog(.*)',
+]);
 
 export default clerkMiddleware((auth, req) => {
   const url = new URL(req.url);
@@ -28,7 +35,10 @@ export default clerkMiddleware((auth, req) => {
   }
 
   // Redirect authenticated from sign-in/up
-  if (auth().userId && (url.pathname.startsWith('/sign-in') || url.pathname.startsWith('/sign-up'))) {
+  if (
+    auth().userId &&
+    (url.pathname.startsWith('/sign-in') || url.pathname.startsWith('/sign-up'))
+  ) {
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
@@ -45,12 +55,13 @@ export const config = {
 ### src/features/auth/server/guards.ts
 
 ```ts
-import 'server-only';
 import { auth } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
-import { memberships } from '@/db/schema/users';
 import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
+import 'server-only';
+
+import { memberships } from '@/db/schema/users';
+import { db } from '@/lib/db';
 
 export async function requireAuth() {
   const { userId } = auth();
@@ -70,7 +81,11 @@ export async function getUserTier(userId: string) {
 export async function requireVipActive() {
   const userId = await requireAuth();
   const membership = await getUserTier(userId);
-  if (!membership || membership.status !== 'ACTIVE' || (membership.tier !== 'VIP' && membership.tier !== 'ADMIN')) {
+  if (
+    !membership ||
+    membership.status !== 'ACTIVE' ||
+    (membership.tier !== 'VIP' && membership.tier !== 'ADMIN')
+  ) {
     redirect('/upgrade');
   }
   return userId;
@@ -78,5 +93,6 @@ export async function requireVipActive() {
 ```
 
 ## Acceptance
+
 - Мидлвар корректно редиректит и блокирует приватные пути.
 - Функция `requireVipActive` проверяет статус `ACTIVE` и уровень `VIP`/`ADMIN` в БД.

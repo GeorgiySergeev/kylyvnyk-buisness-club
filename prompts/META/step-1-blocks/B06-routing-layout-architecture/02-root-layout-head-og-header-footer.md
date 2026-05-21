@@ -10,10 +10,10 @@ Set site-wide metadata (title/OG), build header/footer components with mobile-fi
 
 ## Steps
 
-1) Create SEO helper with site URL and default metadata.
-2) Patch app/layout.tsx to use metadata and base HTML structure.
-3) Implement SiteHeader with compact mode and mobile menu.
-4) Implement SiteFooter with legal disclaimers.
+1. Create SEO helper with site URL and default metadata.
+2. Patch app/layout.tsx to use metadata and base HTML structure.
+3. Implement SiteHeader with compact mode and mobile menu.
+4. Implement SiteFooter with legal disclaimers.
 
 ## Files to add/modify
 
@@ -40,13 +40,15 @@ export const DEFAULT_SEO = {
 ### src/app/layout.tsx (patch to add metadata)
 
 ```tsx
-import './globals.css';
-import '@/styles/typography.css';
 import { ClerkProvider } from '@clerk/nextjs';
-import { plusJakarta } from './fonts';
-import { ThemeProvider } from '@/components/providers/theme-provider';
 import type { Metadata } from 'next';
-import { getSiteUrl, DEFAULT_SEO } from '@/lib/seo/site';
+
+import { ThemeProvider } from '@/components/providers/theme-provider';
+import { DEFAULT_SEO, getSiteUrl } from '@/lib/seo/site';
+import '@/styles/typography.css';
+
+import { plusJakarta } from './fonts';
+import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
@@ -87,8 +89,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 ```tsx
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
+
+import Link from 'next/link';
+
 import { KylyvnykLogo } from '@/components/icons/brand/kylyvnyk-logo';
 
 export function SiteHeader({ compact = false }: { compact?: boolean }) {
@@ -103,9 +107,15 @@ export function SiteHeader({ compact = false }: { compact?: boolean }) {
         </Link>
 
         <nav className="hidden sm:flex items-center gap-6 text-sm">
-          <Link href="/catalog" className="hover:text-gold-400">Partners</Link>
-          <Link href="/verify-card" className="hover:text-gold-400">Verify Card</Link>
-          <Link href="/sign-in" className="hover:text-gold-400">Sign in</Link>
+          <Link href="/catalog" className="hover:text-gold-400">
+            Partners
+          </Link>
+          <Link href="/verify-card" className="hover:text-gold-400">
+            Verify Card
+          </Link>
+          <Link href="/sign-in" className="hover:text-gold-400">
+            Sign in
+          </Link>
           <Link
             href="/sign-up"
             className="px-4 py-2 rounded-md border border-border hover:bg-bgElev focus-gold"
@@ -126,9 +136,15 @@ export function SiteHeader({ compact = false }: { compact?: boolean }) {
       {open && (
         <div className="sm:hidden border-t border-border bg-bg">
           <nav className="container py-3 flex flex-col gap-2">
-            <Link href="/catalog" onClick={() => setOpen(false)}>Partners</Link>
-            <Link href="/verify-card" onClick={() => setOpen(false)}>Verify Card</Link>
-            <Link href="/sign-in" onClick={() => setOpen(false)}>Sign in</Link>
+            <Link href="/catalog" onClick={() => setOpen(false)}>
+              Partners
+            </Link>
+            <Link href="/verify-card" onClick={() => setOpen(false)}>
+              Verify Card
+            </Link>
+            <Link href="/sign-in" onClick={() => setOpen(false)}>
+              Sign in
+            </Link>
             <Link
               href="/sign-up"
               onClick={() => setOpen(false)}
@@ -160,12 +176,36 @@ export function SiteFooter() {
             transactions, negotiations or agreements between users and partners.
           </p>
           <ul className="space-y-2">
-            <li><a className="hover:text-gold-400" href="/legal/terms">Terms of Use</a></li>
-            <li><a className="hover:text-gold-400" href="/legal/privacy">Privacy Policy</a></li>
-            <li><a className="hover:text-gold-400" href="/legal/cookie">Cookie Policy</a></li>
-            <li><a className="hover:text-gold-400" href="/legal/refund">Refund Policy</a></li>
-            <li><a className="hover:text-gold-400" href="/legal/rules/club">Club Rules</a></li>
-            <li><a className="hover:text-gold-400" href="/contact">Contact Us</a></li>
+            <li>
+              <a className="hover:text-gold-400" href="/legal/terms">
+                Terms of Use
+              </a>
+            </li>
+            <li>
+              <a className="hover:text-gold-400" href="/legal/privacy">
+                Privacy Policy
+              </a>
+            </li>
+            <li>
+              <a className="hover:text-gold-400" href="/legal/cookie">
+                Cookie Policy
+              </a>
+            </li>
+            <li>
+              <a className="hover:text-gold-400" href="/legal/refund">
+                Refund Policy
+              </a>
+            </li>
+            <li>
+              <a className="hover:text-gold-400" href="/legal/rules/club">
+                Club Rules
+              </a>
+            </li>
+            <li>
+              <a className="hover:text-gold-400" href="/contact">
+                Contact Us
+              </a>
+            </li>
           </ul>
         </div>
         <div className="mt-6 text-fgMuted">© {new Date().getFullYear()} KYLYVNYK CLUB</div>

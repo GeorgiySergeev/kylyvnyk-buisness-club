@@ -10,9 +10,9 @@ Add a visually distinct stats block with 3 round counters. Numbers should be rea
 
 ## Steps
 
-1) Create server query to count active users, countries, and published partners.
-2) Build a circular stat component with accessible labels.
-3) Place block below hero.
+1. Create server query to count active users, countries, and published partners.
+2. Build a circular stat component with accessible labels.
+3. Place block below hero.
 
 ## Files to add
 
@@ -22,17 +22,24 @@ Add a visually distinct stats block with 3 round counters. Numbers should be rea
 ### src/features/landing/server/stats.ts
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { users } from '@/db/schema/user';
-import { countries } from '@/db/schema/geo';
-import { businesses } from '@/db/schema/catalog';
 import { eq } from 'drizzle-orm';
+import 'server-only';
+
+import { businesses } from '@/db/schema/catalog';
+import { countries } from '@/db/schema/geo';
+import { users } from '@/db/schema/user';
+import { db } from '@/lib/db';
 
 export async function getLandingStats() {
-  const [usersCountRow] = await db.execute<{ count: string }>(`select count(*)::text as count from users where status = 'ACTIVE'`);
-  const [countriesCountRow] = await db.execute<{ count: string }>(`select count(*)::text as count from countries`);
-  const [partnersCountRow] = await db.execute<{ count: string }>(`select count(*)::text as count from businesses where status = 'PUBLISHED'`);
+  const [usersCountRow] = await db.execute<{ count: string }>(
+    `select count(*)::text as count from users where status = 'ACTIVE'`,
+  );
+  const [countriesCountRow] = await db.execute<{ count: string }>(
+    `select count(*)::text as count from countries`,
+  );
+  const [partnersCountRow] = await db.execute<{ count: string }>(
+    `select count(*)::text as count from businesses where status = 'PUBLISHED'`,
+  );
 
   const members = Number(usersCountRow?.count || 0);
   const countriesNum = Number(countriesCountRow?.count || 0);
@@ -79,7 +86,8 @@ export default async function LandingStats() {
           <Circle value={formatPlus(partners)} label="Partners" />
         </div>
         <p className="sr-only">
-          Currently approximately {members} members across {countries} countries and {partners} partners.
+          Currently approximately {members} members across {countries} countries and {partners}{' '}
+          partners.
         </p>
       </div>
     </section>

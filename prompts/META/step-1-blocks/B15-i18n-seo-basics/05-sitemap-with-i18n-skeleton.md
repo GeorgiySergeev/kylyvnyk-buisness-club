@@ -10,8 +10,8 @@ Update sitemap generation to include alternates.languages for future i18n. Singl
 
 ## Steps
 
-1) Create a helper to produce static routes and alternates.
-2) Patch app/sitemap.ts to add alternates.
+1. Create a helper to produce static routes and alternates.
+2. Patch app/sitemap.ts to add alternates.
 
 ## Files to modify/add
 
@@ -34,7 +34,7 @@ export function buildSitemapRoutes() {
     '/legal/privacy',
     '/legal/cookie',
     '/legal/refund',
-    '/legal/rules/club'
+    '/legal/rules/club',
   ];
 
   const now = new Date();
@@ -48,7 +48,7 @@ export function buildSitemapRoutes() {
       priority: p === '' ? 1 : 0.6,
       alternates: {
         languages: {
-          en: url
+          en: url,
           // future: 'uk': `${base}/uk${p}`, 'de': `${base}/de${p}`, ...
         },
       },
@@ -61,6 +61,7 @@ export function buildSitemapRoutes() {
 
 ```ts
 import type { MetadataRoute } from 'next';
+
 import { buildSitemapRoutes } from '@/i18n/sitemap';
 
 export default function sitemap(): MetadataRoute.Sitemap {

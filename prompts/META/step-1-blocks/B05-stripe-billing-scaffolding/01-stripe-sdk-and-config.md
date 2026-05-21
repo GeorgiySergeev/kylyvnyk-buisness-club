@@ -10,10 +10,10 @@ Install Stripe, create a typed SDK client, and centralize env access. Provide he
 
 ## Steps
 
-1) Install Stripe SDK.
-2) Create server-only Stripe client with API version pinned.
-3) Add helpers for site URL and VIP product/price IDs.
-4) Document required env vars.
+1. Install Stripe SDK.
+2. Create server-only Stripe client with API version pinned.
+3. Add helpers for site URL and VIP product/price IDs.
+4. Document required env vars.
 
 ## Commands
 
@@ -53,6 +53,7 @@ export const SITE_URL =
 ```ts
 import 'server-only';
 import Stripe from 'stripe';
+
 import { STRIPE_SECRET_KEY } from './env';
 
 export const stripe = new Stripe(STRIPE_SECRET_KEY, {

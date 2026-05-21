@@ -10,10 +10,10 @@ Create public legal pages with required clauses and safe defaults. Centralize br
 
 ## Steps
 
-1) Add legal config (brand, governing law, arbitration basics, contact email).
-2) Add a basic LegalLayout with consistent spacing.
-3) Add 5 pages: Terms, Privacy, Cookie, Refund, Club Rules.
-4) Include required phrases and arbitration/limitation clauses in Terms and Refund.
+1. Add legal config (brand, governing law, arbitration basics, contact email).
+2. Add a basic LegalLayout with consistent spacing.
+3. Add 5 pages: Terms, Privacy, Cookie, Refund, Club Rules.
+4. Include required phrases and arbitration/limitation clauses in Terms and Refund.
 
 ## Files to add/modify
 
@@ -45,9 +45,7 @@ export const LEGAL = {
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
     <main className="container py-10">
-      <div className="mx-auto max-w-3xl prose prose-invert">
-        {children}
-      </div>
+      <div className="mx-auto max-w-3xl prose prose-invert">{children}</div>
     </main>
   );
 }
@@ -68,10 +66,10 @@ export default function TermsPage() {
 
       <h2>1. About {LEGAL.entityName}</h2>
       <p>
-        {LEGAL.entityName} is an {LEGAL.entityDescription}. Special conditions are provided
-        directly by independent third‑party partners. {LEGAL.entityName} does not guarantee savings,
-        income, commissions, bonuses, clients or business results. Partners are responsible for their
-        own licenses, permits and compliance. {LEGAL.entityName} does not participate in transactions,
+        {LEGAL.entityName} is an {LEGAL.entityDescription}. Special conditions are provided directly
+        by independent third‑party partners. {LEGAL.entityName} does not guarantee savings, income,
+        commissions, bonuses, clients or business results. Partners are responsible for their own
+        licenses, permits and compliance. {LEGAL.entityName} does not participate in transactions,
         negotiations or agreements between users and partners.
       </p>
 
@@ -84,49 +82,75 @@ export default function TermsPage() {
       <h2>3. Membership</h2>
       <ul>
         <li>FREE members receive a digital club card and catalog access.</li>
-        <li>VIP membership is subscription‑based. Cancellation takes effect at the end of the current period.</li>
-        <li>High‑risk categories are not permitted (crypto, gambling, adult, firearms, unlicensed finance, high‑risk investments).</li>
+        <li>
+          VIP membership is subscription‑based. Cancellation takes effect at the end of the current
+          period.
+        </li>
+        <li>
+          High‑risk categories are not permitted (crypto, gambling, adult, firearms, unlicensed
+          finance, high‑risk investments).
+        </li>
       </ul>
 
       <h2>4. Business Profiles and Introductions</h2>
       <ul>
-        <li>Business publication requires review and may be hidden or removed at any time for policy or legal reasons.</li>
-        <li>Business Introductions are VIP‑only and processed manually by the club team. No commissions, bonuses or MLM mechanics.</li>
+        <li>
+          Business publication requires review and may be hidden or removed at any time for policy
+          or legal reasons.
+        </li>
+        <li>
+          Business Introductions are VIP‑only and processed manually by the club team. No
+          commissions, bonuses or MLM mechanics.
+        </li>
       </ul>
 
       <h2>5. Intellectual Property</h2>
-      <p>Content and trademarks belong to their respective owners. Do not copy, resell, or misuse platform materials.</p>
+      <p>
+        Content and trademarks belong to their respective owners. Do not copy, resell, or misuse
+        platform materials.
+      </p>
 
       <h2>6. Acceptable Use</h2>
-      <p>No unlawful, fraudulent, misleading, or harmful activities. No scraping, reverse engineering, or security violations.</p>
+      <p>
+        No unlawful, fraudulent, misleading, or harmful activities. No scraping, reverse
+        engineering, or security violations.
+      </p>
 
       <h2>7. Disclaimers</h2>
       <p>
         {LEGAL.entityName} provides the platform “as is” without warranties of any kind, including
-        implied warranties of merchantability, fitness for a particular purpose, and non‑infringement.
+        implied warranties of merchantability, fitness for a particular purpose, and
+        non‑infringement.
       </p>
 
       <h2>8. Limitation of Liability</h2>
       <p>
         To the maximum extent permitted by law, {LEGAL.entityName} and its affiliates are not liable
-        for indirect, incidental, special, consequential, exemplary, or punitive damages, or any loss
-        of profits, revenues, data, or goodwill, arising from or related to your use of the platform
-        or interactions with partners.
+        for indirect, incidental, special, consequential, exemplary, or punitive damages, or any
+        loss of profits, revenues, data, or goodwill, arising from or related to your use of the
+        platform or interactions with partners.
       </p>
 
       <h2>9. Governing Law; Arbitration; Waiver of Class Actions</h2>
-      <p>These Terms are governed by the laws of the {LEGAL.governingLaw}, without regard to conflicts of laws rules.</p>
       <p>
-        Any dispute will be resolved by binding individual arbitration administered by the {LEGAL.arbitrationProvider}.
-        You and {LEGAL.entityName} waive any right to a jury trial or to participate in a class action.
+        These Terms are governed by the laws of the {LEGAL.governingLaw}, without regard to
+        conflicts of laws rules.
+      </p>
+      <p>
+        Any dispute will be resolved by binding individual arbitration administered by the{' '}
+        {LEGAL.arbitrationProvider}. You and {LEGAL.entityName} waive any right to a jury trial or
+        to participate in a class action.
       </p>
 
       <h2>10. Modifications</h2>
-      <p>We may update these Terms. Material changes will be posted with a new “Last updated” date.</p>
+      <p>
+        We may update these Terms. Material changes will be posted with a new “Last updated” date.
+      </p>
 
       <h2>11. Contact</h2>
       <p>
-        Questions? Email <a href={`mailto:${LEGAL.contactEmail}`}>{LEGAL.contactEmail}</a> or visit <a href={LEGAL.contactUrl}>Contact</a>.
+        Questions? Email <a href={`mailto:${LEGAL.contactEmail}`}>{LEGAL.contactEmail}</a> or visit{' '}
+        <a href={LEGAL.contactUrl}>Contact</a>.
       </p>
     </>
   );
@@ -177,19 +201,29 @@ export default function PrivacyPage() {
       </ul>
 
       <h2>5. Security</h2>
-      <p>We use HTTPS, password hashing, email verification, admin 2FA, and backups. No method is 100% secure.</p>
+      <p>
+        We use HTTPS, password hashing, email verification, admin 2FA, and backups. No method is
+        100% secure.
+      </p>
 
       <h2>6. Your Rights</h2>
-      <p>Depending on your jurisdiction, you may access, correct, or delete certain data. Contact us at {LEGAL.contactEmail}.</p>
+      <p>
+        Depending on your jurisdiction, you may access, correct, or delete certain data. Contact us
+        at {LEGAL.contactEmail}.
+      </p>
 
       <h2>7. International Transfers</h2>
       <p>Data may be processed in the United States or other locations of our service providers.</p>
 
       <h2>8. Changes</h2>
-      <p>We may update this policy. Material changes will be posted with a new “Last updated” date.</p>
+      <p>
+        We may update this policy. Material changes will be posted with a new “Last updated” date.
+      </p>
 
       <h2>9. Contact</h2>
-      <p>Email <a href={`mailto:${LEGAL.contactEmail}`}>{LEGAL.contactEmail}</a>.</p>
+      <p>
+        Email <a href={`mailto:${LEGAL.contactEmail}`}>{LEGAL.contactEmail}</a>.
+      </p>
     </>
   );
 }
@@ -222,7 +256,9 @@ export default function CookiePage() {
       <p>You can control cookies via browser settings. Disabling some may impact features.</p>
 
       <h2>4. Contact</h2>
-      <p>Email <a href={`mailto:${LEGAL.contactEmail}`}>{LEGAL.contactEmail}</a>.</p>
+      <p>
+        Email <a href={`mailto:${LEGAL.contactEmail}`}>{LEGAL.contactEmail}</a>.
+      </p>
     </>
   );
 }
@@ -242,10 +278,16 @@ export default function RefundPage() {
       <p>Last updated: {new Date(LEGAL.lastUpdatedISO).toLocaleDateString()}</p>
 
       <h2>1. Subscriptions</h2>
-      <p>Subscription fees are non‑refundable except where required by law. Cancellation takes effect at the end of the current billing period.</p>
+      <p>
+        Subscription fees are non‑refundable except where required by law. Cancellation takes effect
+        at the end of the current billing period.
+      </p>
 
       <h2>2. Billing Support</h2>
-      <p>For billing questions or errors, contact us at <a href={`mailto:${LEGAL.contactEmail}`}>{LEGAL.contactEmail}</a>.</p>
+      <p>
+        For billing questions or errors, contact us at{' '}
+        <a href={`mailto:${LEGAL.contactEmail}`}>{LEGAL.contactEmail}</a>.
+      </p>
 
       <h2>3. Chargebacks</h2>
       <p>Please contact support before disputing a charge so we can help resolve issues quickly.</p>
@@ -271,7 +313,10 @@ export default function ClubRulesPage() {
         <li>Be respectful and lawful. No harassment, hate, or illegal content.</li>
         <li>No promises of income, commissions, or bonuses. No MLM or affiliate mechanics.</li>
         <li>Only verified and compliant partners are listed.</li>
-        <li>High‑risk categories are prohibited (crypto, gambling, adult, firearms, unlicensed finance, high‑risk investments).</li>
+        <li>
+          High‑risk categories are prohibited (crypto, gambling, adult, firearms, unlicensed
+          finance, high‑risk investments).
+        </li>
         <li>Violations may result in removal or blocking at our discretion.</li>
       </ul>
     </>
@@ -281,6 +326,6 @@ export default function ClubRulesPage() {
 
 ## Acceptance
 
-- 5 legal pages render under /legal/* with black & gold styling via LegalLayout.
+- 5 legal pages render under /legal/\* with black & gold styling via LegalLayout.
 - Terms include required disclaimers, arbitration, class action waiver, limitation of liability/damages.
 - Refund page includes “non‑refundable except where required by law”.

@@ -10,9 +10,9 @@ Harden admin area access using requireAdminWithMfa guard. Provide an Admin layou
 
 ## Steps
 
-1) Create AdminNav for side navigation.
-2) Ensure (admin) layout uses requireAdminWithMfa() and composes AdminNav.
-3) Add skeleton pages for each admin section.
+1. Create AdminNav for side navigation.
+2. Ensure (admin) layout uses requireAdminWithMfa() and composes AdminNav.
+3. Add skeleton pages for each admin section.
 
 ## Files to add/modify
 
@@ -34,6 +34,7 @@ Harden admin area access using requireAdminWithMfa guard. Provide an Admin layou
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
 import { cn } from '@/lib/utils/cn';
 
 const items = [
@@ -60,7 +61,7 @@ export function AdminNav() {
               href={it.href}
               className={cn(
                 'block rounded-md px-3 py-2 text-sm border border-transparent hover:border-border',
-                active ? 'bg-card text-gold-400 border-border' : 'text-fg'
+                active ? 'bg-card text-gold-400 border-border' : 'text-fg',
               )}
             >
               {it.label}
@@ -77,8 +78,9 @@ export function AdminNav() {
 
 ```tsx
 import { ReactNode } from 'react';
-import { requireAdminWithMfa } from '@/features/auth/server/guards';
+
 import { AdminNav } from '@/components/admin/admin-nav';
+import { requireAdminWithMfa } from '@/features/auth/server/guards';
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   await requireAdminWithMfa();
@@ -111,37 +113,65 @@ export default function AdminHome() {
 ```tsx
 // src/app/(admin)/users/page.tsx
 export default function AdminUsersPage() {
-  return <section><h1 className="h2">Users</h1></section>;
+  return (
+    <section>
+      <h1 className="h2">Users</h1>
+    </section>
+  );
 }
 
 // src/app/(admin)/businesses/page.tsx
 export default function AdminBusinessesPage() {
-  return <section><h1 className="h2">Businesses</h1></section>;
+  return (
+    <section>
+      <h1 className="h2">Businesses</h1>
+    </section>
+  );
 }
 
 // src/app/(admin)/categories/page.tsx
 export default function AdminCategoriesPage() {
-  return <section><h1 className="h2">Categories</h1></section>;
+  return (
+    <section>
+      <h1 className="h2">Categories</h1>
+    </section>
+  );
 }
 
 // src/app/(admin)/countries/page.tsx
 export default function AdminCountriesPage() {
-  return <section><h1 className="h2">Countries</h1></section>;
+  return (
+    <section>
+      <h1 className="h2">Countries</h1>
+    </section>
+  );
 }
 
 // src/app/(admin)/subscriptions/page.tsx
 export default function AdminSubscriptionsPage() {
-  return <section><h1 className="h2">Subscriptions</h1></section>;
+  return (
+    <section>
+      <h1 className="h2">Subscriptions</h1>
+    </section>
+  );
 }
 
 // src/app/(admin)/introductions/page.tsx
 export default function AdminIntroductionsPage() {
-  return <section><h1 className="h2">Introductions</h1></section>;
+  return (
+    <section>
+      <h1 className="h2">Introductions</h1>
+    </section>
+  );
 }
 
 // src/app/(admin)/logs/page.tsx
 export default function AdminLogsPage() {
-  return <section><h1 className="h2">Audit Logs</h1></section>;
+  return (
+    <section>
+      <h1 className="h2">Audit Logs</h1>
+    </section>
+  );
 }
 ```
 

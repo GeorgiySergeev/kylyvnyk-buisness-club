@@ -10,9 +10,9 @@ Centralize mandatory phrases and ensure they are reused in footer and relevant p
 
 ## Steps
 
-1) Add a constants module with required phrases.
-2) Expose a LegalInserts component (reuse or update if exists).
-3) Use in footer and optionally on landing/legal pages.
+1. Add a constants module with required phrases.
+2. Expose a LegalInserts component (reuse or update if exists).
+3. Use in footer and optionally on landing/legal pages.
 
 ## Files to add/modify
 
@@ -24,11 +24,16 @@ Centralize mandatory phrases and ensure they are reused in footer and relevant p
 ```ts
 export const REQUIRED_PHRASES = {
   platform: 'KYLYVNYK CLUB is an independent private membership platform.',
-  notEmployerInvestment: 'KYLYVNYK CLUB is not an employer, investment platform, MLM company or guarantee-of-income system.',
-  specialConditions: 'Special conditions are provided directly by independent third-party partners.',
-  noGuarantees: 'KYLYVNYK CLUB does not guarantee savings, income, commissions, bonuses, clients or business results.',
-  partnerResponsibility: 'Partners independently provide their own services and are responsible for their own licenses, permits and compliance.',
-  noParticipation: 'KYLYVNYKNYK CLUB does not participate in transactions, negotiations or agreements between users and partners.',
+  notEmployerInvestment:
+    'KYLYVNYK CLUB is not an employer, investment platform, MLM company or guarantee-of-income system.',
+  specialConditions:
+    'Special conditions are provided directly by independent third-party partners.',
+  noGuarantees:
+    'KYLYVNYK CLUB does not guarantee savings, income, commissions, bonuses, clients or business results.',
+  partnerResponsibility:
+    'Partners independently provide their own services and are responsible for their own licenses, permits and compliance.',
+  noParticipation:
+    'KYLYVNYKNYK CLUB does not participate in transactions, negotiations or agreements between users and partners.',
 };
 ```
 

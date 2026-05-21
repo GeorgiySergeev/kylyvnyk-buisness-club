@@ -10,9 +10,9 @@ Assemble landing page from B08 components. Ensure mobile spacing, headings hiera
 
 ## Steps
 
-1) Replace placeholder app/(public)/page.tsx with composed sections.
-2) Verify top nav links and “View all”/“Show more” go to /catalog.
-3) Validate keyboard navigation and focus.
+1. Replace placeholder app/(public)/page.tsx with composed sections.
+2. Verify top nav links and “View all”/“Show more” go to /catalog.
+3. Validate keyboard navigation and focus.
 
 ## Files to modify
 
@@ -26,7 +26,9 @@ import dynamic from 'next/dynamic';
 const LandingHero = dynamic(() => import('@/features/landing/hero'), { ssr: true });
 const LandingStats = dynamic(() => import('@/features/landing/stats'), { ssr: true });
 const TopPartners = dynamic(() => import('@/features/landing/top-partners'), { ssr: true });
-const RecommendedPartners = dynamic(() => import('@/features/landing/recommended-partners'), { ssr: true });
+const RecommendedPartners = dynamic(() => import('@/features/landing/recommended-partners'), {
+  ssr: true,
+});
 
 export default async function LandingPage() {
   return (

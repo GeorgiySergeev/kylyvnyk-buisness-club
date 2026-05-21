@@ -13,11 +13,12 @@ Card Number Generator & Assignment
 ### src/features/members/server/card-generator.ts
 
 ```ts
-import 'server-only';
-import { db } from '@/lib/db';
-import { memberships } from '@/db/schema/users';
 import { eq } from 'drizzle-orm';
 import { customAlphabet } from 'nanoid';
+import 'server-only';
+
+import { memberships } from '@/db/schema/users';
+import { db } from '@/lib/db';
 
 const generateId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 6);
 
@@ -29,18 +30,24 @@ export async function ensureMemberCard(userId: string) {
     .limit(1);
 
   if (!membership) {
-    [membership] = await db.insert(memberships).values({
-      userId,
-      tier: 'FREE',
-      status: 'ACTIVE',
-    }).returning();
+    [membership] = await db
+      .insert(memberships)
+      .values({
+        userId,
+        tier: 'FREE',
+        status: 'ACTIVE',
+      })
+      .returning();
   }
 
   if (!membership.cardNumber) {
     const tierPrefix = membership.tier === 'ADMIN' ? 'ADM' : membership.tier;
     const newCard = `${tierPrefix}-CC-${generateId()}`;
 
-    await db.update(memberships).set({ cardNumber: newCard }).where(eq(memberships.id, membership.id));
+    await db
+      .update(memberships)
+      .set({ cardNumber: newCard })
+      .where(eq(memberships.id, membership.id));
     membership.cardNumber = newCard;
   }
 

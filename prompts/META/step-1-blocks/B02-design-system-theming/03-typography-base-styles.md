@@ -40,16 +40,15 @@ export const plusJakarta = Plus_Jakarta_Sans({
 ### `src/app/layout.tsx`
 
 ```tsx
-import './globals.css';
 import '@/styles/typography.css';
+
 import { plusJakarta } from './fonts';
+import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${plusJakarta.variable} font-sans bg-bg text-fg`}>
-        {children}
-      </body>
+      <body className={`${plusJakarta.variable} font-sans bg-bg text-fg`}>{children}</body>
     </html>
   );
 }

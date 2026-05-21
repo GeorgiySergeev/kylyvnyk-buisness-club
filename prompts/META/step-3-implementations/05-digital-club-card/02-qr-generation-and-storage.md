@@ -17,7 +17,7 @@ QR Generation (Frontend)
 
 import { QRCodeSVG } from 'qrcode.react';
 
-export function CardQR({ cardNumber, verifyUrl }: { cardNumber: string, verifyUrl: string }) {
+export function CardQR({ cardNumber, verifyUrl }: { cardNumber: string; verifyUrl: string }) {
   return (
     <div className="bg-white p-3 rounded-lg inline-block">
       <QRCodeSVG

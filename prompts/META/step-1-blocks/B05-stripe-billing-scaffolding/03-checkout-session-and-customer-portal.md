@@ -13,9 +13,9 @@ Create API routes to:
 
 ## Steps
 
-1) Create a server util to ensure we can attribute sessions to app users (pass metadata).
-2) Implement POST /api/stripe/checkout to create subscription checkout.
-3) Implement POST /api/stripe/portal to open billing portal (requires a Stripe customer).
+1. Create a server util to ensure we can attribute sessions to app users (pass metadata).
+2. Implement POST /api/stripe/checkout to create subscription checkout.
+3. Implement POST /api/stripe/portal to open billing portal (requires a Stripe customer).
 
 ## Files to add
 
@@ -26,11 +26,13 @@ Create API routes to:
 ### src/lib/stripe/customers.ts
 
 ```ts
-import 'server-only';
-import { stripe } from './config';
-import { db } from '@/lib/db';
-import { subscriptions } from '@/db/schema/stripe';
 import { eq } from 'drizzle-orm';
+import 'server-only';
+
+import { subscriptions } from '@/db/schema/stripe';
+import { db } from '@/lib/db';
+
+import { stripe } from './config';
 
 export async function findCustomerIdByUserId(userId: string): Promise<string | null> {
   const sub = await db.query.subscriptions.findFirst({
@@ -50,11 +52,12 @@ export async function searchStripeCustomerByEmail(email: string): Promise<string
 ### src/app/api/stripe/checkout/route.ts
 
 ```ts
-import { NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+
+import { ensureUserSynced } from '@/features/auth/server/user-sync';
 import { stripe } from '@/lib/stripe/config';
 import { SITE_URL, VIP_PRICE_ID } from '@/lib/stripe/env';
-import { ensureUserSynced } from '@/features/auth/server/user-sync';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -93,12 +96,13 @@ export async function POST() {
 ### src/app/api/stripe/portal/route.ts
 
 ```ts
-import { NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
-import { stripe } from '@/lib/stripe/config';
-import { SITE_URL } from '@/lib/stripe/env';
+import { NextResponse } from 'next/server';
+
 import { ensureUserSynced } from '@/features/auth/server/user-sync';
+import { stripe } from '@/lib/stripe/config';
 import { findCustomerIdByUserId, searchStripeCustomerByEmail } from '@/lib/stripe/customers';
+import { SITE_URL } from '@/lib/stripe/env';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

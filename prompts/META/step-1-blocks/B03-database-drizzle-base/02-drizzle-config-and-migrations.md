@@ -26,23 +26,23 @@ import 'dotenv/config';
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
-  schema: './src/db/schema/index.ts',
-  out: './drizzle',
-  dialect: 'postgresql',
-  dbCredentials: {
-    url: process.env.DATABASE_URL!,
-  },
-  strict: true,
-  verbose: true,
+schema: './src/db/schema/index.ts',
+out: './drizzle',
+dialect: 'postgresql',
+dbCredentials: {
+url: process.env.DATABASE_URL!,
+},
+strict: true,
+verbose: true,
 });
 package.json (scripts — append)
 json
 
 copy
 {
-  "scripts": {
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
-  }
+"scripts": {
+"db:generate": "drizzle-kit generate",
+"db:migrate": "drizzle-kit migrate",
+"db:studio": "drizzle-kit studio"
+}
 }

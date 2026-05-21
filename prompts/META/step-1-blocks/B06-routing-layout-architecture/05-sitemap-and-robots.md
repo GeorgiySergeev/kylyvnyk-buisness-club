@@ -10,9 +10,9 @@ Expose standard sitemap.xml and robots.txt using Next’s built-in route handler
 
 ## Steps
 
-1) Create app/sitemap.ts generating a minimal list of routes.
-2) Create app/robots.ts with basic allow and sitemap link.
-3) Ensure metadataBase is set for absolute URLs (done in B06 S02).
+1. Create app/sitemap.ts generating a minimal list of routes.
+2. Create app/robots.ts with basic allow and sitemap link.
+3. Ensure metadataBase is set for absolute URLs (done in B06 S02).
 
 ## Files to add
 
@@ -23,6 +23,7 @@ Expose standard sitemap.xml and robots.txt using Next’s built-in route handler
 
 ```ts
 import type { MetadataRoute } from 'next';
+
 import { getSiteUrl } from '@/lib/seo/site';
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -54,6 +55,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
 ```ts
 import type { MetadataRoute } from 'next';
+
 import { getSiteUrl } from '@/lib/seo/site';
 
 export default function robots(): MetadataRoute.Robots {

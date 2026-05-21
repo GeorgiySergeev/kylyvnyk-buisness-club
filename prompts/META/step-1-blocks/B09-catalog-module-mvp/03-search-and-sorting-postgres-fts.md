@@ -10,9 +10,9 @@ Wire search (q) and sorting (recent|name). Use simple ILIKE on name/short_descri
 
 ## Steps
 
-1) Add Zod schema to parse query params safely.
-2) Extend server query to apply filters: country, city, category, q, sort.
-3) Apply pagination params (page, pageSize) later in S05.
+1. Add Zod schema to parse query params safely.
+2. Extend server query to apply filters: country, city, category, q, sort.
+3. Apply pagination params (page, pageSize) later in S05.
 
 ## Files to add/modify
 
@@ -38,10 +38,12 @@ export const catalogQuerySchema = z.object({
 
 export type CatalogQuery = z.infer<typeof catalogQuerySchema>;
 
-export function parseCatalogQuery(input: Record<string, string | string[] | undefined>): CatalogQuery {
+export function parseCatalogQuery(
+  input: Record<string, string | string[] | undefined>,
+): CatalogQuery {
   const flat: Record<string, string> = {};
   for (const [k, v] of Object.entries(input)) {
-    flat[k] = Array.isArray(v) ? v[0] : v ?? '';
+    flat[k] = Array.isArray(v) ? v[0] : (v ?? '');
   }
   const parsed = catalogQuerySchema.safeParse(flat);
   if (!parsed.success) {
@@ -55,10 +57,12 @@ export function parseCatalogQuery(input: Record<string, string | string[] | unde
 ### src/features/catalog/server/queries.ts (extend)
 
 ```ts
-import { db } from '@/lib/db';
+import { and, asc, desc, eq, ilike, sql } from 'drizzle-orm';
+
 import { businesses, categories } from '@/db/schema/catalog';
-import { countries, cities } from '@/db/schema/geo';
-import { and, eq, ilike, asc, desc, sql } from 'drizzle-orm';
+import { cities, countries } from '@/db/schema/geo';
+import { db } from '@/lib/db';
+
 import type { CatalogQuery } from '../params';
 
 export async function listBusinessesWithFilters(qs: CatalogQuery) {
@@ -73,8 +77,8 @@ export async function listBusinessesWithFilters(qs: CatalogQuery) {
     whereParts.push(
       sql`${ilike(businesses.name, pattern as any)} OR ${ilike(
         businesses.shortDescription,
-        pattern as any
-      )}`
+        pattern as any,
+      )}`,
     );
   }
 
@@ -126,13 +130,17 @@ Future FTS note:
 ### src/app/(public)/catalog/page.tsx (patch to use filters)
 
 ```tsx
-import CatalogFilterBar from '@/features/catalog/filters';
-import { Section } from '@/components/ui/section';
 import { BusinessCard } from '@/components/cards/business-card';
+import { Section } from '@/components/ui/section';
+import CatalogFilterBar from '@/features/catalog/filters';
 import { parseCatalogQuery } from '@/features/catalog/params';
 import { listBusinessesWithFilters } from '@/features/catalog/server/queries';
 
-export default async function CatalogPage({ searchParams }: { searchParams: Record<string, string> }) {
+export default async function CatalogPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string>;
+}) {
   const qs = parseCatalogQuery(searchParams);
   const { rows } = await listBusinessesWithFilters(qs);
 

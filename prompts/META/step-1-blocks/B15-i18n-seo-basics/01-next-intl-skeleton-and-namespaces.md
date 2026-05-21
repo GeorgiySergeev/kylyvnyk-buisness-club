@@ -10,11 +10,11 @@ Add a minimal next-intl setup for a single-locale MVP (en) that is easy to exten
 
 ## Steps
 
-1) Install next-intl.
-2) Create i18n config (locales, default).
-3) Add messages by feature namespace.
-4) Create IntlProvider wrapper and wire it in RootLayout with default messages.
-5) Provide a tiny t() usage example.
+1. Install next-intl.
+2. Create i18n config (locales, default).
+3. Add messages by feature namespace.
+4. Create IntlProvider wrapper and wire it in RootLayout with default messages.
+5. Provide a tiny t() usage example.
 
 ## Commands
 
@@ -33,7 +33,7 @@ pnpm add next-intl
 - src/i18n/messages/en/index.ts
 - src/components/providers/intl-provider.tsx
 - src/app/layout.tsx (wrap with IntlProvider)
-- src/features/_examples/i18n/demo.tsx (optional demo)
+- src/features/\_examples/i18n/demo.tsx (optional demo)
 
 ### src/i18n/config.ts
 
@@ -139,11 +139,11 @@ export type Locale = (typeof i18n)['locales'][number];
 ### src/i18n/messages/en/index.ts
 
 ```ts
+import catalog from './catalog.json';
 import common from './common.json';
 import landing from './landing.json';
 import legal from './legal.json';
 import nav from './nav.json';
-import catalog from './catalog.json';
 
 export const enMessages = {
   common,
@@ -162,6 +162,7 @@ export type Messages = typeof enMessages;
 'use client';
 
 import { NextIntlClientProvider } from 'next-intl';
+
 import type { Messages } from '@/i18n/messages/en';
 
 export function IntlProvider({
@@ -178,15 +179,17 @@ export function IntlProvider({
 ### src/app/layout.tsx (patch)
 
 ```tsx
-import './globals.css';
-import '@/styles/typography.css';
 import { ClerkProvider } from '@clerk/nextjs';
-import { plusJakarta } from './fonts';
-import { ThemeProvider } from '@/components/providers/theme-provider';
 import type { Metadata } from 'next';
-import { getSiteUrl, DEFAULT_SEO } from '@/lib/seo/site';
+
 import { IntlProvider } from '@/components/providers/intl-provider';
+import { ThemeProvider } from '@/components/providers/theme-provider';
 import { enMessages } from '@/i18n/messages/en';
+import { DEFAULT_SEO, getSiteUrl } from '@/lib/seo/site';
+import '@/styles/typography.css';
+
+import { plusJakarta } from './fonts';
+import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
@@ -224,7 +227,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
-### src/features/_examples/i18n/demo.tsx (optional)
+### src/features/\_examples/i18n/demo.tsx (optional)
 
 ```tsx
 'use client';
