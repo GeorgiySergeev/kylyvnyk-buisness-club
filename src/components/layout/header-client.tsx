@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { NavigationSession } from '@/lib/auth/navigation-session';
@@ -126,7 +125,7 @@ export function HeaderClient({
               </Link>
               <Link
                 href={guestAuth.joinNow.href}
-                className="min-h-11 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-[var(--accent-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                className="min-h-11 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 {guestAuth.joinNow.label}
               </Link>
@@ -192,7 +191,7 @@ export function HeaderClient({
                 <Link
                   href={guestAuth.joinNow.href}
                   onClick={() => setOpen(false)}
-                  className="mt-1 min-h-11 rounded-md bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground transition-colors hover:bg-[var(--accent-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  className="mt-1 min-h-11 rounded-md bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground transition-colors hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >
                   {guestAuth.joinNow.label}
                 </Link>

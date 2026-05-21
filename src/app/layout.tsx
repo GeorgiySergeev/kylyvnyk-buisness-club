@@ -1,9 +1,11 @@
-// @ts-ignore: CSS module import handled by Next.js
+import '@/styles/typography.css';
 import './globals.css';
 
 import type { Metadata, Viewport } from 'next';
 import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import type { ReactNode } from 'react';
+
+import { ThemeProvider } from '@/components/providers/theme-provider';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: '--font-sans',
@@ -41,7 +43,7 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning>
       <body className={`${plusJakartaSans.variable} ${playfairDisplay.variable} antialiased`}>
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

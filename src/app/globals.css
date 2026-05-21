@@ -1,7 +1,9 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 @theme {
   --color-bg: #0a0a0b;
+  --color-bg-elev: #111114;
   --color-surface: #16161a;
   --color-surface-2: #1f1f25;
   --color-surface-3: #27272e;
@@ -14,6 +16,13 @@
   --color-accent-hover: #e6c14a;
   --color-accent-muted: rgb(212 175 55 / 0.12);
   --color-accent-fg: #0a0a0b;
+  --color-gold-900: #9a731c;
+  --color-gold-800: #b88d27;
+  --color-gold-700: #cfa734;
+  --color-gold: var(--color-accent);
+  --color-gold-500: #dfbd4b;
+  --color-gold-400: #ebd173;
+  --color-fg-on-gold: var(--color-accent-fg);
   --color-danger: #ef4444;
   --color-danger-muted: rgb(239 68 68 / 0.12);
   --color-success: #22c55e;
@@ -27,6 +36,7 @@
   --color-card-foreground: var(--color-fg);
   --color-popover: var(--color-surface-2);
   --color-popover-foreground: var(--color-fg);
+  --color-bgElev: var(--color-bg-elev);
   --color-primary: var(--color-accent);
   --color-primary-foreground: var(--color-accent-fg);
   --color-secondary: var(--color-surface-2);
@@ -52,6 +62,8 @@
   --shadow-lg: 0 8px 32px rgb(0 0 0 / 0.6);
   --shadow-gold: 0 0 24px rgb(212 175 55 / 0.15);
   --shadow-glow: 0 0 48px rgb(212 175 55 / 0.08);
+  --shadow-soft: 0 6px 28px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(212 175 55 / 0.06);
+  --shadow-cta: 0 10px 36px rgb(0 0 0 / 0.45), 0 0 0 1px rgb(212 175 55 / 0.12);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
@@ -72,6 +84,7 @@
   --kc-header-h: 4.5rem;
   --kc-max-w: 80rem;
   --kc-gutter: clamp(1rem, 4vw, 2.5rem);
+  --kc-focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-accent) 38%, transparent);
 }
 
 html,
@@ -100,6 +113,7 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+  text-underline-offset: 0.2em;
 }
 
 @layer utilities {
@@ -121,5 +135,28 @@ a {
       color-mix(in srgb, var(--primary) 35%, transparent) 70%,
       transparent 100%
     );
+  }
+
+  .gold-gradient {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-gold-900) 0%,
+      var(--color-gold-800) 24%,
+      var(--color-gold-700) 50%,
+      var(--color-gold) 76%,
+      var(--color-gold-400) 100%
+    );
+  }
+
+  .focus-gold {
+    outline: none;
+  }
+
+  .focus-gold:focus-visible {
+    box-shadow: var(--kc-focus-ring);
+  }
+
+  .text-balance-premium {
+    text-wrap: balance;
   }
 }

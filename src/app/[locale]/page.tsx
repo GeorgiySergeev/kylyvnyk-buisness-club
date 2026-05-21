@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { type SupportedLocale, localizeHref } from '@/components/layout/navigation';
+import { localizeHref,type SupportedLocale } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -29,7 +29,7 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link
               href={localizeHref(locale, '/directory')}
-              className="inline-flex min-h-11 items-center justify-center rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-[var(--accent-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="inline-flex min-h-11 items-center justify-center rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               {tNav('directory')}
             </Link>

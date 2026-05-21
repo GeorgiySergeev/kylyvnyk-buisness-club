@@ -2,12 +2,14 @@ import 'server-only';
 
 import a11y from '../../../messages/en/a11y.json';
 import auth from '../../../messages/en/auth.json';
+import designSystem from '../../../messages/en/design-system.json';
 import footer from '../../../messages/en/footer.json';
 import nav from '../../../messages/en/nav.json';
 
 const MESSAGES = {
   a11y,
   auth,
+  designSystem,
   footer,
   nav,
 } as const;
