@@ -1,4 +1,4 @@
-04-migration-scripts-and-types.md
+ # 04-migration-scripts-and-types.md
 Title
 Drizzle migrations — generate, apply, and types
 

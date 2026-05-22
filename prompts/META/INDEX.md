@@ -42,7 +42,7 @@ Order is strict. Each block has 3–7 steps; run them in numeric order.
 | ----- | -------------------------- | ------------------------------------------------------------------------------------------- |
 | B01   | project-bootstrap          | —                                                                                           |
 | B02   | design-system              | —                                                                                           |
-| B03   | database-drizzle-base      | **`03-initial-empty-schemas.md` → Superseded-By: step-2/README.md**                         |
+| B03   | database-drizzle-base      | **`01-postgres-connection-setup.md`, `02-drizzle-config-and-migrations.md` → Superseded-By: ADR-003 + `docs/sprints/kclub--mvp--sprint-3.md` B03.01 (`src/db/client.ts`). `03-initial-empty-schemas.md` → Superseded-By: step-2/README.md** |
 | B04   | auth-clerk-rbac            | Scaffold; **superseded by step-3/01-auth-clerk/** for handlers and middleware               |
 | B05   | billing-stripe             | Scaffold; **superseded by step-3/02-stripe-billing/** for webhook + handlers                |
 | B06   | routing-i18n               | Locale set = `['en']` for MVP. RU/UK behind a Phase-2 ADR.                                  |

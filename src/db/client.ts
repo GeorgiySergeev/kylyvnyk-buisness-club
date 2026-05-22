@@ -1,8 +1,22 @@
 import "server-only";
 
-import { env } from "@/lib/env";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
-export const dbClientConfig = Object.freeze({
-  connectionString: env.DATABASE_URL,
-  directConnectionString: env.DATABASE_URL_DIRECT,
+import { env } from "@/lib/env";
+import * as schema from "./schema";
+
+const sql = postgres(env.DATABASE_URL, {
+  prepare: false,
+  max: 10,
+  idle_timeout: 30,
 });
+
+const db = drizzle(sql, {
+  schema,
+  logger: env.NODE_ENV === "development",
+});
+
+type DB = typeof db;
+
+export { db, type DB };
