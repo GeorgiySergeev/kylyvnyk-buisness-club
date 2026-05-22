@@ -55,6 +55,7 @@ export const businesses = pgTable(
     statusIdx: index("businesses_status_idx").on(t.status),
     categoryIdIdx: index("businesses_category_id_idx").on(t.categoryId),
     countryIdIdx: index("businesses_country_id_idx").on(t.countryId),
+    cityIdIdx: index("businesses_city_id_idx").on(t.cityId),
     topPartnerIdx: index("businesses_top_partner_idx").on(t.isTopPartner),
   }),
 );

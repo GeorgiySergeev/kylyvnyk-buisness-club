@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { config } from "dotenv";
 
 import {
   businesses,
@@ -9,19 +10,62 @@ import {
   introductions,
   users,
 } from "./schema";
-import { db, sql } from "./seed-client";
+
+type SeedClient = typeof import("./seed-client");
+
+let db: SeedClient["db"];
+let sqlClient: SeedClient["sql"] | undefined;
+
+config({ path: ".env.local" });
+config();
 
 faker.seed(42);
 
-const isAllowed =
-  process.env.NODE_ENV === "development" || process.env.ALLOW_SEED === "1";
+const LOCAL_DATABASE_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
+const REQUIRED_SEED_CONFIRMATION = "I_CONFIRM";
 
-if (!isAllowed) {
-  console.error(
-    "Seed is only allowed in development. Set ALLOW_SEED=1 to override.",
-  );
-  process.exit(1);
+function assertSeedAllowed(): void {
+  const errors: string[] = [];
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+
+  if (!databaseUrl) {
+    errors.push("DATABASE_URL is missing.");
+  } else {
+    try {
+      const parsedUrl = new URL(databaseUrl);
+
+      if (!LOCAL_DATABASE_HOSTS.has(parsedUrl.hostname)) {
+        errors.push(
+          `DATABASE_URL host must be local (${Array.from(
+            LOCAL_DATABASE_HOSTS,
+          ).join(", ")}). Current host: ${parsedUrl.hostname}.`,
+        );
+      }
+    } catch {
+      errors.push("DATABASE_URL is not a valid URL.");
+    }
+  }
+
+  if (process.env.ALLOW_SEED !== "1") {
+    errors.push('ALLOW_SEED must be set to "1".');
+  }
+
+  if (process.env.CONFIRM_SEED !== REQUIRED_SEED_CONFIRMATION) {
+    errors.push(`CONFIRM_SEED must be set to "${REQUIRED_SEED_CONFIRMATION}".`);
+  }
+
+  if (errors.length > 0) {
+    console.error(
+      [
+        "Seed refused: destructive seed operations require an explicit local-only confirmation.",
+        ...errors.map((error) => `- ${error}`),
+      ].join("\n"),
+    );
+    process.exit(1);
+  }
 }
+
+assertSeedAllowed();
 
 const SEED_COUNTRIES = [
   { name: "Ukraine", iso2: "UA", flagEmoji: "🇺🇦" },
@@ -229,12 +273,17 @@ async function seed(): Promise<void> {
 
 async function main(): Promise<void> {
   try {
+    const seedClient = await import("./seed-client");
+
+    db = seedClient.db;
+    sqlClient = seedClient.sql;
+
     await seed();
   } catch (error) {
     console.error("Seed failed:", error);
     process.exit(1);
   } finally {
-    await sql.end();
+    await sqlClient?.end();
   }
 }
 

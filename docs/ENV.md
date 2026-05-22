@@ -271,10 +271,16 @@ default Resend domain (unbranded).
 
 #### `ALLOW_SEED`
 
-flag · optional · `""` (off) · — · owner: tech lead · breaks: `pnpm
-db:seed` refuses to run unless `NODE_ENV === "development"` OR
-`ALLOW_SEED === "1"`. The second clause exists for staging-only seed
-events; production seeds are forbidden by code.
+flag - optional - `""` (off) - owner: tech lead - breaks: `pnpm
+db:seed` refuses to run unless `ALLOW_SEED === "1"`, `CONFIRM_SEED ===
+"I_CONFIRM"`, and `DATABASE_URL` points to `localhost`, `127.0.0.1`, or `::1`.
+Remote database URLs are refused even when the flags are set.
+
+#### `CONFIRM_SEED`
+
+string - optional - `""` (off) - owner: tech lead - breaks: `pnpm
+db:seed` refuses to run unless the value is exactly `I_CONFIRM`. This is a
+second explicit confirmation for destructive local seed operations.
 
 #### `DISABLE_VOCAB_GREP`
 

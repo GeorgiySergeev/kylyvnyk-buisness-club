@@ -128,6 +128,7 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "profiles_city_id_idx" ON "profiles" USING btree ("city_id");--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cities" ADD CONSTRAINT "cities_country_id_countries_id_fk" FOREIGN KEY ("country_id") REFERENCES "public"."countries"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
@@ -158,6 +159,7 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "businesses_city_id_idx" ON "businesses" USING btree ("city_id");--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "businesses" ADD CONSTRAINT "businesses_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE set null ON UPDATE no action;
 EXCEPTION
