@@ -1,4 +1,7 @@
-01-postgres-connection-setup.md
+# 01-postgres-connection-setup.md
+
+> **Superseded-By:** ADR-003 (`docs/STACK-DECISION.md`) + `docs/sprints/kclub--mvp--sprint-3.md` B03.01 — use `postgres-js`, `src/db/client.ts`, and `@/db/client`. Do not use `pg`, `node-postgres`, or `src/db/config.ts`.
+
 Title
 Postgres Connection (Neon/Supabase) — pg + Drizzle bootstrap
 

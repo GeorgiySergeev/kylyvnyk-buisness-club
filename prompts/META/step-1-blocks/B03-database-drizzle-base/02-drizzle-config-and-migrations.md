@@ -1,4 +1,7 @@
 02-drizzle-config-and-migrations.md
+
+> **Superseded-By:** ADR-003 + `docs/sprints/kclub--mvp--sprint-3.md` B03.01 — use `DATABASE_URL_DIRECT` in `drizzle.config.ts` (via `dotenv/config`, not `@/lib/env`), pooled `DATABASE_URL` + `prepare: false` in `src/db/client.ts`.
+
 Title
 Drizzle ORM — config and migration scaffolding
 

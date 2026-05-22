@@ -1,4 +1,4 @@
-03-initial-empty-schemas.md
+# 03-initial-empty-schemas.md
 Title
 Schema Entrypoint — file layout for Drizzle schema
 
