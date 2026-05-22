@@ -5,6 +5,7 @@ import postgres from "postgres";
 
 import { env } from "@/lib/env";
 import * as schema from "./schema";
+import * as relations from "./schema/_relations";
 
 const sql = postgres(env.DATABASE_URL, {
   prepare: false,
@@ -13,7 +14,7 @@ const sql = postgres(env.DATABASE_URL, {
 });
 
 const db = drizzle(sql, {
-  schema,
+  schema: { ...schema, ...relations },
   logger: env.NODE_ENV === "development",
 });
 
