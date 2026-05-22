@@ -114,6 +114,7 @@ Show me the diffs. Do not touch any other files.
 ```
 
 **Что проверять в diff:**
+**Repo**
 
 `src/i18n/config.ts`:
 
