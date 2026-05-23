@@ -12,6 +12,8 @@ import type { UserRole } from '@/db/schema/enums/user-role';
 
 export type AuthUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
 export type PublicUser = Pick<AuthUser, 'displayName' | 'id' | 'role' | 'status'>;
+export type AuthErrorCode = 'FORBIDDEN' | 'UNAUTHORIZED';
+export type AuthResult<T> = { data: T; ok: true } | { error: AuthErrorCode; ok: false };
 
 export async function getCurrentUser() {
   await headers();
@@ -56,4 +58,22 @@ export async function requireRole(locale: SupportedLocale, allowed: UserRole | U
   }
 
   return user;
+}
+
+export async function getCurrentUserWithRole(
+  allowed: UserRole | UserRole[],
+): Promise<AuthResult<AuthUser>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { error: 'UNAUTHORIZED', ok: false };
+  }
+
+  const roles = Array.isArray(allowed) ? allowed : [allowed];
+
+  if (!roles.includes(user.role)) {
+    return { error: 'FORBIDDEN', ok: false };
+  }
+
+  return { data: user, ok: true };
 }

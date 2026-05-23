@@ -20,7 +20,12 @@ const STATS = [
 const TOP_PARTNERS = [
   ['topPartnerOneName', 'topPartnerOneCategory', 'topPartnerOneLocation', 'topPartnerOneCondition'],
   ['topPartnerTwoName', 'topPartnerTwoCategory', 'topPartnerTwoLocation', 'topPartnerTwoCondition'],
-  ['topPartnerThreeName', 'topPartnerThreeCategory', 'topPartnerThreeLocation', 'topPartnerThreeCondition'],
+  [
+    'topPartnerThreeName',
+    'topPartnerThreeCategory',
+    'topPartnerThreeLocation',
+    'topPartnerThreeCondition',
+  ],
 ] as const;
 
 const STEPS = [
@@ -144,7 +149,10 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
           </h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             {TOP_PARTNERS.map(([nameKey, categoryKey, locationKey, conditionKey], index) => (
-              <article key={nameKey} className="rounded-lg border border-border bg-background/70 p-4">
+              <article
+                key={nameKey}
+                className="rounded-lg border border-border bg-background/70 p-4"
+              >
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-md border border-primary/30 bg-primary/10 font-mono text-xs text-primary">
                   {index + 1}
                 </div>
@@ -171,11 +179,16 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
           </h2>
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map(([titleKey, textKey], index) => (
-              <div key={titleKey} className="rounded-md border border-border bg-background/70 p-4 text-center">
+              <div
+                key={titleKey}
+                className="rounded-md border border-border bg-background/70 p-4 text-center"
+              >
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/40 bg-primary/10 font-mono text-sm font-bold text-primary">
                   {index + 1}
                 </div>
-                <h3 className="mt-3 text-sm font-bold text-foreground uppercase">{tHome(titleKey)}</h3>
+                <h3 className="mt-3 text-sm font-bold text-foreground uppercase">
+                  {tHome(titleKey)}
+                </h3>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">{tHome(textKey)}</p>
               </div>
             ))}
@@ -193,7 +206,10 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
                 className="flex min-h-11 items-center justify-between rounded-md border border-border bg-background px-3 text-sm text-muted-foreground"
               >
                 {tHome(filterKey)}
-                <span aria-hidden="true" className="h-2 w-2 rotate-45 border-r border-b border-primary" />
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 rotate-45 border-r border-b border-primary"
+                />
               </div>
             ))}
           </div>
@@ -219,7 +235,10 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             {RECOMMENDED_PARTNERS.map(([nameKey, metaKey]) => (
-              <article key={nameKey} className="rounded-lg border border-border bg-background/70 p-4">
+              <article
+                key={nameKey}
+                className="rounded-lg border border-border bg-background/70 p-4"
+              >
                 <div className="mb-4 h-12 rounded-md border border-primary/25 bg-primary/10" />
                 <h3 className="text-sm font-bold text-foreground">{tHome(nameKey)}</h3>
                 <p className="mt-2 text-xs text-muted-foreground">{tHome(metaKey)}</p>

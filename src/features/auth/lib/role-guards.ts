@@ -5,7 +5,9 @@ import { redirect } from 'next/navigation';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 
+import { decideAdminRouteAccess } from './admin-access';
 import { isOnboardingComplete } from './check-onboarding';
+import { hasVerifiedMfaInSession } from './mfa';
 import { requireRole, requireUser } from './current-user';
 
 export async function guardOnboarded(locale: SupportedLocale) {
@@ -24,5 +26,21 @@ export async function guardBusiness(locale: SupportedLocale) {
 }
 
 export async function guardAdmin(locale: SupportedLocale) {
-  return requireRole(locale, 'ADMIN');
+  const user = await requireUser(locale);
+  const hasMfa = await hasVerifiedMfaInSession();
+  const decision = decideAdminRouteAccess({
+    hasMfa,
+    isAuthenticated: true,
+    role: user.role,
+  });
+
+  if (decision === 'REDIRECT_HOME') {
+    redirect(localizeHref(locale, '/'));
+  }
+
+  if (decision === 'REDIRECT_MFA') {
+    redirect(localizeHref(locale, '/m/2fa-required'));
+  }
+
+  return user;
 }
