@@ -35,6 +35,8 @@ export default async function SignInPage({ params }: SignInPageProps) {
               code: tAuth('phoneAuthCodeLabel'),
               codeHelp: tAuth('phoneAuthCodeHelp'),
               devBypass: tAuth('phoneAuthDevBypass'),
+              name: tAuth('signInNameLabel'),
+              nameHelp: tAuth('signInNameHelp'),
               phone: tAuth('phoneAuthPhoneLabel'),
               phoneHelp: tAuth('phoneAuthPhoneHelp'),
               requestCode: tAuth('phoneAuthRequestCode'),

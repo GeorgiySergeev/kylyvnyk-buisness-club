@@ -21,6 +21,20 @@ export const smsOtpRateLimiter = new Ratelimit({
   prefix: "kclub:sms-otp",
 });
 
+export const verifyCardIpRateLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(10, "60 s"),
+  analytics: true,
+  prefix: "rl:verify-card:ip",
+});
+
+export const verifyCardNumberRateLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.fixedWindow(5, "600 s"),
+  analytics: true,
+  prefix: "rl:verify-card:number",
+});
+
 /**
  * Helper to check rate limit for a given identifier
  * Returns { success: boolean, limit: number, remaining: number, reset: number }
@@ -44,5 +58,28 @@ export async function checkSmsOtpRateLimit(identifier: string) {
     // Fail-open to prevent Redis downtime from blocking user auth completely,
     // but log a severe warning.
     return { success: true, limit: 3, remaining: 1, reset: 0 };
+  }
+}
+
+export async function checkVerifyCardRateLimit(input: { ip: string; number: string }) {
+  if (env.NODE_ENV === "test") {
+    return { success: true };
+  }
+
+  try {
+    const [ipResult, numberResult] = await Promise.all([
+      verifyCardIpRateLimiter.limit(input.ip),
+      verifyCardNumberRateLimiter.limit(input.number.trim().toUpperCase()),
+    ]);
+
+    return { success: ipResult.success && numberResult.success };
+  } catch (error) {
+    log.error("Verify card rate limiter error", {
+      error,
+      ip: input.ip,
+      numberPrefix: input.number.trim().slice(0, 8).toUpperCase(),
+    });
+
+    return { success: false };
   }
 }

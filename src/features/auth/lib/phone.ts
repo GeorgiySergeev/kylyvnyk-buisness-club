@@ -22,9 +22,12 @@ export const phoneOtpRequestSchema = z.object({
   phone: phoneNumberSchema,
 });
 
+export const displayNameSchema = z.string().trim().min(1).max(80);
+
 export const phoneOtpVerifySchema = z.object({
   code: z.string().trim().regex(/^\d{6}$/, 'Enter the 6-digit code.'),
   phone: phoneNumberSchema,
+  displayName: displayNameSchema.optional().or(z.literal('')),
 });
 
 export type PhoneOtpRequestInput = z.input<typeof phoneOtpRequestSchema>;

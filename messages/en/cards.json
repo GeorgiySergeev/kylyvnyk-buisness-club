@@ -1,0 +1,12 @@
+{
+  "verifyBadgeNotFound": "Unable to verify",
+  "verifyDescription": "This public page confirms only the card status and membership type. Contact, payment, and account data are never shown here.",
+  "verifyExpiresAt": "Expires",
+  "verifyMember": "Member",
+  "verifyMemberFallback": "KYLYVNYK CLUB Member",
+  "verifyMemberType": "Membership",
+  "verifyNoExpiration": "No expiration",
+  "verifyNumber": "Card number",
+  "verifyStatus": "Status",
+  "verifyTitle": "Verify Club Card"
+}

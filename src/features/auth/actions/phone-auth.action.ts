@@ -5,6 +5,7 @@ import { cookies, headers } from 'next/headers';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { getAuthIdentity, isAuthDevPhoneBypassEnabled } from '@/features/auth/lib/auth-identity';
+import { createCardForUser } from '@/features/auth/lib/card';
 import { DEV_PHONE_AUTH_COOKIE, encodeDevPhoneAuthCookie } from '@/features/auth/lib/dev-auth';
 import { phoneOtpRequestSchema, phoneOtpVerifySchema } from '@/features/auth/lib/phone';
 import { syncAuthUser } from '@/features/auth/lib/sync-auth-user';
@@ -41,14 +42,15 @@ function validationError(
   };
 }
 
-function redirectFor(locale: SupportedLocale, isNew: boolean) {
-  return localizeHref(locale, isNew ? '/m/onboarding' : '/m/dashboard');
-}
+type RequestOtpResult =
+  | { data: { devBypass: false; phone: string }; ok: true }
+  | { data: { devBypass: true; redirectTo: string }; ok: true }
+  | { error: AuthActionError; ok: false };
 
 export async function requestPhoneOtpAction(
   locale: SupportedLocale,
   rawInput: unknown,
-): Promise<AuthActionResult<{ devBypassEnabled: boolean; phone: string }>> {
+): Promise<RequestOtpResult> {
   const parsed = phoneOtpRequestSchema.safeParse(rawInput);
 
   if (!parsed.success) {
@@ -74,10 +76,29 @@ export async function requestPhoneOtpAction(
   }
 
   if (isAuthDevPhoneBypassEnabled()) {
+    (await cookies()).set({
+      httpOnly: true,
+      name: DEV_PHONE_AUTH_COOKIE,
+      path: '/',
+      sameSite: 'lax',
+      secure: false,
+      value: encodeDevPhoneAuthCookie(parsed.data.phone),
+    });
+
+    const { isNew, user } = await syncAuthUser({
+      devBypass: true,
+      phone: parsed.data.phone,
+      providerUserId: `dev:${parsed.data.phone}`,
+    });
+
+    if (isNew) {
+      await createCardForUser(user.id, user.phone);
+    }
+
     return {
       data: {
-        devBypassEnabled: true,
-        phone: parsed.data.phone,
+        devBypass: true,
+        redirectTo: localizeHref(locale, '/m/dashboard'),
       },
       ok: true,
     };
@@ -112,7 +133,7 @@ export async function requestPhoneOtpAction(
 
   return {
     data: {
-      devBypassEnabled: false,
+      devBypass: false,
       phone: parsed.data.phone,
     },
     ok: true,
@@ -158,11 +179,15 @@ export async function verifyPhoneOtpAction(
     };
   }
 
-  const { isNew } = await syncAuthUser(identity);
+  const { isNew, user } = await syncAuthUser(identity, parsed.data.displayName);
+
+  if (isNew) {
+    await createCardForUser(user.id, user.phone);
+  }
 
   return {
     data: {
-      redirectTo: redirectFor(locale, isNew),
+      redirectTo: localizeHref(locale, '/m/dashboard'),
     },
     ok: true,
   };
@@ -197,15 +222,19 @@ export async function devBypassPhoneAuthAction(
     value: encodeDevPhoneAuthCookie(parsed.data.phone),
   });
 
-  const { isNew } = await syncAuthUser({
+  const { isNew, user } = await syncAuthUser({
     devBypass: true,
     phone: parsed.data.phone,
     providerUserId: `dev:${parsed.data.phone}`,
   });
 
+  if (isNew) {
+    await createCardForUser(user.id, user.phone);
+  }
+
   return {
     data: {
-      redirectTo: redirectFor(locale, isNew),
+      redirectTo: localizeHref(locale, '/m/dashboard'),
     },
     ok: true,
   };

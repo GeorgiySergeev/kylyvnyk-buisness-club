@@ -1,7 +1,7 @@
 export const SUPPORTED_LOCALES = ['en'] as const;
 
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
-export type SessionRole = 'guest' | 'FREE' | 'BUSINESS' | 'ADMIN';
+export type SessionRole = 'guest' | 'FREE' | 'VIP' | 'BUSINESS' | 'ADMIN';
 
 export interface NavItemConfig {
   key: 'directory' | 'verifyCard' | 'dashboard' | 'recommendClient' | 'admin';

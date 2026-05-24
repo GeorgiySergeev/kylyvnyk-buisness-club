@@ -1,12 +1,11 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { db } from '@/db/client';
-import { auditLogs, profiles, users } from '@/db/schema';
+import { auditLogs, profiles } from '@/db/schema';
 
 import { requireUser } from '../lib/current-user';
 import { onboardingSchema } from '../schemas/onboarding.schema';
@@ -43,14 +42,6 @@ export async function completeOnboardingAction(
 
   try {
     await db.transaction(async (tx) => {
-      await tx
-        .update(users)
-        .set({
-          displayName: parsed.data.displayName ?? null,
-          updatedAt: now,
-        })
-        .where(eq(users.id, user.id));
-
       await tx
         .insert(profiles)
         .values({

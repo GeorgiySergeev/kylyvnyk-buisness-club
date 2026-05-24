@@ -3,11 +3,14 @@ import 'server-only';
 import { and, eq, isNull, or } from 'drizzle-orm';
 
 import { db } from '@/db/client';
-import { auditLogs, users } from '@/db/schema';
+import { auditLogs, profiles, users } from '@/db/schema';
 
 import type { AuthIdentity } from './auth-identity';
 
-export async function syncAuthUser(identity: AuthIdentity) {
+export async function syncAuthUser(
+  identity: AuthIdentity,
+  displayName?: string,
+) {
   const existing = await db.query.users.findFirst({
     where: (table, { and, eq, isNull, or }) =>
       and(
@@ -39,6 +42,7 @@ export async function syncAuthUser(identity: AuthIdentity) {
       .insert(users)
       .values({
         phone: identity.phone,
+        displayName: displayName ?? null,
         role: 'FREE',
         status: 'ACTIVE',
         supabaseUserId: identity.providerUserId,
@@ -49,6 +53,8 @@ export async function syncAuthUser(identity: AuthIdentity) {
     const user = rows[0];
 
     if (user) {
+      await tx.insert(profiles).values({ userId: user.id }).onConflictDoNothing();
+
       await tx.insert(auditLogs).values({
         action: 'USER_AUTH_CREATED',
         actorUserId: user.id,

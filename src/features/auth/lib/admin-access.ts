@@ -4,7 +4,7 @@ export type AdminRouteDecision = 'ALLOW' | 'REDIRECT_HOME' | 'REDIRECT_MFA' | 'R
 export function decideAdminRouteAccess(input: {
   hasMfa: boolean;
   isAuthenticated: boolean;
-  role: 'ADMIN' | 'BUSINESS' | 'FREE' | null;
+  role: 'ADMIN' | 'BUSINESS' | 'FREE' | 'VIP' | null;
 }): AdminRouteDecision {
   if (!input.isAuthenticated) {
     return 'REDIRECT_SIGN_IN';

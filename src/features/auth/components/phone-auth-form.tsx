@@ -19,6 +19,8 @@ interface PhoneAuthLabels {
   code: string;
   codeHelp: string;
   devBypass: string;
+  name: string;
+  nameHelp: string;
   phone: string;
   phoneHelp: string;
   requestCode: string;
@@ -38,6 +40,7 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState<Step>('phone');
+  const [displayName, setDisplayName] = useState('');
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [captchaToken, setCaptchaToken] = useState('');
@@ -67,6 +70,11 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
         return;
       }
 
+      if (result.data.devBypass) {
+        finish(result.data.redirectTo);
+        return;
+      }
+
       setPhone(result.data.phone);
       setStep('code');
     });
@@ -75,7 +83,11 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
   function verifyCode(rawCode = getFormValue('code')) {
     setError(null);
     startTransition(async () => {
-      const result = await verifyPhoneOtpAction(locale, { code: rawCode, phone });
+      const result = await verifyPhoneOtpAction(locale, {
+        code: rawCode,
+        phone,
+        displayName: displayName.trim(),
+      });
 
       if (!result.ok) {
         setError(result.error.message);
@@ -123,29 +135,51 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
         </p>
       ) : null}
 
-      <div className="space-y-2">
-        <label htmlFor="phone" className="text-sm font-semibold text-foreground">
-          {labels.phone}
-        </label>
-        <Input
-          id="phone"
-          name="phone"
-          autoComplete="tel"
-          inputMode="tel"
-          aria-describedby="phone-help"
-          className="min-h-11"
-          disabled={pending || step === 'code'}
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-          placeholder="+380..."
-        />
-        <p id="phone-help" className="text-sm leading-6 text-muted-foreground">
-          {labels.phoneHelp}
-        </p>
-        {step === 'phone' && !devBypassEnabled && (
-          <TurnstileWidget onVerify={setCaptchaToken} />
-        )}
-      </div>
+      {step === 'phone' ? (
+        <>
+          <div className="space-y-2">
+            <label htmlFor="displayName" className="text-sm font-semibold text-foreground">
+              {labels.name}
+            </label>
+            <Input
+              id="displayName"
+              name="displayName"
+              autoComplete="name"
+              aria-describedby="displayName-help"
+              className="min-h-11"
+              disabled={pending}
+              value={displayName}
+              onChange={(event) => setDisplayName(event.target.value)}
+              placeholder="Oleksandr Kovalenko"
+            />
+            <p id="displayName-help" className="text-sm leading-6 text-muted-foreground">
+              {labels.nameHelp}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="phone" className="text-sm font-semibold text-foreground">
+              {labels.phone}
+            </label>
+            <Input
+              id="phone"
+              name="phone"
+              autoComplete="tel"
+              inputMode="tel"
+              aria-describedby="phone-help"
+              className="min-h-11"
+              disabled={pending}
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              placeholder="+380..."
+            />
+            <p id="phone-help" className="text-sm leading-6 text-muted-foreground">
+              {labels.phoneHelp}
+            </p>
+            {!devBypassEnabled && <TurnstileWidget onVerify={setCaptchaToken} />}
+          </div>
+        </>
+      ) : null}
 
       {step === 'code' ? (
         <div className="space-y-2">
