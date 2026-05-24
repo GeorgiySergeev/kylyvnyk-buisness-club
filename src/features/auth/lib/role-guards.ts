@@ -7,8 +7,8 @@ import { localizeHref } from '@/components/layout/navigation';
 
 import { decideAdminRouteAccess } from './admin-access';
 import { isOnboardingComplete } from './check-onboarding';
-import { hasVerifiedMfaInSession } from './mfa';
 import { requireRole, requireUser } from './current-user';
+import { hasVerifiedMfaInSession } from './mfa';
 
 export async function guardOnboarded(locale: SupportedLocale) {
   const user = await requireUser(locale);

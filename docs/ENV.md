@@ -27,12 +27,12 @@ underlying rationale.
 
 ## Environments
 
-| Environment   | Source of values                        | Notes                                 |
-| ------------- | --------------------------------------- | ------------------------------------- |
-| `development` | `.env.local` on developer machine       | Never committed                       |
-| `preview`     | Vercel project env vars (Preview scope) | Per-PR URLs; uses Stripe test mode    |
-| `production`  | Vercel project env vars (Production)    | Stripe live mode; Sentry live project |
-| `test` / CI   | GitHub Actions secrets + ephemeral DB   | Stripe in test mode; mocked Clerk     |
+| Environment   | Source of values                        | Notes                                     |
+| ------------- | --------------------------------------- | ----------------------------------------- |
+| `development` | `.env.local` on developer machine       | Never committed                           |
+| `preview`     | Vercel project env vars (Preview scope) | Per-PR URLs; uses Stripe test mode        |
+| `production`  | Vercel project env vars (Production)    | Stripe live mode; Sentry live project     |
+| `test` / CI   | GitHub Actions secrets + ephemeral DB   | Stripe in test mode; mocked Supabase Auth |
 
 A variable is "missing" if it's empty in the active environment. The app's
 typed env loader (`src/lib/env.ts`) calls `zod.parse` on startup and
@@ -56,7 +56,7 @@ Format for each entry:
 
 public · required · `http://localhost:3000` in dev · set by hand or Vercel
 auto · owner: tech lead · rotates: on domain change · breaks: absolute URLs
-in emails, OG tags, Stripe redirect URLs, Clerk redirect URLs.
+in emails, OG tags, Stripe redirect URLs, and auth redirects.
 
 #### `NODE_ENV`
 
@@ -89,43 +89,25 @@ Used ONLY by `drizzle-kit`. The app never reads this at runtime.
 
 ---
 
-### Authentication — Clerk (ADR-004)
+### Authentication — Supabase Auth (ADR-011)
 
-#### `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+#### `NEXT_PUBLIC_SUPABASE_URL`
 
-public · required · — · Clerk Dashboard → API Keys → Publishable key ·
-owner: auth owner · rotates: rarely (only on instance migration) · breaks:
-sign-in / sign-up UI cannot mount.
+public · required · — · Supabase Dashboard → Project Settings → API ·
+owner: auth owner · rotates: on Supabase project migration · breaks:
+phone auth UI and session refresh.
 
-#### `CLERK_SECRET_KEY`
+#### `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
-server · required · — · Clerk Dashboard → API Keys → Secret key · owner:
-auth owner · rotates: on suspected leak · breaks: `auth()`, server-side
-Clerk API calls, role lookups.
+public · required · — · Supabase Dashboard → Project Settings → API ·
+owner: auth owner · rotates: with Supabase key rotation · breaks:
+SMS OTP request, verification, and auth cookie refresh.
 
-#### `CLERK_WEBHOOK_SECRET`
+#### `AUTH_DEV_PHONE_BYPASS_ENABLED`
 
-server · required · — · Clerk Dashboard → Webhooks → your endpoint →
-Signing Secret · owner: auth owner · rotates: on endpoint change · breaks:
-`/api/clerk/webhook` signature verification (all incoming user.\* events
-get 401).
-
-Why a separate secret per webhook endpoint: each endpoint signs with its
-own secret so we can rotate one without nuking the others.
-
-#### `NEXT_PUBLIC_CLERK_SIGN_IN_URL` / `..._SIGN_UP_URL`
-
-public · required · `/en/sign-in`, `/en/sign-up` · — · owner: tech lead ·
-rotates: on locale or URL strategy change · breaks: Clerk middleware
-redirects 404.
-
-Must be absolute paths starting with `/[locale]/`.
-
-#### `NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL` / `..._AFTER_SIGN_UP_URL`
-
-public · required · `/en/m/dashboard`, `/en/m/onboarding` · — · owner:
-tech lead · rotates: on URL refactor · breaks: post-auth flow lands on
-home, breaking funnel analytics.
+server · optional flag · empty by default · local `.env.local` only · owner:
+tech lead · rotates: never · breaks: local/demo phone auth bypass. Production
+code rejects this bypass when `NODE_ENV=production`.
 
 ---
 
@@ -254,7 +236,7 @@ pageviews recorded; custom events still fire but are unattributed.
 
 server · optional · — · Resend Dashboard → API Keys · owner: tech lead ·
 rotates: on suspected leak · breaks: transactional emails (none at MVP;
-Clerk sends auth emails itself).
+Supabase handles auth SMS itself).
 
 Enable only when we add our own emails (welcome, payment receipt
 override, introduction notifications).
@@ -298,7 +280,7 @@ For a new developer setting up the project locally:
 [ ] Clone the repo, `pnpm install`
 [ ] Copy .env.example to .env.local
 [ ] Get DATABASE_URL + DATABASE_URL_DIRECT from DB owner (Supabase project: kclub-dev)
-[ ] Create personal Clerk dev instance OR get keys from auth owner
+[ ] Get Supabase Auth project URL + publishable key from auth owner
 [ ] Create personal Stripe account in test mode; ask billing owner for product IDs
 [ ] `stripe listen --forward-to localhost:3000/api/stripe/webhook` → paste STRIPE_WEBHOOK_SECRET
 [ ] Create personal Upstash Redis DB OR get shared dev token from platform owner
@@ -318,16 +300,15 @@ rather than guessing.
 
 > One-page summary; full procedure in `/docs/RUNBOOK.md`.
 
-| Secret                     | Rotation window         | Method                                        | Downtime                       |
-| -------------------------- | ----------------------- | --------------------------------------------- | ------------------------------ |
-| `CLERK_SECRET_KEY`         | quarterly + on leak     | Clerk → API Keys → "Rotate" → update Vercel   | none                           |
-| `CLERK_WEBHOOK_SECRET`     | on endpoint change      | Re-create endpoint, update Vercel, test event | none                           |
-| `STRIPE_SECRET_KEY`        | on leak only            | Stripe → roll key → update Vercel             | none                           |
-| `STRIPE_WEBHOOK_SECRET`    | on leak / endpoint move | Stripe → roll secret on endpoint              | none                           |
-| `DATABASE_URL` (password)  | on leak                 | Supabase → reset password → update Vercel     | ~30s                           |
-| `UPSTASH_REDIS_REST_TOKEN` | on leak                 | Upstash → rotate token → update Vercel        | none (fails closed during gap) |
-| `TURNSTILE_SECRET_KEY`     | on site migration       | Cloudflare → site → rotate                    | none                           |
-| `SENTRY_AUTH_TOKEN`        | quarterly               | Sentry → new token → update GitHub Secrets    | CI only                        |
+| Secret                                 | Rotation window         | Method                                     | Downtime                         |
+| -------------------------------------- | ----------------------- | ------------------------------------------ | -------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | on project key rotation | Supabase → API keys → update Vercel        | auth unavailable during mismatch |
+| `STRIPE_SECRET_KEY`                    | on leak only            | Stripe → roll key → update Vercel          | none                             |
+| `STRIPE_WEBHOOK_SECRET`                | on leak / endpoint move | Stripe → roll secret on endpoint           | none                             |
+| `DATABASE_URL` (password)              | on leak                 | Supabase → reset password → update Vercel  | ~30s                             |
+| `UPSTASH_REDIS_REST_TOKEN`             | on leak                 | Upstash → rotate token → update Vercel     | none (fails closed during gap)   |
+| `TURNSTILE_SECRET_KEY`                 | on site migration       | Cloudflare → site → rotate                 | none                             |
+| `SENTRY_AUTH_TOKEN`                    | quarterly               | Sentry → new token → update GitHub Secrets | CI only                          |
 
 Rotation rule: never rotate two secrets in the same deploy. One at a
 time, verify, then the next.

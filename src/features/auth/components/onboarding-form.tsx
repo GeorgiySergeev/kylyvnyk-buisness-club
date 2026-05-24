@@ -1,15 +1,13 @@
 'use client';
 
-import { useTransition } from 'react';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
 import { completeOnboardingAction } from '../actions/complete-onboarding.action';
@@ -28,7 +26,6 @@ interface OnboardingFormLabels {
   bio: string;
   city: string;
   country: string;
-  displayName: string;
   formError: string;
   optional: string;
   submit: string;
@@ -100,26 +97,6 @@ export function OnboardingForm({
           {errors.root.message}
         </p>
       ) : null}
-
-      <div className="space-y-2">
-        <label htmlFor="displayName" className="text-sm font-semibold text-foreground">
-          {labels.displayName}
-        </label>
-        <Input
-          id="displayName"
-          autoComplete="name"
-          aria-describedby={errors.displayName ? 'displayName-error' : undefined}
-          aria-invalid={Boolean(errors.displayName)}
-          disabled={pending}
-          className="min-h-11"
-          {...register('displayName')}
-        />
-        {errors.displayName?.message ? (
-          <p id="displayName-error" role="alert" className="text-sm text-destructive">
-            {errors.displayName.message}
-          </p>
-        ) : null}
-      </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">

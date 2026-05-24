@@ -1,8 +1,7 @@
-import { SignIn } from '@clerk/nextjs';
-
 import type { SupportedLocale } from '@/components/layout/navigation';
-import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
+import { PhoneAuthForm } from '@/features/auth/components/phone-auth-form';
+import { isAuthDevPhoneBypassEnabled } from '@/features/auth/lib/auth-identity';
 import { getT } from '@/lib/i18n/t-server';
 
 interface SignInPageProps {
@@ -30,11 +29,21 @@ export default async function SignInPage({ params }: SignInPageProps) {
           </p>
         </div>
         <div className="flex justify-center lg:justify-end">
-          <SignIn
-            fallbackRedirectUrl={localizeHref(locale, '/m/dashboard')}
-            path={localizeHref(locale, '/sign-in')}
-            routing="path"
-            signUpUrl={localizeHref(locale, '/sign-up')}
+          <PhoneAuthForm
+            devBypassEnabled={isAuthDevPhoneBypassEnabled()}
+            labels={{
+              code: tAuth('phoneAuthCodeLabel'),
+              codeHelp: tAuth('phoneAuthCodeHelp'),
+              devBypass: tAuth('phoneAuthDevBypass'),
+              name: tAuth('signInNameLabel'),
+              nameHelp: tAuth('signInNameHelp'),
+              phone: tAuth('phoneAuthPhoneLabel'),
+              phoneHelp: tAuth('phoneAuthPhoneHelp'),
+              requestCode: tAuth('phoneAuthRequestCode'),
+              submitting: tAuth('phoneAuthSubmitting'),
+              verifyCode: tAuth('phoneAuthVerifyCode'),
+            }}
+            locale={locale}
           />
         </div>
       </section>

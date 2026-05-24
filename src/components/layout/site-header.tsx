@@ -4,13 +4,13 @@ import { getT } from '@/lib/i18n/t-server';
 import { HeaderClient } from './header-client';
 import {
   type AuthAction,
+  filterNavByRole,
   GUEST_AUTH,
+  localizeHref,
   MEMBER_AUTH,
   type NavItem,
   PRIMARY_NAV,
   type SupportedLocale,
-  filterNavByRole,
-  localizeHref,
 } from './navigation';
 
 function translateNavItems(locale: SupportedLocale, items: typeof PRIMARY_NAV): NavItem[] {

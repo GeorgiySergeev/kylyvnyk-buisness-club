@@ -18,18 +18,19 @@ appended to the old ADR. Never edit an accepted ADR in place — append.
 
 ## Index
 
-| ID      | Decision                                                                    | Status   |
-| ------- | --------------------------------------------------------------------------- | -------- |
-| ADR-001 | Application framework: Next.js 15 + React 19 + TypeScript 5 strict          | ACCEPTED |
-| ADR-002 | Repo shape: single Next.js app, **NOT** Turborepo                           | ACCEPTED |
-| ADR-003 | Database: Postgres on Supabase via connection string + Drizzle ORM          | ACCEPTED |
-| ADR-004 | Authentication: Clerk v6 (not Supabase Auth)                                | ACCEPTED |
-| ADR-005 | Billing: Stripe v17 with pinned `apiVersion`                                | ACCEPTED |
-| ADR-006 | Localization: `en` only at MVP launch; `ru`, `uk` are Phase-2               | ACCEPTED |
-| ADR-007 | Membership lifecycle: one active row per (user, type); history in audit_log | ACCEPTED |
-| ADR-008 | Bot defense + rate limiting: Cloudflare Turnstile + Upstash Redis           | ACCEPTED |
-| ADR-009 | Observability: Sentry (errors) + Plausible (privacy-first analytics)        | ACCEPTED |
-| ADR-010 | Deployment: Vercel (production + previews); Supabase managed Postgres       | ACCEPTED |
+| ID      | Decision                                                                    | Status                |
+| ------- | --------------------------------------------------------------------------- | --------------------- |
+| ADR-001 | Application framework: Next.js 15 + React 19 + TypeScript 5 strict          | ACCEPTED              |
+| ADR-002 | Repo shape: single Next.js app, **NOT** Turborepo                           | ACCEPTED              |
+| ADR-003 | Database: Postgres on Supabase via connection string + Drizzle ORM          | ACCEPTED              |
+| ADR-004 | Authentication: Clerk v6 (not Supabase Auth)                                | SUPERSEDED by ADR-011 |
+| ADR-005 | Billing: Stripe v17 with pinned `apiVersion`                                | ACCEPTED              |
+| ADR-006 | Localization: `en` only at MVP launch; `ru`, `uk` are Phase-2               | ACCEPTED              |
+| ADR-007 | Membership lifecycle: one active row per (user, type); history in audit_log | ACCEPTED              |
+| ADR-008 | Bot defense + rate limiting: Cloudflare Turnstile + Upstash Redis           | ACCEPTED              |
+| ADR-009 | Observability: Sentry (errors) + Plausible (privacy-first analytics)        | ACCEPTED              |
+| ADR-010 | Deployment: Vercel (production + previews); Supabase managed Postgres       | ACCEPTED              |
+| ADR-011 | Authentication: Supabase Auth phone-first                                   | ACCEPTED              |
 
 ---
 
@@ -187,6 +188,8 @@ under `/drizzle/`.
 
 ## ADR-004 — Authentication
 
+> Status: SUPERSEDED by ADR-011, 2026-05-23.
+
 ### Context
 
 The brief mentioned both Clerk (in the prompt library) and Supabase Auth (in
@@ -239,6 +242,41 @@ KCLUB needs:
   costs us a re-login event for every user, not data loss.
   − CSP must allow `*.clerk.accounts.dev` and Clerk's frontend domains.
   Documented in `/docs/SECURITY.md`.
+
+---
+
+## ADR-011 — Authentication: Supabase Auth phone-first
+
+### Context
+
+The product now needs a simplified member entry flow: phone number first, no
+password on the first screen, and optional profile data later in onboarding.
+This intentionally supersedes ADR-004.
+
+### Decision
+
+Use Supabase Auth for identity and SMS OTP sessions.
+
+- `@supabase/ssr` manages auth cookies in middleware, Server Actions, and
+  Server Components.
+- `@supabase/supabase-js` is allowed only through Supabase Auth/SSR helpers.
+  Product data remains Drizzle over `DATABASE_URL`.
+- `/[locale]/sign-in` is the single phone-first auth page. `/[locale]/sign-up`
+  redirects there.
+- Successful first phone auth creates a `users` row with `role = FREE`,
+  `status = ACTIVE`, `phone`, and `supabase_user_id`.
+- `users.role` remains the authorization source of truth.
+- Local/demo bypass is allowed only when `AUTH_DEV_PHONE_BYPASS_ENABLED=1` and
+  `NODE_ENV !== "production"`.
+- Admin routes remain blocked behind the existing MFA requirement until a
+  Supabase-compatible admin MFA policy is implemented.
+
+### Consequences
+
+- Supabase now carries both managed Postgres and identity/SMS auth.
+- Clerk env vars, webhook handlers, and prebuilt auth UI are removed.
+- Phone is PII and must not be exposed in public DTOs, analytics props, Sentry
+  events, Open Graph metadata, or card verification responses.
 
 ---
 
@@ -476,22 +514,22 @@ Turnstile placement:
 
 - Required on the sign-up form, password-reset form, and the
   card-lookup form.
-- Optional on sign-in form (Clerk handles its own bot defense; we add
-  Turnstile only if abuse appears in logs).
+- Required on phone auth initiation if SMS abuse appears in logs; Supabase
+  Auth still verifies ownership through SMS OTP.
 - Server-side verification via `siteverify` in a thin wrapper
   `/src/lib/captcha/turnstile.ts`. Wrapper returns
   `Result<{ ok: true }, TurnstileError>`. Tests use a deterministic mock.
 
 Upstash limits (initial values, tunable per RUNBOOK):
 
-| Surface                          | Window          | Limit                                |
-| -------------------------------- | --------------- | ------------------------------------ |
-| `/verify-card/[number]` (IP)     | sliding 60s     | 10                                   |
-| `/verify-card/[number]` (number) | fixed 600s      | 5                                    |
-| Sign-up                          | sliding 3600s   | 5 per IP                             |
-| Sign-in                          | (Clerk-managed) | —                                    |
-| Stripe webhook                   | none            | (signature-verified, not user input) |
-| Server actions (any)             | sliding 60s     | 30 per user                          |
+| Surface                          | Window        | Limit                                |
+| -------------------------------- | ------------- | ------------------------------------ |
+| `/verify-card/[number]` (IP)     | sliding 60s   | 10                                   |
+| `/verify-card/[number]` (number) | fixed 600s    | 5                                    |
+| Sign-up                          | sliding 3600s | 5 per IP                             |
+| Sign-in / phone OTP              | sliding 3600s | 5 per IP                             |
+| Stripe webhook                   | none          | (signature-verified, not user input) |
+| Server actions (any)             | sliding 60s   | 30 per user                          |
 
 All rate-limit keys live under `rl:<scope>:` prefix in Redis.
 `Ratelimit.slidingWindow` for human-facing limits, `fixedWindow` for
@@ -541,7 +579,7 @@ Sentry:
   - any `event.user.email`, `event.user.ip_address` (we set
     `sendDefaultPii: false`),
   - any string in the request body matching the email regex (best-effort).
-- `denyUrls`: Clerk's auth iframes, Stripe's Checkout iframe — their
+- `denyUrls`: Supabase Auth endpoints, Stripe's Checkout iframe — their
   errors are not ours.
 - Source maps uploaded only from CI (never from dev).
 
@@ -630,8 +668,8 @@ Specifics:
 These follow from the ADRs above and are restated here so reviewers can
 see the whole shape:
 
-1. **Three vendors carry sensitive data:** Clerk (identity), Stripe
-   (payments), Supabase (DB). We never put PII into a fourth (Sentry,
+1. **Two vendors carry sensitive data:** Supabase (identity + DB) and Stripe
+   (payments). We never put PII into a fourth (Sentry,
    Plausible, Upstash, Cloudflare all see scrubbed data only).
 2. **Postgres is the only system of record for product state.** Stripe
    is the source of truth for billing, but its state is mirrored into
@@ -656,7 +694,7 @@ see the whole shape:
 
 - **Authors of new prompts** (`prompts/META/...`): every prompt's
   `Inputs` section must reference the relevant ADRs (e.g.
-  `assumes ADR-003 (Drizzle), ADR-004 (Clerk)`).
+  `assumes ADR-003 (Drizzle), ADR-011 (Supabase Auth)`).
 - **Reviewers**: reject any PR that contradicts an ADR without first
   superseding it.
 - **AI agents** (Opencode/Cursor/Claude/Codex): when a prompt and this

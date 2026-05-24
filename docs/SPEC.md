@@ -57,100 +57,99 @@ registered in the USA.
 All user-facing URLs use the App Router prefix `/{locale}/…`.  
 **MVP locale:** `en` only (`ru`, `uk` are Phase 2).
 
-**Route groups (layout shells):** public marketing, auth (Clerk), member (`/m/*`), business tools (`/b/*`, when split from member), admin (`/admin/*`).
+**Route groups (layout shells):** public marketing, auth (Supabase Auth), member (`/m/*`), business tools (`/b/*`, when split from member), admin (`/admin/*`).
 
 Legend: **Public** = no sign-in; **Auth** = signed-in member; **VIP** = active VIP subscription; **BUS** = published business profile; **ADMIN** = `role=ADMIN` + 2FA.
 
 ### Public marketing
 
-| Page | Route | Access | Notes |
-| --- | --- | --- | --- |
-| Home (guest) | `/{locale}` | Public | Hero, stats, top partners, how it works, CTAs |
-| Home (member) | `/{locale}` | Auth | Same URL; member-aware header and shortcuts |
-| Partner catalog | `/{locale}/directory` | Public | Filters: country, city, category; only `PUBLISHED` businesses |
-| Partner detail | `/{locale}/directory/[slug]` | Public | Logo, description, special conditions after login |
-| Verify card (lookup) | `/{locale}/verify-card` | Public | Optional entry form; `robots: noindex` |
-| Public card view | `/{locale}/verify-card/[number]` | Public | QR target; PII-safe DTO only (see Digital Club Card); `robots: noindex` |
+| Page                 | Route                            | Access | Notes                                                                   |
+| -------------------- | -------------------------------- | ------ | ----------------------------------------------------------------------- |
+| Home (guest)         | `/{locale}`                      | Public | Hero, stats, top partners, how it works, CTAs                           |
+| Home (member)        | `/{locale}`                      | Auth   | Same URL; member-aware header and shortcuts                             |
+| Partner catalog      | `/{locale}/directory`            | Public | Filters: country, city, category; only `PUBLISHED` businesses           |
+| Partner detail       | `/{locale}/directory/[slug]`     | Public | Logo, description, special conditions after login                       |
+| Verify card (lookup) | `/{locale}/verify-card`          | Public | Optional entry form; `robots: noindex`                                  |
+| Public card view     | `/{locale}/verify-card/[number]` | Public | QR target; PII-safe DTO only (see Digital Club Card); `robots: noindex` |
 
-### Authentication (Clerk)
+### Authentication (Supabase Auth)
 
-| Page | Route | Access | Notes |
-| --- | --- | --- | --- |
-| Sign in | `/{locale}/sign-in` | Public | Clerk hosted UI |
-| Sign up | `/{locale}/sign-up` | Public | Clerk hosted UI |
-| Sign out | `/{locale}/sign-out` | Auth | Ends session |
-| Onboarding | `/{locale}/m/onboarding` | Auth | Profile completion after first sign-up; gate before dashboard |
+| Page       | Route                    | Access | Notes                                                         |
+| ---------- | ------------------------ | ------ | ------------------------------------------------------------- |
+| Sign in    | `/{locale}/sign-in`      | Public | Phone-first Supabase SMS OTP UI                               |
+| Sign up    | `/{locale}/sign-up`      | Public | Redirects to phone-first sign-in                              |
+| Sign out   | `/{locale}/sign-out`     | Auth   | Ends session                                                  |
+| Onboarding | `/{locale}/m/onboarding` | Auth   | Profile completion after first sign-up; gate before dashboard |
 
 ### Member area (`/m/*`)
 
-| Page | Route | Access | Notes |
-| --- | --- | --- | --- |
-| Dashboard | `/{locale}/m/dashboard` | Auth | Sections per role: digital card, catalog links, offers, profile, VIP upgrade/cancel, business status, subscription |
-| Business Introduction | `/{locale}/m/introduce` | VIP + BUS | Submit introduction requests; admin-mediated workflow |
-| Admin 2FA required | `/{locale}/m/2fa-required` | ADMIN | Shown when admin has no verified second factor |
+| Page                  | Route                      | Access    | Notes                                                                                                              |
+| --------------------- | -------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------ |
+| Dashboard             | `/{locale}/m/dashboard`    | Auth      | Sections per role: digital card, catalog links, offers, profile, VIP upgrade/cancel, business status, subscription |
+| Business Introduction | `/{locale}/m/introduce`    | VIP + BUS | Submit introduction requests; admin-mediated workflow                                                              |
+| Admin 2FA required    | `/{locale}/m/2fa-required` | ADMIN     | Shown when admin has no verified second factor                                                                     |
 
 **Dashboard sections (same route, role-gated UI):**
 
-| Section | FREE | VIP | BUS |
-| --- | --- | --- | --- |
-| Digital club card | ✓ | ✓ | ✓ |
-| Partner catalog / special conditions | ✓ | ✓ | ✓ |
-| Upgrade to VIP | ✓ | — | — |
-| Business Introductions | — | ✓ | ✓ |
-| Submit / manage business | — | ✓ (1 business) | ✓ |
-| Subscription (VIP / business) | — | ✓ | ✓ |
-| Profile (name, country, city, etc.) | ✓ | ✓ | ✓ |
+| Section                              | FREE | VIP            | BUS |
+| ------------------------------------ | ---- | -------------- | --- |
+| Digital club card                    | ✓    | ✓              | ✓   |
+| Partner catalog / special conditions | ✓    | ✓              | ✓   |
+| Upgrade to VIP                       | ✓    | —              | —   |
+| Business Introductions               | —    | ✓              | ✓   |
+| Submit / manage business             | —    | ✓ (1 business) | ✓   |
+| Subscription (VIP / business)        | —    | ✓              | ✓   |
+| Profile (name, country, city, etc.)  | ✓    | ✓              | ✓   |
 
 ### Billing (Stripe)
 
-| Flow | Route / surface | Access | Notes |
-| --- | --- | --- | --- |
-| VIP checkout | Stripe Payment Link (external) | Auth | Started from dashboard CTA |
-| Business placement checkout | Stripe Payment Link (external) | VIP | After club verification workflow |
-| Cancel VIP | `/{locale}/m/dashboard` | VIP | In-account cancellation; VIP active until period end |
-| Receipts / invoices | Stripe Customer Portal or email | VIP / BUS | No custom invoice UI required in MVP |
+| Flow                        | Route / surface                 | Access    | Notes                                                |
+| --------------------------- | ------------------------------- | --------- | ---------------------------------------------------- |
+| VIP checkout                | Stripe Payment Link (external)  | Auth      | Started from dashboard CTA                           |
+| Business placement checkout | Stripe Payment Link (external)  | VIP       | After club verification workflow                     |
+| Cancel VIP                  | `/{locale}/m/dashboard`         | VIP       | In-account cancellation; VIP active until period end |
+| Receipts / invoices         | Stripe Customer Portal or email | VIP / BUS | No custom invoice UI required in MVP                 |
 
 ### Legal (public)
 
-| Page | Route | Notes |
-| --- | --- | --- |
-| Terms of Use | `/{locale}/legal/terms` | Includes arbitration & liability wording |
-| Privacy Policy | `/{locale}/legal/privacy` | |
-| Cookie Policy | `/{locale}/legal/cookie` | |
-| Refund Policy | `/{locale}/legal/refund` | Non-refundable except where required by law |
-| Club Rules | `/{locale}/legal/rules/club` | |
-| Partner Rules | `/{locale}/legal/rules/partner` | |
-| Business Introduction Rules | `/{locale}/legal/rules/introduction` | |
-| Disclaimer | `/{locale}/legal/disclaimer` | |
-| Contact Us | `/{locale}/legal/contact` | |
+| Page                        | Route                                | Notes                                       |
+| --------------------------- | ------------------------------------ | ------------------------------------------- |
+| Terms of Use                | `/{locale}/legal/terms`              | Includes arbitration & liability wording    |
+| Privacy Policy              | `/{locale}/legal/privacy`            |                                             |
+| Cookie Policy               | `/{locale}/legal/cookie`             |                                             |
+| Refund Policy               | `/{locale}/legal/refund`             | Non-refundable except where required by law |
+| Club Rules                  | `/{locale}/legal/rules/club`         |                                             |
+| Partner Rules               | `/{locale}/legal/rules/partner`      |                                             |
+| Business Introduction Rules | `/{locale}/legal/rules/introduction` |                                             |
+| Disclaimer                  | `/{locale}/legal/disclaimer`         |                                             |
+| Contact Us                  | `/{locale}/legal/contact`            |                                             |
 
 See also **LEGAL PAGES** below for mandatory copy topics.
 
 ### Admin (`/admin/*`)
 
-| Page | Route | Access | Notes |
-| --- | --- | --- | --- |
-| Dashboard | `/{locale}/admin` | ADMIN + 2FA | Counts: users, businesses, pending queue |
-| Users | `/{locale}/admin/users` | ADMIN + 2FA | Search, roles, block |
-| Businesses | `/{locale}/admin/businesses` | ADMIN + 2FA | Approve, reject, hide; status workflow |
-| Business Introductions | `/{locale}/admin/introductions` | ADMIN + 2FA | Approve, reject, admin notes |
-| Club cards | `/{locale}/admin/cards` | ADMIN + 2FA | Issue / revoke |
-| Categories | `/{locale}/admin/categories` | ADMIN + 2FA | CRUD |
-| Countries | `/{locale}/admin/countries` | ADMIN + 2FA | Reference data for filters |
-| Stripe links | `/{locale}/admin/stripe-links` | ADMIN + 2FA | Manage Payment Links |
-| Subscriptions | `/{locale}/admin/subscriptions` | ADMIN + 2FA | Read-only sync with Stripe |
-| Audit log | `/{locale}/admin/audit` | ADMIN + 2FA | Read-only |
+| Page                   | Route                           | Access      | Notes                                    |
+| ---------------------- | ------------------------------- | ----------- | ---------------------------------------- |
+| Dashboard              | `/{locale}/admin`               | ADMIN + 2FA | Counts: users, businesses, pending queue |
+| Users                  | `/{locale}/admin/users`         | ADMIN + 2FA | Search, roles, block                     |
+| Businesses             | `/{locale}/admin/businesses`    | ADMIN + 2FA | Approve, reject, hide; status workflow   |
+| Business Introductions | `/{locale}/admin/introductions` | ADMIN + 2FA | Approve, reject, admin notes             |
+| Club cards             | `/{locale}/admin/cards`         | ADMIN + 2FA | Issue / revoke                           |
+| Categories             | `/{locale}/admin/categories`    | ADMIN + 2FA | CRUD                                     |
+| Countries              | `/{locale}/admin/countries`     | ADMIN + 2FA | Reference data for filters               |
+| Stripe links           | `/{locale}/admin/stripe-links`  | ADMIN + 2FA | Manage Payment Links                     |
+| Subscriptions          | `/{locale}/admin/subscriptions` | ADMIN + 2FA | Read-only sync with Stripe               |
+| Audit log              | `/{locale}/admin/audit`         | ADMIN + 2FA | Read-only                                |
 
 ### System (non-marketing)
 
-| Surface | Route | Notes |
-| --- | --- | --- |
-| Not found | `not-found.tsx` | Branded 404 with link home |
-| Error | `error.tsx` | No stack traces to the client |
-| Sitemap | `/sitemap.xml` | Static MVP URLs + hooks for dynamic catalog entries |
-| Robots | `/robots.txt` | Disallow `/admin`, `/m`, `/api` |
-| Clerk webhook | `/api/clerk/webhook` | User sync |
-| Stripe webhook | `/api/stripe/webhook` | Subscription events (idempotent) |
+| Surface        | Route                 | Notes                                               |
+| -------------- | --------------------- | --------------------------------------------------- |
+| Not found      | `not-found.tsx`       | Branded 404 with link home                          |
+| Error          | `error.tsx`           | No stack traces to the client                       |
+| Sitemap        | `/sitemap.xml`        | Static MVP URLs + hooks for dynamic catalog entries |
+| Robots         | `/robots.txt`         | Disallow `/admin`, `/m`, `/api`                     |
+| Stripe webhook | `/api/stripe/webhook` | Subscription events (idempotent)                    |
 
 **Out of MVP scope (do not ship as pages):** internal balance, payouts, public leaderboards, MLM-style trees, document upload KYC.
 
@@ -382,17 +381,15 @@ Limits and restrictions: only via admin panel.
 
 **Minimum data:**
 
-- email;
-- password.
+- phone.
 
 **Optional:**
 
-- phone.
+- display name.
 
 **Confirmation:**
 
-- email verification; or
-- SMS verification.
+- SMS verification in production.
 
 ### VIP MEMBER
 
@@ -621,7 +618,6 @@ Limits and restrictions: only via admin panel.
 
 - HTTPS;
 - CAPTCHA;
-- password hashing;
-- email verification;
+- Supabase Auth SMS verification;
 - admin 2FA;
 - backups.

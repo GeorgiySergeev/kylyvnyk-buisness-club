@@ -1,11 +1,12 @@
 import 'server-only';
 
-import { auth } from '@clerk/nextjs/server';
-import { eq, isNull } from 'drizzle-orm';
+import { eq, isNull, or } from 'drizzle-orm';
 import { headers } from 'next/headers';
 
 import type { SessionRole } from '@/components/layout/navigation';
 import { db } from '@/db/client';
+import { getAuthIdentity } from '@/features/auth/lib/auth-identity';
+import { syncAuthUser } from '@/features/auth/lib/sync-auth-user';
 
 export interface NavigationSession {
   role: SessionRole;
@@ -21,16 +22,28 @@ const GUEST_SESSION: NavigationSession = {
 export async function getNavigationSession(): Promise<NavigationSession> {
   await headers();
 
-  const { userId: clerkUserId } = await auth();
+  const identity = await getAuthIdentity();
 
-  if (!clerkUserId) {
+  if (!identity) {
     return GUEST_SESSION;
   }
 
   const user = await db.query.users.findFirst({
     where: (table, { and }) =>
-      and(eq(table.clerkUserId, clerkUserId), isNull(table.deletedAt)),
+      and(
+        isNull(table.deletedAt),
+        or(eq(table.supabaseUserId, identity.providerUserId), eq(table.phone, identity.phone)),
+      ),
   });
+
+  if (!user) {
+    const synced = await syncAuthUser(identity);
+    return {
+      displayName: synced.user.displayName ?? undefined,
+      role: synced.user.role,
+      userId: synced.user.id,
+    };
+  }
 
   if (!user || user.status !== 'ACTIVE') {
     return GUEST_SESSION;

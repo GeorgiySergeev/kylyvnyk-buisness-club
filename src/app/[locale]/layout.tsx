@@ -1,7 +1,5 @@
-import type { ReactNode } from 'react';
-
-import { ClerkProvider } from '@clerk/nextjs';
 import { notFound } from 'next/navigation';
+import type { ReactNode } from 'react';
 
 import { AppShell } from '@/components/layout/app-shell';
 import { SUPPORTED_LOCALES, type SupportedLocale } from '@/components/layout/navigation';
@@ -28,14 +26,5 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   const supportedLocale = locale as SupportedLocale;
 
-  return (
-    <ClerkProvider
-      afterSignInUrl={`/${supportedLocale}/m/dashboard`}
-      afterSignUpUrl={`/${supportedLocale}/m/onboarding`}
-      signInUrl={`/${supportedLocale}/sign-in`}
-      signUpUrl={`/${supportedLocale}/sign-up`}
-    >
-      <AppShell locale={supportedLocale}>{children}</AppShell>
-    </ClerkProvider>
-  );
+  return <AppShell locale={supportedLocale}>{children}</AppShell>;
 }

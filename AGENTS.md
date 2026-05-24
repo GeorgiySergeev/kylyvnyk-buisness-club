@@ -54,7 +54,7 @@ explain the choice in the PR description.
 | Styling         | Tailwind v4 (CSS-first config) + shadcn/ui + Radix                        |
 | ORM             | Drizzle ORM `^0.36` + drizzle-kit `^0.28`                                 |
 | Database        | Postgres on Supabase (connection string only; no `@supabase/supabase-js`) |
-| Auth            | Clerk `^6` — **`auth()` is async**: `const { userId } = await auth()`     |
+| Auth            | Supabase Auth (phone-first, `@supabase/ssr`)                          |
 | Billing         | Stripe `^17` — pin `apiVersion` in `/lib/stripe/config.ts`                |
 | i18n            | next-intl `^3` — locales: `en` (MVP). `ru`, `uk` are Phase-2.             |
 | Rate limit      | Upstash Redis (`@upstash/ratelimit`)                                      |
@@ -64,7 +64,7 @@ explain the choice in the PR description.
 | Observability   | Sentry + Plausible                                                        |
 
 **Do NOT `pnpm add` a package without an explicit version.**
-**Do NOT upgrade Next/React/Clerk/Stripe minors without an ADR.**
+**Do NOT upgrade Next/React/Supabase/Stripe minors without an ADR.**
 
 ---
 
@@ -122,7 +122,7 @@ Every public route MUST:
 
 - Every write Server Action: auth check → Zod parse → Turnstile (if public) → Upstash rate-limit → business logic → audit log entry.
 - Stripe webhook: verify signature → `INSERT INTO stripe_events ... ON CONFLICT DO NOTHING RETURNING id` (if no row returned, exit — already processed) → handler → mark `succeeded=true`. Retries are safe.
-- CSP allowlist: `*.clerk.accounts.dev`, `js.stripe.com`, `challenges.cloudflare.com`, Sentry ingest, Plausible. Documented in `/docs/SECURITY.md`.
+- CSP allowlist: `*.supabase.co`, `js.stripe.com`, `challenges.cloudflare.com`, Sentry ingest, Plausible. Documented in `/docs/SECURITY.md`.
 - HSTS, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff`.
 - 2FA required for `role = ADMIN`.
 - Secrets only via environment. New env var ⇒ same diff updates `.env.example` AND `/docs/ENV.md`.

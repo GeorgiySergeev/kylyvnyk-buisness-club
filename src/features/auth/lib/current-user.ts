@@ -1,7 +1,6 @@
 import 'server-only';
 
-import { auth } from '@clerk/nextjs/server';
-import { eq, isNull } from 'drizzle-orm';
+import { eq, isNull, or } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -9,6 +8,9 @@ import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import type { UserRole } from '@/db/schema/enums/user-role';
+
+import { getAuthIdentity } from './auth-identity';
+import { syncAuthUser } from './sync-auth-user';
 
 export type AuthUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
 export type PublicUser = Pick<AuthUser, 'displayName' | 'id' | 'role' | 'status'>;
@@ -18,19 +20,27 @@ export type AuthResult<T> = { data: T; ok: true } | { error: AuthErrorCode; ok: 
 export async function getCurrentUser() {
   await headers();
 
-  const { userId: clerkUserId } = await auth();
+  const identity = await getAuthIdentity();
 
-  if (!clerkUserId) {
+  if (!identity) {
     return null;
   }
 
   const user = await db.query.users.findFirst({
     where: (table, { and }) =>
-      and(eq(table.clerkUserId, clerkUserId), isNull(table.deletedAt)),
+      and(
+        isNull(table.deletedAt),
+        or(eq(table.supabaseUserId, identity.providerUserId), eq(table.phone, identity.phone)),
+      ),
     with: {
       profile: true,
     },
   });
+
+  if (!user) {
+    const synced = await syncAuthUser(identity);
+    return synced.user.status === 'ACTIVE' ? synced.user : null;
+  }
 
   if (!user || user.status !== 'ACTIVE') {
     return null;

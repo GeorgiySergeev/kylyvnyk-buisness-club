@@ -11,7 +11,6 @@ export const onboardingSchema = z.object({
   bio: z.string().trim().max(500).optional(),
   cityId: optionalIdSchema,
   countryId: optionalIdSchema,
-  displayName: z.string().trim().min(2).max(80),
 });
 
 export type OnboardingFormInput = z.input<typeof onboardingSchema>;

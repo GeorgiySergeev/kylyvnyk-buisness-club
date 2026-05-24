@@ -9,7 +9,7 @@
   "verifyCardPrimaryAction": "Return home",
   "signInTitle": "Sign In",
   "signInEyebrow": "Member access",
-  "signInDescription": "The authentication screen is being prepared. This placeholder keeps the route available while the final Clerk integration is connected.",
+  "signInDescription": "Phone-first authentication is available through Supabase Auth.",
   "signInPrimaryAction": "Return home",
   "signUpTitle": "Join Now",
   "signUpEyebrow": "Membership request",
