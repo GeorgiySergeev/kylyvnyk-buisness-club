@@ -46,7 +46,7 @@ export async function completeOnboardingAction(
       await tx
         .update(users)
         .set({
-          displayName: parsed.data.displayName,
+          displayName: parsed.data.displayName ?? null,
           updatedAt: now,
         })
         .where(eq(users.id, user.id));

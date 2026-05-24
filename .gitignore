@@ -45,6 +45,8 @@ playwright/.cache/
 # Stripe CLI
 .stripe/
 
+temp/
+
 # OS / misc
 *.tsbuildinfo
 next-env.d.ts

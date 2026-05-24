@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 import { env } from "@/lib/env";
+
 import * as schema from "./schema";
 import * as relations from "./schema/_relations";
 
@@ -20,4 +21,4 @@ const db = drizzle(sql, {
 
 type DB = typeof db;
 
-export { db, type DB };
+export { type DB,db };

@@ -1,7 +1,7 @@
 import 'server-only';
 
-import { auditLogs } from '@/db/schema';
 import { db } from '@/db/client';
+import { auditLogs } from '@/db/schema';
 
 type AuditPayload = Record<string, unknown>;
 

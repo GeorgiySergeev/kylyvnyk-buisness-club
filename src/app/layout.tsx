@@ -1,11 +1,10 @@
-import type { ReactNode } from 'react';
+import './globals.css';
 
 import type { Metadata, Viewport } from 'next';
 import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
+import type { ReactNode } from 'react';
 
 import { getT } from '@/lib/i18n/t-server';
-
-import './globals.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: '--font-sans',

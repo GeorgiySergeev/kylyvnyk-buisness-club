@@ -1,10 +1,9 @@
 'use client';
 
-import { useTransition } from 'react';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
@@ -103,7 +102,8 @@ export function OnboardingForm({
 
       <div className="space-y-2">
         <label htmlFor="displayName" className="text-sm font-semibold text-foreground">
-          {labels.displayName}
+          {labels.displayName}{' '}
+          <span className="text-muted-foreground">({labels.optional})</span>
         </label>
         <Input
           id="displayName"
