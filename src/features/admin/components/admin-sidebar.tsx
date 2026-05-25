@@ -7,10 +7,10 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import type { Key } from '@/lib/i18n/t-server';
 
 export const NAV_ITEMS = [

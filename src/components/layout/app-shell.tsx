@@ -1,21 +1,54 @@
 import type { ReactNode } from 'react';
 
-import type { SupportedLocale } from './navigation';
+import { DevRouteMenu } from '@/components/dev/dev-route-menu';
+import { HomeHeader } from '@/components/home/home-header';
+import type { AuthAction, NavItem, SupportedLocale } from '@/components/layout/navigation';
+
 import { SiteFooter } from './site-footer';
-import { SiteHeader } from './site-header';
 
 interface AppShellProps {
   children: ReactNode;
   locale: SupportedLocale;
+  homeHref: string;
+  navItems: NavItem[];
+  isAuthenticated: boolean;
+  displayName?: string;
+  avatarUrl?: string;
+  guestAuth: {
+    signIn: AuthAction;
+    joinNow: AuthAction;
+  };
+  memberAuth: {
+    signOut: AuthAction;
+  };
 }
 
-export async function AppShell({ children, locale }: AppShellProps) {
+export async function AppShell({
+  children,
+  locale,
+  homeHref,
+  navItems,
+  isAuthenticated,
+  displayName,
+  avatarUrl,
+  guestAuth,
+  memberAuth,
+}: AppShellProps) {
   return (
     <div className="flex min-h-dvh flex-col bg-background">
-      <SiteHeader locale={locale} />
+      <HomeHeader
+        homeHref={homeHref}
+        navItems={navItems}
+        isAuthenticated={isAuthenticated}
+        displayName={displayName}
+        avatarUrl={avatarUrl}
+        guestAuth={guestAuth}
+        memberAuth={memberAuth}
+      />
       <main id="main-content" className="flex flex-1 flex-col">
         {children}
       </main>
+      <DevRouteMenu locale={locale} />
       <SiteFooter locale={locale} />
     </div>
   );

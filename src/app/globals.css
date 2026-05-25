@@ -1,5 +1,47 @@
 @import 'tailwindcss';
 
+@plugin "daisyui" {
+  themes: false;
+  logs: false;
+}
+
+@plugin "daisyui/theme" {
+  name: 'kclub';
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #0a0a0b;
+  --color-base-200: #16161a;
+  --color-base-300: #1f1f25;
+  --color-base-content: #f5f5f0;
+  --color-primary: #d4af37;
+  --color-primary-content: #0a0a0b;
+  --color-secondary: #1f1f25;
+  --color-secondary-content: #f5f5f0;
+  --color-accent: #e6c14a;
+  --color-accent-content: #0a0a0b;
+  --color-neutral: #16161a;
+  --color-neutral-content: #f5f5f0;
+  --color-info: oklch(0.715 0.143 215.221);
+  --color-info-content: #0a0a0b;
+  --color-success: #22c55e;
+  --color-success-content: #0a0a0b;
+  --color-warning: oklch(0.769 0.188 70.08);
+  --color-warning-content: #0a0a0b;
+  --color-error: #ef4444;
+  --color-error-content: #f5f5f0;
+
+  --radius-selector: 999rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.875rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
 :root {
   --radius: 0.875rem;
   --background: #0a0a0b;
@@ -145,4 +187,18 @@ a {
   --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.56 0.021 213.5);
+  --color-base-100: var(--background);
+  --color-base-200: var(--card);
+  --color-base-300: var(--popover);
+  --color-base-content: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-content: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-content: var(--secondary-foreground);
+  --color-accent: var(--ring);
+  --color-accent-content: var(--accent-foreground);
+  --color-neutral: var(--card);
+  --color-neutral-content: var(--foreground);
+  --color-error: var(--destructive);
+  --color-error-content: var(--destructive-foreground);
 }
