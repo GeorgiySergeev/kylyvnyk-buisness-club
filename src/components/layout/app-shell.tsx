@@ -4,6 +4,7 @@ import { DevRouteMenu } from '@/components/dev/dev-route-menu';
 import { HomeHeader } from '@/components/home/home-header';
 import type { AuthAction, NavItem, SupportedLocale } from '@/components/layout/navigation';
 
+import { PublicChromeGate } from './public-chrome-gate';
 import { SiteFooter } from './site-footer';
 
 interface AppShellProps {
@@ -36,20 +37,26 @@ export async function AppShell({
 }: AppShellProps) {
   return (
     <div className="flex min-h-dvh flex-col bg-background">
-      <HomeHeader
-        homeHref={homeHref}
-        navItems={navItems}
-        isAuthenticated={isAuthenticated}
-        displayName={displayName}
-        avatarUrl={avatarUrl}
-        guestAuth={guestAuth}
-        memberAuth={memberAuth}
-      />
+      <PublicChromeGate locale={locale}>
+        <HomeHeader
+          homeHref={homeHref}
+          navItems={navItems}
+          isAuthenticated={isAuthenticated}
+          displayName={displayName}
+          avatarUrl={avatarUrl}
+          guestAuth={guestAuth}
+          memberAuth={memberAuth}
+        />
+      </PublicChromeGate>
       <main id="main-content" className="flex flex-1 flex-col">
         {children}
       </main>
-      <DevRouteMenu locale={locale} />
-      <SiteFooter locale={locale} />
+      <PublicChromeGate locale={locale}>
+        <DevRouteMenu locale={locale} />
+      </PublicChromeGate>
+      <PublicChromeGate locale={locale}>
+        <SiteFooter locale={locale} />
+      </PublicChromeGate>
     </div>
   );
 }

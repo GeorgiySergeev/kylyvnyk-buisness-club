@@ -1,10 +1,7 @@
 import Link from 'next/link';
 
-import type { SupportedLocale } from '@/components/layout/navigation';
-import { localizeHref } from '@/components/layout/navigation';
-import { Badge } from '@/components/ui/badge';
+import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -14,6 +11,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { db } from '@/db/client';
+import {
+  AdminDataTableShell,
+  AdminEmptyState,
+  AdminFiltersBar,
+  AdminPageHeader,
+  AdminSearchInput,
+  AdminStatusBadge,
+} from '@/features/admin/components/admin-ui';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -28,17 +33,12 @@ interface AdminBusinessesPageProps {
   }>;
 }
 
-function statusBadgeVariant(status: string) {
-  if (status === 'PUBLISHED') return 'default';
-  if (status === 'PENDING') return 'secondary';
-  if (status === 'HIDDEN') return 'destructive';
-  return 'outline';
-}
-
-export default async function AdminBusinessesPage({ params, searchParams }: AdminBusinessesPageProps) {
+export default async function AdminBusinessesPage({
+  params,
+  searchParams,
+}: AdminBusinessesPageProps) {
   const { locale } = await params;
   const { q, status } = await searchParams;
-
   const t = getT('admin');
 
   const searchTerm = q?.trim() ?? '';
@@ -46,121 +46,115 @@ export default async function AdminBusinessesPage({ params, searchParams }: Admi
 
   const allBusinesses = await db.query.businesses.findMany({
     columns: {
+      createdAt: true,
       id: true,
       name: true,
       slug: true,
       status: true,
-      createdAt: true,
     },
+    orderBy: (businesses, { desc }) => [desc(businesses.createdAt)],
     with: {
-      user: {
-        columns: {
-          id: true,
-          displayName: true,
-        },
-      },
       category: {
         columns: {
           name: true,
         },
       },
+      user: {
+        columns: {
+          displayName: true,
+          id: true,
+        },
+      },
     },
-    orderBy: (businesses, { desc }) => [desc(businesses.createdAt)],
   });
 
   let filtered = allBusinesses;
 
   if (statusFilter) {
-    filtered = filtered.filter((b) => b.status === statusFilter);
+    filtered = filtered.filter((business) => business.status === statusFilter);
   }
 
   if (searchTerm) {
     filtered = filtered.filter(
-      (b) =>
-        b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.slug.toLowerCase().includes(searchTerm.toLowerCase()),
+      (business) =>
+        business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        business.slug.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }
 
   const statuses = ['ALL', 'DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN'] as const;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">{t('businessesTitle')}</h1>
-        <p className="text-sm text-muted-foreground">{t('businessesDescription')}</p>
-      </div>
+    <div className="space-y-5">
+      <AdminPageHeader description={t('businessesDescription')} title={t('businessesTitle')} />
 
-      <div className="flex flex-wrap gap-3">
-        <form className="flex max-w-sm gap-2" method="GET">
-          <Input
-            name="q"
-            type="search"
-            defaultValue={searchTerm}
-            placeholder={t('businessName')}
-          />
-          {statusFilter ? (
-            <input type="hidden" name="status" value={statusFilter} />
-          ) : null}
-          <Button type="submit">Search</Button>
+      <AdminFiltersBar>
+        <form className="flex w-full gap-2 sm:max-w-md" method="GET">
+          <AdminSearchInput name="q" placeholder={t('businessName')} value={searchTerm} />
+          {statusFilter ? <input name="status" type="hidden" value={statusFilter} /> : null}
+          <Button className="h-9 rounded-md" size="sm" type="submit">
+            Search
+          </Button>
         </form>
 
         <div className="flex flex-wrap gap-1.5">
-          {statuses.map((s) => {
-            const isActive = s === 'ALL' ? !statusFilter : statusFilter === s;
+          {statuses.map((item) => {
+            const isActive = item === 'ALL' ? !statusFilter : statusFilter === item;
             const href =
-              s === 'ALL'
+              item === 'ALL'
                 ? localizeHref(locale, '/admin/businesses')
-                : `${localizeHref(locale, '/admin/businesses')}?status=${s}${searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''}`;
+                : `${localizeHref(locale, '/admin/businesses')}?status=${item}${searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''}`;
 
             return (
               <Button
-                key={s}
-                variant={isActive ? 'default' : 'outline'}
-                size="sm"
-                className="rounded-full"
                 asChild
+                className="h-8 rounded-md"
+                key={item}
+                size="sm"
+                variant={isActive ? 'default' : 'outline'}
               >
-                <Link href={href}>{s}</Link>
+                <Link href={href}>{item}</Link>
               </Button>
             );
           })}
         </div>
-      </div>
+      </AdminFiltersBar>
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t('noBusinesses')}</p>
+        <AdminEmptyState title={t('noBusinesses')} />
       ) : (
-        <div className="rounded-lg border border-border">
+        <AdminDataTableShell>
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="hover:bg-transparent">
                 <TableHead>{t('businessName')}</TableHead>
                 <TableHead>{t('owner')}</TableHead>
                 <TableHead>{t('category')}</TableHead>
                 <TableHead>{t('status')}</TableHead>
                 <TableHead>{t('created')}</TableHead>
-                <TableHead>{t('actions')}</TableHead>
+                <TableHead className="text-right">{t('actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((b) => (
-                <TableRow key={b.id}>
+              {filtered.map((business) => (
+                <TableRow key={business.id}>
                   <TableCell>
-                    <div className="font-medium">{b.name}</div>
-                    <div className="font-mono text-[11px] text-muted-foreground">{b.slug}</div>
+                    <div className="font-medium text-foreground">{business.name}</div>
+                    <div className="font-mono text-[11px] text-muted-foreground">
+                      {business.slug}
+                    </div>
                   </TableCell>
-                  <TableCell>{b.user?.displayName ?? '—'}</TableCell>
-                  <TableCell>{b.category?.name ?? '—'}</TableCell>
+                  <TableCell>{business.user?.displayName ?? 'N/A'}</TableCell>
+                  <TableCell>{business.category?.name ?? 'N/A'}</TableCell>
                   <TableCell>
-                    <Badge variant={statusBadgeVariant(b.status)}>{b.status}</Badge>
+                    <AdminStatusBadge>{business.status}</AdminStatusBadge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
-                    {b.createdAt.toLocaleDateString()}
+                    {business.createdAt.toLocaleDateString()}
                   </TableCell>
-                  <TableCell>
-                    <Button variant="link" size="sm" className="h-auto px-0" asChild>
-                      <Link href={localizeHref(locale, `/admin/businesses/${b.id}`)}>
+                  <TableCell className="text-right">
+                    <Button asChild className="h-8 rounded-md px-2" size="sm" variant="ghost">
+                      <Link href={localizeHref(locale, `/admin/businesses/${business.id}`)}>
                         {t('view')}
                       </Link>
                     </Button>
@@ -169,7 +163,7 @@ export default async function AdminBusinessesPage({ params, searchParams }: Admi
               ))}
             </TableBody>
           </Table>
-        </div>
+        </AdminDataTableShell>
       )}
     </div>
   );

@@ -1,58 +1,72 @@
+'use client';
+
 import {
   Building2,
+  ClipboardList,
+  CreditCard,
   LayoutDashboard,
+  type LucideIcon,
   MessageSquare,
-  Settings,
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import type { Key } from '@/lib/i18n/t-server';
+import { cn } from '@/lib/utils';
 
-export const NAV_ITEMS = [
-  { key: 'navDashboard' as const, href: '/admin', icon: LayoutDashboard },
-  { key: 'navUsers' as const, href: '/admin/users', icon: Users },
-  { key: 'navBusinesses' as const, href: '/admin/businesses', icon: Building2 },
-  { key: 'navIntroductions' as const, href: '/admin/introductions', icon: MessageSquare },
-  { key: 'navCards' as const, href: '/admin/cards', icon: Settings },
-  { key: 'navAudit' as const, href: '/admin/audit', icon: Settings },
-];
+import { ADMIN_NAV_ITEMS, type AdminNavKey, type AdminNavLabels } from './admin-nav';
+
+const ADMIN_NAV_ICONS: Record<AdminNavKey, LucideIcon> = {
+  navDashboard: LayoutDashboard,
+  navUsers: Users,
+  navBusinesses: Building2,
+  navIntroductions: MessageSquare,
+  navCards: CreditCard,
+  navAudit: ClipboardList,
+};
 
 interface AdminSidebarInnerProps {
   locale: SupportedLocale;
-  t: (key: Key<'admin'>) => string;
+  labels: AdminNavLabels;
 }
 
-export function AdminSidebarInner({ locale, t }: AdminSidebarInnerProps) {
+export function AdminSidebarInner({ locale, labels }: AdminSidebarInnerProps) {
+  const pathname = usePathname();
+
   return (
     <>
-      <div className="flex items-center gap-2 px-6 py-6">
-        <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-[11px] font-bold uppercase text-sidebar-primary-foreground">
+      <div className="flex items-center gap-3 px-4 py-5">
+        <div className="flex size-8 items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-[11px] font-bold uppercase text-primary">
           K
         </div>
-        <span className="font-semibold text-sidebar-foreground">Admin</span>
+        <div className="min-w-0">
+          <div className="text-sm font-semibold text-sidebar-foreground">KYLYVNYK</div>
+          <div className="text-[11px] text-sidebar-foreground/55">BackOffice</div>
+        </div>
       </div>
 
-      <nav className="flex flex-col gap-1 px-4">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
+      <div className="px-4 pb-2 text-[11px] font-medium text-sidebar-foreground/50">Navigation</div>
+      <nav className="flex flex-col gap-1 px-3">
+        {ADMIN_NAV_ITEMS.map((item) => {
+          const Icon = ADMIN_NAV_ICONS[item.key];
+          const href = localizeHref(locale, item.href);
+          const active = pathname === href || (item.href !== '/admin' && pathname.startsWith(href));
+
           return (
-            <Button
+            <Link
               key={item.href}
-              variant="ghost"
-              size="sm"
-              className="justify-start gap-2 px-3 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              asChild
+              className={cn(
+                'flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                active && 'bg-sidebar-accent text-sidebar-accent-foreground',
+              )}
+              href={href}
             >
-              <Link href={localizeHref(locale, item.href)}>
-                <Icon className="size-4" />
-                {t(item.key)}
-              </Link>
-            </Button>
+              <Icon className="size-4" />
+              <span className="truncate">{labels[item.key]}</span>
+            </Link>
           );
         })}
       </nav>
@@ -60,7 +74,7 @@ export function AdminSidebarInner({ locale, t }: AdminSidebarInnerProps) {
       <div className="mt-auto border-t border-border p-4">
         <div className="flex items-center gap-2">
           <Avatar className="size-8">
-            <AvatarFallback className="bg-sidebar-accent text-xs text-sidebar-accent-foreground">
+            <AvatarFallback className="bg-sidebar-accent text-xs text-sidebar-accent-foreground rounded-full">
               A
             </AvatarFallback>
           </Avatar>

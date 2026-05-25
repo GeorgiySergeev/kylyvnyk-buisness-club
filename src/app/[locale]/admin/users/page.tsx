@@ -1,12 +1,17 @@
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, MoreHorizontal, Plus } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Download,
+  MoreHorizontal,
+  Plus,
+} from 'lucide-react';
 import Link from 'next/link';
 
-import type { SupportedLocale } from '@/components/layout/navigation';
-import { localizeHref } from '@/components/layout/navigation';
+import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
@@ -24,6 +29,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { db } from '@/db/client';
+import {
+  AdminDataTableShell,
+  AdminEmptyState,
+  AdminPageHeader,
+  AdminStatusBadge,
+} from '@/features/admin/components/admin-ui';
 import { UsersFilters } from '@/features/admin/components/users-filters';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -41,13 +52,6 @@ interface AdminUsersPageProps {
 }
 
 const PAGE_SIZE = 10;
-
-function roleBadgeVariant(role: string) {
-  if (role === 'ADMIN') return 'default';
-  if (role === 'BUSINESS') return 'secondary';
-  if (role === 'VIP') return 'default';
-  return 'outline';
-}
 
 function getInitials(name: string): string {
   return name
@@ -112,27 +116,29 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Users
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {totalCount.toLocaleString()} total users &middot;{' '}
-            {activeCount.toLocaleString()} active this month
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-9 gap-2 border-0 bg-card text-foreground">
-            <Download className="size-4" />
-            <span className="hidden sm:inline">Export</span>
-          </Button>
-          <Button size="sm" className="h-9 gap-2 bg-foreground text-background hover:bg-foreground/90">
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">Add User</span>
-          </Button>
-        </div>
-      </div>
+      <AdminPageHeader
+        description={`${totalCount.toLocaleString()} total users - ${activeCount.toLocaleString()} active accounts`}
+        title={t('usersTitle')}
+        actions={
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-2 border-0 bg-card text-foreground"
+            >
+              <Download className="size-4" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+            <Button
+              size="sm"
+              className="h-9 gap-2 bg-foreground text-background hover:bg-foreground/90"
+            >
+              <Plus className="size-4" />
+              <span className="hidden sm:inline">Add User</span>
+            </Button>
+          </>
+        }
+      />
 
       <UsersFilters
         searchTerm={searchTerm}
@@ -142,9 +148,9 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
       />
 
       {filteredCount === 0 ? (
-        <p className="text-sm text-muted-foreground">{t('noUsers')}</p>
+        <AdminEmptyState title={t('noUsers')} />
       ) : (
-        <Card className="overflow-hidden border-0 bg-card p-0">
+        <AdminDataTableShell>
           <Table>
             <TableHeader>
               <TableRow className="border-0 bg-card">
@@ -168,42 +174,19 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Avatar className="size-8">
-                        <AvatarFallback className="bg-muted text-xs text-muted-foreground">
+                        <AvatarFallback className="rounded-full bg-muted text-xs text-muted-foreground">
                           {getInitials(user.displayName ?? user.phone)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="font-medium text-foreground">
-                        {user.displayName ?? '—'}
-                      </span>
+                      <span className="font-medium text-foreground">{user.displayName ?? '—'}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {user.email ?? '—'}
+                  <TableCell className="text-muted-foreground">{user.email ?? '—'}</TableCell>
+                  <TableCell>
+                    <AdminStatusBadge>{user.role}</AdminStatusBadge>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant={roleBadgeVariant(user.role)}
-                      className={
-                        user.role === 'VIP'
-                          ? 'border-[1px] border-amber-700 bg-amber-950 text-amber-400'
-                          : 'bg-muted text-muted-foreground'
-                      }
-                    >
-                      {user.role === 'VIP' ? 'VIP' : user.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      className={
-                        user.status === 'ACTIVE'
-                          ? 'border-[1px] border-emerald-900 bg-emerald-950 text-emerald-400'
-                          : user.status === 'BANNED'
-                            ? 'border-[1px] border-red-900 bg-red-950 text-red-400'
-                            : 'border-[1px] border-neutral-700 bg-neutral-800 text-neutral-400'
-                      }
-                    >
-                      {user.status}
-                    </Badge>
+                    <AdminStatusBadge>{user.status}</AdminStatusBadge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {user.createdAt.toLocaleDateString('en-US', {
@@ -223,7 +206,7 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
               ))}
             </TableBody>
           </Table>
-        </Card>
+        </AdminDataTableShell>
       )}
 
       {filteredCount > PAGE_SIZE ? (

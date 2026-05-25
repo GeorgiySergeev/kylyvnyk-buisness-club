@@ -1,13 +1,35 @@
 'use client';
 
-import { Menu, X } from 'lucide-react';
+import {
+  Building2,
+  ClipboardList,
+  CreditCard,
+  LayoutDashboard,
+  type LucideIcon,
+  Menu,
+  MessageSquare,
+  Users,
+  X,
+} from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import type { SupportedLocale } from '@/components/layout/navigation';
+import { localizeHref } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-import { NAV_ITEMS } from './admin-sidebar';
+import { ADMIN_NAV_ITEMS, type AdminNavKey, type AdminNavLabels } from './admin-nav';
+
+const ADMIN_NAV_ICONS: Record<AdminNavKey, LucideIcon> = {
+  navDashboard: LayoutDashboard,
+  navUsers: Users,
+  navBusinesses: Building2,
+  navIntroductions: MessageSquare,
+  navCards: CreditCard,
+  navAudit: ClipboardList,
+};
 
 const BREADCRUMB_MAP: Record<string, string> = {
   '/admin': 'Dashboard',
@@ -18,7 +40,12 @@ const BREADCRUMB_MAP: Record<string, string> = {
   '/admin/audit': 'Audit Log',
 };
 
-export function AdminMobileNav() {
+interface AdminMobileNavProps {
+  locale: SupportedLocale;
+  labels: AdminNavLabels;
+}
+
+export function AdminMobileNav({ locale, labels }: AdminMobileNavProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -30,7 +57,9 @@ export function AdminMobileNav() {
   // Lock body scroll when drawer open
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [open]);
 
   const parts = pathname.split('/').filter(Boolean);
@@ -57,10 +86,7 @@ export function AdminMobileNav() {
 
       {/* Backdrop */}
       {open ? (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setOpen(false)}
-        />
+        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setOpen(false)} />
       ) : null}
 
       {/* Drawer */}
@@ -87,24 +113,27 @@ export function AdminMobileNav() {
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4">
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === `/${parts[0]}${item.href}`;
+          {ADMIN_NAV_ITEMS.map((item) => {
+            const Icon = ADMIN_NAV_ICONS[item.key];
+            const href = localizeHref(locale, item.href);
+            const isActive =
+              pathname === href || (item.href !== '/admin' && pathname.startsWith(href));
             return (
               <Button
                 key={item.href}
                 variant="ghost"
                 size="sm"
-                className={`justify-start gap-2 px-3 ${
+                className={cn(
+                  'justify-start gap-2 px-3',
                   isActive
                     ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                }`}
+                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                )}
                 asChild
               >
-                <a href={item.href}>
+                <a href={href}>
                   <Icon className="size-4" />
-                  {item.key.replace('nav', '')}
+                  {labels[item.key]}
                 </a>
               </Button>
             );

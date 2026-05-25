@@ -4,6 +4,16 @@ import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+
 import { setIntroductionStatusAction } from '../actions/set-introduction-status.action';
 
 interface IntroductionModerationFormLabels {
@@ -76,21 +86,21 @@ export function IntroductionModerationForm({
 
   return (
     <div className="space-y-3">
-      <select
-        className="select select-bordered select-sm w-full rounded-field"
-        disabled={pending}
-        value={status}
-        onChange={(event) => setStatus(event.target.value)}
-      >
-        {MODERATION_STATUSES.map((item) => (
-          <option key={item.value} value={item.value}>
-            {getStatusLabel(item.labelKey, labels)}
-          </option>
-        ))}
-      </select>
+      <Select disabled={pending} value={status} onValueChange={setStatus}>
+        <SelectTrigger className="h-8 rounded-md border-border/80 bg-background/80 text-xs">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {MODERATION_STATUSES.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {getStatusLabel(item.labelKey, labels)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-      <textarea
-        className="textarea textarea-bordered min-h-20 w-full rounded-field text-sm"
+      <Textarea
+        className="min-h-20 rounded-md border-border/80 bg-background/80 text-sm"
         disabled={pending}
         maxLength={500}
         placeholder={labels.adminNotePlaceholder}
@@ -98,15 +108,16 @@ export function IntroductionModerationForm({
         onChange={(event) => setAdminNote(event.target.value)}
       />
 
-      <button
-        className="btn btn-primary btn-sm w-full rounded-field"
+      <Button
+        className="h-8 w-full rounded-md"
         disabled={pending}
+        size="sm"
         type="button"
         onClick={submit}
       >
         {pending ? <Loader2 className="size-4 animate-spin" /> : null}
         {labels.save}
-      </button>
+      </Button>
 
       {message ? (
         <p className={`text-xs ${isError ? 'text-destructive' : 'text-emerald-600'}`}>{message}</p>

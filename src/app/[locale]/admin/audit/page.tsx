@@ -1,10 +1,7 @@
 import Link from 'next/link';
 
-import type { SupportedLocale } from '@/components/layout/navigation';
-import { localizeHref } from '@/components/layout/navigation';
-import { Badge } from '@/components/ui/badge';
+import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -14,6 +11,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { db } from '@/db/client';
+import {
+  AdminDataTableShell,
+  AdminEmptyState,
+  AdminFiltersBar,
+  AdminPageHeader,
+  AdminSearchInput,
+  AdminStatusBadge,
+} from '@/features/admin/components/admin-ui';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -23,15 +28,14 @@ interface AdminAuditPageProps {
     locale: SupportedLocale;
   }>;
   searchParams: Promise<{
-    q?: string;
     action?: string;
+    q?: string;
   }>;
 }
 
 export default async function AdminAuditPage({ params, searchParams }: AdminAuditPageProps) {
   const { locale } = await params;
-  const { q, action } = await searchParams;
-
+  const { action, q } = await searchParams;
   const t = getT('admin');
 
   const searchTerm = q?.trim() ?? '';
@@ -39,100 +43,91 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
 
   const allLogs = await db.query.auditLogs.findMany({
     columns: {
-      id: true,
       action: true,
-      entityType: true,
-      entityId: true,
-      payload: true,
-      ipAddress: true,
       createdAt: true,
+      entityId: true,
+      entityType: true,
+      id: true,
+      ipAddress: true,
+      payload: true,
     },
+    limit: 200,
+    orderBy: (auditLogs, { desc }) => [desc(auditLogs.createdAt)],
     with: {
       actor: {
         columns: {
-          id: true,
           displayName: true,
+          id: true,
         },
       },
     },
-    orderBy: (auditLogs, { desc }) => [desc(auditLogs.createdAt)],
-    limit: 200,
   });
 
   let filtered = allLogs;
 
   if (actionFilter) {
-    filtered = filtered.filter((l) => l.action === actionFilter);
+    filtered = filtered.filter((log) => log.action === actionFilter);
   }
 
   if (searchTerm) {
     const lower = searchTerm.toLowerCase();
     filtered = filtered.filter(
-      (l) =>
-        l.action.toLowerCase().includes(lower) ||
-        l.actor?.displayName?.toLowerCase().includes(lower) ||
-        l.entityType?.toLowerCase().includes(lower) ||
-        l.entityId?.toLowerCase().includes(lower),
+      (log) =>
+        log.action.toLowerCase().includes(lower) ||
+        log.actor?.displayName?.toLowerCase().includes(lower) ||
+        log.entityType?.toLowerCase().includes(lower) ||
+        log.entityId?.toLowerCase().includes(lower),
     );
   }
 
-  const uniqueActions = [...new Set(allLogs.map((l) => l.action))].sort();
+  const uniqueActions = [...new Set(allLogs.map((log) => log.action))].sort().slice(0, 12);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">{t('auditTitle')}</h1>
-        <p className="text-sm text-muted-foreground">{t('auditDescription')}</p>
-      </div>
+    <div className="space-y-5">
+      <AdminPageHeader description={t('auditDescription')} title={t('auditTitle')} />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <form className="flex max-w-sm gap-2" method="GET">
-          <Input
-            name="q"
-            type="search"
-            defaultValue={searchTerm}
-            placeholder={t('auditActionFilter')}
-          />
-          {actionFilter ? (
-            <input type="hidden" name="action" value={actionFilter} />
-          ) : null}
-          <Button type="submit">Search</Button>
+      <AdminFiltersBar>
+        <form className="flex w-full gap-2 sm:max-w-md" method="GET">
+          <AdminSearchInput name="q" placeholder={t('auditActionFilter')} value={searchTerm} />
+          {actionFilter ? <input name="action" type="hidden" value={actionFilter} /> : null}
+          <Button className="h-9 rounded-md" size="sm" type="submit">
+            Search
+          </Button>
         </form>
-
         <div className="flex flex-wrap gap-1.5">
           <Button
-            variant={!actionFilter ? 'default' : 'outline'}
-            size="sm"
-            className="rounded-full"
             asChild
+            className="h-8 rounded-md"
+            size="sm"
+            variant={!actionFilter ? 'default' : 'outline'}
           >
             <Link href={localizeHref(locale, '/admin/audit')}>All</Link>
           </Button>
-          {uniqueActions.map((a) => (
+          {uniqueActions.map((item) => (
             <Button
-              key={a}
-              variant={actionFilter === a ? 'default' : 'outline'}
-              size="sm"
-              className="rounded-full"
               asChild
+              className="h-8 rounded-md"
+              key={item}
+              size="sm"
+              variant={actionFilter === item ? 'default' : 'outline'}
             >
               <Link
-                href={`${localizeHref(locale, '/admin/audit')}?action=${a}${searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''}`}
+                href={`${localizeHref(locale, '/admin/audit')}?action=${item}${searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''}`}
               >
-                {a}
+                {item}
               </Link>
             </Button>
           ))}
         </div>
-      </div>
+      </AdminFiltersBar>
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t('noAuditLogs')}</p>
+        <AdminEmptyState title={t('noAuditLogs')} />
       ) : (
-        <div className="rounded-lg border border-border">
+        <AdminDataTableShell>
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="hover:bg-transparent">
                 <TableHead>{t('auditAction')}</TableHead>
                 <TableHead>{t('auditActor')}</TableHead>
                 <TableHead>{t('auditEntity')}</TableHead>
@@ -145,11 +140,11 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
               {filtered.map((log) => (
                 <TableRow key={log.id}>
                   <TableCell>
-                    <Badge variant="outline">{log.action}</Badge>
+                    <AdminStatusBadge tone="info">{log.action}</AdminStatusBadge>
                   </TableCell>
-                  <TableCell>{log.actor?.displayName ?? '—'}</TableCell>
+                  <TableCell>{log.actor?.displayName ?? 'System'}</TableCell>
                   <TableCell>
-                    <div>{log.entityType ?? '—'}</div>
+                    <div>{log.entityType ?? 'N/A'}</div>
                     {log.entityId ? (
                       <div className="font-mono text-[11px] text-muted-foreground">
                         {log.entityId.slice(0, 8)}...
@@ -157,10 +152,10 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
                     ) : null}
                   </TableCell>
                   <TableCell className="max-w-xs truncate font-mono text-[11px] text-muted-foreground">
-                    {log.payload ? JSON.stringify(log.payload) : '—'}
+                    {log.payload ? JSON.stringify(log.payload) : 'N/A'}
                   </TableCell>
                   <TableCell className="font-mono text-xs text-muted-foreground">
-                    {log.ipAddress ?? '—'}
+                    {log.ipAddress ?? 'N/A'}
                   </TableCell>
                   <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
                     {log.createdAt.toLocaleString()}
@@ -169,7 +164,7 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
               ))}
             </TableBody>
           </Table>
-        </div>
+        </AdminDataTableShell>
       )}
     </div>
   );

@@ -1,13 +1,26 @@
 import { and, desc, eq } from 'drizzle-orm';
 import Link from 'next/link';
 
-import type { SupportedLocale } from '@/components/layout/navigation';
-import { localizeHref } from '@/components/layout/navigation';
-import { Badge } from '@/components/ui/badge';
+import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { db } from '@/db/client';
 import { introductions } from '@/db/schema';
+import {
+  AdminDataTableShell,
+  AdminEmptyState,
+  AdminFiltersBar,
+  AdminPageHeader,
+  AdminSearchInput,
+  AdminStatusBadge,
+} from '@/features/admin/components/admin-ui';
 import { IntroductionModerationForm } from '@/features/introductions/components/introduction-moderation-form';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -25,13 +38,6 @@ interface AdminIntroductionsPageProps {
 
 const STATUS_FILTERS = ['ALL', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED'] as const;
 type IntroductionStatusFilter = (typeof STATUS_FILTERS)[number];
-
-function statusBadgeVariant(status: string) {
-  if (status === 'APPROVED') return 'default';
-  if (status === 'REJECTED') return 'destructive';
-  if (status === 'UNDER_REVIEW') return 'secondary';
-  return 'outline';
-}
 
 export default async function AdminIntroductionsPage({
   params,
@@ -102,31 +108,31 @@ export default async function AdminIntroductionsPage({
   );
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">{t('introductionsTitle')}</h1>
-        <p className="text-sm text-muted-foreground">{t('introductionsDescriptionAdmin')}</p>
-      </div>
+    <div className="space-y-5">
+      <AdminPageHeader
+        description={t('introductionsDescriptionAdmin')}
+        title={t('introductionsTitle')}
+      />
 
-      <div className="flex flex-wrap gap-3">
-        <form className="flex max-w-sm gap-2" method="GET">
-          <Input
-            defaultValue={searchTerm}
+      <AdminFiltersBar>
+        <form className="flex w-full gap-2 sm:max-w-md" method="GET">
+          <AdminSearchInput
             name="q"
             placeholder={t('introductionsSearchPlaceholder')}
-            type="search"
+            value={searchTerm}
           />
           {statusFilter && statusFilter !== 'ALL' ? (
             <input name="status" type="hidden" value={statusFilter} />
           ) : null}
-          <Button className="rounded-field" type="submit">
+          <Button className="h-9 rounded-md" size="sm" type="submit">
             {t('search')}
           </Button>
         </form>
 
         <div className="flex flex-wrap gap-1.5">
           {STATUS_FILTERS.map((item) => {
-            const isActive = item === 'ALL' ? !statusFilter || statusFilter === 'ALL' : statusFilter === item;
+            const isActive =
+              item === 'ALL' ? !statusFilter || statusFilter === 'ALL' : statusFilter === item;
             const href =
               item === 'ALL'
                 ? localizeHref(locale, '/admin/introductions')
@@ -136,7 +142,7 @@ export default async function AdminIntroductionsPage({
               <Button
                 key={item}
                 asChild
-                className="rounded-field"
+                className="h-8 rounded-md"
                 size="sm"
                 variant={isActive ? 'default' : 'outline'}
               >
@@ -145,63 +151,65 @@ export default async function AdminIntroductionsPage({
             );
           })}
         </div>
-      </div>
+      </AdminFiltersBar>
 
       {filteredRows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t('noIntroductions')}</p>
+        <AdminEmptyState title={t('noIntroductions')} />
       ) : (
-        <div className="overflow-hidden rounded-box border border-border">
-          <table className="table table-sm">
-            <thead>
-              <tr>
-                <th>{t('created')}</th>
-                <th>{t('business')}</th>
-                <th>{t('requester')}</th>
-                <th>{t('client')}</th>
-                <th>{t('status')}</th>
-                <th>{t('moderation')}</th>
-              </tr>
-            </thead>
-            <tbody>
+        <AdminDataTableShell>
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>{t('created')}</TableHead>
+                <TableHead>{t('business')}</TableHead>
+                <TableHead>{t('requester')}</TableHead>
+                <TableHead>{t('client')}</TableHead>
+                <TableHead>{t('status')}</TableHead>
+                <TableHead>{t('moderation')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredRows.map((row) => (
-                <tr key={row.id}>
-                  <td className="text-xs text-muted-foreground">
+                <TableRow key={row.id}>
+                  <TableCell className="text-xs text-muted-foreground">
                     {row.createdAt.toLocaleDateString('en-US', {
                       day: '2-digit',
                       month: 'short',
                       year: 'numeric',
                     })}
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     <div className="font-medium text-foreground">{row.targetBusiness?.name}</div>
                     <div className="text-xs text-muted-foreground">
                       {[row.targetBusiness?.city?.name, row.targetBusiness?.country?.name]
                         .filter(Boolean)
                         .join(' - ') || 'N/A'}
                     </div>
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     <div className="text-sm font-medium text-foreground">
                       {row.requester?.displayName ?? 'N/A'}
                     </div>
                     <div className="text-xs text-muted-foreground">{row.requester?.phone}</div>
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     <div className="text-sm text-foreground">{row.clientName}</div>
                     <div className="text-xs text-muted-foreground">{row.clientContact}</div>
                     {row.message ? (
-                      <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">{row.message}</div>
+                      <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                        {row.message}
+                      </div>
                     ) : null}
-                  </td>
-                  <td>
-                    <Badge className="rounded-field" variant={statusBadgeVariant(row.status)}>
-                      {row.status}
-                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <AdminStatusBadge>{row.status}</AdminStatusBadge>
                     {row.adminNote ? (
-                      <p className="mt-2 line-clamp-3 text-xs text-muted-foreground">{row.adminNote}</p>
+                      <p className="mt-2 line-clamp-3 text-xs text-muted-foreground">
+                        {row.adminNote}
+                      </p>
                     ) : null}
-                  </td>
-                  <td className="min-w-56">
+                  </TableCell>
+                  <TableCell className="min-w-56">
                     <IntroductionModerationForm
                       currentNote={row.adminNote}
                       currentStatus={row.status}
@@ -216,12 +224,12 @@ export default async function AdminIntroductionsPage({
                         updateError: t('introductionUpdateError'),
                       }}
                     />
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </AdminDataTableShell>
       )}
     </div>
   );

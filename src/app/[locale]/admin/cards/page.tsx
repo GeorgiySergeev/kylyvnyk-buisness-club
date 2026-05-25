@@ -1,10 +1,7 @@
 import Link from 'next/link';
 
-import type { SupportedLocale } from '@/components/layout/navigation';
-import { localizeHref } from '@/components/layout/navigation';
-import { Badge } from '@/components/ui/badge';
+import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -14,6 +11,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { db } from '@/db/client';
+import {
+  AdminDataTableShell,
+  AdminEmptyState,
+  AdminFiltersBar,
+  AdminPageHeader,
+  AdminSearchInput,
+  AdminStatusBadge,
+} from '@/features/admin/components/admin-ui';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -28,22 +33,9 @@ interface AdminCardsPageProps {
   }>;
 }
 
-function statusBadgeVariant(status: string) {
-  if (status === 'ACTIVE') return 'default';
-  if (status === 'EXPIRED') return 'destructive';
-  return 'outline';
-}
-
-function memberTypeBadgeVariant(type: string) {
-  if (type === 'VIP') return 'default';
-  if (type === 'BUSINESS') return 'secondary';
-  return 'outline';
-}
-
 export default async function AdminCardsPage({ params, searchParams }: AdminCardsPageProps) {
   const { locale } = await params;
   const { q, status } = await searchParams;
-
   const t = getT('admin');
 
   const searchTerm = q?.trim() ?? '';
@@ -51,95 +43,86 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
 
   const allCards = await db.query.clubCards.findMany({
     columns: {
-      id: true,
-      number: true,
-      memberType: true,
-      status: true,
-      expiresAt: true,
       createdAt: true,
+      expiresAt: true,
+      id: true,
+      memberType: true,
+      number: true,
+      status: true,
     },
+    orderBy: (cards, { desc }) => [desc(cards.createdAt)],
     with: {
       user: {
         columns: {
-          id: true,
           displayName: true,
-          phone: true,
           email: true,
+          id: true,
+          phone: true,
         },
       },
     },
-    orderBy: (cards, { desc }) => [desc(cards.createdAt)],
   });
 
   let filtered = allCards;
 
   if (statusFilter) {
-    filtered = filtered.filter((c) => c.status === statusFilter);
+    filtered = filtered.filter((card) => card.status === statusFilter);
   }
 
   if (searchTerm) {
     const term = searchTerm.toLowerCase();
     filtered = filtered.filter(
-      (c) =>
-        c.number.toLowerCase().includes(term) ||
-        c.user.displayName?.toLowerCase().includes(term) ||
-        c.user.phone.toLowerCase().includes(term),
+      (card) =>
+        card.number.toLowerCase().includes(term) ||
+        card.user.displayName?.toLowerCase().includes(term) ||
+        card.user.phone.toLowerCase().includes(term),
     );
   }
 
   const statuses = ['ALL', 'ACTIVE', 'INACTIVE', 'EXPIRED'] as const;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">{t('cardsTitle')}</h1>
-        <p className="text-sm text-muted-foreground">{t('cardsDescription')}</p>
-      </div>
+    <div className="space-y-5">
+      <AdminPageHeader description={t('cardsDescription')} title={t('cardsTitle')} />
 
-      <div className="flex flex-wrap gap-3">
-        <form className="flex max-w-sm gap-2" method="GET">
-          <Input
-            name="q"
-            type="search"
-            defaultValue={searchTerm}
-            placeholder={t('cardNumber')}
-          />
-          {statusFilter ? (
-            <input type="hidden" name="status" value={statusFilter} />
-          ) : null}
-          <Button type="submit">{t('searchPlaceholder')}</Button>
+      <AdminFiltersBar>
+        <form className="flex w-full gap-2 sm:max-w-md" method="GET">
+          <AdminSearchInput name="q" placeholder={t('cardNumber')} value={searchTerm} />
+          {statusFilter ? <input name="status" type="hidden" value={statusFilter} /> : null}
+          <Button className="h-9 rounded-md" size="sm" type="submit">
+            Search
+          </Button>
         </form>
-
         <div className="flex flex-wrap gap-1.5">
-          {statuses.map((s) => {
-            const isActive = s === 'ALL' ? !statusFilter : statusFilter === s;
+          {statuses.map((item) => {
+            const isActive = item === 'ALL' ? !statusFilter : statusFilter === item;
             const href =
-              s === 'ALL'
+              item === 'ALL'
                 ? localizeHref(locale, '/admin/cards')
-                : `${localizeHref(locale, '/admin/cards')}?status=${s}${searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''}`;
+                : `${localizeHref(locale, '/admin/cards')}?status=${item}${searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''}`;
 
             return (
               <Button
-                key={s}
-                variant={isActive ? 'default' : 'outline'}
-                size="sm"
-                className="rounded-full"
                 asChild
+                className="h-8 rounded-md"
+                key={item}
+                size="sm"
+                variant={isActive ? 'default' : 'outline'}
               >
-                <Link href={href}>{s}</Link>
+                <Link href={href}>{item}</Link>
               </Button>
             );
           })}
         </div>
-      </div>
+      </AdminFiltersBar>
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t('noCards')}</p>
+        <AdminEmptyState title={t('noCards')} />
       ) : (
-        <div className="rounded-lg border border-border">
+        <AdminDataTableShell>
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="hover:bg-transparent">
                 <TableHead>{t('cardNumber')}</TableHead>
                 <TableHead>{t('memberName')}</TableHead>
                 <TableHead>{t('memberType')}</TableHead>
@@ -152,30 +135,22 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
             <TableBody>
               {filtered.map((card) => (
                 <TableRow key={card.id}>
-                  <TableCell className="font-mono text-sm font-medium">
-                    {card.number}
-                  </TableCell>
+                  <TableCell className="font-mono text-sm font-medium">{card.number}</TableCell>
                   <TableCell>{card.user.displayName ?? card.user.phone}</TableCell>
                   <TableCell>
-                    <Badge variant={memberTypeBadgeVariant(card.memberType)}>
-                      {card.memberType}
-                    </Badge>
+                    <AdminStatusBadge>{card.memberType}</AdminStatusBadge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={statusBadgeVariant(card.status)}>
-                      {card.status}
-                    </Badge>
+                    <AdminStatusBadge>{card.status}</AdminStatusBadge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
-                    {card.expiresAt
-                      ? card.expiresAt.toLocaleDateString()
-                      : '—'}
+                    {card.expiresAt ? card.expiresAt.toLocaleDateString() : 'N/A'}
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {card.createdAt.toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="link" size="sm" className="h-auto px-0" asChild>
+                    <Button asChild className="h-8 rounded-md px-2" size="sm" variant="ghost">
                       <Link href={localizeHref(locale, `/admin/cards/${card.id}`)}>
                         {t('view')}
                       </Link>
@@ -185,7 +160,7 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
               ))}
             </TableBody>
           </Table>
-        </div>
+        </AdminDataTableShell>
       )}
     </div>
   );

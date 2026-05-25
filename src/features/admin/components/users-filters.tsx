@@ -1,10 +1,9 @@
 'use client';
 
-import { CircleDot, Search, UserCog } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback } from 'react';
+import { useState } from 'react';
 
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -13,82 +12,81 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+import { AdminFiltersBar, AdminSearchInput } from './admin-ui';
+
 interface UsersFiltersProps {
-  searchTerm: string;
-  roleFilter: string;
-  statusFilter: string;
   basePath: string;
+  roleFilter: string;
+  searchTerm: string;
+  statusFilter: string;
 }
 
-export function UsersFilters({ searchTerm, roleFilter, statusFilter, basePath }: UsersFiltersProps) {
+export function UsersFilters({
+  basePath,
+  roleFilter,
+  searchTerm,
+  statusFilter,
+}: UsersFiltersProps) {
   const router = useRouter();
+  const [role, setRole] = useState(roleFilter || 'ALL');
+  const [status, setStatus] = useState(statusFilter || 'ALL');
 
-  const buildHref = useCallback(
-    (overrides: Record<string, string | undefined>) => {
-      const sp = new URLSearchParams();
-      const q = overrides.q ?? searchTerm;
-      const role = overrides.role ?? roleFilter;
-      const status = overrides.status ?? statusFilter;
-      if (q) sp.set('q', q);
-      if (role && role !== 'all') sp.set('role', role);
-      else sp.delete('role');
-      if (status && status !== 'all') sp.set('status', status);
-      else sp.delete('status');
-      const qs = sp.toString();
-      return qs ? `${basePath}?${qs}` : basePath;
-    },
-    [basePath, searchTerm, roleFilter, statusFilter],
-  );
+  function applySelectFilter(nextRole = role, nextStatus = status) {
+    const params = new URLSearchParams();
+    if (searchTerm) params.set('q', searchTerm);
+    if (nextRole !== 'ALL') params.set('role', nextRole);
+    if (nextStatus !== 'ALL') params.set('status', nextStatus);
+    const qs = params.toString();
+    router.push(qs ? `${basePath}?${qs}` : basePath);
+  }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <div className="relative max-w-sm flex-1">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          defaultValue={searchTerm}
-          placeholder="Filter users by name or email..."
-          className="h-9 border-0 bg-card pl-9 text-foreground placeholder:text-muted-foreground"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              router.push(buildHref({ q: (e.currentTarget as HTMLInputElement).value }));
-            }
-          }}
-        />
-      </div>
+    <AdminFiltersBar>
+      <form className="flex w-full gap-2 sm:max-w-md" method="GET">
+        <AdminSearchInput placeholder="Search by name, phone or email..." value={searchTerm} />
+        {roleFilter ? <input name="role" type="hidden" value={roleFilter} /> : null}
+        {statusFilter ? <input name="status" type="hidden" value={statusFilter} /> : null}
+        <Button className="h-9 rounded-md" size="sm" type="submit">
+          Search
+        </Button>
+      </form>
 
       <Select
-        value={roleFilter || 'all'}
-        onValueChange={(value) => router.push(buildHref({ role: value === 'all' ? undefined : value }))}
+        value={role}
+        onValueChange={(value) => {
+          setRole(value);
+          applySelectFilter(value, status);
+        }}
       >
-        <SelectTrigger className="h-9 w-32 border-0 bg-card text-foreground">
-          <UserCog className="mr-1 size-4 text-muted-foreground" />
-          <SelectValue placeholder="Role: All" />
+        <SelectTrigger className="h-9 w-36 rounded-md border-border/80 bg-background/80">
+          <SelectValue placeholder="Role" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Role: All</SelectItem>
-          <SelectItem value="FREE">FREE</SelectItem>
+          <SelectItem value="ALL">All roles</SelectItem>
+          <SelectItem value="FREE">Free</SelectItem>
           <SelectItem value="VIP">VIP</SelectItem>
-          <SelectItem value="BUSINESS">BUSINESS</SelectItem>
-          <SelectItem value="ADMIN">ADMIN</SelectItem>
+          <SelectItem value="BUSINESS">Business</SelectItem>
+          <SelectItem value="ADMIN">Admin</SelectItem>
         </SelectContent>
       </Select>
 
       <Select
-        value={statusFilter || 'all'}
-        onValueChange={(value) => router.push(buildHref({ status: value === 'all' ? undefined : value }))}
+        value={status}
+        onValueChange={(value) => {
+          setStatus(value);
+          applySelectFilter(role, value);
+        }}
       >
-        <SelectTrigger className="h-9 w-33 border-0 bg-card text-foreground">
-          <CircleDot className="mr-1 size-4 text-muted-foreground" />
-          <SelectValue placeholder="Status: All" />
+        <SelectTrigger className="h-9 w-36 rounded-md border-border/80 bg-background/80">
+          <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Status: All</SelectItem>
-          <SelectItem value="ACTIVE">ACTIVE</SelectItem>
-          <SelectItem value="INACTIVE">INACTIVE</SelectItem>
-          <SelectItem value="BANNED">BANNED</SelectItem>
+          <SelectItem value="ALL">All statuses</SelectItem>
+          <SelectItem value="ACTIVE">Active</SelectItem>
+          <SelectItem value="INACTIVE">Inactive</SelectItem>
+          <SelectItem value="BANNED">Banned</SelectItem>
         </SelectContent>
       </Select>
-    </div>
+    </AdminFiltersBar>
   );
 }

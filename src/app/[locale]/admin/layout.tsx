@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { AdminHeader } from '@/features/admin/components/admin-header';
 import { AdminMobileNav } from '@/features/admin/components/admin-mobile-nav';
+import { ADMIN_NAV_ITEMS, type AdminNavLabels } from '@/features/admin/components/admin-nav';
 import { AdminSidebarInner } from '@/features/admin/components/admin-sidebar';
 import { guardAdmin } from '@/features/auth/lib/role-guards';
 import { getT } from '@/lib/i18n/t-server';
@@ -20,23 +21,24 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
   await guardAdmin(supportedLocale);
 
   const t = getT('admin');
+  const navLabels = ADMIN_NAV_ITEMS.reduce<AdminNavLabels>((labels, item) => {
+    labels[item.key] = t(item.key);
+    return labels;
+  }, {} as AdminNavLabels);
 
   return (
-    <div className="admin flex min-h-[calc(100dvh-4rem)]">
-      {/* Desktop sidebar */}
-      <aside className="hidden w-56 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
-        <AdminSidebarInner locale={supportedLocale} t={t} />
+    <div className="admin flex min-h-[calc(100dvh-4rem)] bg-background text-foreground">
+      <aside className="sticky top-0 hidden h-[calc(100dvh-4rem)] w-64 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
+        <AdminSidebarInner locale={supportedLocale} labels={navLabels} />
       </aside>
 
-      {/* Mobile nav (header + drawer) */}
-      <AdminMobileNav />
+      <AdminMobileNav locale={supportedLocale} labels={navLabels} />
 
       <div className="flex flex-1 flex-col bg-background">
-        {/* Desktop header */}
         <div className="max-lg:hidden">
           <AdminHeader />
         </div>
-        <main className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 overflow-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7">{children}</main>
       </div>
     </div>
   );

@@ -4,11 +4,11 @@ import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 
 import { updateBusinessStatusAction } from '../actions/business-admin.action';
+import { AdminStatusBadge } from './admin-ui';
 
 interface BusinessStatusFormProps {
   businessId: string;
@@ -43,21 +43,9 @@ export function BusinessStatusForm({ businessId, currentStatus }: BusinessStatus
             size="sm"
             disabled={pending || currentStatus === status}
             onClick={() => changeStatus(status)}
+            className="h-8 rounded-md"
           >
-            <Badge
-              variant={
-                status === 'PUBLISHED'
-                  ? 'default'
-                  : status === 'PENDING'
-                    ? 'secondary'
-                    : status === 'HIDDEN'
-                      ? 'destructive'
-                      : 'outline'
-              }
-              className="mr-1"
-            >
-              {status}
-            </Badge>
+            <AdminStatusBadge>{status}</AdminStatusBadge>
           </Button>
         ))}
       </div>

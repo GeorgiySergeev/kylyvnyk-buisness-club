@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import type { SupportedLocale } from '@/components/layout/navigation';
-import { localizeHref } from '@/components/layout/navigation';
-import { Badge } from '@/components/ui/badge';
+import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { db } from '@/db/client';
+import {
+  AdminDescriptionList,
+  AdminPageHeader,
+  AdminPanel,
+  AdminStatusBadge,
+} from '@/features/admin/components/admin-ui';
 import { BusinessStatusForm } from '@/features/admin/components/business-status-form';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -14,55 +17,42 @@ export const dynamic = 'force-dynamic';
 
 interface AdminBusinessDetailPageProps {
   params: Promise<{
-    locale: SupportedLocale;
     businessId: string;
+    locale: SupportedLocale;
   }>;
 }
 
 export default async function AdminBusinessDetailPage({ params }: AdminBusinessDetailPageProps) {
-  const { locale, businessId } = await params;
-
+  const { businessId, locale } = await params;
   const t = getT('admin');
 
   const business = await db.query.businesses.findFirst({
     columns: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      logoUrl: true,
-      website: true,
-      phone: true,
-      email: true,
-      status: true,
-      isTopPartner: true,
-      isRecommended: true,
       createdAt: true,
+      description: true,
+      email: true,
+      id: true,
+      isRecommended: true,
+      isTopPartner: true,
+      logoUrl: true,
+      name: true,
+      phone: true,
+      slug: true,
+      status: true,
       updatedAt: true,
+      website: true,
     },
     where: (businesses, { eq }) => eq(businesses.id, businessId),
     with: {
+      category: { columns: { name: true } },
+      city: { columns: { name: true } },
+      country: { columns: { name: true } },
       user: {
         columns: {
-          id: true,
           displayName: true,
-          phone: true,
           email: true,
-        },
-      },
-      country: {
-        columns: {
-          name: true,
-        },
-      },
-      city: {
-        columns: {
-          name: true,
-        },
-      },
-      category: {
-        columns: {
-          name: true,
+          id: true,
+          phone: true,
         },
       },
     },
@@ -71,138 +61,56 @@ export default async function AdminBusinessDetailPage({ params }: AdminBusinessD
   if (!business) redirect(localizeHref(locale, '/admin/businesses'));
 
   return (
-    <div className="space-y-6 max-w-2xl">
-      <Button variant="link" size="sm" className="h-auto px-0" asChild>
-        <Link href={localizeHref(locale, '/admin/businesses')}>
-          &larr; {t('backToBusinesses')}
-        </Link>
+    <div className="max-w-5xl space-y-5">
+      <Button asChild className="h-8 rounded-md px-0" size="sm" variant="link">
+        <Link href={localizeHref(locale, '/admin/businesses')}>Back to businesses</Link>
       </Button>
 
-      <h1 className="text-2xl font-bold text-foreground">{t('businessDetail')}</h1>
+      <AdminPageHeader
+        actions={<AdminStatusBadge>{business.status}</AdminStatusBadge>}
+        description={business.slug}
+        title={business.name}
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{business.name}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <dl className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('slug')}
-              </dt>
-              <dd className="mt-1 font-mono text-xs text-foreground">{business.slug}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('status')}
-              </dt>
-              <dd className="mt-1">
-                <Badge
-                  variant={
-                    business.status === 'PUBLISHED'
-                      ? 'default'
-                      : business.status === 'PENDING'
-                        ? 'secondary'
-                        : business.status === 'HIDDEN'
-                          ? 'destructive'
-                          : 'outline'
-                  }
+      <AdminPanel title={t('businessDetail')}>
+        <AdminDescriptionList
+          items={[
+            { label: t('slug'), value: <span className="font-mono text-xs">{business.slug}</span> },
+            { label: t('status'), value: <AdminStatusBadge>{business.status}</AdminStatusBadge> },
+            { label: t('owner'), value: business.user?.displayName ?? 'N/A' },
+            {
+              label: t('phone'),
+              value: <span className="font-mono text-xs">{business.user?.phone ?? 'N/A'}</span>,
+            },
+            { label: t('email'), value: business.user?.email ?? 'N/A' },
+            { label: t('category'), value: business.category?.name ?? 'N/A' },
+            { label: t('country'), value: business.country?.name ?? 'N/A' },
+            { label: t('city'), value: business.city?.name ?? 'N/A' },
+            {
+              label: t('website'),
+              value: business.website ? (
+                <a
+                  className="text-primary underline underline-offset-2 hover:text-primary/80"
+                  href={business.website}
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
-                  {business.status}
-                </Badge>
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('owner')}
-              </dt>
-              <dd className="mt-1 text-foreground">{business.user?.displayName ?? '—'}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('phone')}
-              </dt>
-              <dd className="mt-1 font-mono text-xs text-foreground">{business.user?.phone ?? '—'}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('email')}
-              </dt>
-              <dd className="mt-1 text-foreground">{business.user?.email ?? '—'}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('category')}
-              </dt>
-              <dd className="mt-1 text-foreground">{business.category?.name ?? '—'}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('country')}
-              </dt>
-              <dd className="mt-1 text-foreground">{business.country?.name ?? '—'}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('city')}
-              </dt>
-              <dd className="mt-1 text-foreground">{business.city?.name ?? '—'}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('website')}
-              </dt>
-              <dd className="mt-1">
-                {business.website ? (
-                  <a
-                    href={business.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary underline underline-offset-2 hover:text-primary/80"
-                  >
-                    {business.website}
-                  </a>
-                ) : (
-                  '—'
-                )}
-              </dd>
-            </div>
-            <div className="sm:col-span-2">
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('description')}
-              </dt>
-              <dd className="mt-1 whitespace-pre-wrap text-foreground">
-                {business.description ?? '—'}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('created')}
-              </dt>
-              <dd className="mt-1 text-xs text-muted-foreground">
-                {business.createdAt.toLocaleString()}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Updated
-              </dt>
-              <dd className="mt-1 text-xs text-muted-foreground">
-                {business.updatedAt.toLocaleString()}
-              </dd>
-            </div>
-          </dl>
-        </CardContent>
-      </Card>
+                  {business.website}
+                </a>
+              ) : (
+                'N/A'
+              ),
+            },
+            { label: t('description'), value: business.description ?? 'N/A' },
+            { label: t('created'), value: business.createdAt.toLocaleString() },
+            { label: 'Updated', value: business.updatedAt.toLocaleString() },
+          ]}
+        />
+      </AdminPanel>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('changeStatus')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <BusinessStatusForm businessId={businessId} currentStatus={business.status} />
-        </CardContent>
-      </Card>
+      <AdminPanel title={t('changeStatus')}>
+        <BusinessStatusForm businessId={businessId} currentStatus={business.status} />
+      </AdminPanel>
     </div>
   );
 }
