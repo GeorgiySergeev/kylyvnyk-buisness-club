@@ -23,6 +23,13 @@
   "recentEmptyTitle": "No requests yet",
   "recentEmptyDescription": "Submitted requests will appear here after the form is sent.",
   "status": "Status",
+  "updated": "Updated",
+  "adminNote": "Team note",
+  "statusSubmitted": "Submitted",
+  "statusUnderReview": "Under review",
+  "statusApproved": "Approved",
+  "statusRejected": "Rejected",
+  "statusClosed": "Closed",
   "business": "Business",
   "created": "Created",
   "notSet": "Not set"

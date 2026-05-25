@@ -6,6 +6,10 @@ import { db } from '@/db/client';
 import { businesses, cities, countries, introductions } from '@/db/schema';
 import { guardBusiness, guardOnboarded } from '@/features/auth/lib/role-guards';
 import { IntroductionForm } from '@/features/introductions/components/introduction-form';
+import {
+  getMemberStatusLabelKey,
+  shouldShowMemberAdminNote,
+} from '@/features/introductions/lib/member-introduction-status';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -50,12 +54,14 @@ export default async function IntroducePage({ params }: IntroducePageProps) {
     }),
     db
       .select({
+        adminNote: introductions.adminNote,
         businessName: businesses.name,
         cityName: cities.name,
         countryName: countries.name,
         createdAt: introductions.createdAt,
         id: introductions.id,
         status: introductions.status,
+        updatedAt: introductions.updatedAt,
       })
       .from(introductions)
       .innerJoin(
@@ -170,16 +176,25 @@ export default async function IntroducePage({ params }: IntroducePageProps) {
                               {request.businessName}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {[request.cityName, request.countryName].filter(Boolean).join(' - ') ||
-                                t('notSet')}
+                              {[request.cityName, request.countryName]
+                                .filter(Boolean)
+                                .join(' - ') || t('notSet')}
                             </div>
                             <div className="mt-1 text-xs text-muted-foreground">
                               {t('created')}: {dateFormatter.format(request.createdAt)}
                             </div>
+                            <div className="text-xs text-muted-foreground">
+                              {t('updated')}: {dateFormatter.format(request.updatedAt)}
+                            </div>
+                            {shouldShowMemberAdminNote(request.status) && request.adminNote ? (
+                              <div className="mt-2 rounded-field border border-border bg-background/40 p-2 text-xs text-muted-foreground">
+                                {t('adminNote')}: {request.adminNote}
+                              </div>
+                            ) : null}
                           </td>
                           <td>
                             <span className="badge badge-outline rounded-field">
-                              {request.status}
+                              {t(getMemberStatusLabelKey(request.status))}
                             </span>
                           </td>
                         </tr>

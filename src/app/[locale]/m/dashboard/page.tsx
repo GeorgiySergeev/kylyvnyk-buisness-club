@@ -1,8 +1,7 @@
-import { count, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 
-import type { SupportedLocale } from '@/components/layout/navigation';
-import { localizeHref } from '@/components/layout/navigation';
+import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
 import { ClubCard } from '@/components/member/club-card';
 import { Badge } from '@/components/ui/badge';
@@ -27,7 +26,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const user = await guardOnboarded(locale);
   const t = getT('dashboard');
 
-  const [card, profile, userBusinesses, introductionCountRow] = await Promise.all([
+  const [card, profile, userBusinesses, userIntroductions] = await Promise.all([
     db.query.clubCards.findFirst({
       where: eq(clubCards.userId, user.id),
     }),
@@ -58,7 +57,12 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
         },
       },
     }),
-    db.select({ value: count() }).from(introductions).where(eq(introductions.requesterId, user.id)),
+    db.query.introductions.findMany({
+      columns: {
+        status: true,
+      },
+      where: eq(introductions.requesterId, user.id),
+    }),
   ]);
 
   const isProfileComplete = Boolean(user.displayName && profile?.countryId && profile?.cityId);
@@ -66,7 +70,16 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const publishedBusinessCount = userBusinesses.filter(
     (business) => business.status === 'PUBLISHED',
   ).length;
-  const introductionCount = introductionCountRow[0]?.value ?? 0;
+  const introductionTotal = userIntroductions.length;
+  const introductionUnderReview = userIntroductions.filter(
+    (item) => item.status === 'SUBMITTED' || item.status === 'UNDER_REVIEW',
+  ).length;
+  const introductionApproved = userIntroductions.filter(
+    (item) => item.status === 'APPROVED',
+  ).length;
+  const introductionRejected = userIntroductions.filter(
+    (item) => item.status === 'REJECTED',
+  ).length;
   const verifyUrl = card
     ? `${env.NEXT_PUBLIC_APP_URL}/${locale}/verify-card/${card.number}`
     : localizeHref(locale, '/verify-card');
@@ -274,10 +287,24 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="rounded-box border border-border bg-background/40 p-5">
-                <div className="text-3xl font-semibold text-primary">{introductionCount}</div>
+                <div className="text-3xl font-semibold text-primary">{introductionTotal}</div>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {introductionCount > 0 ? t('activeStatus') : t('noIntroductions')}
+                  {introductionTotal > 0 ? t('activeStatus') : t('noIntroductions')}
                 </p>
+                <div className="mt-4 grid gap-2 text-sm">
+                  <div className="flex items-center justify-between rounded-field border border-border/80 px-3 py-2">
+                    <span className="text-muted-foreground">{t('introductionsUnderReview')}</span>
+                    <span className="font-semibold text-foreground">{introductionUnderReview}</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-field border border-border/80 px-3 py-2">
+                    <span className="text-muted-foreground">{t('introductionsApproved')}</span>
+                    <span className="font-semibold text-foreground">{introductionApproved}</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-field border border-border/80 px-3 py-2">
+                    <span className="text-muted-foreground">{t('introductionsRejected')}</span>
+                    <span className="font-semibold text-foreground">{introductionRejected}</span>
+                  </div>
+                </div>
               </div>
               {isBusinessMember ? (
                 <Button asChild variant="outline" className="w-full justify-start rounded-field">
