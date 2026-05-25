@@ -39,6 +39,17 @@ playwright-report/
 playwright/.cache/
 .nyc_output/
 
+# local design/export artifacts
+/1.html
+/Screen 1/
+/Screen 2/
+/Screen 3/
+/flow-v1.md
+/implementation_plan.md
+/drizzle-kit
+/kclub-mvp@0.1.0
+/next
+
 # Sentry
 .sentryclirc
 
