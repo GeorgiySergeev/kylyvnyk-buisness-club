@@ -8,6 +8,7 @@ import dashboard from '../../../messages/en/dashboard.json';
 import directory from '../../../messages/en/directory.json';
 import footer from '../../../messages/en/footer.json';
 import home from '../../../messages/en/home.json';
+import introductions from '../../../messages/en/introductions.json';
 import nav from '../../../messages/en/nav.json';
 import placeholders from '../../../messages/en/placeholders.json';
 
@@ -20,6 +21,7 @@ const MESSAGES = {
   directory,
   footer,
   home,
+  introductions,
   nav,
   placeholders,
 } as const;
