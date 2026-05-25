@@ -12,7 +12,7 @@ interface ClubCardProps {
 export function ClubCard({ cardNumber, memberName, status, verifyUrl }: ClubCardProps) {
   return (
     <div
-      className="relative w-full max-w-sm overflow-hidden rounded-2xl"
+      className="relative w-full max-w-sm overflow-hidden rounded-box"
       role="region"
       aria-label="Club membership card"
     >
@@ -30,7 +30,7 @@ export function ClubCard({ cardNumber, memberName, status, verifyUrl }: ClubCard
             KYC
           </span>
           <span
-            className="inline-flex items-center rounded-full border px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#d4af37]"
+            className="inline-flex items-center rounded-selector border px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#d4af37]"
             style={{ borderColor: 'rgba(212, 175, 55, 0.4)' }}
           >
             {status}
@@ -44,21 +44,15 @@ export function ClubCard({ cardNumber, memberName, status, verifyUrl }: ClubCard
           >
             {cardNumber}
           </p>
-          <p className="text-base font-medium text-zinc-300 sm:text-lg">
-            {memberName}
-          </p>
+          <p className="text-base font-medium text-zinc-300 sm:text-lg">{memberName}</p>
         </div>
 
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
-              Member since
-            </p>
-            <p className="text-xs text-zinc-400">
-              {new Date().getFullYear()}
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">Member since</p>
+            <p className="text-xs text-zinc-400">{new Date().getFullYear()}</p>
           </div>
-          <div className="rounded-lg bg-white p-1.5">
+          <div className="rounded-field bg-white p-1.5">
             <QRCodeSVG
               value={verifyUrl}
               size={64}

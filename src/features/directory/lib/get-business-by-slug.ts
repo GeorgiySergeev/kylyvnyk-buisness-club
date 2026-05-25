@@ -1,22 +1,50 @@
-import "server-only";
+import 'server-only';
 
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull } from 'drizzle-orm';
 
-import { db } from "@/db/client";
-import { businesses } from "@/db/schema";
+import { db } from '@/db/client';
+import { businesses } from '@/db/schema';
 
-export async function getBusinessBySlug(slug: string) {
-  return db.query.businesses.findFirst({
+import { createPublicBusinessDto, type PublicBusinessDto } from './public-business-dto';
+
+export async function getBusinessBySlug(slug: string): Promise<PublicBusinessDto | null> {
+  const row = await db.query.businesses.findFirst({
+    columns: {
+      description: true,
+      id: true,
+      isRecommended: true,
+      isTopPartner: true,
+      logoUrl: true,
+      name: true,
+      slug: true,
+      website: true,
+    },
     where: and(
       eq(businesses.slug, slug),
-      eq(businesses.status, "PUBLISHED"),
+      eq(businesses.status, 'PUBLISHED'),
       isNull(businesses.deletedAt),
     ),
     with: {
-      user: true,
-      category: true,
-      country: true,
-      city: true,
+      category: {
+        columns: {
+          name: true,
+          slug: true,
+        },
+      },
+      city: {
+        columns: {
+          name: true,
+        },
+      },
+      country: {
+        columns: {
+          flagEmoji: true,
+          iso2: true,
+          name: true,
+        },
+      },
     },
   });
+
+  return row ? createPublicBusinessDto(row) : null;
 }

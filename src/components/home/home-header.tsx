@@ -7,6 +7,12 @@ import { usePathname } from 'next/navigation';
 import { type AuthAction, type NavItem } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
 import { LocaleSwitcher } from './locale-switcher';
@@ -61,58 +67,66 @@ export function HomeHeader({
               </div>
               <div className="flex flex-col leading-none">
                 <span className="font-display text-sm tracking-[3px] text-primary">KYLYVNYK</span>
-                <span className="text-[9px] tracking-[3px] text-muted-foreground">BUSINESS CLUB</span>
+                <span className="text-[9px] tracking-[3px] text-muted-foreground">
+                  BUSINESS CLUB
+                </span>
               </div>
             </Link>
           </div>
 
           <div className="navbar-end md:hidden">
-            <div className="dropdown dropdown-end">
-              <button
-                aria-label="Toggle menu"
-                className="btn btn-ghost btn-square min-h-11 min-w-11 rounded-md"
-                tabIndex={0}
-                type="button"
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  aria-label="Toggle menu"
+                  className="btn btn-ghost btn-square min-h-11 min-w-11 rounded-md text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                  type="button"
+                >
+                  <Menu aria-hidden="true" className="size-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-72 mt-2 border border-border/70 bg-card p-3 shadow-2xl rounded-md"
               >
-                <Menu aria-hidden="true" className="size-5" />
-              </button>
-              <div className="dropdown-content z-50 mt-2 w-72 rounded-md border border-border/70 bg-card p-3 shadow-2xl">
                 <div className="mb-2 flex justify-end">
                   <LocaleSwitcher />
                 </div>
-                <ul className="menu gap-1 rounded-md p-0">
+                <div className="flex flex-col gap-1">
                   {isHome && !isAuthenticated ? null : (
-                    <li>
+                    <DropdownMenuItem asChild>
                       <Link
                         className={cn(
-                          'rounded-md',
-                          pathname === homeHref ? 'active bg-primary/20 text-primary' : 'text-muted-foreground',
+                          'flex w-full items-center rounded-md px-3 py-2 text-sm transition-colors focus:bg-primary/20 focus:text-primary outline-none',
+                          pathname === homeHref
+                            ? 'bg-primary/10 text-primary font-medium'
+                            : 'text-muted-foreground',
                         )}
                         href={homeHref}
                       >
                         Home
                       </Link>
-                    </li>
+                    </DropdownMenuItem>
                   )}
                   {navItems.map((item) => (
-                    <li key={item.href}>
+                    <DropdownMenuItem key={item.href} asChild>
                       <Link
                         className={cn(
-                          'rounded-md',
+                          'flex w-full items-center rounded-md px-3 py-2 text-sm transition-colors focus:bg-primary/20 focus:text-primary outline-none',
                           isActive(item.href, item.exact)
-                            ? 'active bg-primary/20 text-primary'
+                            ? 'bg-primary/10 text-primary font-medium'
                             : 'text-muted-foreground',
                         )}
                         href={item.href}
                       >
                         {item.label}
                       </Link>
-                    </li>
+                    </DropdownMenuItem>
                   ))}
-                </ul>
+                </div>
                 <div className="my-3 border-t border-border/70" />
                 {isAuthenticated ? (
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center justify-between gap-2 px-1">
                     <div className="flex items-center gap-2">
                       <Avatar className="size-8 rounded-md border border-border/70">
                         <AvatarImage src={avatarUrl} alt="" />
@@ -120,34 +134,45 @@ export function HomeHeader({
                           {getInitials(displayName)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-xs text-muted-foreground">{displayName || 'Member'}</span>
+                      <span className="text-xs text-muted-foreground font-medium truncate max-w-[120px]">
+                        {displayName || 'Member'}
+                      </span>
                     </div>
-                    <Button asChild className="btn-ghost rounded-md text-muted-foreground">
-                      <Link href={memberAuth.signOut.href}>{memberAuth.signOut.label}</Link>
-                    </Button>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={memberAuth.signOut.href}
+                        className="rounded-md text-xs text-muted-foreground hover:text-foreground focus:bg-destructive/10 focus:text-destructive px-2.5 py-1.5 font-medium outline-none transition-colors border border-transparent focus:border-destructive/25"
+                      >
+                        {memberAuth.signOut.label}
+                      </Link>
+                    </DropdownMenuItem>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2">
-                    <Button asChild className="btn-ghost justify-start rounded-md text-muted-foreground">
-                      <Link href={guestAuth.signIn.href}>{guestAuth.signIn.label}</Link>
-                    </Button>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={guestAuth.signIn.href}
+                        className="flex w-full justify-start rounded-md px-3 py-2 text-sm text-muted-foreground focus:bg-primary/10 focus:text-primary outline-none transition-colors"
+                      >
+                        {guestAuth.signIn.label}
+                      </Link>
+                    </DropdownMenuItem>
                   </div>
                 )}
-              </div>
-            </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
-          <div className="navbar-center hidden md:flex md:flex-1 md:justify-center">
+          <div className="navbar-center hidden md:flex md:flex-none md:justify-center">
             {isHome && !isAuthenticated ? null : (
-              <ul
-                aria-label="Primary navigation"
-                className="menu menu-horizontal gap-1 rounded-md border border-border/70 bg-card/70 p-1"
-              >
-                <li>
+              <ul aria-label="Primary navigation" className="flex items-center gap-1  p-1">
+                <li className="list-none">
                   <Link
                     className={cn(
-                      'rounded-md',
-                      pathname === homeHref ? 'active bg-primary/20 text-primary' : 'text-muted-foreground',
+                      'inline-flex min-h-10 items-center rounded-md px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                      pathname === homeHref
+                        ? 'bg-primary/20 text-primary'
+                        : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
                     )}
                     href={homeHref}
                   >
@@ -155,13 +180,13 @@ export function HomeHeader({
                   </Link>
                 </li>
                 {navItems.map((item) => (
-                  <li key={item.href}>
+                  <li key={item.href} className="list-none">
                     <Link
                       className={cn(
-                        'rounded-md',
+                        'inline-flex min-h-10 items-center rounded-md px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                         isActive(item.href, item.exact)
-                          ? 'active bg-primary/20 text-primary'
-                          : 'text-muted-foreground',
+                          ? 'bg-primary/20 text-primary'
+                          : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
                       )}
                       href={item.href}
                     >

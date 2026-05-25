@@ -12,7 +12,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "tsx --test tests/auth/*.test.ts",
+    "test": "tsx --test tests/auth/*.test.ts tests/directory/*.test.ts",
     "test:auth": "tsx --test tests/auth/*.test.ts",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",

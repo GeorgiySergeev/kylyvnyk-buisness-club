@@ -1,9 +1,11 @@
-import "server-only";
+import 'server-only';
 
-import { and, desc, eq, ilike, isNull } from "drizzle-orm";
+import { and, desc, eq, ilike, isNull, or } from 'drizzle-orm';
 
-import { db } from "@/db/client";
-import { businesses } from "@/db/schema";
+import { db } from '@/db/client';
+import { businesses } from '@/db/schema';
+
+import { createPublicBusinessDto, type PublicBusinessDto } from './public-business-dto';
 
 export type GetPublishedBusinessesOptions = {
   categoryId?: number;
@@ -15,20 +17,48 @@ export type GetPublishedBusinessesOptions = {
 
 export async function getPublishedBusinesses(
   opts: GetPublishedBusinessesOptions = {},
-) {
+): Promise<PublicBusinessDto[]> {
   const { categoryId, countryId, search, limit = 12, offset = 0 } = opts;
 
-  return db.query.businesses.findMany({
+  const rows = await db.query.businesses.findMany({
+    columns: {
+      description: true,
+      id: true,
+      isRecommended: true,
+      isTopPartner: true,
+      logoUrl: true,
+      name: true,
+      slug: true,
+      website: true,
+    },
     where: and(
-      eq(businesses.status, "PUBLISHED"),
+      eq(businesses.status, 'PUBLISHED'),
       isNull(businesses.deletedAt),
       categoryId ? eq(businesses.categoryId, categoryId) : undefined,
       countryId ? eq(businesses.countryId, countryId) : undefined,
-      search ? ilike(businesses.name, `%${search}%`) : undefined,
+      search
+        ? or(ilike(businesses.name, `%${search}%`), ilike(businesses.slug, `%${search}%`))
+        : undefined,
     ),
     with: {
-      category: true,
-      country: true,
+      category: {
+        columns: {
+          name: true,
+          slug: true,
+        },
+      },
+      city: {
+        columns: {
+          name: true,
+        },
+      },
+      country: {
+        columns: {
+          flagEmoji: true,
+          iso2: true,
+          name: true,
+        },
+      },
     },
     orderBy: [
       desc(businesses.isTopPartner),
@@ -38,4 +68,6 @@ export async function getPublishedBusinesses(
     limit,
     offset,
   });
+
+  return rows.map(createPublicBusinessDto);
 }
