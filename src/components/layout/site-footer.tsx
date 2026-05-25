@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import { getT } from '@/lib/i18n/t-server';
 
-import { localizeHref,type SupportedLocale } from './navigation';
+import { localizeHref, type SupportedLocale } from './navigation';
 
 const FOOTER_LINKS = [
   {
@@ -42,40 +42,41 @@ export function SiteFooter({ locale }: SiteFooterProps) {
   const year = new Date().getFullYear();
 
   return (
-    <footer aria-label={tA11y('siteFooter')} className="mt-auto border-t border-border/70 bg-card">
+    <footer aria-label={tA11y('siteFooter')} className="mt-auto border-t border-border/70 bg-base-200/70">
       <div className="kc-container py-10">
-        <div className="flex flex-col gap-6 border-b border-border/60 pb-8 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-2">
-            <p className="text-sm font-semibold tracking-[0.32em] text-primary uppercase">
-              {tFooter('brand')}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {year} {tFooter('brand')}. {tFooter('allRightsReserved')}
-            </p>
+        <div className="rounded-box border border-border/60 bg-card p-6 shadow-xl shadow-black/10 md:p-8">
+          <div className="footer items-start gap-8 border-b border-border/60 pb-8">
+            <aside className="max-w-md">
+              <p className="font-display text-lg tracking-[3px] text-primary">{tFooter('brand')}</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {year} {tFooter('brand')}. {tFooter('allRightsReserved')}
+              </p>
+            </aside>
+
+            <nav aria-label={tA11y('footerNavigation')}>
+              <h6 className="footer-title text-primary/80">Legal</h6>
+              <ul className="menu gap-1 p-0">
+                {FOOTER_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      className="rounded-btn min-h-11 text-sm text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                      href={localizeHref(locale, link.href)}
+                    >
+                      {tFooter(link.key)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
 
-          <nav aria-label={tA11y('footerNavigation')}>
-            <ul className="flex flex-wrap gap-x-6 gap-y-3">
-              {FOOTER_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={localizeHref(locale, link.href)}
-                    className="min-h-11 rounded-md py-2 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                  >
-                    {tFooter(link.key)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
-
-        <div className="mt-8 space-y-3">
-          {LEGAL_KEYS.map((key) => (
-            <p key={key} className="text-sm leading-6 text-muted-foreground">
-              {tFooter(key)}
-            </p>
-          ))}
+          <div className="mt-8 grid gap-3">
+            {LEGAL_KEYS.map((key) => (
+              <p key={key} className="text-sm leading-6 text-muted-foreground">
+                {tFooter(key)}
+              </p>
+            ))}
+          </div>
         </div>
       </div>
     </footer>

@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
-import { AdminMobileNav } from '@/features/admin/components/admin-mobile-nav';
 import { AdminHeader } from '@/features/admin/components/admin-header';
+import { AdminMobileNav } from '@/features/admin/components/admin-mobile-nav';
 import { AdminSidebarInner } from '@/features/admin/components/admin-sidebar';
 import { guardAdmin } from '@/features/auth/lib/role-guards';
 import { getT } from '@/lib/i18n/t-server';

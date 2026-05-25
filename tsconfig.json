@@ -23,5 +23,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "Screen 3"]
+  "exclude": ["node_modules", "Screen 1", "Screen 2", "Screen 3"]
 }

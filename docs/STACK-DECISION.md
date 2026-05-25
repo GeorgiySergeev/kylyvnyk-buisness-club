@@ -31,6 +31,7 @@ appended to the old ADR. Never edit an accepted ADR in place — append.
 | ADR-009 | Observability: Sentry (errors) + Plausible (privacy-first analytics)        | ACCEPTED              |
 | ADR-010 | Deployment: Vercel (production + previews); Supabase managed Postgres       | ACCEPTED              |
 | ADR-011 | Authentication: Supabase Auth phone-first                                   | ACCEPTED              |
+| ADR-012 | UI component layer: daisyUI adapter on top of Tailwind/shadcn               | ACCEPTED              |
 
 ---
 
@@ -660,6 +661,40 @@ Specifics:
   domain-cutover away. We do depend on `vercel.json` for cron
   configuration; that's the only non-portable bit.
   − Cold starts on rarely-hit routes. Acceptable at MVP traffic.
+
+---
+
+## ADR-012 — UI component layer
+
+### Context
+
+ADR-001 locks the app to Tailwind v4 CSS-first config and local shadcn/ui
+components copied into `/src/components/ui`. Before the remaining MVP pages
+are built out, we want faster access to standard component class names without
+resetting the KCLUB visual language or replacing tested Radix primitives.
+
+### Decision
+
+Use `daisyui@5.0.50` as a Tailwind plugin and adapter layer only.
+
+- Configure daisyUI from `/src/app/globals.css` using Tailwind v4 `@plugin`
+  syntax.
+- Disable bundled daisyUI themes and define one default `kclub` theme that
+  matches the dark black/gold token system from SPEC.
+- Keep `/src/components/ui/*` as the public component contract. Components may
+  internally use daisyUI classes such as `btn`, `card`, `badge`, `input`, and
+  `textarea`.
+- Keep Radix-backed components for interactive behavior where they are already
+  in use, including dialogs, menus, selects, and checkbox controls.
+
+### Consequences
+
+- Future UI work can use a smaller set of standard component classes while
+  preserving local patchability and TypeScript props.
+- The public KCLUB site remains dark-only and premium instead of inheriting a
+  generic daisyUI default theme.
+- Replacing shadcn/Radix imports directly with daisyUI markup is not part of
+  this ADR. That requires a separate design/accessibility review.
 
 ---
 
