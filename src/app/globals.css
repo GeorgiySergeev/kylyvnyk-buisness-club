@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+/* Prototype HTML at repo root — not part of the Next app; arbitrary bg URLs break CSS resolution */
+@source not '../../adapt.html';
+@source not '../../adapt-2.html';
+
 @plugin "daisyui" {
   themes: false;
   logs: false;
