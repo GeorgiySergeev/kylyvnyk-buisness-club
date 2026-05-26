@@ -4,9 +4,13 @@ import {
   Building2,
   ClipboardList,
   CreditCard,
+  Globe2,
   LayoutDashboard,
+  LinkIcon,
   type LucideIcon,
   MessageSquare,
+  ReceiptText,
+  Tags,
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -25,6 +29,10 @@ const ADMIN_NAV_ICONS: Record<AdminNavKey, LucideIcon> = {
   navBusinesses: Building2,
   navIntroductions: MessageSquare,
   navCards: CreditCard,
+  navCategories: Tags,
+  navCountries: Globe2,
+  navStripeLinks: LinkIcon,
+  navSubscriptions: ReceiptText,
   navAudit: ClipboardList,
 };
 

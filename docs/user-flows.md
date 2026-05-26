@@ -3,6 +3,7 @@
 This document maps the main user flows from `docs/SPEC.md` to the current repository state.
 
 Legend:
+
 - `Implemented now` means the route or guard exists in `src/app` or `src/features`.
 - `Specified next` means the flow is defined in `SPEC` or supported by schema/data helpers, but the final UI or route is not yet fully implemented.
 
@@ -19,17 +20,6 @@ Legend:
 - `/{locale}/m/introduce`
 - `/{locale}/m/2fa-required`
 - `/{locale}/admin`
-- `/{locale}/directory`
-- `/{locale}/verify-card`
-- `/{locale}/legal/terms`
-- `/{locale}/legal/privacy`
-- `/{locale}/legal/cookie`
-- `/{locale}/legal/contact`
-
-### Specified next
-
-- `/{locale}/directory/[slug]`
-- `/{locale}/verify-card/[number]`
 - `/{locale}/admin/users`
 - `/{locale}/admin/businesses`
 - `/{locale}/admin/introductions`
@@ -39,11 +29,24 @@ Legend:
 - `/{locale}/admin/stripe-links`
 - `/{locale}/admin/subscriptions`
 - `/{locale}/admin/audit`
+- `/{locale}/directory`
+- `/{locale}/directory/[slug]`
+- `/{locale}/verify-card`
+- `/{locale}/verify-card/[number]`
+- `/{locale}/legal/terms`
+- `/{locale}/legal/privacy`
+- `/{locale}/legal/cookie`
+- `/{locale}/legal/contact`
 - `/{locale}/legal/refund`
 - `/{locale}/legal/rules/club`
 - `/{locale}/legal/rules/partner`
 - `/{locale}/legal/rules/introduction`
 - `/{locale}/legal/disclaimer`
+
+### Specified next
+
+- Full billing workflow behind `/{locale}/admin/stripe-links` and `/{locale}/admin/subscriptions`
+- Full CRUD for operational taxonomies where required beyond the current read-only admin tables
 
 ## 1. Guest acquisition flow
 
@@ -68,6 +71,7 @@ flowchart TD
 ```
 
 Notes:
+
 - The three primary actions are already wired from the home page.
 - `Get Card` and `Become VIP Member` currently funnel into auth first.
 - `Submit Business` currently leads into discovery, not a dedicated business submission flow yet.
@@ -91,6 +95,7 @@ flowchart TD
 ```
 
 Notes:
+
 - `/{locale}/sign-up` is intentionally a redirect into `/{locale}/sign-in`.
 - Auth creates or syncs the app user record.
 - Onboarding completion is determined by the existence of a profile row.
@@ -115,6 +120,7 @@ flowchart TD
 ```
 
 Notes:
+
 - The route exists and is protected.
 - The page body is still a placeholder, but the role-based product model is already defined in `SPEC`.
 
@@ -139,13 +145,14 @@ flowchart TD
 ```
 
 Notes:
+
 - The route and guards already exist.
 - The `introductions` table already exists, so the workflow has a data model foundation.
 - `SPEC` says this flow is admin-mediated.
 
 ## 5. Admin access and MFA flow
 
-Status: implemented now for root admin access.
+Status: implemented now for root admin access and routed child admin surfaces.
 
 ```mermaid
 flowchart TD
@@ -170,12 +177,15 @@ flowchart TD
 ```
 
 Notes:
+
 - This is the cleanest fully enforced flow in the repo right now.
-- The child admin sections from `SPEC` are not yet routed in `src/app`.
+- The child admin sections from `SPEC` are routed in `src/app`.
+- `categories` and `countries` are read-only/list-first operational tables.
+- `stripe-links` and `subscriptions` are route-complete shells; Stripe integration itself is intentionally not started in this branch.
 
 ## 6. Public directory flow
 
-Status: route implemented now, data helpers implemented now, final list/detail UI specified next.
+Status: route and detail route implemented now, final list UI still moving beyond placeholder.
 
 ```mermaid
 flowchart TD
@@ -187,13 +197,14 @@ flowchart TD
 ```
 
 Notes:
+
 - The route currently renders a placeholder page.
 - The data helper already restricts the list to `PUBLISHED` businesses.
-- The slug detail route is still missing from `src/app`, but a helper already exists for it.
+- The slug detail route exists in `src/app`.
 
 ## 7. Verify card flow
 
-Status: lookup entry route implemented now, final number route specified next.
+Status: lookup entry route and final number route implemented now.
 
 ```mermaid
 flowchart TD
@@ -204,8 +215,9 @@ flowchart TD
 ```
 
 Notes:
+
 - The lookup page exists and is marked `robots: noindex`.
-- The per-card public route described in `SPEC` is not yet present in `src/app`.
+- The per-card public route described in `SPEC` is present in `src/app`.
 - The `club_cards` schema is already in place.
 
 ## 8. Billing lifecycle flow
@@ -223,6 +235,7 @@ flowchart TD
 ```
 
 Notes:
+
 - The product contract is clear in `SPEC`.
 - The UI and route-level flow still need to be completed in the app.
 
