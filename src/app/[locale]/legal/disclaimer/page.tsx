@@ -1,5 +1,5 @@
 import type { SupportedLocale } from '@/components/layout/navigation';
-import { PlaceholderPage } from '@/components/layout/placeholder-page';
+import { LegalPage } from '@/features/legal/components/legal-page';
 
 interface DisclaimerPageProps {
   params: Promise<{
@@ -10,13 +10,5 @@ interface DisclaimerPageProps {
 export default async function DisclaimerPage({ params }: DisclaimerPageProps) {
   const { locale } = await params;
 
-  return (
-    <PlaceholderPage
-      descriptionKey="disclaimerDescription"
-      eyebrowKey="disclaimerEyebrow"
-      locale={locale}
-      primaryActionKey="disclaimerPrimaryAction"
-      titleKey="disclaimerTitle"
-    />
-  );
+  return <LegalPage document="disclaimer" locale={locale} />;
 }

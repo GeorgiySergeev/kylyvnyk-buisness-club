@@ -1,5 +1,5 @@
 import type { SupportedLocale } from '@/components/layout/navigation';
-import { PlaceholderPage } from '@/components/layout/placeholder-page';
+import { LegalPage } from '@/features/legal/components/legal-page';
 
 interface ClubRulesPageProps {
   params: Promise<{
@@ -10,13 +10,5 @@ interface ClubRulesPageProps {
 export default async function ClubRulesPage({ params }: ClubRulesPageProps) {
   const { locale } = await params;
 
-  return (
-    <PlaceholderPage
-      descriptionKey="clubRulesDescription"
-      eyebrowKey="clubRulesEyebrow"
-      locale={locale}
-      primaryActionKey="clubRulesPrimaryAction"
-      titleKey="clubRulesTitle"
-    />
-  );
+  return <LegalPage document="clubRules" locale={locale} />;
 }

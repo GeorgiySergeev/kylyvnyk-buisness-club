@@ -1,5 +1,5 @@
 import type { SupportedLocale } from '@/components/layout/navigation';
-import { PlaceholderPage } from '@/components/layout/placeholder-page';
+import { LegalPage } from '@/features/legal/components/legal-page';
 
 interface RefundPageProps {
   params: Promise<{
@@ -10,13 +10,5 @@ interface RefundPageProps {
 export default async function RefundPage({ params }: RefundPageProps) {
   const { locale } = await params;
 
-  return (
-    <PlaceholderPage
-      descriptionKey="refundDescription"
-      eyebrowKey="refundEyebrow"
-      locale={locale}
-      primaryActionKey="refundPrimaryAction"
-      titleKey="refundTitle"
-    />
-  );
+  return <LegalPage document="refund" locale={locale} />;
 }
