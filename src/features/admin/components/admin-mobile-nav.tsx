@@ -4,10 +4,14 @@ import {
   Building2,
   ClipboardList,
   CreditCard,
+  Globe2,
   LayoutDashboard,
+  LinkIcon,
   type LucideIcon,
   Menu,
   MessageSquare,
+  ReceiptText,
+  Tags,
   Users,
   X,
 } from 'lucide-react';
@@ -28,16 +32,24 @@ const ADMIN_NAV_ICONS: Record<AdminNavKey, LucideIcon> = {
   navBusinesses: Building2,
   navIntroductions: MessageSquare,
   navCards: CreditCard,
+  navCategories: Tags,
+  navCountries: Globe2,
+  navStripeLinks: LinkIcon,
+  navSubscriptions: ReceiptText,
   navAudit: ClipboardList,
 };
 
-const BREADCRUMB_MAP: Record<string, string> = {
-  '/admin': 'Dashboard',
-  '/admin/users': 'Users',
-  '/admin/businesses': 'Businesses',
-  '/admin/cards': 'Cards',
-  '/admin/introductions': 'Introductions',
-  '/admin/audit': 'Audit Log',
+const BREADCRUMB_MAP: Record<string, AdminNavKey> = {
+  '/admin': 'navDashboard',
+  '/admin/users': 'navUsers',
+  '/admin/businesses': 'navBusinesses',
+  '/admin/categories': 'navCategories',
+  '/admin/cards': 'navCards',
+  '/admin/countries': 'navCountries',
+  '/admin/introductions': 'navIntroductions',
+  '/admin/stripe-links': 'navStripeLinks',
+  '/admin/subscriptions': 'navSubscriptions',
+  '/admin/audit': 'navAudit',
 };
 
 interface AdminMobileNavProps {
@@ -64,7 +76,9 @@ export function AdminMobileNav({ locale, labels }: AdminMobileNavProps) {
 
   const parts = pathname.split('/').filter(Boolean);
   const adminPath = `/${parts.slice(1, 3).join('/')}`;
-  const pageTitle = BREADCRUMB_MAP[adminPath] ?? 'Admin';
+  const pageTitle = BREADCRUMB_MAP[adminPath]
+    ? labels[BREADCRUMB_MAP[adminPath]]
+    : labels.navDashboard;
 
   return (
     <>
