@@ -46,7 +46,7 @@ function getInitials(name: string): string {
 export default async function AdminUserDetailPage({ params }: AdminUserDetailPageProps) {
   const { locale, userId } = await params;
 
-  const t = getT('admin');
+  const t = getT('admin', locale);
 
   const user = await db.query.users.findFirst({
     columns: {

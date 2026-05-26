@@ -4,22 +4,47 @@ import { Globe } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { SUPPORTED_LOCALES } from '@/components/layout/navigation';
+import {
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+  SUPPORTED_LOCALES,
+} from '@/components/layout/navigation';
+
+const LOCALE_LABELS = {
+  en: 'EN',
+  ru: 'RU',
+  uk: 'UK',
+} as const;
 
 export function LocaleSwitcher() {
   const pathname = usePathname();
+  const [, localeSegment] = pathname.split('/');
+  const currentLocale = isSupportedLocale(localeSegment) ? localeSegment : DEFAULT_LOCALE;
 
-  const currentLocale = SUPPORTED_LOCALES.length > 0 ? SUPPORTED_LOCALES[0] : 'en';
+  function getHref(locale: string) {
+    if (isSupportedLocale(localeSegment)) {
+      return pathname.replace(/^\/[^/]+/, `/${locale}`);
+    }
 
-  const switchHref = pathname.replace(/^\/(en|ru|uk)/, `/${currentLocale}`);
+    return `/${locale}${pathname === '/' ? '' : pathname}`;
+  }
 
   return (
-    <Link
-      href={switchHref}
-      className="flex min-h-11 items-center gap-1.5 rounded-md px-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+    <div
+      className="flex min-h-11 items-center gap-1 rounded-md px-1 text-sm font-medium text-muted-foreground"
+      aria-label="Language"
     >
       <Globe className="size-4" />
-      <span className="text-xs leading-4 uppercase">{currentLocale}</span>
-    </Link>
+      {SUPPORTED_LOCALES.map((locale) => (
+        <Link
+          key={locale}
+          href={getHref(locale)}
+          aria-current={locale === currentLocale ? 'true' : undefined}
+          className="rounded px-1.5 py-1 text-xs uppercase leading-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-[current=true]:text-foreground"
+        >
+          {LOCALE_LABELS[locale]}
+        </Link>
+      ))}
+    </div>
   );
 }

@@ -19,7 +19,7 @@ interface DirectoryDetailPageProps {
 
 export default async function DirectoryDetailPage({ params }: DirectoryDetailPageProps) {
   const { locale, slug } = await params;
-  const t = getT('directory');
+  const t = getT('directory', locale);
   const business = await getBusinessBySlug(decodeURIComponent(slug));
 
   if (!business) {

@@ -20,7 +20,7 @@ export function PlaceholderPage({
   primaryActionKey,
   titleKey,
 }: PlaceholderPageProps) {
-  const tPlaceholders = getT('placeholders');
+  const tPlaceholders = getT('placeholders', locale);
 
   return (
     <PageWrapper>

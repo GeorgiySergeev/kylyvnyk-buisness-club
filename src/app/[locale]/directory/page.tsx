@@ -52,7 +52,7 @@ function BusinessCard({
   business: PublicBusinessDto;
   locale: SupportedLocale;
 }) {
-  const t = getT('directory');
+  const t = getT('directory', locale);
   const location = [business.city?.name, business.country?.name].filter(Boolean).join(', ');
   const fallbackInitial = business.name.slice(0, 1).toUpperCase();
 
@@ -114,7 +114,7 @@ function BusinessCard({
 export default async function DirectoryPage({ params, searchParams }: DirectoryPageProps) {
   const { locale } = await params;
   const { category, country, q } = await searchParams;
-  const t = getT('directory');
+  const t = getT('directory', locale);
   const search = q?.trim().slice(0, 80) || undefined;
   const categoryId = parsePositiveInteger(category);
   const countryId = parsePositiveInteger(country);

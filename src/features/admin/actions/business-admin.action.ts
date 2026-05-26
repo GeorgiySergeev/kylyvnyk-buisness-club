@@ -3,6 +3,7 @@
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
+import { localizeHref, SUPPORTED_LOCALES } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import { businesses } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
@@ -12,7 +13,13 @@ import { updateBusinessStatusSchema } from '../schemas/admin.schema';
 
 type ActionResult<T> = { data: T; ok: true } | { error: string; ok: false };
 
-export async function updateBusinessStatusAction(rawInput: unknown): Promise<ActionResult<{ businessId: string; status: string }>> {
+function revalidateBusinessesPages() {
+  SUPPORTED_LOCALES.forEach((locale) => revalidatePath(localizeHref(locale, '/admin/businesses')));
+}
+
+export async function updateBusinessStatusAction(
+  rawInput: unknown,
+): Promise<ActionResult<{ businessId: string; status: string }>> {
   const admin = await getCurrentUserWithRole('ADMIN');
   if (!admin.ok) return { error: 'Unauthorized.', ok: false };
 
@@ -35,7 +42,7 @@ export async function updateBusinessStatusAction(rawInput: unknown): Promise<Act
     payload: { newStatus: parsed.data.status, targetBusinessId: updated.id },
   });
 
-  revalidatePath('/en/admin/businesses');
+  revalidateBusinessesPages();
 
   return { data: { businessId: updated.id, status: updated.status }, ok: true };
 }

@@ -3,6 +3,7 @@
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
+import { localizeHref, SUPPORTED_LOCALES } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import { introductions } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
@@ -33,10 +34,18 @@ export const setIntroductionStatusAction = createSetIntroductionStatusHandler({
     }),
   getCurrentAdmin: async () => getCurrentUserWithRole('ADMIN'),
   revalidate: () => {
-    revalidatePath('/en/admin/introductions');
-    revalidatePath('/en/m/introduce');
+    SUPPORTED_LOCALES.forEach((locale) => {
+      revalidatePath(localizeHref(locale, '/admin/introductions'));
+      revalidatePath(localizeHref(locale, '/m/introduce'));
+    });
   },
-  updateIntroduction: async ({ adminNote, introductionId, status, targetBusinessId, updatedAt }) => {
+  updateIntroduction: async ({
+    adminNote,
+    introductionId,
+    status,
+    targetBusinessId,
+    updatedAt,
+  }) => {
     const rows = await db
       .update(introductions)
       .set({

@@ -17,7 +17,7 @@ export default async function TwoFactorRequiredPage({
   params,
 }: TwoFactorRequiredPageProps) {
   const { locale } = await params;
-  const tAuth = getT('auth');
+  const tAuth = getT('auth', locale);
 
   return (
     <PageWrapper>

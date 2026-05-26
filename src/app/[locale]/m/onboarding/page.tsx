@@ -37,7 +37,7 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
       },
     }),
   ]);
-  const tAuth = getT('auth');
+  const tAuth = getT('auth', locale);
 
   return (
     <PageWrapper>

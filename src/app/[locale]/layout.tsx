@@ -23,7 +23,7 @@ export function generateStaticParams() {
 }
 
 function translateNavItems(locale: SupportedLocale, items: typeof PRIMARY_NAV): NavItem[] {
-  const tNav = getT('nav');
+  const tNav = getT('nav', locale);
   return items.map((item) => ({
     exact: item.exact,
     href: localizeHref(locale, item.href),
@@ -36,7 +36,7 @@ function translateAuthAction(
   locale: SupportedLocale,
   action: typeof GUEST_AUTH.signIn | typeof GUEST_AUTH.joinNow | typeof MEMBER_AUTH.signOut,
 ): AuthAction {
-  const tAuth = getT('auth');
+  const tAuth = getT('auth', locale);
   return {
     href: localizeHref(locale, action.href),
     label: tAuth(action.key),

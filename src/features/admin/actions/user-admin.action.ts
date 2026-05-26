@@ -3,6 +3,7 @@
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
+import { localizeHref, SUPPORTED_LOCALES } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import { users } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
@@ -11,6 +12,10 @@ import { createAuditLog } from '@/lib/audit';
 import { updateUserRoleSchema, updateUserStatusSchema } from '../schemas/admin.schema';
 
 type ActionResult<T> = { data: T; ok: true } | { error: string; ok: false };
+
+function revalidateUsersPages() {
+  SUPPORTED_LOCALES.forEach((locale) => revalidatePath(localizeHref(locale, '/admin/users')));
+}
 
 export async function updateUserRoleAction(
   rawInput: unknown,
@@ -47,7 +52,7 @@ export async function updateUserRoleAction(
     payload: { newRole: parsed.data.role, targetUserId: updated.id },
   });
 
-  revalidatePath('/en/admin/users');
+  revalidateUsersPages();
 
   return { data: { userId: updated.id, role: updated.role }, ok: true };
 }
@@ -94,7 +99,7 @@ export async function updateUserStatusAction(
     payload: { newStatus: parsed.data.status, targetUserId: updated.id },
   });
 
-  revalidatePath('/en/admin/users');
+  revalidateUsersPages();
 
   return { data: { userId: updated.id, status: updated.status }, ok: true };
 }

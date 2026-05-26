@@ -20,7 +20,7 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
   const supportedLocale = locale as SupportedLocale;
   await guardAdmin(supportedLocale);
 
-  const t = getT('admin');
+  const t = getT('admin', supportedLocale);
   const navLabels = ADMIN_NAV_ITEMS.reduce<AdminNavLabels>((labels, item) => {
     labels[item.key] = t(item.key);
     return labels;

@@ -66,7 +66,7 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
   const { locale } = await params;
   const { q, role, status } = await searchParams;
 
-  const t = getT('admin');
+  const t = getT('admin', locale);
 
   const searchTerm = q?.trim() ?? '';
   const roleFilter = role?.trim() ?? '';

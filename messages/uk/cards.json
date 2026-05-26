@@ -1,0 +1,12 @@
+{
+  "verifyBadgeNotFound": "Не вдалося перевірити",
+  "verifyDescription": "Ця публічна сторінка підтверджує лише статус картки та тип членства. Контакти, платежі й дані акаунта тут не показуються.",
+  "verifyExpiresAt": "Діє до",
+  "verifyMember": "Учасник",
+  "verifyMemberFallback": "Учасник KYLYVNYK CLUB",
+  "verifyMemberType": "Членство",
+  "verifyNoExpiration": "Без строку завершення",
+  "verifyNumber": "Номер картки",
+  "verifyStatus": "Статус",
+  "verifyTitle": "Перевірка клубної картки"
+}

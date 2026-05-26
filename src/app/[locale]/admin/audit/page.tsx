@@ -36,7 +36,7 @@ interface AdminAuditPageProps {
 export default async function AdminAuditPage({ params, searchParams }: AdminAuditPageProps) {
   const { locale } = await params;
   const { action, q } = await searchParams;
-  const t = getT('admin');
+  const t = getT('admin', locale);
 
   const searchTerm = q?.trim() ?? '';
   const actionFilter = action?.trim() ?? '';

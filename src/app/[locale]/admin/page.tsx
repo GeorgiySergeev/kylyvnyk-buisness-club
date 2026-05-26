@@ -1,6 +1,7 @@
 import { count, eq, isNull } from 'drizzle-orm';
 import { Building2, CreditCard, Gauge, Users } from 'lucide-react';
 
+import type { SupportedLocale } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import { businesses, clubCards, users } from '@/db/schema';
 import { AdminMetricCard, AdminPageHeader, AdminPanel } from '@/features/admin/components/admin-ui';
@@ -8,8 +9,15 @@ import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminPage() {
-  const t = getT('admin');
+interface AdminPageProps {
+  params: Promise<{
+    locale: SupportedLocale;
+  }>;
+}
+
+export default async function AdminPage({ params }: AdminPageProps) {
+  const { locale } = await params;
+  const t = getT('admin', locale);
 
   const [userCount] = await db
     .select({ value: count() })

@@ -67,8 +67,8 @@ function formatExpiresAt(expiresAt: string | null, fallback: string): string {
   }).format(new Date(expiresAt));
 }
 
-function VerifyCardView({ dto }: { dto: PublicCardDto }) {
-  const t = getT('cards');
+function VerifyCardView({ dto, locale }: { dto: PublicCardDto; locale: SupportedLocale }) {
+  const t = getT('cards', locale);
   const statusLabel = dto.status === 'NOT_FOUND' ? t('verifyBadgeNotFound') : dto.status;
 
   return (
@@ -135,9 +135,9 @@ function VerifyCardView({ dto }: { dto: PublicCardDto }) {
 }
 
 export default async function VerifyCardNumberPage({ params }: VerifyCardNumberPageProps) {
-  const { number } = await params;
+  const { locale, number } = await params;
   const decodedNumber = decodeURIComponent(number).trim().toUpperCase();
-  const t = getT('cards');
+  const t = getT('cards', locale);
   const headersList = await headers();
   const rateLimit = await checkVerifyCardRateLimit({
     ip: getClientIp(headersList),
@@ -147,6 +147,7 @@ export default async function VerifyCardNumberPage({ params }: VerifyCardNumberP
   if (!rateLimit.success) {
     return (
       <VerifyCardView
+        locale={locale}
         dto={createPublicCardDto(null, decodedNumber, t('verifyMemberFallback'))}
       />
     );
@@ -167,6 +168,7 @@ export default async function VerifyCardNumberPage({ params }: VerifyCardNumberP
 
   return (
     <VerifyCardView
+      locale={locale}
       dto={createPublicCardDto(row ?? null, decodedNumber, t('verifyMemberFallback'))}
     />
   );

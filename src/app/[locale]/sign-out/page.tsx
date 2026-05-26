@@ -14,7 +14,7 @@ interface SignOutPageProps {
 
 export default async function SignOutPage({ params }: SignOutPageProps) {
   const { locale } = await params;
-  const tAuth = getT('auth');
+  const tAuth = getT('auth', locale);
 
   return (
     <PageWrapper>

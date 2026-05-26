@@ -12,7 +12,7 @@ interface SignUpPageProps {
 
 export default async function SignUpPage({ params }: SignUpPageProps) {
   const { locale } = await params;
-  const tAuth = getT('auth');
+  const tAuth = getT('auth', locale);
 
   return (
     <PageWrapper>

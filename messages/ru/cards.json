@@ -1,0 +1,12 @@
+{
+  "verifyBadgeNotFound": "Не удалось проверить",
+  "verifyDescription": "Эта публичная страница подтверждает только статус карты и тип членства. Контакты, платежи и данные аккаунта здесь не показываются.",
+  "verifyExpiresAt": "Действует до",
+  "verifyMember": "Участник",
+  "verifyMemberFallback": "Участник KYLYVNYK CLUB",
+  "verifyMemberType": "Членство",
+  "verifyNoExpiration": "Без срока окончания",
+  "verifyNumber": "Номер карты",
+  "verifyStatus": "Статус",
+  "verifyTitle": "Проверка клубной карты"
+}

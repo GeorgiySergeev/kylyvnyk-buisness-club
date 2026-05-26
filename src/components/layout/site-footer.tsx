@@ -95,8 +95,8 @@ interface SiteFooterProps {
 }
 
 export function SiteFooter({ locale }: SiteFooterProps) {
-  const tA11y = getT('a11y');
-  const tFooter = getT('footer');
+  const tA11y = getT('a11y', locale);
+  const tFooter = getT('footer', locale);
   const year = new Date().getFullYear();
 
   return (

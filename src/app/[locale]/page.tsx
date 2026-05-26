@@ -62,7 +62,7 @@ interface LocaleHomePageProps {
 export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
   const { locale } = await params;
   const session = await getNavigationSession();
-  const t = getT('home');
+  const t = getT('home', locale);
 
   const isAuthenticated = session.role !== 'guest';
 

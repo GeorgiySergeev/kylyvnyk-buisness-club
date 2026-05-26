@@ -25,7 +25,7 @@ appended to the old ADR. Never edit an accepted ADR in place — append.
 | ADR-003 | Database: Postgres on Supabase via connection string + Drizzle ORM          | ACCEPTED              |
 | ADR-004 | Authentication: Clerk v6 (not Supabase Auth)                                | SUPERSEDED by ADR-011 |
 | ADR-005 | Billing: Stripe v17 with pinned `apiVersion`                                | ACCEPTED              |
-| ADR-006 | Localization: `en` only at MVP launch; `ru`, `uk` are Phase-2               | ACCEPTED              |
+| ADR-006 | Localization: `en` only at MVP launch; `ru`, `uk` are Phase-2               | SUPERSEDED by ADR-013 |
 | ADR-007 | Membership lifecycle: one active row per (user, type); history in audit_log | ACCEPTED              |
 | ADR-008 | Bot defense + rate limiting: Cloudflare Turnstile + Upstash Redis           | ACCEPTED              |
 | ADR-009 | Observability: Sentry (errors) + Plausible (privacy-first analytics)        | ACCEPTED              |
@@ -336,6 +336,8 @@ Critical implementation invariants (also enforced by Patch-02 and Patch-03):
 ---
 
 ## ADR-006 — Localization
+
+> Status: SUPERSEDED by ADR-013, 2026-05-26.
 
 ### Context
 
@@ -698,6 +700,39 @@ Use `daisyui@5.0.50` as a Tailwind plugin and adapter layer only.
 
 ---
 
+## ADR-013 — Localization: three-language MVP launch
+
+### Context
+
+The MVP launch scope now requires English, Russian, and Ukrainian from day one.
+The app already uses locale-prefixed routes, so the main change is message
+coverage, runtime locale handling, and launch QA across all three locales.
+
+### Decision
+
+Launch MVP with:
+
+- `en`, `ru`, and `uk` enabled in `SUPPORTED_LOCALES`.
+- `en` remains the default locale and `/` redirects to `/en`.
+- Public route slugs remain the same across locales for MVP, for example
+  `/en/directory`, `/ru/directory`, and `/uk/directory`.
+- Message namespaces live in `/messages/<locale>/*.json` with strict key parity
+  against English.
+- Public, auth, and legal surfaces show the language switcher. Member and admin
+  areas remain locale-aware through the URL and internal links.
+- Russian and Ukrainian launch copy may start as draft copy, but legal-sensitive
+  text requires human review before production release.
+
+### Consequences
+
+- Every new message key must be added to all three locales in the same diff.
+- Release QA must smoke-test representative public, auth, member, and admin
+  routes in all three locales.
+- Localized slugs are intentionally out of scope for MVP and require a future
+  ADR if SEO strategy changes.
+
+---
+
 ## Cross-cutting consequences
 
 These follow from the ADRs above and are restated here so reviewers can
@@ -719,9 +754,8 @@ see the whole shape:
 5. **One framework end-to-end.** Next.js carries marketing, member area,
    business area, admin, and API. No separate SPA, no separate API
    service.
-6. **Locales scale up, not down.** We launch with `en` and add `ru`/`uk`
-   when product fit is confirmed. URL structure is locale-ready from
-   day 1 so the addition is keys + translation work, not routing work.
+6. **Locales launch together.** We launch with `en`, `ru`, and `uk`, with one
+   shared route shape and key-parity checks across message namespaces.
 
 ---
 

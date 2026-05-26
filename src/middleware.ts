@@ -4,10 +4,15 @@ import { NextResponse } from 'next/server';
 
 import { decodeDevPhoneAuthCookie,DEV_PHONE_AUTH_COOKIE } from '@/features/auth/lib/dev-auth';
 
-const PROTECTED_ROUTE_PATTERN = /^\/en\/(?:m|admin)(?:\/|$)/;
+const PROTECTED_ROUTE_PATTERN = /^\/(en|ru|uk)\/(?:m|admin)(?:\/|$)/;
+const LOCALE_PATTERN = /^\/(en|ru|uk)(?:\/|$)/;
 
 function isProtectedRoute(pathname: string) {
   return PROTECTED_ROUTE_PATTERN.test(pathname);
+}
+
+function getRequestLocale(pathname: string) {
+  return LOCALE_PATTERN.exec(pathname)?.[1] ?? 'en';
 }
 
 function isDevBypassRequest(request: NextRequest) {
@@ -51,7 +56,7 @@ export default async function middleware(request: NextRequest) {
 
   if (isProtectedRoute(request.nextUrl.pathname) && !user && !isDevBypassRequest(request)) {
     const signInUrl = request.nextUrl.clone();
-    signInUrl.pathname = '/en/sign-in';
+    signInUrl.pathname = `/${getRequestLocale(request.nextUrl.pathname)}/sign-in`;
     signInUrl.searchParams.set('returnBackUrl', request.nextUrl.pathname);
     return NextResponse.redirect(signInUrl);
   }

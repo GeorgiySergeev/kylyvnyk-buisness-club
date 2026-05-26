@@ -20,7 +20,7 @@ export default async function IntroducePage({ params }: IntroducePageProps) {
   const { locale } = await params;
   const user = await guardBusiness(locale);
   await guardOnboarded(locale);
-  const t = getT('introductions');
+  const t = getT('introductions', locale);
 
   const [publishedBusinesses, recentRequests] = await Promise.all([
     db.query.businesses.findMany({

@@ -25,7 +25,7 @@ interface DashboardPageProps {
 export default async function DashboardPage({ params }: DashboardPageProps) {
   const { locale } = await params;
   const user = await guardOnboarded(locale);
-  const t = getT('dashboard');
+  const t = getT('dashboard', locale);
 
   const [card, profile, userBusinesses, introductionCountRow] = await Promise.all([
     db.query.clubCards.findFirst({

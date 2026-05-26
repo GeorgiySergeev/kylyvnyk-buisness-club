@@ -24,7 +24,7 @@ interface AdminBusinessDetailPageProps {
 
 export default async function AdminBusinessDetailPage({ params }: AdminBusinessDetailPageProps) {
   const { businessId, locale } = await params;
-  const t = getT('admin');
+  const t = getT('admin', locale);
 
   const business = await db.query.businesses.findFirst({
     columns: {

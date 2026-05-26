@@ -57,7 +57,7 @@ export async function requestPhoneOtpAction(
     return validationError(parsed.error.flatten().fieldErrors);
   }
 
-  const tAuth = getT('auth');
+  const tAuth = getT('auth', locale);
 
   // Rate Limiting
   const headerList = await headers();

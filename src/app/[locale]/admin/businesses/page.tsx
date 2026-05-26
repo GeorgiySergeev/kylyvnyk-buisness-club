@@ -39,7 +39,7 @@ export default async function AdminBusinessesPage({
 }: AdminBusinessesPageProps) {
   const { locale } = await params;
   const { q, status } = await searchParams;
-  const t = getT('admin');
+  const t = getT('admin', locale);
 
   const searchTerm = q?.trim() ?? '';
   const statusFilter = status?.trim() ?? '';

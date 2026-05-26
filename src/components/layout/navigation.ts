@@ -1,4 +1,5 @@
-export const SUPPORTED_LOCALES = ['en'] as const;
+export const SUPPORTED_LOCALES = ['en', 'ru', 'uk'] as const;
+export const DEFAULT_LOCALE: SupportedLocale = 'en';
 
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 export type SessionRole = 'guest' | 'FREE' | 'VIP' | 'BUSINESS' | 'ADMIN';
@@ -79,6 +80,14 @@ export function localizeHref(locale: SupportedLocale, href: string): string {
   }
 
   return `/${locale}${href}`;
+}
+
+export function isSupportedLocale(locale: string): locale is SupportedLocale {
+  return SUPPORTED_LOCALES.includes(locale as SupportedLocale);
+}
+
+export function resolveLocale(locale: string | undefined): SupportedLocale {
+  return locale && isSupportedLocale(locale) ? locale : DEFAULT_LOCALE;
 }
 
 export function filterNavByRole(items: NavItemConfig[], role: SessionRole): NavItemConfig[] {
