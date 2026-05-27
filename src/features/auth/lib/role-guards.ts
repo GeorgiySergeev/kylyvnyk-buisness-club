@@ -1,6 +1,5 @@
-import 'server-only';
-
 import { redirect } from 'next/navigation';
+import 'server-only';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
@@ -22,7 +21,7 @@ export async function guardOnboarded(locale: SupportedLocale) {
 }
 
 export async function guardBusiness(locale: SupportedLocale) {
-  return requireRole(locale, ['BUSINESS', 'ADMIN']);
+  return requireRole(locale, ['MEMBER', 'MANAGER', 'ADMIN', 'OWNER']);
 }
 
 export async function guardAdmin(locale: SupportedLocale) {

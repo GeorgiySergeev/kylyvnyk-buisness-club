@@ -80,7 +80,8 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
     location: t(p.locationKey),
     discount: t(p.discountKey),
     flag: t(p.flagKey),
-    flagLabel: p.flagKey === 'topPartnerOneFlag' ? 'CH' : p.flagKey === 'topPartnerTwoFlag' ? 'CA' : 'US',
+    flagLabel:
+      p.flagKey === 'topPartnerOneFlag' ? 'CH' : p.flagKey === 'topPartnerTwoFlag' ? 'CA' : 'US',
     img: p.img,
   }));
 
@@ -103,7 +104,7 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
 
   return (
     <>
-      <div className="mx-auto max-w-(--kc-max-w) space-y-8 px-4 pb-28 pt-6 md:px-12 md:pb-16 md:pt-8 lg:space-y-12">
+      <div className="mx-auto max-w-(--kc-max-w) space-y-6 border-0 bg-card-foreground px-4 pb-24 pt-4 xs:space-y-8 xs:pb-28 xs:pt-6 sm:pb-28 sm:pt-6 md:border md:border-border md:px-12 md:pb-16 md:pt-8 lg:space-y-12 container">
         <HeroSection
           locale={locale}
           isAuthenticated={isAuthenticated}
@@ -113,12 +114,13 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
           heroSubtitleHighlight={t('heroSubtitleHighlight')}
           memberDashboard={t('memberDashboard')}
           secondaryCta={t('secondaryCta')}
-          vipAction={t('vipAction')}
-          vipActionPrice={t('vipActionPrice')}
-          memberAction={t('memberAction')}
-          memberActionPrice={t('memberActionPrice')}
-          partnerAction={t('partnerAction')}
-          partnerActionPrice={t('partnerActionPrice')}
+          tierMemberTitle={t('tierMemberTitle')}
+          tierMemberDesc={t('tierMemberDesc')}
+          tierVipTitle={t('tierVipTitle')}
+          tierVipDesc={t('tierVipDesc')}
+          tierPartnerTitle={t('tierPartnerTitle')}
+          tierPartnerDesc={t('tierPartnerDesc')}
+          tierApplyCta={t('tierApplyCta')}
         />
 
         <StatsSection
@@ -142,10 +144,7 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
           partners={partners}
         />
 
-        <HowItWorksSection
-          title={t('howTitle')}
-          steps={steps}
-        />
+        <HowItWorksSection title={t('howTitle')} steps={steps} />
 
         <FindPartnerSection
           locale={locale}

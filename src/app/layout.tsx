@@ -1,17 +1,13 @@
 import './globals.css';
 
 import type { Metadata, Viewport } from 'next';
-import { JetBrains_Mono, Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
+import { JetBrains_Mono, Playfair_Display, Plus_Jakarta_Sans, Oxanium } from 'next/font/google';
 import type { ReactNode } from 'react';
 
 import { getT } from '@/lib/i18n/t-server';
+import { cn } from "@/lib/utils";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: '--font-sans',
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  display: 'swap',
-});
+const oxanium = Oxanium({subsets:['latin'],variable:'--font-sans'});
 
 const playfairDisplay = Playfair_Display({
   variable: '--font-display',
@@ -51,9 +47,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakartaSans.variable} ${playfairDisplay.variable} ${jetBrainsMono.variable}`}
+      className={cn(playfairDisplay.variable, jetBrainsMono.variable, "font-sans overflow-x-hidden", oxanium.variable)}
     >
-      <body suppressHydrationWarning>
+      <body suppressHydrationWarning className="overflow-x-hidden min-h-dvh">
         <a
           href="#main-content"
           className="sr-only fixed left-4 top-4 z-[100] rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground focus:not-sr-only focus:outline-2 focus:outline-offset-2 focus:outline-ring"

@@ -76,10 +76,17 @@
   "bottomHome": "Главная",
   "bottomDirectory": "Каталог",
   "bottomCard": "Карта",
-  "heroEyebrow": "МЕЖДУНАРОДНЫЙ БИЗНЕС-КЛУБ",
-  "heroTitle": "KYLYVNYK CLUB",
-  "heroSubtitle": "Экономьте. Развивайте бизнес.",
-  "heroSubtitleHighlight": "Живите лучше.",
+  "heroEyebrow": "ЗАКРЫТЫЙ БИЗНЕС-КЛУБ",
+  "heroTitle": "KYLYVNYK",
+  "heroSubtitle": "БИЗНЕС-КЛУБ",
+  "heroSubtitleHighlight": "СООБЩЕСТВО АКТИВНЫХ И ВЛИЯТЕЛЬНЫХ ЛЮДЕЙ",
   "memberDashboard": "Кабинет",
-  "memberProfile": "Мой профиль"
+  "memberProfile": "Мой профиль",
+  "tierMemberTitle": "УЧАСТНИК",
+  "tierMemberDesc": "Базовый доступ к каталогу и стандартным предложениям.",
+  "tierVipTitle": "VIP УЧАСТНИК",
+  "tierVipDesc": "Приоритетный нетворкинг, персональные B2B-представления и эксклюзивные предложения.",
+  "tierPartnerTitle": "ПАРТНЕР",
+  "tierPartnerDesc": "Видимость в каталоге, корпоративное присутствие и рекламные возможности.",
+  "tierApplyCta": "Подать заявку"
 }

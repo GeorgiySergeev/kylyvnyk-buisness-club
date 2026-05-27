@@ -1,16 +1,12 @@
-import 'server-only';
-
 import { and, eq, isNull, or } from 'drizzle-orm';
+import 'server-only';
 
 import { db } from '@/db/client';
 import { auditLogs, profiles, users } from '@/db/schema';
 
 import type { AuthIdentity } from './auth-identity';
 
-export async function syncAuthUser(
-  identity: AuthIdentity,
-  displayName?: string,
-) {
+export async function syncAuthUser(identity: AuthIdentity, displayName?: string) {
   const existing = await db.query.users.findFirst({
     where: (table, { and, eq, isNull, or }) =>
       and(
@@ -43,7 +39,7 @@ export async function syncAuthUser(
       .values({
         phone: identity.phone,
         displayName: displayName ?? null,
-        role: 'FREE',
+        role: 'MEMBER',
         status: 'ACTIVE',
         supabaseUserId: identity.providerUserId,
         updatedAt: now,

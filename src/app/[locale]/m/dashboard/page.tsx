@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { db } from '@/db/client';
 import { businesses, clubCards, introductions, profiles } from '@/db/schema';
 import { guardOnboarded } from '@/features/auth/lib/role-guards';
+import { DashboardProfileCard } from '@/features/profile/components/dashboard-profile-card';
 import { env } from '@/lib/env';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -27,68 +28,70 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const user = await guardOnboarded(locale);
   const t = getT('dashboard', locale);
 
-  const [card, profile, userBusinesses, introductionCountRow] = await Promise.all([
-    db.query.clubCards.findFirst({
-      where: eq(clubCards.userId, user.id),
-    }),
-    db.query.profiles.findFirst({
-      where: eq(profiles.userId, user.id),
-    }),
-    db.query.businesses.findMany({
-      columns: {
-        id: true,
-        name: true,
-        slug: true,
-        status: true,
-        isRecommended: true,
-        isTopPartner: true,
-      },
-      orderBy: (businesses, { desc }) => [desc(businesses.createdAt)],
-      where: eq(businesses.userId, user.id),
-      with: {
-        category: {
-          columns: {
-            name: true,
+  const [card, profile, countries, cities, userBusinesses, introductionCountRow] =
+    await Promise.all([
+      db.query.clubCards.findFirst({
+        where: eq(clubCards.userId, user.id),
+      }),
+      db.query.profiles.findFirst({
+        where: eq(profiles.userId, user.id),
+        with: {
+          city: {
+            columns: {
+              name: true,
+            },
+          },
+          country: {
+            columns: {
+              name: true,
+            },
           },
         },
-        country: {
-          columns: {
-            name: true,
+      }),
+      db.query.countries.findMany({
+        orderBy: (country, { asc }) => [asc(country.name)],
+      }),
+      db.query.cities.findMany({
+        orderBy: (city, { asc }) => [asc(city.name)],
+        with: {
+          country: true,
+        },
+      }),
+      db.query.businesses.findMany({
+        columns: {
+          id: true,
+          name: true,
+          slug: true,
+          status: true,
+          isRecommended: true,
+          isTopPartner: true,
+        },
+        orderBy: (businesses, { desc }) => [desc(businesses.createdAt)],
+        where: eq(businesses.userId, user.id),
+        with: {
+          category: {
+            columns: {
+              name: true,
+            },
+          },
+          country: {
+            columns: {
+              name: true,
+            },
           },
         },
-      },
-    }),
-    db.select({ value: count() }).from(introductions).where(eq(introductions.requesterId, user.id)),
-  ]);
+      }),
+      db
+        .select({ value: count() })
+        .from(introductions)
+        .where(eq(introductions.requesterId, user.id)),
+    ]);
 
-  const isProfileComplete = Boolean(user.displayName && profile?.countryId && profile?.cityId);
-  const isBusinessMember = user.role === 'BUSINESS' || user.role === 'ADMIN' || user.role === 'VIP';
-  const publishedBusinessCount = userBusinesses.filter(
-    (business) => business.status === 'PUBLISHED',
-  ).length;
+  const isBusinessMember = user.role !== 'GUEST';
   const introductionCount = introductionCountRow[0]?.value ?? 0;
   const verifyUrl = card
     ? `${env.NEXT_PUBLIC_APP_URL}/${locale}/verify-card/${card.number}`
     : localizeHref(locale, '/verify-card');
-
-  const stats = [
-    {
-      label: t('role'),
-      value: user.role,
-    },
-    {
-      label: t('cardStatus'),
-      value: card?.status ?? t('pendingStatus'),
-    },
-    {
-      label: t('businessCount'),
-      value: `${publishedBusinessCount}/${userBusinesses.length}`,
-    },
-    {
-      label: t('profileStatus'),
-      value: isProfileComplete ? t('profileComplete') : t('profilePartial'),
-    },
-  ];
 
   return (
     <PageWrapper>
@@ -106,18 +109,18 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
             </div>
           </div>
 
-          <div className="stats stats-vertical border border-border bg-card shadow-sm sm:stats-horizontal lg:stats-vertical">
+          {/* <div className="stats stats-vertical border border-border bg-card shadow-sm sm:stats-horizontal lg:stats-vertical">
             {stats.map((stat) => (
               <div className="stat" key={stat.label}>
                 <div className="stat-title text-muted-foreground">{stat.label}</div>
                 <div className="stat-value text-xl text-primary">{stat.value}</div>
               </div>
             ))}
-          </div>
+          </div> */}
         </section>
 
-        <section className="grid gap-5 xl:grid-cols-[minmax(21rem,24rem)_minmax(0,1fr)]">
-          <Card className="border-border bg-card shadow-sm">
+        <section className="grid gap-5 xl:grid-cols-[minmax(21rem,32rem)_minmax(0,1fr)]">
+          <Card className="border-border bg-card shadow-sm w-full">
             <CardHeader className="pb-3">
               <CardTitle className="text-xl">{t('cardTitle')}</CardTitle>
               <p className="text-sm leading-6 text-muted-foreground">{t('cardDescription')}</p>
@@ -143,49 +146,64 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
             </CardContent>
           </Card>
 
-          <div className="grid gap-5 lg:grid-cols-2">
-            <Card className="border-border bg-card shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-xl">{t('profileTitle')}</CardTitle>
-                <p className="text-sm leading-6 text-muted-foreground">{t('profileDescription')}</p>
-              </CardHeader>
-              <CardContent>
-                <dl className="grid gap-3 text-sm">
-                  <div className="flex items-center justify-between gap-4 border-b border-border/70 pb-3">
-                    <dt className="text-muted-foreground">{t('displayName')}</dt>
-                    <dd className="text-right font-medium text-foreground">
-                      {user.displayName ?? t('notSet')}
-                    </dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-4 border-b border-border/70 pb-3">
-                    <dt className="text-muted-foreground">{t('phone')}</dt>
-                    <dd className="text-right font-mono text-xs text-foreground">{user.phone}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-4 border-b border-border/70 pb-3">
-                    <dt className="text-muted-foreground">{t('country')}</dt>
-                    <dd className="text-right text-foreground">
-                      {profile?.countryId ? `#${profile.countryId}` : t('notSet')}
-                    </dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <dt className="text-muted-foreground">{t('city')}</dt>
-                    <dd className="text-right text-foreground">
-                      {profile?.cityId ? `#${profile.cityId}` : t('notSet')}
-                    </dd>
-                  </div>
-                </dl>
-              </CardContent>
-            </Card>
-
+          <div className="grid gap-5 lg:grid-cols-1">
+            <DashboardProfileCard
+              locale={locale}
+              displayName={user.displayName}
+              email={user.email}
+              phone={user.phone}
+              avatarUrl={profile?.avatarUrl ?? null}
+              bio={profile?.bio ?? null}
+              countryId={profile?.countryId ?? null}
+              countryName={profile?.country?.name ?? null}
+              cityId={profile?.cityId ?? null}
+              cityName={profile?.city?.name ?? null}
+              countries={countries.map((country) => ({
+                id: country.id,
+                label: country.name,
+              }))}
+              cities={cities.map((city) => ({
+                id: city.id,
+                label: `${city.name}, ${city.country.name}`,
+              }))}
+              labels={{
+                avatarHint: t('avatarHint'),
+                bio: t('bio'),
+                bioHint: t('bioHint'),
+                cancelEdit: t('cancelEdit'),
+                city: t('city'),
+                country: t('country'),
+                displayName: t('displayName'),
+                editProfile: t('editProfile'),
+                email: t('email'),
+                notSet: t('notSet'),
+                optional: t('optional'),
+                phone: t('phone'),
+                phoneReadOnly: t('phoneReadOnly'),
+                profileAvatarError: t('profileAvatarError'),
+                profileDescription: t('profileDescription'),
+                profileEmailInUse: t('profileEmailInUse'),
+                profileFormError: t('profileFormError'),
+                profilePicture: t('profilePicture'),
+                profileTitle: t('profileTitle'),
+                saveProfile: t('saveProfile'),
+                uploadAvatar: t('uploadAvatar'),
+              }}
+            />
+            {/* 
             <Card className="border-border bg-card shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-xl">{t('quickActionsTitle')}</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-3">
-                <Button asChild className="justify-start rounded-field">
+                <Button asChild className="justify-start rounded-field text-white">
                   <Link href={localizeHref(locale, '/directory')}>{t('openDirectory')}</Link>
                 </Button>
-                <Button asChild variant="outline" className="justify-start rounded-field">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="justify-start rounded-field text-white"
+                >
                   <Link
                     href={card ? localizeHref(locale, `/verify-card/${card.number}`) : verifyUrl}
                   >
@@ -193,19 +211,27 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                   </Link>
                 </Button>
                 {isBusinessMember ? (
-                  <Button asChild variant="outline" className="justify-start rounded-field">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="justify-start rounded-field text-white"
+                  >
                     <Link href={localizeHref(locale, '/m/introduce')}>
                       {t('businessIntroduction')}
                     </Link>
                   </Button>
                 ) : null}
                 {user.role === 'ADMIN' ? (
-                  <Button asChild variant="outline" className="justify-start rounded-field">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="justify-start rounded-field text-white"
+                  >
                     <Link href={localizeHref(locale, '/admin')}>{t('adminWorkspace')}</Link>
                   </Button>
                 ) : null}
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
         </section>
 
@@ -280,7 +306,11 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                 </p>
               </div>
               {isBusinessMember ? (
-                <Button asChild variant="outline" className="w-full justify-start rounded-field">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start rounded-field text-white"
+                >
                   <Link href={localizeHref(locale, '/m/introduce')}>
                     {t('businessIntroduction')}
                   </Link>

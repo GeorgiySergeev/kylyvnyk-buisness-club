@@ -2,7 +2,7 @@ export const SUPPORTED_LOCALES = ['en', 'ru', 'uk'] as const;
 export const DEFAULT_LOCALE: SupportedLocale = 'en';
 
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
-export type SessionRole = 'guest' | 'FREE' | 'VIP' | 'BUSINESS' | 'ADMIN';
+export type SessionRole = 'guest' | 'MEMBER' | 'MANAGER' | 'ADMIN' | 'OWNER';
 
 export interface NavItemConfig {
   key: 'directory' | 'verifyCard' | 'dashboard' | 'recommendClient' | 'admin';
@@ -32,7 +32,7 @@ export const PRIMARY_NAV: NavItemConfig[] = [
   {
     key: 'directory',
     href: '/directory',
-    roles: ['guest', 'FREE', 'BUSINESS', 'ADMIN'],
+    roles: ['guest', 'MEMBER', 'MANAGER', 'ADMIN', 'OWNER'],
   },
   {
     key: 'verifyCard',
@@ -42,17 +42,17 @@ export const PRIMARY_NAV: NavItemConfig[] = [
   {
     key: 'dashboard',
     href: '/m/dashboard',
-    roles: ['FREE', 'BUSINESS', 'ADMIN'],
+    roles: ['MEMBER', 'MANAGER', 'ADMIN', 'OWNER'],
   },
   {
     key: 'recommendClient',
     href: '/m/introduce',
-    roles: ['BUSINESS', 'ADMIN'],
+    roles: ['MEMBER', 'MANAGER', 'ADMIN', 'OWNER'],
   },
   {
     key: 'admin',
     href: '/admin',
-    roles: ['ADMIN'],
+    roles: ['ADMIN', 'OWNER'],
   },
 ];
 

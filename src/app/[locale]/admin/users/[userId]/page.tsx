@@ -14,7 +14,7 @@ import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { db } from '@/db/client';
-import { AdminStatusBadge } from '@/features/admin/components/admin-ui';
+import { AdminStatusBadge, getAdminStatusTone } from '@/features/admin/components/admin-ui';
 import { UserAccountTabs } from '@/features/admin/components/user-account-tabs';
 
 export const dynamic = 'force-dynamic';
@@ -117,9 +117,16 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
     }),
     db.query.auditLogs.findMany({
       columns: { action: true, createdAt: true, id: true, ipAddress: true },
-      limit: 10,
+      limit: 100,
       orderBy: (auditLogs, { desc }) => [desc(auditLogs.createdAt)],
-      where: (auditLogs, { eq }) => eq(auditLogs.actorUserId, userId),
+      where: (auditLogs, { and, eq, inArray, or }) =>
+        or(
+          eq(auditLogs.actorUserId, userId),
+          and(
+            eq(auditLogs.entityId, userId),
+            inArray(auditLogs.entityType, ['user', 'profile']),
+          ),
+        ),
     }),
     db.query.countries.findMany({
       columns: { id: true, name: true },
@@ -187,6 +194,8 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
   });
 
   const activeCard = userCards[0] ?? null;
+  const primaryMembership =
+    userMemberships.find((m) => m.status === 'ACTIVE') ?? userMemberships[0] ?? null;
 
   const fmt = (d: Date) =>
     d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -225,6 +234,13 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
                 </h1>
                 <div className="flex flex-wrap items-center gap-1.5">
                   <AdminStatusBadge>{user.role}</AdminStatusBadge>
+                  {primaryMembership ? (
+                    <AdminStatusBadge tone={getAdminStatusTone(primaryMembership.planCode)}>
+                      {primaryMembership.planCode}
+                    </AdminStatusBadge>
+                  ) : (
+                    <AdminStatusBadge tone="muted">NO MEMBERSHIP</AdminStatusBadge>
+                  )}
                   <AdminStatusBadge>{user.status}</AdminStatusBadge>
                   {user.deletedAt ? (
                     <AdminStatusBadge tone="danger">DELETED</AdminStatusBadge>

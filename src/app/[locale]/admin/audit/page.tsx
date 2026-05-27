@@ -29,17 +29,21 @@ interface AdminAuditPageProps {
   }>;
   searchParams: Promise<{
     action?: string;
+    page?: string;
     q?: string;
   }>;
 }
 
 export default async function AdminAuditPage({ params, searchParams }: AdminAuditPageProps) {
   const { locale } = await params;
-  const { action, q } = await searchParams;
+  const { action, page, q } = await searchParams;
   const t = getT('admin', locale);
+  const PAGE_SIZE = 20;
 
   const searchTerm = q?.trim() ?? '';
   const actionFilter = action?.trim() ?? '';
+  const rawPage = Number(page ?? '1');
+  const currentPage = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
 
   const allLogs = await db.query.auditLogs.findMany({
     columns: {
@@ -79,6 +83,23 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
         log.entityId?.toLowerCase().includes(lower),
     );
   }
+
+  const totalCount = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const pageNumber = Math.min(currentPage, totalPages);
+  const pageStart = (pageNumber - 1) * PAGE_SIZE;
+  const pageLogs = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+  const startRow = totalCount === 0 ? 0 : pageStart + 1;
+  const endRow = Math.min(pageStart + PAGE_SIZE, totalCount);
+
+  const createAuditHref = (nextPage?: number) => {
+    const params = new URLSearchParams();
+    if (actionFilter) params.set('action', actionFilter);
+    if (searchTerm) params.set('q', searchTerm);
+    if (nextPage && nextPage > 1) params.set('page', String(nextPage));
+    const query = params.toString();
+    return query ? `${localizeHref(locale, '/admin/audit')}?${query}` : localizeHref(locale, '/admin/audit');
+  };
 
   const uniqueActions = [...new Set(allLogs.map((log) => log.action))].sort().slice(0, 12);
 
@@ -121,50 +142,69 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
         </div>
       </AdminFiltersBar>
 
-      {filtered.length === 0 ? (
+      {totalCount === 0 ? (
         <AdminEmptyState title={t('noAuditLogs')} />
       ) : (
-        <AdminDataTableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>{t('auditAction')}</TableHead>
-                <TableHead>{t('auditActor')}</TableHead>
-                <TableHead>{t('auditEntity')}</TableHead>
-                <TableHead>{t('auditPayload')}</TableHead>
-                <TableHead>{t('auditIp')}</TableHead>
-                <TableHead>{t('created')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell>
-                    <AdminStatusBadge tone="info">{log.action}</AdminStatusBadge>
-                  </TableCell>
-                  <TableCell>{log.actor?.displayName ?? 'System'}</TableCell>
-                  <TableCell>
-                    <div>{log.entityType ?? 'N/A'}</div>
-                    {log.entityId ? (
-                      <div className="font-mono text-[11px] text-muted-foreground">
-                        {log.entityId.slice(0, 8)}...
-                      </div>
-                    ) : null}
-                  </TableCell>
-                  <TableCell className="max-w-xs truncate font-mono text-[11px] text-muted-foreground">
-                    {log.payload ? JSON.stringify(log.payload) : 'N/A'}
-                  </TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">
-                    {log.ipAddress ?? 'N/A'}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                    {log.createdAt.toLocaleString()}
-                  </TableCell>
+        <div className="space-y-4">
+          <AdminDataTableShell>
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead>{t('auditAction')}</TableHead>
+                  <TableHead>{t('auditActor')}</TableHead>
+                  <TableHead>{t('auditEntity')}</TableHead>
+                  <TableHead>{t('auditPayload')}</TableHead>
+                  <TableHead>{t('auditIp')}</TableHead>
+                  <TableHead>{t('created')}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </AdminDataTableShell>
+              </TableHeader>
+              <TableBody>
+                {pageLogs.map((log) => (
+                  <TableRow key={log.id}>
+                    <TableCell>
+                      <AdminStatusBadge tone="info">{log.action}</AdminStatusBadge>
+                    </TableCell>
+                    <TableCell>{log.actor?.displayName ?? 'System'}</TableCell>
+                    <TableCell>
+                      <div>{log.entityType ?? 'N/A'}</div>
+                      {log.entityId ? (
+                        <div className="font-mono text-[11px] text-muted-foreground">
+                          {log.entityId.slice(0, 8)}...
+                        </div>
+                      ) : null}
+                    </TableCell>
+                    <TableCell className="max-w-xs truncate font-mono text-[11px] text-muted-foreground">
+                      {log.payload ? JSON.stringify(log.payload) : 'N/A'}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">
+                      {log.ipAddress ?? 'N/A'}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                      {log.createdAt.toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </AdminDataTableShell>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-muted-foreground">
+              Showing {startRow}&ndash;{endRow} of {totalCount}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button asChild disabled={pageNumber <= 1} size="sm" variant="outline">
+                <Link href={createAuditHref(pageNumber - 1)}>Prev</Link>
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page {pageNumber} / {totalPages}
+              </span>
+              <Button asChild disabled={pageNumber >= totalPages} size="sm" variant="outline">
+                <Link href={createAuditHref(pageNumber + 1)}>Next</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

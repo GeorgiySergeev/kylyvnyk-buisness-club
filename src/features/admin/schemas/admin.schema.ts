@@ -1,11 +1,17 @@
 import { z } from 'zod';
 
-export const userRoleEnumSchema = z.enum(['FREE', 'BUSINESS', 'ADMIN', 'VIP']);
+export const userRoleEnumSchema = z.enum(['GUEST', 'MEMBER', 'MANAGER', 'ADMIN', 'OWNER']);
+export const membershipTierEnumSchema = z.enum(['FREE', 'VIP', 'BUSINESS']);
 export const userStatusEnumSchema = z.enum(['ACTIVE', 'INACTIVE', 'BANNED']);
 
 export const updateUserRoleSchema = z.object({
   userId: z.string().uuid(),
   role: userRoleEnumSchema,
+});
+
+export const updateUserMembershipSchema = z.object({
+  userId: z.string().uuid(),
+  membershipTier: membershipTierEnumSchema,
 });
 
 export const updateUserStatusSchema = z.object({
@@ -17,7 +23,7 @@ export const updateUserDetailsSchema = z.object({
   userId: z.string().uuid(),
   displayName: z.string().trim().min(1).max(120).nullable().optional(),
   email: z.string().email().nullable().optional(),
-  phone: z.string().trim().min(6).max(32),
+  phone: z.string().trim().min(6).max(32).optional(),
   supabaseUserId: z.string().trim().min(3).max(128).nullable().optional(),
 });
 
