@@ -76,10 +76,17 @@
   "bottomHome": "Home",
   "bottomDirectory": "Directory",
   "bottomCard": "Card",
-  "heroEyebrow": "INTERNATIONAL BUSINESS CLUB",
-  "heroTitle": "KYLYVNYK CLUB",
-  "heroSubtitle": "Save. Develop your business.",
-  "heroSubtitleHighlight": "Live better.",
+  "heroEyebrow": "PRIVATE BUSINESS CLUB",
+  "heroTitle": "KYLYVNYK",
+  "heroSubtitle": "BUSINESS CLUB",
+  "heroSubtitleHighlight": "SOCIETY FOR ACTIVE AND INFLUENTIAL PEOPLE",
   "memberDashboard": "Dashboard",
-  "memberProfile": "My Profile"
+  "memberProfile": "My Profile",
+  "tierMemberTitle": "MEMBER",
+  "tierMemberDesc": "Basic access to verified directory and standard offers.",
+  "tierVipTitle": "VIP MEMBER",
+  "tierVipDesc": "Priority networking, exclusive B2B introductions, and private offers.",
+  "tierPartnerTitle": "PARTNER",
+  "tierPartnerDesc": "Directory visibility, corporate listing, and advertising options.",
+  "tierApplyCta": "Apply now"
 }

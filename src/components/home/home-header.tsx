@@ -204,7 +204,7 @@ export function HomeHeader({
               <>
                 <Avatar className="size-9 rounded-md border border-border/70">
                   <AvatarImage src={avatarUrl} alt="" />
-                  <AvatarFallback className="rounded-md bg-secondary text-xs font-semibold text-primary">
+                  <AvatarFallback className="rounded-md  text-xs font-semibold ">
                     {getInitials(displayName)}
                   </AvatarFallback>
                 </Avatar>

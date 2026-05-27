@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 
 import type { SessionRole } from '@/components/layout/navigation';
 import { db } from '@/db/client';
+import type { UserRole } from '@/db/schema/enums/user-role';
 import { getAuthIdentity } from '@/features/auth/lib/auth-identity';
 import { syncAuthUser } from '@/features/auth/lib/sync-auth-user';
 
@@ -18,6 +19,13 @@ export interface NavigationSession {
 const GUEST_SESSION: NavigationSession = {
   role: 'guest',
 };
+
+function toSessionRole(role: UserRole): SessionRole {
+  if (role === 'GUEST') {
+    return 'guest';
+  }
+  return role;
+}
 
 export async function getNavigationSession(): Promise<NavigationSession> {
   await headers();
@@ -34,13 +42,27 @@ export async function getNavigationSession(): Promise<NavigationSession> {
         isNull(table.deletedAt),
         or(eq(table.supabaseUserId, identity.providerUserId), eq(table.phone, identity.phone)),
       ),
+    with: {
+      profile: {
+        columns: {
+          avatarUrl: true,
+        },
+      },
+    },
   });
 
   if (!user) {
     const synced = await syncAuthUser(identity);
+    const syncedProfile = await db.query.profiles.findFirst({
+      columns: {
+        avatarUrl: true,
+      },
+      where: (table, { eq }) => eq(table.userId, synced.user.id),
+    });
     return {
+      avatarUrl: syncedProfile?.avatarUrl ?? undefined,
       displayName: synced.user.displayName ?? undefined,
-      role: synced.user.role,
+      role: toSessionRole(synced.user.role),
       userId: synced.user.id,
     };
   }
@@ -50,8 +72,9 @@ export async function getNavigationSession(): Promise<NavigationSession> {
   }
 
   return {
+    avatarUrl: user.profile?.avatarUrl ?? undefined,
     displayName: user.displayName ?? undefined,
-    role: user.role,
+    role: toSessionRole(user.role),
     userId: user.id,
   };
 }

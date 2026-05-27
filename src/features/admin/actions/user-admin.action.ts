@@ -3,16 +3,22 @@
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
-import { localizeHref, SUPPORTED_LOCALES } from '@/components/layout/navigation';
+import {
+  SUPPORTED_LOCALES,
+  localizeHref,
+  type SupportedLocale,
+} from '@/components/layout/navigation';
 import { db } from '@/db/client';
-import { profiles, users } from '@/db/schema';
+import { memberships, profiles, users } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { createAuditLog } from '@/lib/audit';
+import { log } from '@/lib/log';
 
 import {
   restoreUserSchema,
   softDeleteUserSchema,
   updateUserDetailsSchema,
+  updateUserMembershipSchema,
   updateUserProfileSchema,
   updateUserRoleSchema,
   updateUserStatusSchema,
@@ -20,22 +26,34 @@ import {
 
 type ActionResult<T> = { data: T; ok: true } | { error: string; ok: false };
 
-function revalidateUsersPages() {
-  SUPPORTED_LOCALES.forEach((locale) => revalidatePath(localizeHref(locale, '/admin/users')));
+function revalidateUsersPages(userId?: string, locale?: SupportedLocale) {
+  const locales = locale ? [locale] : SUPPORTED_LOCALES;
+  locales.forEach((item) => {
+    revalidatePath(localizeHref(item, '/admin/users'));
+    if (userId) {
+      revalidatePath(localizeHref(item, `/admin/users/${userId}`));
+    }
+  });
 }
 
 export async function updateUserRoleAction(
   rawInput: unknown,
+  locale: SupportedLocale,
 ): Promise<ActionResult<{ userId: string; role: string }>> {
+  const start = Date.now();
   const admin = await getCurrentUserWithRole('ADMIN');
 
   if (!admin.ok) {
+    log.warn('Admin user role update denied', { reason: admin.error });
     return { error: 'Unauthorized. Admin access required.', ok: false };
   }
 
   const parsed = updateUserRoleSchema.safeParse(rawInput);
 
   if (!parsed.success) {
+    log.warn('Admin user role update validation failed', {
+      userId: admin.data.id,
+    });
     return { error: parsed.error.flatten().fieldErrors?.role?.[0] ?? 'Invalid input.', ok: false };
   }
 
@@ -59,23 +77,95 @@ export async function updateUserRoleAction(
     payload: { newRole: parsed.data.role, targetUserId: updated.id },
   });
 
-  revalidateUsersPages();
+  revalidateUsersPages(parsed.data.userId, locale);
+  log.info('Admin user role updated', {
+    durationMs: Date.now() - start,
+    targetUserId: updated.id,
+  });
 
   return { data: { userId: updated.id, role: updated.role }, ok: true };
 }
 
-export async function updateUserStatusAction(
+export async function updateUserMembershipAction(
   rawInput: unknown,
-): Promise<ActionResult<{ userId: string; status: string }>> {
+  locale: SupportedLocale,
+): Promise<ActionResult<{ userId: string; membershipTier: string }>> {
+  const start = Date.now();
   const admin = await getCurrentUserWithRole('ADMIN');
 
   if (!admin.ok) {
+    log.warn('Admin user membership update denied', { reason: admin.error });
+    return { error: 'Unauthorized. Admin access required.', ok: false };
+  }
+
+  const parsed = updateUserMembershipSchema.safeParse(rawInput);
+
+  if (!parsed.success) {
+    log.warn('Admin user membership update validation failed', {
+      userId: admin.data.id,
+    });
+    return { error: 'Invalid input.', ok: false };
+  }
+
+  const now = new Date();
+
+  const existingMembership = await db.query.memberships.findFirst({
+    where: (m, { and, eq: eqOp }) =>
+      and(eqOp(m.userId, parsed.data.userId), eqOp(m.status, 'ACTIVE')),
+  });
+
+  if (existingMembership) {
+    await db
+      .update(memberships)
+      .set({ planCode: parsed.data.membershipTier, updatedAt: now })
+      .where(eq(memberships.id, existingMembership.id));
+  } else {
+    await db.insert(memberships).values({
+      userId: parsed.data.userId,
+      planCode: parsed.data.membershipTier,
+      status: 'ACTIVE',
+      startsAt: now,
+    });
+  }
+
+  await createAuditLog({
+    action: 'ADMIN_USER_MEMBERSHIP_UPDATED',
+    actorUserId: admin.data.id,
+    entityId: parsed.data.userId,
+    entityType: 'user',
+    payload: { newTier: parsed.data.membershipTier, targetUserId: parsed.data.userId },
+  });
+
+  revalidateUsersPages(parsed.data.userId, locale);
+  log.info('Admin user membership updated', {
+    durationMs: Date.now() - start,
+    targetUserId: parsed.data.userId,
+  });
+
+  return {
+    data: { userId: parsed.data.userId, membershipTier: parsed.data.membershipTier },
+    ok: true,
+  };
+}
+
+export async function updateUserStatusAction(
+  rawInput: unknown,
+  locale: SupportedLocale,
+): Promise<ActionResult<{ userId: string; status: string }>> {
+  const start = Date.now();
+  const admin = await getCurrentUserWithRole('ADMIN');
+
+  if (!admin.ok) {
+    log.warn('Admin user status update denied', { reason: admin.error });
     return { error: 'Unauthorized. Admin access required.', ok: false };
   }
 
   const parsed = updateUserStatusSchema.safeParse(rawInput);
 
   if (!parsed.success) {
+    log.warn('Admin user status update validation failed', {
+      userId: admin.data.id,
+    });
     return {
       error: parsed.error.flatten().fieldErrors?.status?.[0] ?? 'Invalid input.',
       ok: false,
@@ -106,7 +196,11 @@ export async function updateUserStatusAction(
     payload: { newStatus: parsed.data.status, targetUserId: updated.id },
   });
 
-  revalidateUsersPages();
+  revalidateUsersPages(parsed.data.userId, locale);
+  log.info('Admin user status updated', {
+    durationMs: Date.now() - start,
+    targetUserId: updated.id,
+  });
 
   return { data: { userId: updated.id, status: updated.status }, ok: true };
 }
@@ -120,17 +214,20 @@ export async function updateUserDetailsAction(
   const parsed = updateUserDetailsSchema.safeParse(rawInput);
   if (!parsed.success) return { error: 'Invalid input.', ok: false };
 
+  const { userId, ...fields } = parsed.data;
+
+  // Build partial update — only set fields that were explicitly provided
+  const setPayload: Record<string, unknown> = { updatedAt: new Date() };
+  if ('displayName' in fields) setPayload.displayName = fields.displayName ?? null;
+  if ('email' in fields) setPayload.email = fields.email ?? null;
+  if ('phone' in fields) setPayload.phone = fields.phone;
+  if ('supabaseUserId' in fields) setPayload.supabaseUserId = fields.supabaseUserId ?? null;
+
   try {
     const [updated] = await db
       .update(users)
-      .set({
-        displayName: parsed.data.displayName ?? null,
-        email: parsed.data.email ?? null,
-        phone: parsed.data.phone,
-        supabaseUserId: parsed.data.supabaseUserId ?? null,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, parsed.data.userId))
+      .set(setPayload)
+      .where(eq(users.id, userId))
       .returning({ id: users.id });
 
     if (!updated) return { error: 'User not found.', ok: false };
@@ -140,16 +237,17 @@ export async function updateUserDetailsAction(
       actorUserId: admin.data.id,
       entityId: updated.id,
       entityType: 'user',
-      payload: parsed.data,
+      payload: fields,
     });
   } catch (error) {
     const code = (error as { code?: string })?.code;
-    if (code === '23505') return { error: 'Phone, email, or Supabase user id already exists.', ok: false };
+    if (code === '23505')
+      return { error: 'Phone, email, or Supabase user id already exists.', ok: false };
     throw error;
   }
 
-  revalidateUsersPages();
-  return { data: { userId: parsed.data.userId }, ok: true };
+  revalidateUsersPages(userId);
+  return { data: { userId }, ok: true };
 }
 
 export async function updateUserProfileAction(
@@ -161,42 +259,45 @@ export async function updateUserProfileAction(
   const parsed = updateUserProfileSchema.safeParse(rawInput);
   if (!parsed.success) return { error: 'Invalid input.', ok: false };
 
+  const { userId, ...fields } = parsed.data;
+
+  // Build partial update — only set fields that were explicitly provided
+  const setPayload: Record<string, unknown> = { updatedAt: new Date() };
+  if ('avatarUrl' in fields) setPayload.avatarUrl = fields.avatarUrl ?? null;
+  if ('bio' in fields) setPayload.bio = fields.bio ?? null;
+  if ('cityId' in fields) setPayload.cityId = fields.cityId ?? null;
+  if ('countryId' in fields) setPayload.countryId = fields.countryId ?? null;
+
   const existing = await db.query.profiles.findFirst({
     columns: { id: true },
-    where: (p, { eq }) => eq(p.userId, parsed.data.userId),
+    where: (p, { eq }) => eq(p.userId, userId),
   });
 
   if (existing) {
     await db
       .update(profiles)
-      .set({
-        avatarUrl: parsed.data.avatarUrl ?? null,
-        bio: parsed.data.bio ?? null,
-        cityId: parsed.data.cityId ?? null,
-        countryId: parsed.data.countryId ?? null,
-        updatedAt: new Date(),
-      })
-      .where(eq(profiles.userId, parsed.data.userId));
+      .set(setPayload)
+      .where(eq(profiles.userId, userId));
   } else {
     await db.insert(profiles).values({
-      avatarUrl: parsed.data.avatarUrl ?? null,
-      bio: parsed.data.bio ?? null,
-      cityId: parsed.data.cityId ?? null,
-      countryId: parsed.data.countryId ?? null,
-      userId: parsed.data.userId,
+      avatarUrl: fields.avatarUrl ?? null,
+      bio: fields.bio ?? null,
+      cityId: fields.cityId ?? null,
+      countryId: fields.countryId ?? null,
+      userId,
     });
   }
 
   await createAuditLog({
     action: 'ADMIN_USER_PROFILE_UPDATED',
     actorUserId: admin.data.id,
-    entityId: parsed.data.userId,
+    entityId: userId,
     entityType: 'profile',
-    payload: parsed.data,
+    payload: fields,
   });
 
-  revalidateUsersPages();
-  return { data: { userId: parsed.data.userId }, ok: true };
+  revalidateUsersPages(userId);
+  return { data: { userId }, ok: true };
 }
 
 export async function softDeleteUserAction(
@@ -226,7 +327,7 @@ export async function softDeleteUserAction(
     entityType: 'user',
   });
 
-  revalidateUsersPages();
+  revalidateUsersPages(parsed.data.userId);
   return { data: { userId: updated.id }, ok: true };
 }
 
@@ -253,6 +354,6 @@ export async function restoreUserAction(
     entityType: 'user',
   });
 
-  revalidateUsersPages();
+  revalidateUsersPages(parsed.data.userId);
   return { data: { userId: updated.id }, ok: true };
 }

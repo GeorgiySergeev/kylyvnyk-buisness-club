@@ -4,13 +4,13 @@ export type AdminRouteDecision = 'ALLOW' | 'REDIRECT_HOME' | 'REDIRECT_MFA' | 'R
 export function decideAdminRouteAccess(input: {
   hasMfa: boolean;
   isAuthenticated: boolean;
-  role: 'ADMIN' | 'BUSINESS' | 'FREE' | 'VIP' | null;
+  role: 'ADMIN' | 'GUEST' | 'MANAGER' | 'MEMBER' | 'OWNER' | null;
 }): AdminRouteDecision {
   if (!input.isAuthenticated) {
     return 'REDIRECT_SIGN_IN';
   }
 
-  if (input.role !== 'ADMIN') {
+  if (input.role !== 'ADMIN' && input.role !== 'OWNER') {
     return 'REDIRECT_HOME';
   }
 
@@ -61,4 +61,3 @@ export function decideAdminApiResult(input: {
 
   return { ok: true };
 }
-

@@ -11,7 +11,7 @@ export const users = pgTable(
     phone: text('phone').unique().notNull(),
     email: text('email').unique(),
     displayName: text('display_name'),
-    role: userRoleEnum('role').notNull().default('FREE'),
+    role: userRoleEnum('role').notNull().default('MEMBER'),
     status: userStatusEnum('status').notNull().default('ACTIVE'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

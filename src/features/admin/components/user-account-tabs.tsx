@@ -1,7 +1,12 @@
-﻿'use client';
+'use client';
+
+import type { ComponentType } from 'react';
+import { useState } from 'react';
 
 import {
   AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
   ClipboardList,
   CreditCard,
   Handshake,
@@ -10,9 +15,8 @@ import {
   ShieldCheck,
   UserRound,
 } from 'lucide-react';
-import type { ComponentType } from 'react';
-import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { AdminPanel, AdminStatusBadge } from '@/features/admin/components/admin-ui';
 import { UserContactForm } from '@/features/admin/components/user-contact-form';
 import { UserDangerZone } from '@/features/admin/components/user-danger-zone';
@@ -130,6 +134,14 @@ export function UserAccountTabs({
   user,
 }: UserAccountTabsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('personal');
+  const [activityPage, setActivityPage] = useState(1);
+
+  function handleTabChange(tab: TabKey) {
+    setActiveTab(tab);
+    if (tab !== 'activity') {
+      setActivityPage(1);
+    }
+  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
@@ -155,7 +167,7 @@ export function UserAccountTabs({
                         : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
                   )}
                   key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
+                  onClick={() => handleTabChange(tab.key)}
                   type="button"
                 >
                   <Icon className="size-4" />
@@ -185,7 +197,7 @@ export function UserAccountTabs({
                     : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground',
                 )}
                 key={`${tab.key}-mobile`}
-                onClick={() => setActiveTab(tab.key)}
+                onClick={() => handleTabChange(tab.key)}
                 type="button"
               >
                 {tab.label}
@@ -229,8 +241,14 @@ export function UserAccountTabs({
         {activeTab === 'card' ? <CardSection card={card} /> : null}
 
         {activeTab === 'access' ? (
-          <AdminPanel description="Manage role and account status" title="Access Control">
+          <AdminPanel
+            description="Manage role, membership, and account status"
+            title="Access Control"
+          >
             <UserRoleForm
+              currentMembershipTier={
+                memberships.find((m) => m.status === 'ACTIVE')?.planCode ?? null
+              }
               currentRole={user.role}
               currentStatus={user.status}
               userId={user.id}
@@ -246,7 +264,6 @@ export function UserAccountTabs({
           <BillingSection
             memberships={memberships}
             subscriptions={subscriptions}
-            userRole={user.role}
           />
         ) : null}
 
@@ -258,26 +275,79 @@ export function UserAccountTabs({
 
         {activeTab === 'activity' ? (
           <AdminPanel description="Latest actions related to this user" title="Recent Activity">
-            {recentAuditLogs.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No activity yet.</p>
-            ) : (
-              <div className="space-y-2">
-                {recentAuditLogs.map((log) => (
-                  <div
-                    className="rounded-lg border border-border/70 bg-background/50 p-3"
-                    key={log.id}
-                  >
-                    <p className="text-sm font-medium text-foreground">{log.action}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {log.createdAt} &middot; {log.ipAddress ?? 'N/A'}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
+            <ActivitySection
+              logs={recentAuditLogs}
+              onPageChange={setActivityPage}
+              page={activityPage}
+            />
           </AdminPanel>
         ) : null}
       </section>
+    </div>
+  );
+}
+
+function ActivitySection({
+  logs,
+  onPageChange,
+  page,
+}: {
+  logs: Array<{ action: string; createdAt: string; id: string; ipAddress: string | null }>;
+  onPageChange: (page: number) => void;
+  page: number;
+}) {
+  const PAGE_SIZE = 10;
+  const totalPages = Math.max(1, Math.ceil(logs.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const items = logs.slice(start, start + PAGE_SIZE);
+
+  if (logs.length === 0) {
+    return <p className="text-sm text-muted-foreground">No activity yet.</p>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        {items.map((log) => (
+          <div className="rounded-lg border border-border/70 bg-background/50 p-3" key={log.id}>
+            <p className="text-sm font-medium text-foreground">{log.action}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {log.createdAt} &middot; {log.ipAddress ?? 'N/A'}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {totalPages > 1 ? (
+        <div className="flex items-center justify-between border-t border-border/70 pt-3">
+          <p className="text-xs text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              disabled={currentPage <= 1}
+              onClick={() => onPageChange(currentPage - 1)}
+              size="sm"
+              type="button"
+              variant="outline"
+            >
+              <ChevronLeft className="mr-1 size-4" />
+              Prev
+            </Button>
+            <Button
+              disabled={currentPage >= totalPages}
+              onClick={() => onPageChange(currentPage + 1)}
+              size="sm"
+              type="button"
+              variant="outline"
+            >
+              Next
+              <ChevronRight className="ml-1 size-4" />
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -353,10 +423,7 @@ function CardSection({ card }: { card: CardData | null }) {
 
 function IntroductionsSection({ introductions }: { introductions: IntroductionData[] }) {
   return (
-    <AdminPanel
-      description="All Business Introduction requests by this user"
-      title="Introductions"
-    >
+    <AdminPanel description="All Business Introduction requests by this user" title="Introductions">
       {introductions.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border/80 bg-background/50 p-6 text-center">
           <Handshake aria-hidden="true" className="mx-auto size-8 text-muted-foreground/50" />
@@ -367,10 +434,7 @@ function IntroductionsSection({ introductions }: { introductions: IntroductionDa
       ) : (
         <div className="space-y-3">
           {introductions.map((intro) => (
-            <div
-              className="rounded-lg border border-border/70 bg-background/50 p-4"
-              key={intro.id}
-            >
+            <div className="rounded-lg border border-border/70 bg-background/50 p-4" key={intro.id}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
@@ -408,20 +472,19 @@ function IntroductionsSection({ introductions }: { introductions: IntroductionDa
 function BillingSection({
   memberships,
   subscriptions,
-  userRole,
 }: {
   memberships: MembershipData[];
   subscriptions: SubscriptionData[];
-  userRole: string;
 }) {
   const hasAnyData = memberships.length > 0 || subscriptions.length > 0;
+  const activeTier = memberships.find((m) => m.status === 'ACTIVE')?.planCode;
 
   return (
     <div className="space-y-4">
       {/* VIP notice */}
-      {userRole === 'VIP' ? (
-        <div className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3">
-          <p className="text-sm font-medium text-primary">
+      {activeTier === 'VIP' ? (
+        <div className="rounded-lg border border-border/80 bg-muted/50 px-4 py-3">
+          <p className="text-sm font-medium text-foreground">
             VIP Member &mdash; Monthly subscription billing is active
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -435,17 +498,12 @@ function BillingSection({
         {subscriptions.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border/80 bg-background/50 p-6 text-center">
             <Receipt aria-hidden="true" className="mx-auto size-8 text-muted-foreground/50" />
-            <p className="mt-2 text-sm font-medium text-muted-foreground">
-              No subscriptions found
-            </p>
+            <p className="mt-2 text-sm font-medium text-muted-foreground">No subscriptions found</p>
           </div>
         ) : (
           <div className="space-y-3">
             {subscriptions.map((sub) => (
-              <div
-                className="rounded-lg border border-border/70 bg-background/50 p-4"
-                key={sub.id}
-              >
+              <div className="rounded-lg border border-border/70 bg-background/50 p-4" key={sub.id}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 space-y-1">
                     <div className="flex items-center gap-2">
@@ -488,10 +546,7 @@ function BillingSection({
         ) : (
           <div className="space-y-3">
             {memberships.map((m) => (
-              <div
-                className="rounded-lg border border-border/70 bg-background/50 p-4"
-                key={m.id}
-              >
+              <div className="rounded-lg border border-border/70 bg-background/50 p-4" key={m.id}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 space-y-1">
                     <div className="flex items-center gap-2">
@@ -519,7 +574,7 @@ function BillingSection({
         )}
       </AdminPanel>
 
-      {!hasAnyData && userRole !== 'VIP' ? (
+      {!hasAnyData && activeTier !== 'VIP' ? (
         <p className="text-center text-sm text-muted-foreground">
           No billing data available for this user.
         </p>

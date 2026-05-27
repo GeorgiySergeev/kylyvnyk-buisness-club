@@ -44,7 +44,7 @@ export function RecommendedSection({
       </div>
 
       {/* 2-column grid (not 3) */}
-      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4" role="list">
+      <ul className="grid grid-cols-1 gap-3 xs:grid-cols-2 sm:grid-cols-2 md:gap-4" role="list">
         {partners.map((partner, index) => {
           const Icon = RECOMMENDED_ICONS[index];
           return (

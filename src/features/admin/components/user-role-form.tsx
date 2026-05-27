@@ -1,26 +1,42 @@
 'use client';
 
-import { Check, Crown, Loader2, Shield, ShieldOff, User } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { Check, Loader2, ShieldOff } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { useState, useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { cn } from '@/lib/utils';
 
-import { updateUserRoleAction, updateUserStatusAction } from '../actions/user-admin.action';
+import {
+  updateUserMembershipAction,
+  updateUserRoleAction,
+  updateUserStatusAction,
+} from '../actions/user-admin.action';
 
 interface UserRoleFormProps {
+  currentMembershipTier?: string | null;
   currentRole: string;
   currentStatus?: string;
   userId: string;
 }
 
 const ROLE_OPTIONS = [
-  { description: 'Basic membership', icon: User, value: 'FREE', label: 'Free' },
-  { description: 'Premium membership', icon: Crown, value: 'VIP', label: 'VIP' },
-  { description: 'Business account', icon: Shield, value: 'BUSINESS', label: 'Business' },
-  { description: 'Full platform access', icon: Shield, value: 'ADMIN', label: 'Admin' },
+  { value: 'GUEST', label: 'Guest' },
+  { value: 'MEMBER', label: 'Member' },
+  { value: 'MANAGER', label: 'Manager' },
+  { value: 'ADMIN', label: 'Admin' },
+  { value: 'OWNER', label: 'Owner' },
 ] as const;
+
+const MEMBERSHIP_OPTIONS = [
+  { value: 'FREE', label: 'Free' },
+  { value: 'VIP', label: 'VIP' },
+  { value: 'BUSINESS', label: 'Business' },
+] as const;
+
+const MEMBERSHIP_TIERS = new Set(MEMBERSHIP_OPTIONS.map((option) => option.value));
+const ROLE_VALUES = new Set(ROLE_OPTIONS.map((option) => option.value));
 
 const STATUS_OPTIONS = [
   { color: 'emerald' as const, label: 'Active', value: 'ACTIVE' },
@@ -43,72 +59,126 @@ const statusColorMap = {
   },
 } as const;
 
-export function UserRoleForm({ currentRole, currentStatus, userId }: UserRoleFormProps) {
-  const router = useRouter();
+export function UserRoleForm({
+  currentMembershipTier,
+  currentRole,
+  currentStatus,
+  userId,
+}: UserRoleFormProps) {
+  const params = useParams<{ locale?: string }>();
+  const locale = (params?.locale ?? 'en') as 'en' | 'ru' | 'uk';
   const [rolePending, startRoleTransition] = useTransition();
+  const [membershipPending, startMembershipTransition] = useTransition();
   const [statusPending, startStatusTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
-  function changeRole(role: string) {
-    if (role === currentRole) return;
+  const selectedRole = ROLE_VALUES.has(currentRole as (typeof ROLE_OPTIONS)[number]['value'])
+    ? currentRole
+    : undefined;
+  const selectedMembershipTier =
+    currentMembershipTier &&
+    MEMBERSHIP_TIERS.has(currentMembershipTier as (typeof MEMBERSHIP_OPTIONS)[number]['value'])
+      ? currentMembershipTier
+      : undefined;
+
+  function changeRole(value: string) {
+    if (!value || value === selectedRole) return;
+    setError(null);
     startRoleTransition(async () => {
-      const result = await updateUserRoleAction({ role, userId });
-      if (result.ok) router.refresh();
+      const result = await updateUserRoleAction({ role: value, userId }, locale);
+      if (!result.ok) {
+        setError(result.error);
+      }
+    });
+  }
+
+  function changeMembership(value: string) {
+    if (!value || value === selectedMembershipTier) return;
+    setError(null);
+    startMembershipTransition(async () => {
+      const result = await updateUserMembershipAction(
+        { membershipTier: value, userId },
+        locale,
+      );
+      if (!result.ok) {
+        setError(result.error);
+      }
     });
   }
 
   function changeStatus(status: string) {
     if (status === currentStatus) return;
+    setError(null);
     startStatusTransition(async () => {
-      const result = await updateUserStatusAction({ status, userId });
-      if (result.ok) router.refresh();
+      const result = await updateUserStatusAction({ status, userId }, locale);
+      if (!result.ok) {
+        setError(result.error);
+      }
     });
   }
 
-  const pending = rolePending || statusPending;
+  const pending = rolePending || membershipPending || statusPending;
 
   return (
     <div className="space-y-8">
+      {error ? (
+        <p className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
+
       {/* Role section */}
       <div className="space-y-3">
         <div className="space-y-1">
           <h3 className="text-sm font-semibold text-foreground">Role</h3>
-          <p className="text-xs text-muted-foreground">
-            Determines membership tier and feature access
-          </p>
+          <p className="text-xs text-muted-foreground">Platform access level for this user</p>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {ROLE_OPTIONS.map(({ description, icon: Icon, label, value }) => {
-            const isActive = currentRole === value;
-            return (
-              <button
-                className={cn(
-                  'group relative flex flex-col items-center gap-1.5 rounded-lg border px-3 py-3 text-center transition-all',
-                  isActive
-                    ? 'border-primary/50 bg-primary/10 text-primary shadow-sm shadow-primary/10'
-                    : 'border-border/80 bg-background/50 text-muted-foreground hover:border-primary/30 hover:text-foreground',
-                  pending && !isActive && 'pointer-events-none opacity-50',
-                )}
-                disabled={pending || isActive}
-                key={value}
-                onClick={() => changeRole(value)}
-                type="button"
-              >
-                {isActive ? (
-                  <div className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <Check className="size-2.5" />
-                  </div>
-                ) : null}
-                <Icon className={cn('size-5', isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground')} />
-                <span className="text-xs font-semibold">{label}</span>
-                <span className="text-[10px] leading-tight text-muted-foreground">{description}</span>
-              </button>
-            );
-          })}
-        </div>
+        <ToggleGroup
+          aria-label="User role"
+          className={cn(pending && 'pointer-events-none opacity-60')}
+          onValueChange={changeRole}
+          type="single"
+          value={selectedRole}
+        >
+          {ROLE_OPTIONS.map(({ label, value }) => (
+            <ToggleGroupItem aria-label={label} key={value} value={value}>
+              {label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
         {rolePending ? (
           <div className="flex items-center gap-1.5">
-            <Loader2 className="size-3 animate-spin text-primary" />
+            <Loader2 className="size-3 animate-spin text-muted-foreground" />
             <span className="text-xs text-muted-foreground">Updating role...</span>
+          </div>
+        ) : null}
+      </div>
+
+      {/* Membership section */}
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <h3 className="text-sm font-semibold text-foreground">Membership</h3>
+          <p className="text-xs text-muted-foreground">
+            Membership tier determines billing plan and feature limits
+          </p>
+        </div>
+        <ToggleGroup
+          aria-label="Membership tier"
+          className={cn(pending && 'pointer-events-none opacity-60')}
+          onValueChange={changeMembership}
+          type="single"
+          value={selectedMembershipTier}
+        >
+          {MEMBERSHIP_OPTIONS.map(({ label, value }) => (
+            <ToggleGroupItem aria-label={label} key={value} value={value}>
+              {label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+        {membershipPending ? (
+          <div className="flex items-center gap-1.5">
+            <Loader2 className="size-3 animate-spin text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">Updating membership...</span>
           </div>
         ) : null}
       </div>
@@ -151,7 +221,7 @@ export function UserRoleForm({ currentRole, currentStatus, userId }: UserRoleFor
           </div>
           {statusPending ? (
             <div className="flex items-center gap-1.5">
-              <Loader2 className="size-3 animate-spin text-primary" />
+              <Loader2 className="size-3 animate-spin text-muted-foreground" />
               <span className="text-xs text-muted-foreground">Updating status...</span>
             </div>
           ) : null}

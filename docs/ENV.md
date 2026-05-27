@@ -109,6 +109,13 @@ server · optional flag · empty by default · local `.env.local` only · owner:
 tech lead · rotates: never · breaks: local/demo phone auth bypass. Production
 code rejects this bypass when `NODE_ENV=production`.
 
+#### Member avatars (Supabase Storage)
+
+No additional variables. Requires a one-time Supabase bucket **`avatars`**
+with RLS policies documented in [`docs/AVATAR-STORAGE.md`](./AVATAR-STORAGE.md).
+If the bucket is missing, profile photo upload on `/m/dashboard` fails with a
+server error while other profile fields may still save.
+
 ---
 
 ### Billing — Stripe (ADR-005)

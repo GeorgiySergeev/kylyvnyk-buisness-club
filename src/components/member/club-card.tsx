@@ -12,7 +12,7 @@ interface ClubCardProps {
 export function ClubCard({ cardNumber, memberName, status, verifyUrl }: ClubCardProps) {
   return (
     <div
-      className="relative w-full max-w-sm overflow-hidden rounded-box"
+      className="relative w-full  overflow-hidden rounded-box"
       role="region"
       aria-label="Club membership card"
     >

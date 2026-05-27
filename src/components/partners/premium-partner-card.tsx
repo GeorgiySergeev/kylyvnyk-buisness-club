@@ -69,7 +69,7 @@ export function PremiumPartnerCard({ labels, partner }: PremiumPartnerCardProps)
             </span>
           ) : null}
 
-          <span className="absolute bottom-3 left-3 font-mono text-[10px] max-w-[calc(100%-1.5rem)] rounded-sm bg-primary px-2 py-0.5  font-bold uppercase tracking-wider text-primary-foreground shadow-md">
+          <span className="absolute bottom-3 left-3 font-mono text-[10px] max-w-[calc(100%-1.5rem)] rounded-sm bg-fintech-gold px-2 py-0.5  font-bold uppercase tracking-wider text-gray-950 shadow-md">
             {partner.category}
           </span>
         </div>
