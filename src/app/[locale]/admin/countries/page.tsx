@@ -13,6 +13,7 @@ import {
   AdminEmptyState,
   AdminPageHeader,
 } from '@/features/admin/components/admin-ui';
+import { CountriesCrud } from '@/features/admin/components/countries-crud';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -54,6 +55,13 @@ export default async function AdminCountriesPage({ params }: AdminCountriesPageP
   return (
     <div className="space-y-5">
       <AdminPageHeader description={t('countriesDescription')} title={t('countriesTitle')} />
+
+      <CountriesCrud
+        rows={countryRows.map((country) => ({
+          ...country,
+          linkedBusinesses: businessCountsByCountry.get(country.id) ?? 0,
+        }))}
+      />
 
       {countryRows.length === 0 ? (
         <AdminEmptyState description={t('noCountriesDescription')} title={t('noCountries')} />

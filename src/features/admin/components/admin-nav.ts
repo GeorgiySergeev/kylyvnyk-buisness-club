@@ -8,6 +8,8 @@ export const ADMIN_NAV_ITEMS = [
   { key: 'navCountries' as const, href: '/admin/countries' },
   { key: 'navStripeLinks' as const, href: '/admin/stripe-links' },
   { key: 'navSubscriptions' as const, href: '/admin/subscriptions' },
+  { key: 'navMemberships' as const, href: '/admin/memberships' },
+  { key: 'navCatalog' as const, href: '/admin/catalog' },
   { key: 'navAudit' as const, href: '/admin/audit' },
 ];
 

@@ -1,0 +1,12 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#0A0A0B"/>
+  <rect x="1" y="1" width="1198" height="628" stroke="#2A2A31" stroke-width="2"/>
+  <circle cx="1020" cy="140" r="220" fill="#1A1A21"/>
+  <circle cx="180" cy="520" r="260" fill="#141419"/>
+  <text x="80" y="330" fill="#E7E7EA" font-family="Arial, sans-serif" font-size="64" font-weight="700" letter-spacing="4">
+    KCLUB PARTNER
+  </text>
+  <text x="80" y="390" fill="#9E9EA8" font-family="Arial, sans-serif" font-size="28" font-weight="500" letter-spacing="2">
+    PREMIUM PLACEHOLDER
+  </text>
+</svg>

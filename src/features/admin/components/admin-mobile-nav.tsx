@@ -36,6 +36,8 @@ const ADMIN_NAV_ICONS: Record<AdminNavKey, LucideIcon> = {
   navCountries: Globe2,
   navStripeLinks: LinkIcon,
   navSubscriptions: ReceiptText,
+  navMemberships: Users,
+  navCatalog: Tags,
   navAudit: ClipboardList,
 };
 
@@ -49,6 +51,8 @@ const BREADCRUMB_MAP: Record<string, AdminNavKey> = {
   '/admin/introductions': 'navIntroductions',
   '/admin/stripe-links': 'navStripeLinks',
   '/admin/subscriptions': 'navSubscriptions',
+  '/admin/memberships': 'navMemberships',
+  '/admin/catalog': 'navCatalog',
   '/admin/audit': 'navAudit',
 };
 

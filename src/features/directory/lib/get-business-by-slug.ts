@@ -11,6 +11,7 @@ export async function getBusinessBySlug(slug: string): Promise<PublicBusinessDto
   const row = await db.query.businesses.findFirst({
     columns: {
       description: true,
+      discountLabel: true,
       id: true,
       isRecommended: true,
       isTopPartner: true,

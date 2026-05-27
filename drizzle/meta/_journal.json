@@ -29,6 +29,13 @@
       "when": 1748044800000,
       "tag": "0003_add_vip_role",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1748131200000,
+      "tag": "0004_business_discount_label",
+      "breakpoints": true
     }
   ]
 }

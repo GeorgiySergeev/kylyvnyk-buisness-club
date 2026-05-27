@@ -3,6 +3,10 @@ import Link from 'next/link';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
+import {
+  PremiumPartnerCard,
+  type PremiumPartnerCardViewModel,
+} from '@/components/partners/premium-partner-card';
 import { Button } from '@/components/ui/button';
 import { db } from '@/db/client';
 import { getPublishedBusinesses } from '@/features/directory/lib/get-published-businesses';
@@ -45,70 +49,30 @@ function buildFilterHref(
   return `${localizeHref(locale, '/directory')}${query ? `?${query}` : ''}`;
 }
 
-function BusinessCard({
-  business,
-  locale,
-}: {
-  business: PublicBusinessDto;
-  locale: SupportedLocale;
-}) {
-  const t = getT('directory', locale);
+function createPartnerCardViewModel(
+  business: PublicBusinessDto,
+  locale: SupportedLocale,
+  fallback: {
+    category: string;
+    condition: string;
+    location: string;
+  },
+): PremiumPartnerCardViewModel {
   const location = [business.city?.name, business.country?.name].filter(Boolean).join(', ');
-  const fallbackInitial = business.name.slice(0, 1).toUpperCase();
 
-  return (
-    <article className="card border border-border/80 bg-card text-card-foreground shadow-sm">
-      <div className="card-body gap-4 p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex min-w-0 items-start gap-3">
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-box border border-primary/25 bg-base-300 text-sm font-semibold text-primary">
-              {business.logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={business.logoUrl} alt="" className="size-full rounded-box object-cover" />
-              ) : (
-                fallbackInitial
-              )}
-            </div>
-            <div className="min-w-0 space-y-1">
-              <h2 className="truncate text-base font-semibold text-foreground">{business.name}</h2>
-              <p className="text-sm text-muted-foreground">
-                {business.category?.name ?? t('categoryFallback')}
-              </p>
-            </div>
-          </div>
-          {business.country?.flagEmoji ? (
-            <span className="text-lg" aria-label={business.country.iso2}>
-              {business.country.flagEmoji}
-            </span>
-          ) : null}
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {business.isTopPartner ? (
-            <span className="badge badge-primary badge-sm rounded-selector">{t('topPartner')}</span>
-          ) : null}
-          {business.isRecommended ? (
-            <span className="badge badge-outline badge-sm rounded-selector">
-              {t('recommended')}
-            </span>
-          ) : null}
-        </div>
-
-        <p className="line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-muted-foreground">
-          {business.description}
-        </p>
-
-        <div className="flex items-center justify-between gap-3 border-t border-border/70 pt-4">
-          <p className="min-w-0 truncate text-sm text-muted-foreground">
-            {location || t('locationFallback')}
-          </p>
-          <Button asChild size="sm" variant="outline" className="shrink-0 rounded-field">
-            <Link href={localizeHref(locale, `/directory/${business.slug}`)}>{t('details')}</Link>
-          </Button>
-        </div>
-      </div>
-    </article>
-  );
+  return {
+    category: business.category?.name ?? fallback.category,
+    condition: fallback.condition,
+    countryCode: business.country?.iso2,
+    discount: business.discountLabel,
+    description: business.description,
+    href: localizeHref(locale, `/directory/${business.slug}`),
+    imageUrl: business.logoUrl,
+    isRecommended: business.isRecommended,
+    isTopPartner: business.isTopPartner,
+    location: location || fallback.location,
+    name: business.name,
+  };
 }
 
 export default async function DirectoryPage({ params, searchParams }: DirectoryPageProps) {
@@ -130,6 +94,16 @@ export default async function DirectoryPage({ params, searchParams }: DirectoryP
       orderBy: (countries, { asc }) => [asc(countries.name)],
     }),
   ]);
+  const cardLabels = {
+    conditionLabel: t('privilegeLabel'),
+    detailsLabel: t('viewSpecial'),
+    verifiedLabel: t('verifiedLabel'),
+  };
+  const cardFallback = {
+    category: t('categoryFallback'),
+    condition: t('specialConditionsFallback'),
+    location: t('locationFallback'),
+  };
 
   return (
     <PageWrapper>
@@ -221,7 +195,11 @@ export default async function DirectoryPage({ params, searchParams }: DirectoryP
         {businesses.length > 0 ? (
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {businesses.map((business) => (
-              <BusinessCard key={business.id} business={business} locale={locale} />
+              <PremiumPartnerCard
+                key={business.id}
+                labels={cardLabels}
+                partner={createPartnerCardViewModel(business, locale, cardFallback)}
+              />
             ))}
           </section>
         ) : (

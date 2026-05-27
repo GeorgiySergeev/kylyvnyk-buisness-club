@@ -33,6 +33,8 @@ const ADMIN_NAV_ICONS: Record<AdminNavKey, LucideIcon> = {
   navCountries: Globe2,
   navStripeLinks: LinkIcon,
   navSubscriptions: ReceiptText,
+  navMemberships: Users,
+  navCatalog: Tags,
   navAudit: ClipboardList,
 };
 

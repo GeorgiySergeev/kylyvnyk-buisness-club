@@ -1,5 +1,5 @@
 import type { SupportedLocale } from '@/components/layout/navigation';
-import { PlaceholderPage } from '@/components/layout/placeholder-page';
+import { LegalPage } from '@/features/legal/components/legal-page';
 
 interface ContactPageProps {
   params: Promise<{
@@ -10,13 +10,5 @@ interface ContactPageProps {
 export default async function ContactPage({ params }: ContactPageProps) {
   const { locale } = await params;
 
-  return (
-    <PlaceholderPage
-      descriptionKey="contactDescription"
-      eyebrowKey="contactEyebrow"
-      locale={locale}
-      primaryActionKey="contactPrimaryAction"
-      titleKey="contactTitle"
-    />
-  );
+  return <LegalPage document="contact" locale={locale} />;
 }

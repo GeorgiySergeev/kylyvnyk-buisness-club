@@ -1,5 +1,5 @@
 import type { SupportedLocale } from '@/components/layout/navigation';
-import { PlaceholderPage } from '@/components/layout/placeholder-page';
+import { LegalPage } from '@/features/legal/components/legal-page';
 
 interface PrivacyPageProps {
   params: Promise<{
@@ -10,13 +10,5 @@ interface PrivacyPageProps {
 export default async function PrivacyPage({ params }: PrivacyPageProps) {
   const { locale } = await params;
 
-  return (
-    <PlaceholderPage
-      descriptionKey="privacyDescription"
-      eyebrowKey="privacyEyebrow"
-      locale={locale}
-      primaryActionKey="privacyPrimaryAction"
-      titleKey="privacyTitle"
-    />
-  );
+  return <LegalPage document="privacy" locale={locale} />;
 }

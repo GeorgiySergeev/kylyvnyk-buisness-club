@@ -1,5 +1,5 @@
 import type { SupportedLocale } from '@/components/layout/navigation';
-import { PlaceholderPage } from '@/components/layout/placeholder-page';
+import { LegalPage } from '@/features/legal/components/legal-page';
 
 interface PartnerRulesPageProps {
   params: Promise<{
@@ -10,13 +10,5 @@ interface PartnerRulesPageProps {
 export default async function PartnerRulesPage({ params }: PartnerRulesPageProps) {
   const { locale } = await params;
 
-  return (
-    <PlaceholderPage
-      descriptionKey="partnerRulesDescription"
-      eyebrowKey="partnerRulesEyebrow"
-      locale={locale}
-      primaryActionKey="partnerRulesPrimaryAction"
-      titleKey="partnerRulesTitle"
-    />
-  );
+  return <LegalPage document="partnerRules" locale={locale} />;
 }

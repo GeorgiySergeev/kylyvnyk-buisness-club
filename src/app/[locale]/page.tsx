@@ -4,7 +4,7 @@ import { HowItWorksSection } from '@/components/home/how-it-works-section';
 import { MobileBottomNav } from '@/components/home/mobile-bottom-nav';
 import { RecommendedSection } from '@/components/home/recommended-section';
 import { StatsSection } from '@/components/home/stats-section';
-import { type PartnerData,TopPartnersSection } from '@/components/home/top-partners-section';
+import { type PartnerData, TopPartnersSection } from '@/components/home/top-partners-section';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { getNavigationSession } from '@/lib/auth/navigation-session';
 import { getT } from '@/lib/i18n/t-server';
@@ -16,6 +16,8 @@ const PARTNER_RAW = [
     locationKey: 'topPartnerOneLocation',
     discountKey: 'topPartnerOneDiscount',
     flagKey: 'topPartnerOneFlag',
+    conditionKey: 'topPartnerOneCondition',
+    descriptionKey: 'topPartnerOneDescription',
     img: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600',
   },
   {
@@ -24,6 +26,8 @@ const PARTNER_RAW = [
     locationKey: 'topPartnerTwoLocation',
     discountKey: 'topPartnerTwoDiscount',
     flagKey: 'topPartnerTwoFlag',
+    conditionKey: 'topPartnerTwoCondition',
+    descriptionKey: 'topPartnerTwoDescription',
     img: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600',
   },
   {
@@ -32,6 +36,8 @@ const PARTNER_RAW = [
     locationKey: 'topPartnerThreeLocation',
     discountKey: 'topPartnerThreeDiscount',
     flagKey: 'topPartnerThreeFlag',
+    conditionKey: 'topPartnerThreeCondition',
+    descriptionKey: 'topPartnerThreeDescription',
     img: 'https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600',
   },
 ] as const;
@@ -69,6 +75,8 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
   const partners: PartnerData[] = PARTNER_RAW.map((p) => ({
     name: t(p.nameKey),
     category: t(p.categoryKey),
+    condition: t(p.conditionKey),
+    description: t(p.descriptionKey),
     location: t(p.locationKey),
     discount: t(p.discountKey),
     flag: t(p.flagKey),
@@ -124,8 +132,13 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
         <TopPartnersSection
           locale={locale}
           title={t('topPartnersTitle')}
+          subtitle={t('topPartnersSubtitle')}
           viewAll={t('viewAll')}
           detailsCta={t('detailsCta')}
+          conditionLabel={t('partnerConditionLabel')}
+          recommendedLabel={t('partnerRecommendedLabel')}
+          topPartnerLabel={t('partnerTopLabel')}
+          verifiedLabel={t('partnerVerifiedLabel')}
           partners={partners}
         />
 

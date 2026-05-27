@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+/* Prototype HTML at repo root — not part of the Next app; arbitrary bg URLs break CSS resolution */
+@source not '../../adapt.html';
+@source not '../../adapt-2.html';
+
 @plugin "daisyui" {
   themes: false;
   logs: false;
@@ -44,7 +48,7 @@
 
 :root {
   --radius: 0.375rem;
-  --background: #0a0a0b;
+  --background: #030303;
   --foreground: #f5f5f0;
   --card: #16161a;
   --card-foreground: #f5f5f0;
@@ -111,6 +115,7 @@
   --color-fintech-charcoal: var(--fintech-charcoal);
   --font-sans: var(--font-sans), system-ui, sans-serif;
   --font-display: var(--font-display), Georgia, serif;
+  --font-mono: var(--font-mono), 'JetBrains Mono', Consolas, monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

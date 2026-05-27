@@ -11,6 +11,7 @@ import directory from '../../../messages/en/directory.json';
 import footer from '../../../messages/en/footer.json';
 import home from '../../../messages/en/home.json';
 import introductions from '../../../messages/en/introductions.json';
+import legal from '../../../messages/en/legal.json';
 import nav from '../../../messages/en/nav.json';
 import placeholders from '../../../messages/en/placeholders.json';
 import a11yRu from '../../../messages/ru/a11y.json';
@@ -22,6 +23,7 @@ import directoryRu from '../../../messages/ru/directory.json';
 import footerRu from '../../../messages/ru/footer.json';
 import homeRu from '../../../messages/ru/home.json';
 import introductionsRu from '../../../messages/ru/introductions.json';
+import legalRu from '../../../messages/ru/legal.json';
 import navRu from '../../../messages/ru/nav.json';
 import placeholdersRu from '../../../messages/ru/placeholders.json';
 import a11yUk from '../../../messages/uk/a11y.json';
@@ -33,6 +35,7 @@ import directoryUk from '../../../messages/uk/directory.json';
 import footerUk from '../../../messages/uk/footer.json';
 import homeUk from '../../../messages/uk/home.json';
 import introductionsUk from '../../../messages/uk/introductions.json';
+import legalUk from '../../../messages/uk/legal.json';
 import navUk from '../../../messages/uk/nav.json';
 import placeholdersUk from '../../../messages/uk/placeholders.json';
 
@@ -46,6 +49,7 @@ const EN_MESSAGES = {
   footer,
   home,
   introductions,
+  legal,
   nav,
   placeholders,
 } as const;
@@ -62,6 +66,7 @@ const MESSAGES_BY_LOCALE = {
     footer: footerRu,
     home: homeRu,
     introductions: introductionsRu,
+    legal: legalRu,
     nav: navRu,
     placeholders: placeholdersRu,
   },
@@ -75,6 +80,7 @@ const MESSAGES_BY_LOCALE = {
     footer: footerUk,
     home: homeUk,
     introductions: introductionsUk,
+    legal: legalUk,
     nav: navUk,
     placeholders: placeholdersUk,
   },

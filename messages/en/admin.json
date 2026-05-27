@@ -9,6 +9,8 @@
   "navCountries": "Countries",
   "navStripeLinks": "Stripe Links",
   "navSubscriptions": "Subscriptions",
+  "navMemberships": "Memberships",
+  "navCatalog": "Catalog",
   "navAudit": "Audit Log",
   "dashboardTitle": "Dashboard",
   "dashboardDescription": "Overview of platform activity",

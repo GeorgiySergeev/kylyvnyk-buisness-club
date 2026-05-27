@@ -13,6 +13,7 @@ import {
   AdminEmptyState,
   AdminPageHeader,
 } from '@/features/admin/components/admin-ui';
+import { CategoriesCrud } from '@/features/admin/components/categories-crud';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -56,6 +57,13 @@ export default async function AdminCategoriesPage({ params }: AdminCategoriesPag
   return (
     <div className="space-y-5">
       <AdminPageHeader description={t('categoriesDescription')} title={t('categoriesTitle')} />
+
+      <CategoriesCrud
+        rows={categoryRows.map((category) => ({
+          ...category,
+          linkedBusinesses: businessCountsByCategory.get(category.id) ?? 0,
+        }))}
+      />
 
       {categoryRows.length === 0 ? (
         <AdminEmptyState description={t('noCategoriesDescription')} title={t('noCategories')} />
