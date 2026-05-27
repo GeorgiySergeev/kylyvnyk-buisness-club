@@ -10,6 +10,7 @@ import {
   AdminPanel,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
+import { CardUpdateForm } from '@/features/admin/components/card-update-form';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -78,6 +79,15 @@ export default async function AdminCardDetailPage({ params }: AdminCardDetailPag
             { label: t('created'), value: card.createdAt.toLocaleString() },
             { label: 'Updated', value: card.updatedAt.toLocaleString() },
           ]}
+        />
+      </AdminPanel>
+
+      <AdminPanel title="Card controls">
+        <CardUpdateForm
+          cardId={card.id}
+          currentExpiresAt={card.expiresAt ? card.expiresAt.toISOString().slice(0, 16) : null}
+          currentMemberType={card.memberType}
+          currentStatus={card.status}
         />
       </AdminPanel>
     </div>

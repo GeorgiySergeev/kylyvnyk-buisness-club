@@ -13,6 +13,7 @@ import {
   AdminEmptyState,
   AdminPageHeader,
 } from '@/features/admin/components/admin-ui';
+import { CitiesCrud } from '@/features/admin/components/cities-crud';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -27,17 +28,41 @@ export default async function AdminCitiesPage({ params }: AdminCitiesPageProps) 
   const { locale } = await params;
   const t = getT('admin', locale);
 
-  const rows = await db.query.cities.findMany({
-    columns: { id: true, name: true },
-    orderBy: (cities, { asc }) => [asc(cities.name)],
-    with: {
-      country: { columns: { iso2: true, name: true } },
-    },
-  });
+  const [rows, businessRows] = await Promise.all([
+    db.query.cities.findMany({
+      columns: { countryId: true, id: true, name: true },
+      orderBy: (cities, { asc }) => [asc(cities.name)],
+      with: {
+        country: { columns: { iso2: true, name: true } },
+      },
+    }),
+    db.query.businesses.findMany({
+      columns: { cityId: true },
+      where: (businesses, { isNull }) => isNull(businesses.deletedAt),
+    }),
+  ]);
+
+  const linkedBusinesses = businessRows.reduce<Map<number, number>>((acc, row) => {
+    if (!row.cityId) return acc;
+    acc.set(row.cityId, (acc.get(row.cityId) ?? 0) + 1);
+    return acc;
+  }, new Map());
 
   return (
     <div className="space-y-5">
       <AdminPageHeader description={t('countriesDescription')} title="Cities" />
+
+      <CitiesCrud
+        rows={rows.map((city) => ({
+          countryId: city.countryId,
+          countryIso2: city.country?.iso2 ?? 'N/A',
+          countryName: city.country?.name ?? 'N/A',
+          id: city.id,
+          linkedBusinesses: linkedBusinesses.get(city.id) ?? 0,
+          name: city.name,
+        }))}
+      />
+
       {rows.length === 0 ? (
         <AdminEmptyState title={t('emptyValue')} />
       ) : (

@@ -9,13 +9,13 @@ import { businesses } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { createAuditLog } from '@/lib/audit';
 
+import type { AdminActionResult } from '../lib/action-result';
 import { updateBusinessStatusSchema } from '../schemas/admin.schema';
 import {
   restoreBusinessSchema,
   softDeleteBusinessSchema,
   toggleBusinessFeatureSchema,
 } from '../schemas/admin.schema';
-import type { AdminActionResult } from '../lib/action-result';
 
 type ActionResult<T> = { data: T; ok: true } | { error: string; ok: false };
 

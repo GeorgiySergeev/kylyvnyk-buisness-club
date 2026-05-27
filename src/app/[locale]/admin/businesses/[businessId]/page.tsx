@@ -10,6 +10,7 @@ import {
   AdminPanel,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
+import { BusinessAdminControls as BusinessControls } from '@/features/admin/components/business-admin-controls';
 import { BusinessStatusForm } from '@/features/admin/components/business-status-form';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -34,6 +35,7 @@ export default async function AdminBusinessDetailPage({ params }: AdminBusinessD
       id: true,
       isRecommended: true,
       isTopPartner: true,
+      deletedAt: true,
       logoUrl: true,
       name: true,
       phone: true,
@@ -110,6 +112,15 @@ export default async function AdminBusinessDetailPage({ params }: AdminBusinessD
 
       <AdminPanel title={t('changeStatus')}>
         <BusinessStatusForm businessId={businessId} currentStatus={business.status} />
+      </AdminPanel>
+
+      <AdminPanel title="Business controls">
+        <BusinessControls
+          businessId={business.id}
+          isDeleted={business.deletedAt !== null}
+          isRecommended={business.isRecommended}
+          isTopPartner={business.isTopPartner}
+        />
       </AdminPanel>
     </div>
   );

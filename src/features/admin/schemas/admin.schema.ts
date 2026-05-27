@@ -108,3 +108,17 @@ export const updateCategorySchema = createCategorySchema.extend({
 export const deleteCategorySchema = z.object({
   categoryId: z.number().int().positive(),
 });
+
+export const createStripeLinkSchema = z.object({
+  code: z.string().trim().min(2).max(80),
+  paymentLinkUrl: z.string().url(),
+  title: z.string().trim().min(2).max(120),
+});
+
+export const updateStripeLinkSchema = createStripeLinkSchema.extend({
+  stripeLinkId: z.string().uuid(),
+});
+
+export const deleteStripeLinkSchema = z.object({
+  stripeLinkId: z.string().uuid(),
+});
