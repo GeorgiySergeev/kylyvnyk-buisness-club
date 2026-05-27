@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table';
 import { db } from '@/db/client';
 import { AdminEmptyState, AdminPageHeader, AdminPanel } from '@/features/admin/components/admin-ui';
+import { MIGRATION_REQUIRED_MESSAGE, isUndefinedTableError } from '@/lib/db-guard';
 import { getT } from '@/lib/i18n/t-server';
 
 interface AdminSubscriptionsPageProps {
@@ -20,19 +21,38 @@ interface AdminSubscriptionsPageProps {
 export default async function AdminSubscriptionsPage({ params }: AdminSubscriptionsPageProps) {
   const { locale } = await params;
   const t = getT('admin', locale);
-  const rows = await db.query.stripeSubscriptions.findMany({
-    columns: {
-      cancelAtPeriodEnd: true,
-      createdAt: true,
-      currentPeriodEnd: true,
-      id: true,
-      status: true,
-      stripeSubscriptionId: true,
-      userId: true,
-    },
-    orderBy: (stripeSubscriptions, { desc }) => [desc(stripeSubscriptions.createdAt)],
-    limit: 200,
-  });
+  let rows: Array<{
+    cancelAtPeriodEnd: boolean;
+    createdAt: Date;
+    currentPeriodEnd: Date | null;
+    id: string;
+    status: string;
+    stripeSubscriptionId: string;
+    userId: string | null;
+  }> = [];
+  let migrationRequired = false;
+
+  try {
+    rows = await db.query.stripeSubscriptions.findMany({
+      columns: {
+        cancelAtPeriodEnd: true,
+        createdAt: true,
+        currentPeriodEnd: true,
+        id: true,
+        status: true,
+        stripeSubscriptionId: true,
+        userId: true,
+      },
+      orderBy: (stripeSubscriptions, { desc }) => [desc(stripeSubscriptions.createdAt)],
+      limit: 200,
+    });
+  } catch (error) {
+    if (isUndefinedTableError(error, 'stripe_subscriptions')) {
+      migrationRequired = true;
+    } else {
+      throw error;
+    }
+  }
 
   return (
     <div className="space-y-5">
@@ -44,6 +64,9 @@ export default async function AdminSubscriptionsPage({ params }: AdminSubscripti
         description={t('subscriptionsPanelDescription')}
         title={t('subscriptionsPanelTitle')}
       >
+        {migrationRequired ? (
+          <p className="text-sm text-amber-300">{MIGRATION_REQUIRED_MESSAGE}</p>
+        ) : null}
         {rows.length === 0 ? (
           <AdminEmptyState
             description={t('subscriptionsEmptyDescription')}

@@ -213,6 +213,7 @@ async function seed(): Promise<void> {
 
   const topPartnerFlags = [true, true, true, false, false, false, false, false];
   const recommendedFlags = [true, true, false, false, false, false, false, false];
+  const discountLabels = ['-20%', '-15%', '-10%', '-25%', null, null, null, null];
 
   const businessRows = Array.from({ length: 8 }, (_, i) => {
     const name = faker.company.name();
@@ -235,6 +236,7 @@ async function seed(): Promise<void> {
       status: businessStatuses[i]!,
       isTopPartner: topPartnerFlags[i]!,
       isRecommended: recommendedFlags[i]!,
+      discountLabel: discountLabels[i] ?? null,
     };
   });
 

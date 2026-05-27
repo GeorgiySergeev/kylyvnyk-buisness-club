@@ -1,7 +1,7 @@
 import './globals.css';
 
 import type { Metadata, Viewport } from 'next';
-import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
+import { JetBrains_Mono, Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import type { ReactNode } from 'react';
 
 import { getT } from '@/lib/i18n/t-server';
@@ -16,6 +16,13 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 const playfairDisplay = Playfair_Display({
   variable: '--font-display',
   subsets: ['latin'],
+  display: 'swap',
+});
+
+const jetBrainsMono = JetBrains_Mono({
+  variable: '--font-mono',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
@@ -42,7 +49,10 @@ export default function RootLayout({
   const tA11y = getT('a11y');
 
   return (
-    <html lang="en" className={`${plusJakartaSans.variable} ${playfairDisplay.variable}`}>
+    <html
+      lang="en"
+      className={`${plusJakartaSans.variable} ${playfairDisplay.variable} ${jetBrainsMono.variable}`}
+    >
       <body suppressHydrationWarning>
         <a
           href="#main-content"

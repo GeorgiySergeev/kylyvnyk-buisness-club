@@ -13,6 +13,30 @@ export const updateUserStatusSchema = z.object({
   status: userStatusEnumSchema,
 });
 
+export const updateUserDetailsSchema = z.object({
+  userId: z.string().uuid(),
+  displayName: z.string().trim().min(1).max(120).nullable().optional(),
+  email: z.string().email().nullable().optional(),
+  phone: z.string().trim().min(6).max(32),
+  supabaseUserId: z.string().trim().min(3).max(128).nullable().optional(),
+});
+
+export const updateUserProfileSchema = z.object({
+  userId: z.string().uuid(),
+  avatarUrl: z.string().url().nullable().optional(),
+  bio: z.string().trim().max(2000).nullable().optional(),
+  cityId: z.number().int().positive().nullable().optional(),
+  countryId: z.number().int().positive().nullable().optional(),
+});
+
+export const softDeleteUserSchema = z.object({
+  userId: z.string().uuid(),
+});
+
+export const restoreUserSchema = z.object({
+  userId: z.string().uuid(),
+});
+
 export const businessStatusEnumSchema = z.enum(['DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN']);
 
 export const updateBusinessStatusSchema = z.object({

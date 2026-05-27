@@ -21,7 +21,7 @@ interface MembershipRow {
   userId: string;
 }
 
-export function MembershipsCrud({ rows }: { rows: MembershipRow[] }) {
+export function MembershipsCrud({ rows, disabled = false }: { rows: MembershipRow[]; disabled?: boolean }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +73,7 @@ export function MembershipsCrud({ rows }: { rows: MembershipRow[] }) {
         <Input name="status" placeholder="Status" required />
         <Input name="startsAt" type="datetime-local" required />
         <Input name="endsAt" type="datetime-local" />
-        <Button disabled={pending} type="submit">{pending ? <Loader2 className="size-4 animate-spin" /> : 'Create'}</Button>
+        <Button disabled={pending || disabled} type="submit">{pending ? <Loader2 className="size-4 animate-spin" /> : 'Create'}</Button>
       </form>
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
       {rows.map((row) => (
@@ -83,8 +83,8 @@ export function MembershipsCrud({ rows }: { rows: MembershipRow[] }) {
           <Input defaultValue={row.status} name="status" required />
           <Input defaultValue={row.startsAt} name="startsAt" type="datetime-local" required />
           <Input defaultValue={row.endsAt ?? ''} name="endsAt" type="datetime-local" />
-          <Button disabled={pending} type="submit" variant="outline">Save</Button>
-          <Button disabled={pending} type="button" variant="destructive" onClick={() => remove(row.id)}>Disable</Button>
+          <Button disabled={pending || disabled} type="submit" variant="outline">Save</Button>
+          <Button disabled={pending || disabled} type="button" variant="destructive" onClick={() => remove(row.id)}>Disable</Button>
         </form>
       ))}
     </div>

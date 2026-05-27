@@ -21,7 +21,7 @@ interface CatalogRow {
   title: string;
 }
 
-export function CatalogCrud({ rows }: { rows: CatalogRow[] }) {
+export function CatalogCrud({ rows, disabled = false }: { rows: CatalogRow[]; disabled?: boolean }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +73,7 @@ export function CatalogCrud({ rows }: { rows: CatalogRow[] }) {
         <Input name="slug" placeholder="slug" required />
         <Input name="summary" placeholder="Summary" />
         <Input name="status" placeholder="Status" required />
-        <Button disabled={pending} type="submit">{pending ? <Loader2 className="size-4 animate-spin" /> : 'Create'}</Button>
+        <Button disabled={pending || disabled} type="submit">{pending ? <Loader2 className="size-4 animate-spin" /> : 'Create'}</Button>
       </form>
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
 
@@ -84,8 +84,8 @@ export function CatalogCrud({ rows }: { rows: CatalogRow[] }) {
           <Input defaultValue={row.slug} name="slug" required />
           <Input defaultValue={row.summary ?? ''} name="summary" />
           <Input defaultValue={row.status} name="status" required />
-          <Button disabled={pending} type="submit" variant="outline">Save</Button>
-          <Button disabled={pending} type="button" variant="destructive" onClick={() => remove(row.id)}>Archive</Button>
+          <Button disabled={pending || disabled} type="submit" variant="outline">Save</Button>
+          <Button disabled={pending || disabled} type="button" variant="destructive" onClick={() => remove(row.id)}>Archive</Button>
         </form>
       ))}
     </div>

@@ -8,6 +8,7 @@ import { db } from '@/db/client';
 import { memberships } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { createAuditLog } from '@/lib/audit';
+import { MIGRATION_REQUIRED_MESSAGE, isUndefinedTableError } from '@/lib/db-guard';
 
 import type { AdminActionResult } from '../lib/action-result';
 
@@ -33,16 +34,24 @@ export async function createMembershipAction(rawInput: unknown): Promise<AdminAc
     return { ok: false, code: 'validation', error: 'Invalid input.' };
   }
 
-  const [created] = await db
-    .insert(memberships)
-    .values({
-      endsAt: input.endsAt ?? null,
-      planCode: input.planCode,
-      startsAt: input.startsAt ?? new Date(),
-      status: input.status,
-      userId: input.userId,
-    })
-    .returning({ id: memberships.id });
+  let created: { id: string };
+  try {
+    [created] = await db
+      .insert(memberships)
+      .values({
+        endsAt: input.endsAt ?? null,
+        planCode: input.planCode,
+        startsAt: input.startsAt ?? new Date(),
+        status: input.status,
+        userId: input.userId,
+      })
+      .returning({ id: memberships.id });
+  } catch (error) {
+    if (isUndefinedTableError(error, 'memberships')) {
+      return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
+    }
+    throw error;
+  }
 
   await createAuditLog({
     action: 'ADMIN_MEMBERSHIP_CREATED',
@@ -72,17 +81,25 @@ export async function updateMembershipAction(rawInput: unknown): Promise<AdminAc
     return { ok: false, code: 'validation', error: 'Invalid input.' };
   }
 
-  const [updated] = await db
-    .update(memberships)
-    .set({
-      endsAt: input.endsAt ?? null,
-      planCode: input.planCode,
-      startsAt: input.startsAt ?? new Date(),
-      status: input.status,
-      updatedAt: new Date(),
-    })
-    .where(eq(memberships.id, input.membershipId))
-    .returning({ id: memberships.id });
+  let updated: { id: string } | undefined;
+  try {
+    [updated] = await db
+      .update(memberships)
+      .set({
+        endsAt: input.endsAt ?? null,
+        planCode: input.planCode,
+        startsAt: input.startsAt ?? new Date(),
+        status: input.status,
+        updatedAt: new Date(),
+      })
+      .where(eq(memberships.id, input.membershipId))
+      .returning({ id: memberships.id });
+  } catch (error) {
+    if (isUndefinedTableError(error, 'memberships')) {
+      return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
+    }
+    throw error;
+  }
 
   if (!updated) return { ok: false, code: 'not_found', error: 'Membership not found.' };
 
@@ -105,11 +122,19 @@ export async function softDeleteMembershipAction(rawInput: unknown): Promise<Adm
   const input = rawInput as { membershipId?: string };
   if (!input.membershipId) return { ok: false, code: 'validation', error: 'Invalid input.' };
 
-  const [updated] = await db
-    .update(memberships)
-    .set({ deletedAt: new Date(), status: 'INACTIVE', updatedAt: new Date() })
-    .where(eq(memberships.id, input.membershipId))
-    .returning({ id: memberships.id });
+  let updated: { id: string } | undefined;
+  try {
+    [updated] = await db
+      .update(memberships)
+      .set({ deletedAt: new Date(), status: 'INACTIVE', updatedAt: new Date() })
+      .where(eq(memberships.id, input.membershipId))
+      .returning({ id: memberships.id });
+  } catch (error) {
+    if (isUndefinedTableError(error, 'memberships')) {
+      return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
+    }
+    throw error;
+  }
 
   if (!updated) return { ok: false, code: 'not_found', error: 'Membership not found.' };
 

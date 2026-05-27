@@ -23,6 +23,7 @@ export async function getPublishedBusinesses(
   const rows = await db.query.businesses.findMany({
     columns: {
       description: true,
+      discountLabel: true,
       id: true,
       isRecommended: true,
       isTopPartner: true,

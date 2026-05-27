@@ -8,6 +8,7 @@ import { db } from '@/db/client';
 import { catalogItems } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { createAuditLog } from '@/lib/audit';
+import { MIGRATION_REQUIRED_MESSAGE, isUndefinedTableError } from '@/lib/db-guard';
 
 import type { AdminActionResult } from '../lib/action-result';
 
@@ -33,16 +34,24 @@ export async function createCatalogItemAction(rawInput: unknown): Promise<AdminA
     return { ok: false, code: 'validation', error: 'Invalid input.' };
   }
 
-  const [created] = await db
-    .insert(catalogItems)
-    .values({
-      businessId: input.businessId,
-      slug: input.slug,
-      status: input.status,
-      summary: input.summary ?? null,
-      title: input.title,
-    })
-    .returning({ id: catalogItems.id });
+  let created: { id: string };
+  try {
+    [created] = await db
+      .insert(catalogItems)
+      .values({
+        businessId: input.businessId,
+        slug: input.slug,
+        status: input.status,
+        summary: input.summary ?? null,
+        title: input.title,
+      })
+      .returning({ id: catalogItems.id });
+  } catch (error) {
+    if (isUndefinedTableError(error, 'catalog_items')) {
+      return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
+    }
+    throw error;
+  }
 
   await createAuditLog({
     action: 'ADMIN_CATALOG_ITEM_CREATED',
@@ -72,17 +81,25 @@ export async function updateCatalogItemAction(rawInput: unknown): Promise<AdminA
     return { ok: false, code: 'validation', error: 'Invalid input.' };
   }
 
-  const [updated] = await db
-    .update(catalogItems)
-    .set({
-      slug: input.slug,
-      status: input.status,
-      summary: input.summary ?? null,
-      title: input.title,
-      updatedAt: new Date(),
-    })
-    .where(eq(catalogItems.id, input.catalogItemId))
-    .returning({ id: catalogItems.id });
+  let updated: { id: string } | undefined;
+  try {
+    [updated] = await db
+      .update(catalogItems)
+      .set({
+        slug: input.slug,
+        status: input.status,
+        summary: input.summary ?? null,
+        title: input.title,
+        updatedAt: new Date(),
+      })
+      .where(eq(catalogItems.id, input.catalogItemId))
+      .returning({ id: catalogItems.id });
+  } catch (error) {
+    if (isUndefinedTableError(error, 'catalog_items')) {
+      return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
+    }
+    throw error;
+  }
 
   if (!updated) return { ok: false, code: 'not_found', error: 'Catalog item not found.' };
 
@@ -105,11 +122,19 @@ export async function softDeleteCatalogItemAction(rawInput: unknown): Promise<Ad
   const input = rawInput as { catalogItemId?: string };
   if (!input.catalogItemId) return { ok: false, code: 'validation', error: 'Invalid input.' };
 
-  const [updated] = await db
-    .update(catalogItems)
-    .set({ deletedAt: new Date(), status: 'ARCHIVED', updatedAt: new Date() })
-    .where(eq(catalogItems.id, input.catalogItemId))
-    .returning({ id: catalogItems.id });
+  let updated: { id: string } | undefined;
+  try {
+    [updated] = await db
+      .update(catalogItems)
+      .set({ deletedAt: new Date(), status: 'ARCHIVED', updatedAt: new Date() })
+      .where(eq(catalogItems.id, input.catalogItemId))
+      .returning({ id: catalogItems.id });
+  } catch (error) {
+    if (isUndefinedTableError(error, 'catalog_items')) {
+      return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
+    }
+    throw error;
+  }
 
   if (!updated) return { ok: false, code: 'not_found', error: 'Catalog item not found.' };
 

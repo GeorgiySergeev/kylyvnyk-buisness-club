@@ -8,6 +8,7 @@ import { db } from '@/db/client';
 import { stripeLinks } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { createAuditLog } from '@/lib/audit';
+import { MIGRATION_REQUIRED_MESSAGE, isUndefinedTableError } from '@/lib/db-guard';
 
 import type { AdminActionResult } from '../lib/action-result';
 import {
@@ -30,7 +31,15 @@ export async function createStripeLinkAction(
   const parsed = createStripeLinkSchema.safeParse(rawInput);
   if (!parsed.success) return { ok: false, code: 'validation', error: 'Invalid input.' };
 
-  const [created] = await db.insert(stripeLinks).values(parsed.data).returning({ id: stripeLinks.id });
+  let created: { id: string };
+  try {
+    [created] = await db.insert(stripeLinks).values(parsed.data).returning({ id: stripeLinks.id });
+  } catch (error) {
+    if (isUndefinedTableError(error, 'stripe_links')) {
+      return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
+    }
+    throw error;
+  }
   await createAuditLog({
     action: 'ADMIN_STRIPE_LINK_CREATED',
     actorUserId: admin.data.id,
@@ -51,11 +60,19 @@ export async function updateStripeLinkAction(
   if (!parsed.success) return { ok: false, code: 'validation', error: 'Invalid input.' };
 
   const { stripeLinkId, ...update } = parsed.data;
-  const [updated] = await db
-    .update(stripeLinks)
-    .set({ ...update, updatedAt: new Date() })
-    .where(eq(stripeLinks.id, stripeLinkId))
-    .returning({ id: stripeLinks.id });
+  let updated: { id: string } | undefined;
+  try {
+    [updated] = await db
+      .update(stripeLinks)
+      .set({ ...update, updatedAt: new Date() })
+      .where(eq(stripeLinks.id, stripeLinkId))
+      .returning({ id: stripeLinks.id });
+  } catch (error) {
+    if (isUndefinedTableError(error, 'stripe_links')) {
+      return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
+    }
+    throw error;
+  }
 
   if (!updated) return { ok: false, code: 'not_found', error: 'Stripe link not found.' };
 
@@ -78,11 +95,19 @@ export async function deleteStripeLinkAction(
   const parsed = deleteStripeLinkSchema.safeParse(rawInput);
   if (!parsed.success) return { ok: false, code: 'validation', error: 'Invalid input.' };
 
-  const [updated] = await db
-    .update(stripeLinks)
-    .set({ deletedAt: new Date(), status: 'INACTIVE', updatedAt: new Date() })
-    .where(eq(stripeLinks.id, parsed.data.stripeLinkId))
-    .returning({ id: stripeLinks.id });
+  let updated: { id: string } | undefined;
+  try {
+    [updated] = await db
+      .update(stripeLinks)
+      .set({ deletedAt: new Date(), status: 'INACTIVE', updatedAt: new Date() })
+      .where(eq(stripeLinks.id, parsed.data.stripeLinkId))
+      .returning({ id: stripeLinks.id });
+  } catch (error) {
+    if (isUndefinedTableError(error, 'stripe_links')) {
+      return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
+    }
+    throw error;
+  }
 
   if (!updated) return { ok: false, code: 'not_found', error: 'Stripe link not found.' };
 

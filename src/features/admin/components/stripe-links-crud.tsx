@@ -24,7 +24,10 @@ interface StripeLinksCrudProps {
   rows: StripeLinkRow[];
 }
 
-export function StripeLinksCrud({ rows }: StripeLinksCrudProps) {
+export function StripeLinksCrud({
+  rows,
+  disabled = false,
+}: StripeLinksCrudProps & { disabled?: boolean }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -80,7 +83,7 @@ export function StripeLinksCrud({ rows }: StripeLinksCrudProps) {
         <Input name="title" placeholder="Title" required />
         <Input name="code" placeholder="Code" required />
         <Input name="paymentLinkUrl" placeholder="https://..." required />
-        <Button disabled={pending} type="submit" className="h-10">{pending ? <Loader2 className="size-4 animate-spin" /> : 'Create'}</Button>
+        <Button disabled={pending || disabled} type="submit" className="h-10">{pending ? <Loader2 className="size-4 animate-spin" /> : 'Create'}</Button>
       </form>
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
 
@@ -94,8 +97,8 @@ export function StripeLinksCrud({ rows }: StripeLinksCrudProps) {
           <Input defaultValue={row.code} name="code" required />
           <Input defaultValue={row.paymentLinkUrl} name="paymentLinkUrl" required />
           <div className="flex items-center text-xs text-muted-foreground">{row.status}</div>
-          <Button disabled={pending} type="submit" variant="outline">Save</Button>
-          <Button disabled={pending} onClick={() => remove(row.id)} type="button" variant="destructive">Disable</Button>
+          <Button disabled={pending || disabled} type="submit" variant="outline">Save</Button>
+          <Button disabled={pending || disabled} onClick={() => remove(row.id)} type="button" variant="destructive">Disable</Button>
         </form>
       ))}
     </div>

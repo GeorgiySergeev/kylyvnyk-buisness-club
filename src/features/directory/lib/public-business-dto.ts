@@ -2,6 +2,7 @@ export const PUBLIC_BUSINESS_DTO_KEYS = [
   'category',
   'city',
   'country',
+  'discountLabel',
   'description',
   'id',
   'isRecommended',
@@ -17,6 +18,7 @@ type PublicBusinessRow = {
   city?: { name: string } | null;
   country: { flagEmoji: string | null; iso2: string; name: string } | null;
   description: string | null;
+  discountLabel: string | null;
   id: string;
   isRecommended: boolean;
   isTopPartner: boolean;
@@ -31,6 +33,7 @@ export type PublicBusinessDto = {
   city: { name: string } | null;
   country: { flagEmoji: string | null; iso2: string; name: string } | null;
   description: string | null;
+  discountLabel: string | null;
   id: string;
   isRecommended: boolean;
   isTopPartner: boolean;
@@ -61,6 +64,7 @@ export function createPublicBusinessDto(row: PublicBusinessRow): PublicBusinessD
         }
       : null,
     description: row.description,
+    discountLabel: row.discountLabel,
     id: row.id,
     isRecommended: row.isRecommended,
     isTopPartner: row.isTopPartner,

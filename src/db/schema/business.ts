@@ -41,6 +41,7 @@ export const businesses = pgTable(
     status: businessStatusEnum("status").notNull().default("DRAFT"),
     isTopPartner: boolean("is_top_partner").notNull().default(false),
     isRecommended: boolean("is_recommended").notNull().default(false),
+    discountLabel: text("discount_label"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
