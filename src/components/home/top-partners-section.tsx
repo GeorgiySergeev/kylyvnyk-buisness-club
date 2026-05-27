@@ -1,153 +1,135 @@
-import { ArrowRight, BadgeCheck } from 'lucide-react';
-import Image from 'next/image';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
-import { Button } from '@/components/ui/button';
+import {
+  PremiumPartnerCard,
+  type PremiumPartnerCardViewModel,
+} from '@/components/partners/premium-partner-card';
 
 export interface PartnerData {
-  name: string;
   category: string;
-  location: string;
+  condition: string;
+  description: string;
   discount: string;
   flag: string;
   flagLabel: string;
   img: string;
+  location: string;
+  name: string;
 }
 
 interface TopPartnersSectionProps {
-  locale: SupportedLocale;
-  title: string;
-  viewAll: string;
+  conditionLabel: string;
   detailsCta: string;
+  locale: SupportedLocale;
   partners: PartnerData[];
-}
-
-interface PartnerCardProps {
-  partner: PartnerData;
-  locale: SupportedLocale;
-  detailsCta: string;
-  featured?: boolean;
-}
-
-function PartnerCard({ partner, locale, detailsCta, featured = false }: PartnerCardProps) {
-  return (
-    <div
-      className="group relative overflow-hidden rounded-xl border border-primary/25 bg-[#16161a] transition-shadow duration-300 hover:shadow-[0_0_20px_rgba(255,215,0,0.14)]"
-    >
-      {/* Image */}
-      <div className={featured ? 'relative h-48 md:h-56' : 'relative h-32'}>
-        <Image
-          src={partner.img}
-          alt=""
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes={featured ? '(max-width: 768px) 100vw, 60vw' : '(max-width: 768px) 100vw, 40vw'}
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-[#16161a] via-[#16161a]/40 to-transparent" />
-
-        {/* Flag badge */}
-        <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-md border border-border/60 bg-[#16161a]/85 px-2 py-1 text-[10px] text-fg/80 backdrop-blur-sm">
-          <span>{partner.flag}</span>
-          <span className="font-medium tracking-wide">{partner.flagLabel}</span>
-        </div>
-
-        {/* Discount badge */}
-        <div className="absolute bottom-3 right-3 rounded-md bg-[#FFD700] px-2.5 py-1 text-xs font-bold text-black">
-          {partner.discount}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className={featured ? 'p-5' : 'p-4'}>
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h3
-              className={
-                featured
-                  ? 'font-display text-lg font-semibold leading-tight text-fg'
-                  : 'font-display text-base font-semibold leading-tight text-fg'
-              }
-            >
-              {partner.name}
-            </h3>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              {partner.category}
-              <span className="mx-1.5 text-primary/40">·</span>
-              {partner.location}
-            </p>
-          </div>
-          <BadgeCheck className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-        </div>
-
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="mt-3 h-8 gap-1.5 px-0 text-xs text-primary hover:bg-transparent hover:text-accent-hover"
-        >
-          <Link href={localizeHref(locale, '/directory')}>
-            {detailsCta}
-            <ArrowRight className="size-3" aria-hidden="true" />
-          </Link>
-        </Button>
-      </div>
-    </div>
-  );
+  recommendedLabel: string;
+  subtitle: string;
+  title: string;
+  topPartnerLabel: string;
+  verifiedLabel: string;
+  viewAll: string;
 }
 
 export function TopPartnersSection({
-  locale,
-  title,
-  viewAll,
+  conditionLabel,
   detailsCta,
+  locale,
   partners,
+  recommendedLabel,
+  subtitle,
+  title,
+  topPartnerLabel,
+  verifiedLabel,
+  viewAll,
 }: TopPartnersSectionProps) {
-  const [featured, ...rest] = partners;
+  const cardLabels = {
+    conditionLabel,
+    detailsLabel: detailsCta,
+    verifiedLabel,
+  };
+
+  const partnerCards: PremiumPartnerCardViewModel[] = partners.map((partner, index) => ({
+    category: partner.category,
+    condition: partner.condition,
+    countryCode: partner.flagLabel,
+    discount: partner.discount,
+    description: partner.description,
+    href: localizeHref(locale, '/directory'),
+    imageUrl: partner.img,
+    isRecommended: index > 0,
+    isTopPartner: index === 0,
+    location: partner.location,
+    name: partner.name,
+  }));
+
+  const renderedCount = Math.min(3, partnerCards.length);
 
   return (
-    <section>
-      {/* Section header */}
-      <div className="mb-5 flex items-center justify-between md:mb-6">
-        <div className="flex items-center gap-3">
-          <div className="h-px w-8 bg-primary" aria-hidden="true" />
-          <h2 className="text-xs font-medium uppercase tracking-[5px] text-fg md:text-sm">
-            {title}
-          </h2>
-        </div>
-        <Link
-          href={localizeHref(locale, '/directory')}
-          className="flex min-h-10 items-center gap-1 text-xs text-primary transition-colors hover:text-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:text-sm"
-        >
-          {viewAll}
-          <ArrowRight className="size-3 md:size-4" aria-hidden="true" />
-        </Link>
-      </div>
+    <section className="relative -mx-4 overflow-hidden border-t border-border/50  px-4 py-16 md:-mx-12 md:px-12 md:py-20">
+      <div
+        className="pointer-events-none absolute right-1/4 top-0 size-80 rounded-full bg-primary/5 blur-3xl"
+        aria-hidden="true"
+      />
 
-      {/* Mobile: horizontal scroll */}
-      <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 md:hidden">
-        {partners.map((partner) => (
-          <div key={partner.name} className="w-[260px] shrink-0">
-            <PartnerCard partner={partner} locale={locale} detailsCta={detailsCta} />
+      <div className="relative">
+        <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-3xl">
+            <span className="sr-only">{recommendedLabel}</span>
+            <span className="block text-[10px] font-mono font-semibold uppercase tracking-[0.32em] text-primary">
+              {topPartnerLabel}
+            </span>
+            <h2 className="mt-2 font-display text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
+              {title}
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">{subtitle}</p>
           </div>
-        ))}
-      </div>
 
-      {/* Desktop: asymmetric grid — 1 featured (3fr) + 2 stacked (2fr) */}
-      {featured && (
-        <div className="hidden gap-4 md:grid md:grid-cols-[3fr_2fr]">
-          {/* Featured card */}
-          <PartnerCard partner={featured} locale={locale} detailsCta={detailsCta} featured />
+          <div className="flex shrink-0 items-center gap-4 select-none" aria-hidden="true">
+            <span className="font-mono text-xs text-muted-foreground">
+              01 <span className="text-border">/</span>{' '}
+              {String(Math.max(1, renderedCount)).padStart(2, '0')}
+            </span>
 
-          {/* Stacked smaller cards */}
-          <div className="flex flex-col gap-4">
-            {rest.map((partner) => (
-              <PartnerCard key={partner.name} partner={partner} locale={locale} detailsCta={detailsCta} />
+            <div className="flex items-center gap-2">
+              <span className="flex size-10 items-center justify-center rounded-full border border-border bg-background/80 text-muted-foreground">
+                <ChevronLeft className="size-5" />
+              </span>
+              <span className="flex size-10 items-center justify-center rounded-full border border-border bg-background/80 text-muted-foreground">
+                <ChevronRight className="size-5" />
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 md:hidden">
+          {partnerCards.map((partner) => (
+            <div key={partner.name} className="w-[20rem] shrink-0">
+              <PremiumPartnerCard labels={cardLabels} partner={partner} />
+            </div>
+          ))}
+        </div>
+
+        {partnerCards.length > 0 ? (
+          <div className="hidden gap-6 md:grid md:grid-cols-3">
+            {partnerCards.map((partner) => (
+              <PremiumPartnerCard key={partner.name} labels={cardLabels} partner={partner} />
             ))}
           </div>
+        ) : null}
+
+        <div className="mt-8 flex justify-end">
+          <Link
+            href={localizeHref(locale, '/directory')}
+            className="inline-flex min-h-10 items-center gap-1.5 border-b border-primary pb-0.5 text-xs font-bold uppercase tracking-[0.14em] text-primary transition-colors hover:border-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+          >
+            {viewAll}
+            <ArrowRight className="size-3.5" aria-hidden="true" />
+          </Link>
         </div>
-      )}
+      </div>
     </section>
   );
 }
