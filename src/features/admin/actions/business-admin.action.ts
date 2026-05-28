@@ -20,7 +20,11 @@ import {
 type ActionResult<T> = { data: T; ok: true } | { error: string; ok: false };
 
 function revalidateBusinessesPages() {
-  SUPPORTED_LOCALES.forEach((locale) => revalidatePath(localizeHref(locale, '/admin/businesses')));
+  SUPPORTED_LOCALES.forEach((locale) => {
+    revalidatePath(localizeHref(locale, '/'));
+    revalidatePath(localizeHref(locale, '/admin/businesses'));
+    revalidatePath(localizeHref(locale, '/directory'));
+  });
 }
 
 export async function updateBusinessStatusAction(
@@ -61,13 +65,23 @@ export async function toggleBusinessFeatureAction(
   const parsed = toggleBusinessFeatureSchema.safeParse(rawInput);
   if (!parsed.success) return { ok: false, code: 'validation', error: 'Invalid input.' };
 
+  const updateValues: {
+    isRecommended?: boolean;
+    isTopPartner?: boolean;
+    updatedAt: Date;
+  } = { updatedAt: new Date() };
+
+  if (parsed.data.isRecommended !== undefined) {
+    updateValues.isRecommended = parsed.data.isRecommended;
+  }
+
+  if (parsed.data.isTopPartner !== undefined) {
+    updateValues.isTopPartner = parsed.data.isTopPartner;
+  }
+
   const [updated] = await db
     .update(businesses)
-    .set({
-      isRecommended: parsed.data.isRecommended,
-      isTopPartner: parsed.data.isTopPartner,
-      updatedAt: new Date(),
-    })
+    .set(updateValues)
     .where(eq(businesses.id, parsed.data.businessId))
     .returning({ id: businesses.id });
 

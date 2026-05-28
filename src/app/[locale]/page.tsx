@@ -5,54 +5,16 @@ import { MobileBottomNav } from '@/components/home/mobile-bottom-nav';
 import { RecommendedSection } from '@/components/home/recommended-section';
 import { StatsSection } from '@/components/home/stats-section';
 import { type PartnerData, TopPartnersSection } from '@/components/home/top-partners-section';
-import type { SupportedLocale } from '@/components/layout/navigation';
+import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
+import { getPublishedBusinesses } from '@/features/directory/lib/get-published-businesses';
 import { getNavigationSession } from '@/lib/auth/navigation-session';
 import { getT } from '@/lib/i18n/t-server';
-
-const PARTNER_RAW = [
-  {
-    nameKey: 'topPartnerOneName',
-    categoryKey: 'topPartnerOneCategory',
-    locationKey: 'topPartnerOneLocation',
-    discountKey: 'topPartnerOneDiscount',
-    flagKey: 'topPartnerOneFlag',
-    conditionKey: 'topPartnerOneCondition',
-    descriptionKey: 'topPartnerOneDescription',
-    img: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600',
-  },
-  {
-    nameKey: 'topPartnerTwoName',
-    categoryKey: 'topPartnerTwoCategory',
-    locationKey: 'topPartnerTwoLocation',
-    discountKey: 'topPartnerTwoDiscount',
-    flagKey: 'topPartnerTwoFlag',
-    conditionKey: 'topPartnerTwoCondition',
-    descriptionKey: 'topPartnerTwoDescription',
-    img: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600',
-  },
-  {
-    nameKey: 'topPartnerThreeName',
-    categoryKey: 'topPartnerThreeCategory',
-    locationKey: 'topPartnerThreeLocation',
-    discountKey: 'topPartnerThreeDiscount',
-    flagKey: 'topPartnerThreeFlag',
-    conditionKey: 'topPartnerThreeCondition',
-    descriptionKey: 'topPartnerThreeDescription',
-    img: 'https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600',
-  },
-] as const;
 
 const STEP_RAW = [
   { titleKey: 'stepOneTitle', textKey: 'stepOneText' },
   { titleKey: 'stepTwoTitle', textKey: 'stepTwoText' },
   { titleKey: 'stepThreeTitle', textKey: 'stepThreeText' },
   { titleKey: 'stepFourTitle', textKey: 'stepFourText' },
-] as const;
-
-const RECOMMENDED_RAW = [
-  { nameKey: 'recommendedPartnerOneName', metaKey: 'recommendedPartnerOneMeta' },
-  { nameKey: 'recommendedPartnerTwoName', metaKey: 'recommendedPartnerTwoMeta' },
-  { nameKey: 'recommendedPartnerThreeName', metaKey: 'recommendedPartnerThreeMeta' },
 ] as const;
 
 const FILTER_KEYS = ['filterCountry', 'filterCity', 'filterCategory'] as const;
@@ -72,27 +34,40 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
 
   const isAuthenticated = session.role !== 'guest';
 
-  const partners: PartnerData[] = PARTNER_RAW.map((p) => ({
-    name: t(p.nameKey),
-    category: t(p.categoryKey),
-    condition: t(p.conditionKey),
-    description: t(p.descriptionKey),
-    location: t(p.locationKey),
-    discount: t(p.discountKey),
-    flag: t(p.flagKey),
-    flagLabel:
-      p.flagKey === 'topPartnerOneFlag' ? 'CH' : p.flagKey === 'topPartnerTwoFlag' ? 'CA' : 'US',
-    img: p.img,
-  }));
-
   const steps = STEP_RAW.map((s) => ({
     title: t(s.titleKey),
     text: t(s.textKey),
   }));
 
-  const recommendedPartners = RECOMMENDED_RAW.map((r) => ({
-    name: t(r.nameKey),
-    meta: t(r.metaKey),
+  const [topBusinesses, recommendedBusinesses] = await Promise.all([
+    getPublishedBusinesses({ isTopPartner: true, limit: 3 }),
+    getPublishedBusinesses({ isRecommended: true, limit: 3 }),
+  ]);
+
+  const partners: PartnerData[] = topBusinesses.map((business) => ({
+    name: business.name,
+    category: business.category?.name || t('topPartnerOneCategory'),
+    condition: t('partnerConditionLabel'),
+    description: business.description || t('topPartnerOneDescription'),
+    location:
+      [business.city?.name, business.country?.name].filter(Boolean).join(', ') ||
+      t('topPartnerOneLocation'),
+    discount: business.discountLabel || '',
+    flag: business.country?.flagEmoji || '',
+    flagLabel: business.country?.iso2 || 'US',
+    href: localizeHref(locale, `/directory/${business.slug}`),
+    img: business.logoUrl || '/partners/default.svg',
+  }));
+
+  const recommendedPartners = recommendedBusinesses.map((business) => ({
+    name: business.name,
+    category: business.category?.name || t('topPartnerOneCategory'),
+    location:
+      [business.city?.name, business.country?.name].filter(Boolean).join(', ') ||
+      t('topPartnerOneLocation'),
+    description: business.description || undefined,
+    img: business.logoUrl || undefined,
+    flagLabel: business.country?.iso2 || undefined,
   }));
 
   const filters = FILTER_KEYS.map((key) => ({ label: t(key) }));
@@ -156,8 +131,10 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
         <RecommendedSection
           locale={locale}
           title={t('recommendedTitle')}
-          showMoreCta={t('showMoreCta')}
+          viewAll={t('showMoreCta')}
+          detailsCta={t('detailsCta')}
           condition={t('recommendedCondition')}
+          verifiedLabel={t('partnerVerifiedLabel')}
           partners={recommendedPartners}
         />
       </div>

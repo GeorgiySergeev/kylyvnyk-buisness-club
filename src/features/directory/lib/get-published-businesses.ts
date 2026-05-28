@@ -10,6 +10,8 @@ import { createPublicBusinessDto, type PublicBusinessDto } from './public-busine
 export type GetPublishedBusinessesOptions = {
   categoryId?: number;
   countryId?: number;
+  isRecommended?: boolean;
+  isTopPartner?: boolean;
   search?: string;
   limit?: number;
   offset?: number;
@@ -18,7 +20,15 @@ export type GetPublishedBusinessesOptions = {
 export async function getPublishedBusinesses(
   opts: GetPublishedBusinessesOptions = {},
 ): Promise<PublicBusinessDto[]> {
-  const { categoryId, countryId, search, limit = 12, offset = 0 } = opts;
+  const {
+    categoryId,
+    countryId,
+    isRecommended,
+    isTopPartner,
+    search,
+    limit = 12,
+    offset = 0,
+  } = opts;
 
   const rows = await db.query.businesses.findMany({
     columns: {
@@ -37,6 +47,8 @@ export async function getPublishedBusinesses(
       isNull(businesses.deletedAt),
       categoryId ? eq(businesses.categoryId, categoryId) : undefined,
       countryId ? eq(businesses.countryId, countryId) : undefined,
+      isRecommended !== undefined ? eq(businesses.isRecommended, isRecommended) : undefined,
+      isTopPartner !== undefined ? eq(businesses.isTopPartner, isTopPartner) : undefined,
       search
         ? or(ilike(businesses.name, `%${search}%`), ilike(businesses.slug, `%${search}%`))
         : undefined,

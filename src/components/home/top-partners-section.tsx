@@ -15,6 +15,7 @@ export interface PartnerData {
   discount: string;
   flag: string;
   flagLabel: string;
+  href?: string;
   img: string;
   location: string;
   name: string;
@@ -57,7 +58,7 @@ export function TopPartnersSection({
     countryCode: partner.flagLabel,
     discount: partner.discount,
     description: partner.description,
-    href: localizeHref(locale, '/directory'),
+    href: partner.href ?? localizeHref(locale, '/directory'),
     imageUrl: partner.img,
     isRecommended: index > 0,
     isTopPartner: index === 0,
@@ -86,7 +87,9 @@ export function TopPartnersSection({
             <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-foreground">
               {title}
             </h2>
-            <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
+            <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-muted-foreground">
+              {subtitle}
+            </p>
           </div>
 
           {/* Navigation Indicators */}
