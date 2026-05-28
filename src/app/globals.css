@@ -312,6 +312,21 @@ a {
   --color-neutral-content: var(--foreground);
   --color-error: var(--destructive);
   --color-error-content: var(--destructive-foreground);
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 10%) transparent;
+}
+
+.admin *::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin *::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 10%);
+  border-radius: 3px;
 }
 
 .dark {
