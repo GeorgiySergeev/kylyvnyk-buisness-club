@@ -151,7 +151,13 @@ verification — Stripe will mark events as failed and start retrying.
 **In dev:** the secret printed by `stripe listen` is ephemeral; re-run
 `stripe listen` after a reboot and update `.env.local`. This is normal.
 
-#### `STRIPE_PRICE_VIP_ANNUAL` / `STRIPE_PRICE_BUSINESS_ANNUAL`
+#### `STRIPE_PRICE_VIP_ANNUAL`
+
+server · required · — · Stripe Dashboard → Products → your product →
+Pricing → price ID · owner: billing owner · rotates: when product
+restructured · breaks: checkout sessions return "No such price".
+
+#### `STRIPE_PRICE_BUSINESS_ANNUAL`
 
 server · required · — · Stripe Dashboard → Products → your product →
 Pricing → price ID · owner: billing owner · rotates: when product
@@ -218,11 +224,15 @@ public · required · — · Sentry → Project → Settings → Client Keys (DS
 owner: observability owner · rotates: rarely · breaks: errors not
 captured (silent failure — alert via a synthetic test in CI).
 
-#### `SENTRY_ORG` / `SENTRY_PROJECT`
+#### `SENTRY_ORG`
 
-ci · required at build · `kclub` / `kclub-web` · — · owner: observability
-owner · rotates: never · breaks: source map upload step in CI; runtime
-unaffected.
+ci · required at build · `kclub` · — · owner: observability owner · rotates:
+never · breaks: source map upload step in CI; runtime unaffected.
+
+#### `SENTRY_PROJECT`
+
+ci · required at build · `kclub-web` · — · owner: observability owner ·
+rotates: never · breaks: source map upload step in CI; runtime unaffected.
 
 #### `SENTRY_AUTH_TOKEN`
 

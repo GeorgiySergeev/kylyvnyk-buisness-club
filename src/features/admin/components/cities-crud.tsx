@@ -22,10 +22,17 @@ interface CityRow {
 }
 
 interface CitiesCrudProps {
+  labels: {
+    countryId: string;
+    create: string;
+    delete: string;
+    name: string;
+    save: string;
+  };
   rows: CityRow[];
 }
 
-export function CitiesCrud({ rows }: CitiesCrudProps) {
+export function CitiesCrud({ rows, labels }: CitiesCrudProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -76,9 +83,9 @@ export function CitiesCrud({ rows }: CitiesCrudProps) {
   return (
     <div className="space-y-3">
       <form action={create} className="grid gap-2 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-[1fr_120px_auto]">
-        <Input name="name" placeholder="City name" required />
-        <Input min={1} name="countryId" placeholder="Country ID" type="number" required />
-        <Button disabled={pending} type="submit" className="h-10">{pending ? <Loader2 className="size-4 animate-spin" /> : 'Create'}</Button>
+        <Input name="name" placeholder={labels.name} required />
+        <Input min={1} name="countryId" placeholder={labels.countryId} type="number" required />
+        <Button disabled={pending} type="submit" className="h-10">{pending ? <Loader2 className="size-4 animate-spin" /> : labels.create}</Button>
       </form>
 
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
@@ -92,14 +99,14 @@ export function CitiesCrud({ rows }: CitiesCrudProps) {
           <Input defaultValue={row.name} name="name" required />
           <Input defaultValue={row.countryId} min={1} name="countryId" type="number" required />
           <div className="flex items-center text-xs text-muted-foreground">{row.countryName} ({row.countryIso2})</div>
-          <Button disabled={pending} type="submit" variant="outline">Save</Button>
+          <Button disabled={pending} type="submit" variant="outline">{labels.save}</Button>
           <Button
             disabled={pending || row.linkedBusinesses > 0}
             onClick={() => remove(row.id)}
             type="button"
             variant="destructive"
           >
-            Delete
+            {labels.delete}
           </Button>
         </form>
       ))}

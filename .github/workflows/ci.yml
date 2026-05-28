@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-gates:
+    name: Release gates
+    runs-on: ubuntu-latest
+    env:
+      ALLOW_SEED: ""
+      AUTH_DEV_PHONE_BYPASS_ENABLED: ""
+      AUTH_DEV_2FA_BYPASS_ENABLED: ""
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL_DIRECT: ${{ secrets.DATABASE_URL_DIRECT }}
+      DISABLE_VOCAB_GREP: ""
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_PLAUSIBLE_DOMAIN: kclub.example.com
+      NEXT_PUBLIC_SENTRY_DSN: https://example@o0.ingest.sentry.io/0
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_REPLACE_ME
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+      NODE_ENV: production
+      SENTRY_ORG: kclub
+      SENTRY_PROJECT: kclub-web
+      STRIPE_PORTAL_CONFIGURATION_ID: bpc_REPLACE_ME
+      STRIPE_PRICE_BUSINESS_ANNUAL: price_REPLACE_ME
+      STRIPE_PRICE_VIP_ANNUAL: price_REPLACE_ME
+      STRIPE_SECRET_KEY: sk_test_REPLACE_ME
+      STRIPE_WEBHOOK_SECRET: whsec_REPLACE_ME
+      TURNSTILE_SECRET_KEY: 1x0000000000000000000000000000000AA
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+      UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0609f0983b7a228f052f81ef4c3d6510cae254ad
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Forbidden vocabulary
+        run: pnpm vocab:check
+
+      - name: Env contract
+        run: pnpm env:check
+
+      - name: Build
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test

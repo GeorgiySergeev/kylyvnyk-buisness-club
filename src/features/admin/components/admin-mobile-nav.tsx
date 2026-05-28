@@ -58,7 +58,12 @@ const BREADCRUMB_MAP: Record<string, AdminNavKey> = {
 
 interface AdminMobileNavProps {
   locale: SupportedLocale;
-  labels: AdminNavLabels;
+  labels: AdminNavLabels & {
+    adminRole: string;
+    closeMenu: string;
+    openMenu: string;
+    title: string;
+  };
 }
 
 export function AdminMobileNav({ locale, labels }: AdminMobileNavProps) {
@@ -92,7 +97,7 @@ export function AdminMobileNav({ locale, labels }: AdminMobileNavProps) {
           type="button"
           onClick={() => setOpen(true)}
           className="flex min-h-11 min-w-11 items-center justify-center text-foreground"
-          aria-label="Open menu"
+          aria-label={labels.openMenu}
         >
           <Menu className="size-5" />
         </button>
@@ -118,13 +123,13 @@ export function AdminMobileNav({ locale, labels }: AdminMobileNavProps) {
             <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-[11px] font-bold uppercase text-sidebar-primary-foreground">
               K
             </div>
-            <span className="font-semibold text-sidebar-foreground">Admin</span>
+            <span className="font-semibold text-sidebar-foreground">{labels.title}</span>
           </div>
           <button
             type="button"
             onClick={() => setOpen(false)}
             className="flex min-h-9 min-w-9 items-center justify-center text-sidebar-foreground"
-            aria-label="Close menu"
+            aria-label={labels.closeMenu}
           >
             <X className="size-5" />
           </button>
@@ -166,8 +171,8 @@ export function AdminMobileNav({ locale, labels }: AdminMobileNavProps) {
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-xs font-medium text-sidebar-foreground">Admin</span>
-              <span className="text-[11px] text-sidebar-foreground/60">Super Admin</span>
+              <span className="text-xs font-medium text-sidebar-foreground">{labels.title}</span>
+              <span className="text-[11px] text-sidebar-foreground/60">{labels.adminRole}</span>
             </div>
           </div>
         </div>

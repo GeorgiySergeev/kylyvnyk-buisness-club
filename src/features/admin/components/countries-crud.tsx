@@ -21,10 +21,18 @@ interface CountryRow {
 }
 
 interface CountriesCrudProps {
+  labels: {
+    create: string;
+    delete: string;
+    flag: string;
+    iso2: string;
+    name: string;
+    save: string;
+  };
   rows: CountryRow[];
 }
 
-export function CountriesCrud({ rows }: CountriesCrudProps) {
+export function CountriesCrud({ rows, labels }: CountriesCrudProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -85,11 +93,11 @@ export function CountriesCrud({ rows }: CountriesCrudProps) {
   return (
     <div className="space-y-3">
       <form action={create} className="grid gap-2 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-[1fr_120px_120px_auto]">
-        <Input name="name" placeholder="Country name" required />
-        <Input maxLength={2} minLength={2} name="iso2" placeholder="ISO2" required />
-        <Input name="flagEmoji" placeholder="Flag" />
+        <Input name="name" placeholder={labels.name} required />
+        <Input maxLength={2} minLength={2} name="iso2" placeholder={labels.iso2} required />
+        <Input name="flagEmoji" placeholder={labels.flag} />
         <Button disabled={pending} type="submit" className="h-10">
-          {pending ? <Loader2 className="size-4 animate-spin" /> : 'Create'}
+          {pending ? <Loader2 className="size-4 animate-spin" /> : labels.create}
         </Button>
       </form>
 
@@ -104,14 +112,14 @@ export function CountriesCrud({ rows }: CountriesCrudProps) {
           <Input defaultValue={row.name} name="name" required />
           <Input defaultValue={row.iso2} maxLength={2} minLength={2} name="iso2" required />
           <Input defaultValue={row.flagEmoji ?? ''} name="flagEmoji" />
-          <Button disabled={pending} type="submit" variant="outline">Save</Button>
+          <Button disabled={pending} type="submit" variant="outline">{labels.save}</Button>
           <Button
             disabled={pending || row.linkedBusinesses > 0}
             onClick={() => remove(row.id)}
             type="button"
             variant="destructive"
           >
-            Delete
+            {labels.delete}
           </Button>
         </form>
       ))}

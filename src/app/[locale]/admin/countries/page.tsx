@@ -70,6 +70,14 @@ export default async function AdminCountriesPage({ params }: AdminCountriesPageP
       <AdminPageHeader description={t('countriesDescription')} title={t('countriesTitle')} />
 
       <CountriesCrud
+        labels={{
+          create: t('create'),
+          delete: t('delete'),
+          flag: t('countryFlag'),
+          iso2: t('countryIso'),
+          name: t('countryName'),
+          save: t('saveShort'),
+        }}
         rows={countryRows.map((country) => ({
           ...country,
           linkedBusinesses: businessCountsByCountry.get(country.id) ?? 0,

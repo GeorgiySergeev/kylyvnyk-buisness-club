@@ -73,6 +73,15 @@ export default async function AdminCategoriesPage({ params }: AdminCategoriesPag
       <AdminPageHeader description={t('categoriesDescription')} title={t('categoriesTitle')} />
 
       <CategoriesCrud
+        labels={{
+          create: t('create'),
+          delete: t('delete'),
+          icon: t('categoryIcon'),
+          name: t('categoryName'),
+          parentId: t('parentId'),
+          save: t('saveShort'),
+          slug: t('slug'),
+        }}
         rows={categoryRows.map((category) => ({
           ...category,
           linkedBusinesses: businessCountsByCategory.get(category.id) ?? 0,

@@ -47,7 +47,18 @@ export default async function AdminStripeLinksPage({ params }: AdminStripeLinksP
         {migrationRequired ? (
           <p className="text-sm text-amber-300">{MIGRATION_REQUIRED_MESSAGE}</p>
         ) : null}
-        <StripeLinksCrud disabled={migrationRequired} rows={rows} />
+        <StripeLinksCrud
+          disabled={migrationRequired}
+          labels={{
+            code: t('code'),
+            create: t('create'),
+            disable: t('disable'),
+            paymentLinkUrl: t('paymentLinkUrl'),
+            save: t('saveShort'),
+            title: t('itemTitle'),
+          }}
+          rows={rows}
+        />
         {rows.length === 0 ? (
           <AdminEmptyState
             description={t('stripeLinksEmptyDescription')}

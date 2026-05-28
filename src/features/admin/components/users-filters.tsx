@@ -16,6 +16,14 @@ import { AdminFiltersBar, AdminSearchInput } from './admin-ui';
 
 interface UsersFiltersProps {
   basePath: string;
+  labels: {
+    allRoles: string;
+    allStatuses: string;
+    role: string;
+    search: string;
+    searchPlaceholder: string;
+    status: string;
+  };
   roleFilter: string;
   searchTerm: string;
   statusFilter: string;
@@ -23,6 +31,7 @@ interface UsersFiltersProps {
 
 export function UsersFilters({
   basePath,
+  labels,
   roleFilter,
   searchTerm,
   statusFilter,
@@ -43,11 +52,11 @@ export function UsersFilters({
   return (
     <AdminFiltersBar>
       <form className="flex w-full gap-2 sm:max-w-md" method="GET">
-        <AdminSearchInput placeholder="Search by name, phone or email..." value={searchTerm} />
+        <AdminSearchInput placeholder={labels.searchPlaceholder} value={searchTerm} />
         {roleFilter ? <input name="role" type="hidden" value={roleFilter} /> : null}
         {statusFilter ? <input name="status" type="hidden" value={statusFilter} /> : null}
         <Button className="h-9 rounded-md" size="sm" type="submit">
-          Search
+          {labels.search}
         </Button>
       </form>
 
@@ -59,10 +68,10 @@ export function UsersFilters({
         }}
       >
         <SelectTrigger className="h-9 w-36 rounded-md border-border/80 bg-background/80">
-          <SelectValue placeholder="Role" />
+          <SelectValue placeholder={labels.role} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="ALL">All roles</SelectItem>
+          <SelectItem value="ALL">{labels.allRoles}</SelectItem>
           <SelectItem value="FREE">Free</SelectItem>
           <SelectItem value="VIP">VIP</SelectItem>
           <SelectItem value="BUSINESS">Business</SelectItem>
@@ -78,10 +87,10 @@ export function UsersFilters({
         }}
       >
         <SelectTrigger className="h-9 w-36 rounded-md border-border/80 bg-background/80">
-          <SelectValue placeholder="Status" />
+          <SelectValue placeholder={labels.status} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="ALL">All statuses</SelectItem>
+          <SelectItem value="ALL">{labels.allStatuses}</SelectItem>
           <SelectItem value="ACTIVE">Active</SelectItem>
           <SelectItem value="INACTIVE">Inactive</SelectItem>
           <SelectItem value="BANNED">Banned</SelectItem>

@@ -21,12 +21,21 @@ interface StripeLinkRow {
 }
 
 interface StripeLinksCrudProps {
+  labels: {
+    code: string;
+    create: string;
+    disable: string;
+    paymentLinkUrl: string;
+    save: string;
+    title: string;
+  };
   rows: StripeLinkRow[];
 }
 
 export function StripeLinksCrud({
   rows,
   disabled = false,
+  labels,
 }: StripeLinksCrudProps & { disabled?: boolean }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -80,10 +89,10 @@ export function StripeLinksCrud({
   return (
     <div className="space-y-3">
       <form action={create} className="grid gap-2 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-[1fr_160px_1fr_auto]">
-        <Input name="title" placeholder="Title" required />
-        <Input name="code" placeholder="Code" required />
-        <Input name="paymentLinkUrl" placeholder="https://..." required />
-        <Button disabled={pending || disabled} type="submit" className="h-10">{pending ? <Loader2 className="size-4 animate-spin" /> : 'Create'}</Button>
+        <Input name="title" placeholder={labels.title} required />
+        <Input name="code" placeholder={labels.code} required />
+        <Input name="paymentLinkUrl" placeholder={labels.paymentLinkUrl} required />
+        <Button disabled={pending || disabled} type="submit" className="h-10">{pending ? <Loader2 className="size-4 animate-spin" /> : labels.create}</Button>
       </form>
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
 
@@ -97,8 +106,8 @@ export function StripeLinksCrud({
           <Input defaultValue={row.code} name="code" required />
           <Input defaultValue={row.paymentLinkUrl} name="paymentLinkUrl" required />
           <div className="flex items-center text-xs text-muted-foreground">{row.status}</div>
-          <Button disabled={pending || disabled} type="submit" variant="outline">Save</Button>
-          <Button disabled={pending || disabled} onClick={() => remove(row.id)} type="button" variant="destructive">Disable</Button>
+          <Button disabled={pending || disabled} type="submit" variant="outline">{labels.save}</Button>
+          <Button disabled={pending || disabled} onClick={() => remove(row.id)} type="button" variant="destructive">{labels.disable}</Button>
         </form>
       ))}
     </div>

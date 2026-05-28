@@ -63,13 +63,20 @@ export default async function AdminCitiesPage({ params }: AdminCitiesPageProps) 
 
   return (
     <div className="space-y-5">
-      <AdminPageHeader description={t('countriesDescription')} title="Cities" />
+      <AdminPageHeader description={t('citiesDescription')} title={t('citiesTitle')} />
 
       <CitiesCrud
+        labels={{
+          countryId: t('countryId'),
+          create: t('create'),
+          delete: t('delete'),
+          name: t('cityName'),
+          save: t('saveShort'),
+        }}
         rows={rows.map((city) => ({
           countryId: city.countryId,
-          countryIso2: city.country?.iso2 ?? 'N/A',
-          countryName: city.country?.name ?? 'N/A',
+          countryIso2: city.country?.iso2 ?? t('emptyValue'),
+          countryName: city.country?.name ?? t('emptyValue'),
           id: city.id,
           linkedBusinesses: linkedBusinesses.get(city.id) ?? 0,
           name: city.name,
@@ -77,24 +84,24 @@ export default async function AdminCitiesPage({ params }: AdminCitiesPageProps) 
       />
 
       {rows.length === 0 ? (
-        <AdminEmptyState title={t('emptyValue')} />
+        <AdminEmptyState title={t('noCities')} />
       ) : (
         <AdminDataTableShell>
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead>City</TableHead>
-                <TableHead>Country</TableHead>
-                <TableHead>ISO2</TableHead>
+                <TableHead>{t('cityName')}</TableHead>
+                <TableHead>{t('countryName')}</TableHead>
+                <TableHead>{t('countryIso')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.map((city) => (
                 <TableRow key={city.id}>
                   <TableCell className="font-medium text-foreground">{city.name}</TableCell>
-                  <TableCell>{city.country?.name ?? 'N/A'}</TableCell>
+                  <TableCell>{city.country?.name ?? t('emptyValue')}</TableCell>
                   <TableCell className="font-mono text-[11px] text-muted-foreground">
-                    {city.country?.iso2 ?? 'N/A'}
+                    {city.country?.iso2 ?? t('emptyValue')}
                   </TableCell>
                 </TableRow>
               ))}

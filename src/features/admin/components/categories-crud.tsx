@@ -22,10 +22,19 @@ interface CategoryRow {
 }
 
 interface CategoriesCrudProps {
+  labels: {
+    create: string;
+    delete: string;
+    icon: string;
+    name: string;
+    parentId: string;
+    save: string;
+    slug: string;
+  };
   rows: CategoryRow[];
 }
 
-export function CategoriesCrud({ rows }: CategoriesCrudProps) {
+export function CategoriesCrud({ rows, labels }: CategoriesCrudProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -87,11 +96,11 @@ export function CategoriesCrud({ rows }: CategoriesCrudProps) {
   return (
     <div className="space-y-3">
       <form action={create} className="grid gap-2 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-[1fr_1fr_120px_120px_auto]">
-        <Input name="name" placeholder="Category name" required />
-        <Input name="slug" placeholder="slug" required />
-        <Input name="parentId" placeholder="Parent ID" />
-        <Input name="icon" placeholder="Icon" />
-        <Button disabled={pending} type="submit" className="h-10">{pending ? <Loader2 className="size-4 animate-spin" /> : 'Create'}</Button>
+        <Input name="name" placeholder={labels.name} required />
+        <Input name="slug" placeholder={labels.slug} required />
+        <Input name="parentId" placeholder={labels.parentId} />
+        <Input name="icon" placeholder={labels.icon} />
+        <Button disabled={pending} type="submit" className="h-10">{pending ? <Loader2 className="size-4 animate-spin" /> : labels.create}</Button>
       </form>
 
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
@@ -104,16 +113,16 @@ export function CategoriesCrud({ rows }: CategoriesCrudProps) {
         >
           <Input defaultValue={row.name} name="name" required />
           <Input defaultValue={row.slug} name="slug" required />
-          <Input defaultValue={row.parentId ?? ''} name="parentId" placeholder="Parent ID" />
+          <Input defaultValue={row.parentId ?? ''} name="parentId" placeholder={labels.parentId} />
           <Input defaultValue={row.icon ?? ''} name="icon" />
-          <Button disabled={pending} type="submit" variant="outline">Save</Button>
+          <Button disabled={pending} type="submit" variant="outline">{labels.save}</Button>
           <Button
             disabled={pending || row.linkedBusinesses > 0}
             onClick={() => remove(row.id)}
             type="button"
             variant="destructive"
           >
-            Delete
+            {labels.delete}
           </Button>
         </form>
       ))}

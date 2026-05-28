@@ -139,14 +139,14 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
               className="h-9 gap-2 border-0 bg-card text-foreground"
             >
               <Download className="size-4" />
-              <span className="hidden sm:inline">Export</span>
+              <span className="hidden sm:inline">{t('export')}</span>
             </Button>
             <Button
               size="sm"
               className="h-9 gap-2 bg-foreground text-background hover:bg-foreground/90"
             >
               <Plus className="size-4" />
-              <span className="hidden sm:inline">Add User</span>
+              <span className="hidden sm:inline">{t('addUser')}</span>
             </Button>
           </>
         }
@@ -154,6 +154,14 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
 
       <UsersFilters
         searchTerm={searchTerm}
+        labels={{
+          allRoles: t('allRoles'),
+          allStatuses: t('allStatuses'),
+          role: t('role'),
+          search: t('search'),
+          searchPlaceholder: t('searchPlaceholder'),
+          status: t('status'),
+        }}
         roleFilter={roleFilter}
         statusFilter={statusFilter}
         basePath={localizeHref(locale, '/admin/users')}
@@ -169,12 +177,12 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
                 <TableHead className="w-10 pl-4">
                   <Checkbox />
                 </TableHead>
-                <TableHead className="text-muted-foreground">User</TableHead>
-                <TableHead className="text-muted-foreground">Email</TableHead>
-                <TableHead className="text-muted-foreground">Role</TableHead>
-                <TableHead className="text-muted-foreground">Status</TableHead>
-                <TableHead className="text-muted-foreground">Joined</TableHead>
-                <TableHead className="pr-4 text-right text-muted-foreground">Actions</TableHead>
+                <TableHead className="text-muted-foreground">{t('user')}</TableHead>
+                <TableHead className="text-muted-foreground">{t('email')}</TableHead>
+                <TableHead className="text-muted-foreground">{t('role')}</TableHead>
+                <TableHead className="text-muted-foreground">{t('status')}</TableHead>
+                <TableHead className="text-muted-foreground">{t('joined')}</TableHead>
+                <TableHead className="pr-4 text-right text-muted-foreground">{t('actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -224,11 +232,14 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
       {filteredCount > PAGE_SIZE ? (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {startRow}&ndash;{endRow} of {filteredCount.toLocaleString()} users
+            {t('showingRows')
+              .replace('{start}', String(startRow))
+              .replace('{end}', String(endRow))
+              .replace('{count}', filteredCount.toLocaleString())}
           </p>
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <span className="hidden text-sm text-muted-foreground sm:inline">Rows per page</span>
+              <span className="hidden text-sm text-muted-foreground sm:inline">{t('rowsPerPage')}</span>
               <Select defaultValue="10">
                 <SelectTrigger className="h-8 w-16 border-0 bg-card text-foreground">
                   <SelectValue placeholder="10" />

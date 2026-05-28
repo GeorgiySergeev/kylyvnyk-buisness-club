@@ -21,8 +21,10 @@ interface PhoneAuthLabels {
   devBypass: string;
   name: string;
   nameHelp: string;
+  namePlaceholder: string;
   phone: string;
   phoneHelp: string;
+  phonePlaceholder: string;
   requestCode: string;
   submitting: string;
   verifyCode: string;
@@ -150,7 +152,7 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
               disabled={pending}
               value={displayName}
               onChange={(event) => setDisplayName(event.target.value)}
-              placeholder="Oleksandr Kovalenko"
+              placeholder={labels.namePlaceholder}
             />
             <p id="displayName-help" className="text-sm leading-6 text-muted-foreground">
               {labels.nameHelp}
@@ -171,7 +173,7 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
               disabled={pending}
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
-              placeholder="+380..."
+              placeholder={labels.phonePlaceholder}
             />
             <p id="phone-help" className="text-sm leading-6 text-muted-foreground">
               {labels.phoneHelp}

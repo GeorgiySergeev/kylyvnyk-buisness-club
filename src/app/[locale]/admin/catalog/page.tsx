@@ -6,6 +6,7 @@ import { catalogItems } from '@/db/schema';
 import { AdminPageHeader, AdminPanel } from '@/features/admin/components/admin-ui';
 import { CatalogCrud } from '@/features/admin/components/catalog-crud';
 import { isUndefinedTableError,MIGRATION_REQUIRED_MESSAGE } from '@/lib/db-guard';
+import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +17,8 @@ interface AdminCatalogPageProps {
 }
 
 export default async function AdminCatalogPage({ params }: AdminCatalogPageProps) {
-  await params;
+  const { locale } = await params;
+  const t = getT('admin', locale);
 
   let rows: Array<{
     businessId: string;
@@ -43,12 +45,25 @@ export default async function AdminCatalogPage({ params }: AdminCatalogPageProps
 
   return (
     <div className="space-y-5">
-      <AdminPageHeader description="Manage catalog entries linked to businesses." title="Catalog" />
-      <AdminPanel description="Create, update, and archive catalog entries." title="Catalog items">
+      <AdminPageHeader description={t('catalogDescription')} title={t('navCatalog')} />
+      <AdminPanel description={t('catalogPanelDescription')} title={t('catalogPanelTitle')}>
         {migrationRequired ? (
           <p className="text-sm text-amber-300">{MIGRATION_REQUIRED_MESSAGE}</p>
         ) : null}
-        <CatalogCrud disabled={migrationRequired} rows={rows} />
+        <CatalogCrud
+          disabled={migrationRequired}
+          labels={{
+            archive: t('archive'),
+            businessId: t('businessId'),
+            create: t('create'),
+            save: t('saveShort'),
+            slug: t('slug'),
+            status: t('status'),
+            summary: t('summary'),
+            title: t('itemTitle'),
+          }}
+          rows={rows}
+        />
       </AdminPanel>
     </div>
   );

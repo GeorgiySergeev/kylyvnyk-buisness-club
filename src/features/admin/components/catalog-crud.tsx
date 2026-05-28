@@ -21,7 +21,26 @@ interface CatalogRow {
   title: string;
 }
 
-export function CatalogCrud({ rows, disabled = false }: { rows: CatalogRow[]; disabled?: boolean }) {
+interface CatalogCrudLabels {
+  archive: string;
+  businessId: string;
+  create: string;
+  save: string;
+  slug: string;
+  status: string;
+  summary: string;
+  title: string;
+}
+
+export function CatalogCrud({
+  rows,
+  disabled = false,
+  labels,
+}: {
+  disabled?: boolean;
+  labels: CatalogCrudLabels;
+  rows: CatalogRow[];
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -68,12 +87,12 @@ export function CatalogCrud({ rows, disabled = false }: { rows: CatalogRow[]; di
   return (
     <div className="space-y-3">
       <form action={create} className="grid gap-2 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-[1fr_1fr_120px_1fr_120px_auto]">
-        <Input name="businessId" placeholder="Business UUID" required />
-        <Input name="title" placeholder="Title" required />
-        <Input name="slug" placeholder="slug" required />
-        <Input name="summary" placeholder="Summary" />
-        <Input name="status" placeholder="Status" required />
-        <Button disabled={pending || disabled} type="submit">{pending ? <Loader2 className="size-4 animate-spin" /> : 'Create'}</Button>
+        <Input name="businessId" placeholder={labels.businessId} required />
+        <Input name="title" placeholder={labels.title} required />
+        <Input name="slug" placeholder={labels.slug} required />
+        <Input name="summary" placeholder={labels.summary} />
+        <Input name="status" placeholder={labels.status} required />
+        <Button disabled={pending || disabled} type="submit">{pending ? <Loader2 className="size-4 animate-spin" /> : labels.create}</Button>
       </form>
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
 
@@ -84,8 +103,8 @@ export function CatalogCrud({ rows, disabled = false }: { rows: CatalogRow[]; di
           <Input defaultValue={row.slug} name="slug" required />
           <Input defaultValue={row.summary ?? ''} name="summary" />
           <Input defaultValue={row.status} name="status" required />
-          <Button disabled={pending || disabled} type="submit" variant="outline">Save</Button>
-          <Button disabled={pending || disabled} type="button" variant="destructive" onClick={() => remove(row.id)}>Archive</Button>
+          <Button disabled={pending || disabled} type="submit" variant="outline">{labels.save}</Button>
+          <Button disabled={pending || disabled} type="button" variant="destructive" onClick={() => remove(row.id)}>{labels.archive}</Button>
         </form>
       ))}
     </div>

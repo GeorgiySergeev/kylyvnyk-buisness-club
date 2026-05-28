@@ -40,7 +40,13 @@ const ADMIN_NAV_ICONS: Record<AdminNavKey, LucideIcon> = {
 
 interface AdminSidebarInnerProps {
   locale: SupportedLocale;
-  labels: AdminNavLabels;
+  labels: AdminNavLabels & {
+    adminBrand: string;
+    adminRole: string;
+    backOffice: string;
+    navigation: string;
+    title: string;
+  };
 }
 
 export function AdminSidebarInner({ locale, labels }: AdminSidebarInnerProps) {
@@ -53,12 +59,14 @@ export function AdminSidebarInner({ locale, labels }: AdminSidebarInnerProps) {
           K
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-semibold text-sidebar-foreground">KYLYVNYK</div>
-          <div className="text-[11px] text-sidebar-foreground/55">BackOffice</div>
+          <div className="text-sm font-semibold text-sidebar-foreground">{labels.adminBrand}</div>
+          <div className="text-[11px] text-sidebar-foreground/55">{labels.backOffice}</div>
         </div>
       </div>
 
-      <div className="px-4 pb-2 text-[11px] font-medium text-sidebar-foreground/50">Navigation</div>
+      <div className="px-4 pb-2 text-[11px] font-medium text-sidebar-foreground/50">
+        {labels.navigation}
+      </div>
       <nav className="flex flex-col gap-1 px-3">
         {ADMIN_NAV_ITEMS.map((item) => {
           const Icon = ADMIN_NAV_ICONS[item.key];
@@ -89,8 +97,8 @@ export function AdminSidebarInner({ locale, labels }: AdminSidebarInnerProps) {
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="text-xs font-medium text-sidebar-foreground">Admin</span>
-            <span className="text-[11px] text-sidebar-foreground/60">Super Admin</span>
+            <span className="text-xs font-medium text-sidebar-foreground">{labels.title}</span>
+            <span className="text-[11px] text-sidebar-foreground/60">{labels.adminRole}</span>
           </div>
         </div>
       </div>

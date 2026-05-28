@@ -64,7 +64,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
     <div className="space-y-5">
       <AdminPageHeader
         description={t('dashboardDescription')}
-        eyebrow="BackOffice"
+        eyebrow={t('backOffice')}
         title={t('dashboardTitle')}
       />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -73,17 +73,17 @@ export default async function AdminPage({ params }: AdminPageProps) {
             icon={stat.icon}
             key={stat.label}
             label={stat.label}
-            meta="Live database snapshot"
+            meta={t('liveDatabaseSnapshot')}
             tone={stat.tone}
             value={stat.value}
           />
         ))}
       </div>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(18rem,0.8fr)]">
-        <AdminPanel description="Core platform health and moderation load." title="Operations">
+        <AdminPanel description={t('operationsDescription')} title={t('operationsTitle')}>
           <div className="h-64 rounded-md border border-dashed border-border/80 bg-background/40" />
         </AdminPanel>
-        <AdminPanel description="Items that usually need human attention." title="Review queue">
+        <AdminPanel description={t('reviewQueueDescription')} title={t('reviewQueueTitle')}>
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between rounded-md border border-border/80 bg-background/40 px-3 py-2">
               <span className="text-muted-foreground">{t('statPendingBusinesses')}</span>
