@@ -3,7 +3,7 @@ import { Crown } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import mapImg from '@/assets/images/map.png';
+import mapImg from '@/assets/images/map.webp';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
