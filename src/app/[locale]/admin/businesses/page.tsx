@@ -19,6 +19,7 @@ import {
   AdminSearchInput,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
+import { BusinessFeatureToggle } from '@/features/admin/components/business-feature-toggle';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -48,6 +49,8 @@ export default async function AdminBusinessesPage({
     columns: {
       createdAt: true,
       id: true,
+      isRecommended: true,
+      isTopPartner: true,
       name: true,
       slug: true,
       status: true,
@@ -131,6 +134,8 @@ export default async function AdminBusinessesPage({
                 <TableHead>{t('owner')}</TableHead>
                 <TableHead>{t('category')}</TableHead>
                 <TableHead>{t('status')}</TableHead>
+                <TableHead>In top</TableHead>
+                <TableHead>Recommended</TableHead>
                 <TableHead>{t('created')}</TableHead>
                 <TableHead className="text-right">{t('actions')}</TableHead>
               </TableRow>
@@ -148,6 +153,20 @@ export default async function AdminBusinessesPage({
                   <TableCell>{business.category?.name ?? 'N/A'}</TableCell>
                   <TableCell>
                     <AdminStatusBadge>{business.status}</AdminStatusBadge>
+                  </TableCell>
+                  <TableCell>
+                    <BusinessFeatureToggle
+                      businessId={business.id}
+                      feature="isTopPartner"
+                      pressed={business.isTopPartner}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <BusinessFeatureToggle
+                      businessId={business.id}
+                      feature="isRecommended"
+                      pressed={business.isRecommended}
+                    />
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {business.createdAt.toLocaleDateString()}
