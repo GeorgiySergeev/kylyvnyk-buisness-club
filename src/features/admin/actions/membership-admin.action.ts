@@ -2,6 +2,7 @@
 
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
 import { localizeHref, SUPPORTED_LOCALES } from '@/components/layout/navigation';
 import { db } from '@/db/client';
@@ -11,6 +12,14 @@ import { createAuditLog } from '@/lib/audit';
 import { isUndefinedTableError,MIGRATION_REQUIRED_MESSAGE } from '@/lib/db-guard';
 
 import type { AdminActionResult } from '../lib/action-result';
+
+const createSchema = z.object({
+  userId: z.string().uuid('Invalid user ID format'),
+  planCode: z.string().min(1, 'Plan code is required'),
+  status: z.string().min(1, 'Status is required'),
+  startsAt: z.coerce.date().optional(),
+  endsAt: z.coerce.date().nullable().optional(),
+});
 
 function revalidateMembershipPages() {
   for (const locale of SUPPORTED_LOCALES) {
@@ -22,17 +31,12 @@ export async function createMembershipAction(rawInput: unknown): Promise<AdminAc
   const admin = await getCurrentUserWithRole('ADMIN');
   if (!admin.ok) return { ok: false, code: 'unauthorized', error: 'Unauthorized.' };
 
-  const input = rawInput as {
-    userId?: string;
-    planCode?: string;
-    status?: string;
-    startsAt?: Date | null;
-    endsAt?: Date | null;
-  };
-
-  if (!input.userId || !input.planCode || !input.status) {
-    return { ok: false, code: 'validation', error: 'Invalid input.' };
+  const parsed = createSchema.safeParse(rawInput);
+  if (!parsed.success) {
+    return { ok: false, code: 'validation', error: parsed.error.issues.map((i) => i.message).join('; ') };
   }
+
+  const input = parsed.data;
 
   let created: { id: string };
   try {
@@ -50,7 +54,7 @@ export async function createMembershipAction(rawInput: unknown): Promise<AdminAc
     if (isUndefinedTableError(error, 'memberships')) {
       return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
     }
-    throw error;
+    return { ok: false, code: 'conflict', error: 'Failed to create membership. The user ID may not exist or the value is invalid.' };
   }
 
   await createAuditLog({
@@ -58,28 +62,31 @@ export async function createMembershipAction(rawInput: unknown): Promise<AdminAc
     actorUserId: admin.data.id,
     entityId: created.id,
     entityType: 'membership',
-    payload: input,
+    payload: { userId: input.userId, planCode: input.planCode, status: input.status },
   });
 
   revalidateMembershipPages();
   return { ok: true, data: { membershipId: created.id } };
 }
 
+const updateSchema = z.object({
+  membershipId: z.string().uuid('Invalid membership ID format'),
+  planCode: z.string().min(1, 'Plan code is required'),
+  status: z.string().min(1, 'Status is required'),
+  startsAt: z.coerce.date().optional(),
+  endsAt: z.coerce.date().nullable().optional(),
+});
+
 export async function updateMembershipAction(rawInput: unknown): Promise<AdminActionResult<{ membershipId: string }>> {
   const admin = await getCurrentUserWithRole('ADMIN');
   if (!admin.ok) return { ok: false, code: 'unauthorized', error: 'Unauthorized.' };
 
-  const input = rawInput as {
-    membershipId?: string;
-    planCode?: string;
-    status?: string;
-    startsAt?: Date | null;
-    endsAt?: Date | null;
-  };
-
-  if (!input.membershipId || !input.planCode || !input.status) {
-    return { ok: false, code: 'validation', error: 'Invalid input.' };
+  const parsed = updateSchema.safeParse(rawInput);
+  if (!parsed.success) {
+    return { ok: false, code: 'validation', error: parsed.error.issues.map((i) => i.message).join('; ') };
   }
+
+  const input = parsed.data;
 
   let updated: { id: string } | undefined;
   try {
@@ -98,7 +105,7 @@ export async function updateMembershipAction(rawInput: unknown): Promise<AdminAc
     if (isUndefinedTableError(error, 'memberships')) {
       return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
     }
-    throw error;
+    return { ok: false, code: 'conflict', error: 'Failed to update membership.' };
   }
 
   if (!updated) return { ok: false, code: 'not_found', error: 'Membership not found.' };
@@ -108,32 +115,40 @@ export async function updateMembershipAction(rawInput: unknown): Promise<AdminAc
     actorUserId: admin.data.id,
     entityId: updated.id,
     entityType: 'membership',
-    payload: input,
+    payload: { planCode: input.planCode, status: input.status },
   });
 
   revalidateMembershipPages();
   return { ok: true, data: { membershipId: updated.id } };
 }
 
+const deleteSchema = z.object({
+  membershipId: z.string().uuid('Invalid membership ID format'),
+});
+
 export async function softDeleteMembershipAction(rawInput: unknown): Promise<AdminActionResult<{ membershipId: string }>> {
   const admin = await getCurrentUserWithRole('ADMIN');
   if (!admin.ok) return { ok: false, code: 'unauthorized', error: 'Unauthorized.' };
 
-  const input = rawInput as { membershipId?: string };
-  if (!input.membershipId) return { ok: false, code: 'validation', error: 'Invalid input.' };
+  const parsed = deleteSchema.safeParse(rawInput);
+  if (!parsed.success) {
+    return { ok: false, code: 'validation', error: parsed.error.issues.map((i) => i.message).join('; ') };
+  }
+
+  const { membershipId } = parsed.data;
 
   let updated: { id: string } | undefined;
   try {
     [updated] = await db
       .update(memberships)
       .set({ deletedAt: new Date(), status: 'INACTIVE', updatedAt: new Date() })
-      .where(eq(memberships.id, input.membershipId))
+      .where(eq(memberships.id, membershipId))
       .returning({ id: memberships.id });
   } catch (error) {
     if (isUndefinedTableError(error, 'memberships')) {
       return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
     }
-    throw error;
+    return { ok: false, code: 'conflict', error: 'Failed to disable membership.' };
   }
 
   if (!updated) return { ok: false, code: 'not_found', error: 'Membership not found.' };
