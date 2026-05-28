@@ -8,6 +8,7 @@ const nonEmptyStringSchema = z.string().trim().min(1);
 const envSchema = z.object({
   ALLOW_SEED: flagSchema,
   AUTH_DEV_PHONE_BYPASS_ENABLED: flagSchema,
+  AUTH_DEV_2FA_BYPASS_ENABLED: flagSchema,
   DATABASE_URL: nonEmptyStringSchema,
   DATABASE_URL_DIRECT: nonEmptyStringSchema,
   DISABLE_VOCAB_GREP: flagSchema,

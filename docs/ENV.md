@@ -109,6 +109,12 @@ server · optional flag · empty by default · local `.env.local` only · owner:
 tech lead · rotates: never · breaks: local/demo phone auth bypass. Production
 code rejects this bypass when `NODE_ENV=production`.
 
+#### `AUTH_DEV_2FA_BYPASS_ENABLED`
+
+server · optional flag · empty by default · owner: tech lead · rotates: never ·
+breaks: admin 2FA check. When set to `1`, `hasVerifiedMfaInSession()` returns
+`true` unconditionally, allowing admin access without a verified 2FA session.
+
 #### Member avatars (Supabase Storage)
 
 No additional variables. Requires a one-time Supabase bucket **`avatars`**
