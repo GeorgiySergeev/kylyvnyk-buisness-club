@@ -15,6 +15,7 @@ import {
   AdminDataTableShell,
   AdminEmptyState,
   AdminFiltersBar,
+  AdminMobileCard,
   AdminPageHeader,
   AdminSearchInput,
   AdminStatusBadge,
@@ -158,47 +159,70 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
         <AdminEmptyState title={t('noAuditLogs')} />
       ) : (
         <div className="space-y-4">
-          <AdminDataTableShell>
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead>{t('auditAction')}</TableHead>
-                  <TableHead>{t('auditActor')}</TableHead>
-                  <TableHead>{t('auditEntity')}</TableHead>
-                  <TableHead>{t('auditPayload')}</TableHead>
-                  <TableHead>{t('auditIp')}</TableHead>
-                  <TableHead>{t('created')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pageLogs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell>
-                      <AdminStatusBadge tone="info">{log.action}</AdminStatusBadge>
-                    </TableCell>
-                    <TableCell>{log.actor?.displayName ?? 'System'}</TableCell>
-                    <TableCell>
-                      <div>{log.entityType ?? 'N/A'}</div>
-                      {log.entityId ? (
-                        <div className="font-mono text-[11px] text-muted-foreground">
-                          {log.entityId.slice(0, 8)}...
-                        </div>
-                      ) : null}
-                    </TableCell>
-                    <TableCell className="max-w-xs truncate font-mono text-[11px] text-muted-foreground">
-                      {log.payload ? JSON.stringify(log.payload) : 'N/A'}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
-                      {log.ipAddress ?? 'N/A'}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                      {log.createdAt.toLocaleString()}
-                    </TableCell>
+          {/* Mobile card view */}
+          <div className="space-y-3 md:hidden">
+            {pageLogs.map((log) => (
+              <AdminMobileCard
+                key={log.id}
+                title={log.action}
+                subtitle={log.actor?.displayName ?? 'System'}
+                badge={<AdminStatusBadge tone="info">{log.action}</AdminStatusBadge>}
+                rows={[
+                  { label: t('auditEntity'), value: `${log.entityType ?? 'N/A'}${log.entityId ? ` (${log.entityId.slice(0, 8)}...)` : ''}` },
+                  { label: t('auditIp'), value: log.ipAddress ?? 'N/A' },
+                  {
+                    label: t('created'),
+                    value: log.createdAt.toLocaleString(),
+                  },
+                ]}
+              />
+            ))}
+          </div>
+
+          {/* Desktop table view */}
+          <div className="hidden md:block">
+            <AdminDataTableShell>
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>{t('auditAction')}</TableHead>
+                    <TableHead>{t('auditActor')}</TableHead>
+                    <TableHead>{t('auditEntity')}</TableHead>
+                    <TableHead>{t('auditPayload')}</TableHead>
+                    <TableHead>{t('auditIp')}</TableHead>
+                    <TableHead>{t('created')}</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </AdminDataTableShell>
+                </TableHeader>
+                <TableBody>
+                  {pageLogs.map((log) => (
+                    <TableRow key={log.id}>
+                      <TableCell>
+                        <AdminStatusBadge tone="info">{log.action}</AdminStatusBadge>
+                      </TableCell>
+                      <TableCell>{log.actor?.displayName ?? 'System'}</TableCell>
+                      <TableCell>
+                        <div>{log.entityType ?? 'N/A'}</div>
+                        {log.entityId ? (
+                          <div className="font-mono text-[11px] text-muted-foreground">
+                            {log.entityId.slice(0, 8)}...
+                          </div>
+                        ) : null}
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate font-mono text-[11px] text-muted-foreground">
+                        {log.payload ? JSON.stringify(log.payload) : 'N/A'}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground">
+                        {log.ipAddress ?? 'N/A'}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                        {log.createdAt.toLocaleString()}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </AdminDataTableShell>
+          </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted-foreground">

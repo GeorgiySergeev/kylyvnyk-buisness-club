@@ -11,17 +11,19 @@ import {
   Menu,
   MessageSquare,
   ReceiptText,
+  Search,
   Tags,
   Users,
   X,
 } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 import { ADMIN_NAV_ITEMS, type AdminNavKey, type AdminNavLabels } from './admin-nav';
@@ -60,6 +62,7 @@ interface AdminMobileNavProps {
   locale: SupportedLocale;
   labels: AdminNavLabels & {
     adminRole: string;
+    adminSearchPlaceholder: string;
     closeMenu: string;
     openMenu: string;
     title: string;
@@ -68,7 +71,9 @@ interface AdminMobileNavProps {
 
 export function AdminMobileNav({ locale, labels }: AdminMobileNavProps) {
   const [open, setOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   // Close drawer on route change
   useEffect(() => {
@@ -104,8 +109,45 @@ export function AdminMobileNav({ locale, labels }: AdminMobileNavProps) {
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span className="text-foreground">{pageTitle}</span>
         </div>
-        <div className="size-11" /> {/* spacer */}
+        <button
+          type="button"
+          onClick={() => setShowSearch(!showSearch)}
+          className="flex min-h-11 min-w-11 items-center justify-center text-muted-foreground"
+          aria-label="Toggle search"
+        >
+          <Search className="size-5" />
+        </button>
       </header>
+
+      {/* Mobile search bar */}
+      {showSearch ? (
+        <form
+          className="flex gap-2 border-b border-border bg-background px-4 py-2 lg:hidden"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const form = e.currentTarget;
+            const q = (new FormData(form).get('q') as string)?.trim();
+            if (q) {
+              router.push(`${pathname}?q=${encodeURIComponent(q)}`);
+            } else {
+              router.push(pathname);
+            }
+            setShowSearch(false);
+          }}
+        >
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              name="q"
+              placeholder={labels.adminSearchPlaceholder}
+              className="h-9 border-border/80 bg-background/80 pl-9 text-sm"
+            />
+          </div>
+          <Button type="submit" className="h-9 shrink-0" size="sm">
+            Search
+          </Button>
+        </form>
+      ) : null}
 
       {/* Backdrop */}
       {open ? (

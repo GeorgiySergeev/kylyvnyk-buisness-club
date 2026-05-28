@@ -84,7 +84,7 @@ export function MembershipsCrud({
 
   return (
     <div className="space-y-3">
-      <form action={create} className="grid gap-2 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-[1fr_140px_140px_140px_140px_auto]">
+      <form action={create} className="grid gap-2 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-3 lg:grid-cols-[1fr_140px_140px_140px_140px_auto]">
         <Input name="userId" placeholder={labels.userId} required />
         <Input name="planCode" placeholder={labels.planCode} required />
         <Input name="status" placeholder={labels.status} required />
@@ -94,7 +94,7 @@ export function MembershipsCrud({
       </form>
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
       {rows.map((row) => (
-        <form key={row.id} action={(fd) => update(row.id, fd)} className="grid gap-2 rounded-md border border-border/70 bg-card/50 p-3 md:grid-cols-[1fr_140px_140px_140px_140px_auto_auto]">
+        <form key={row.id} action={(fd) => update(row.id, fd)} className="grid gap-2 rounded-md border border-border/70 bg-card/50 p-3 md:grid-cols-3 lg:grid-cols-[1fr_140px_140px_140px_140px_auto_auto]">
           <Input defaultValue={row.userId} disabled />
           <Input defaultValue={row.planCode} name="planCode" required />
           <Input defaultValue={row.status} name="status" required />

@@ -43,7 +43,7 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
   };
 
   return (
-    <div className="admin flex min-h-[calc(100dvh-4rem)] bg-background text-foreground">
+    <div className="admin flex min-h-dvh bg-background text-foreground">
       <aside className="sticky top-0 hidden h-[calc(100dvh-4rem)] w-64 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
         <AdminSidebarInner locale={supportedLocale} labels={{ ...shellLabels, navigation: t('navigation') }} />
       </aside>

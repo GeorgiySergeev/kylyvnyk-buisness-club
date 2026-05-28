@@ -292,7 +292,7 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <Briefcase aria-hidden="true" className="size-4" />
                 <span className="font-medium text-foreground">{activeBusinesses}</span>

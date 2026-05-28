@@ -34,6 +34,7 @@ import { users } from '@/db/schema';
 import {
   AdminDataTableShell,
   AdminEmptyState,
+  AdminMobileCard,
   AdminPageHeader,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
@@ -170,63 +171,106 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
       {filteredCount === 0 ? (
         <AdminEmptyState title={t('noUsers')} />
       ) : (
-        <AdminDataTableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-0 bg-card">
-                <TableHead className="w-10 pl-4">
-                  <Checkbox />
-                </TableHead>
-                <TableHead className="text-muted-foreground">{t('user')}</TableHead>
-                <TableHead className="text-muted-foreground">{t('email')}</TableHead>
-                <TableHead className="text-muted-foreground">{t('role')}</TableHead>
-                <TableHead className="text-muted-foreground">{t('status')}</TableHead>
-                <TableHead className="text-muted-foreground">{t('joined')}</TableHead>
-                <TableHead className="pr-4 text-right text-muted-foreground">{t('actions')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {pageUsers.map((user) => (
-                <TableRow key={user.id} className="border-border">
-                  <TableCell className="pl-4">
-                    <Checkbox />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="size-8">
-                        <AvatarFallback className="rounded-full bg-muted text-xs text-muted-foreground">
-                          {getInitials(user.displayName ?? user.phone)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium text-foreground">{user.displayName ?? '—'}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{user.email ?? '—'}</TableCell>
-                  <TableCell>
+        <>
+          {/* Mobile card view */}
+          <div className="space-y-3 md:hidden">
+            {pageUsers.map((user) => (
+              <AdminMobileCard
+                key={user.id}
+                title={
+                  <span className="flex items-center gap-2">
+                    <Avatar className="size-6">
+                      <AvatarFallback className="rounded-full bg-muted text-[10px] text-muted-foreground">
+                        {getInitials(user.displayName ?? user.phone)}
+                      </AvatarFallback>
+                    </Avatar>
+                    {user.displayName ?? '—'}
+                  </span>
+                }
+                subtitle={user.phone}
+                badge={
+                  <div className="flex gap-1">
                     <AdminStatusBadge>{user.role}</AdminStatusBadge>
-                  </TableCell>
-                  <TableCell>
                     <AdminStatusBadge>{user.status}</AdminStatusBadge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {user.createdAt.toLocaleDateString('en-US', {
+                  </div>
+                }
+                href={localizeHref(locale, `/admin/users/${user.id}`)}
+                rows={[
+                  { label: t('email'), value: user.email ?? '—' },
+                  {
+                    label: t('joined'),
+                    value: user.createdAt.toLocaleDateString('en-US', {
                       month: 'short',
                       day: '2-digit',
                       year: 'numeric',
-                    })}
-                  </TableCell>
-                  <TableCell className="pr-4 text-right">
-                    <Button variant="ghost" size="icon" className="size-8 text-foreground" asChild>
-                      <Link href={localizeHref(locale, `/admin/users/${user.id}`)}>
-                        <MoreHorizontal className="size-4" />
-                      </Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </AdminDataTableShell>
+                    }),
+                  },
+                ]}
+              />
+            ))}
+          </div>
+
+          {/* Desktop table view */}
+          <div className="hidden md:block">
+            <AdminDataTableShell>
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-0 bg-card">
+                    <TableHead className="w-10 pl-4">
+                      <Checkbox />
+                    </TableHead>
+                    <TableHead className="text-muted-foreground">{t('user')}</TableHead>
+                    <TableHead className="text-muted-foreground">{t('email')}</TableHead>
+                    <TableHead className="text-muted-foreground">{t('role')}</TableHead>
+                    <TableHead className="text-muted-foreground">{t('status')}</TableHead>
+                    <TableHead className="text-muted-foreground">{t('joined')}</TableHead>
+                    <TableHead className="pr-4 text-right text-muted-foreground">{t('actions')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pageUsers.map((user) => (
+                    <TableRow key={user.id} className="border-border">
+                      <TableCell className="pl-4">
+                        <Checkbox />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Avatar className="size-8">
+                            <AvatarFallback className="rounded-full bg-muted text-xs text-muted-foreground">
+                              {getInitials(user.displayName ?? user.phone)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium text-foreground">{user.displayName ?? '—'}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">{user.email ?? '—'}</TableCell>
+                      <TableCell>
+                        <AdminStatusBadge>{user.role}</AdminStatusBadge>
+                      </TableCell>
+                      <TableCell>
+                        <AdminStatusBadge>{user.status}</AdminStatusBadge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {user.createdAt.toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: '2-digit',
+                          year: 'numeric',
+                        })}
+                      </TableCell>
+                      <TableCell className="pr-4 text-right">
+                        <Button variant="ghost" size="icon" className="size-8 text-foreground" asChild>
+                          <Link href={localizeHref(locale, `/admin/users/${user.id}`)}>
+                            <MoreHorizontal className="size-4" />
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </AdminDataTableShell>
+          </div>
+        </>
       )}
 
       {filteredCount > PAGE_SIZE ? (
@@ -237,9 +281,20 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
               .replace('{end}', String(endRow))
               .replace('{count}', filteredCount.toLocaleString())}
           </p>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <span className="hidden text-sm text-muted-foreground sm:inline">{t('rowsPerPage')}</span>
+          <div className="flex items-center gap-3 sm:gap-6">
+            {/* Mobile simple pagination */}
+            <div className="flex items-center gap-2 sm:hidden">
+              <Button variant="outline" size="sm" className="h-8" disabled>
+                Prev
+              </Button>
+              <span className="text-sm text-muted-foreground">Page {page} / {totalPages}</span>
+              <Button variant="outline" size="sm" className="h-8">
+                Next
+              </Button>
+            </div>
+
+            {/* Desktop complex pagination */}
+            <div className="hidden sm:flex items-center gap-2">
               <Select defaultValue="10">
                 <SelectTrigger className="h-8 w-16 border-0 bg-card text-foreground">
                   <SelectValue placeholder="10" />
@@ -251,7 +306,7 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="hidden sm:flex items-center gap-1">
               <Button
                 variant="outline"
                 size="icon"

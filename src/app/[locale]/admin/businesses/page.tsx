@@ -17,6 +17,7 @@ import {
   AdminDataTableShell,
   AdminEmptyState,
   AdminFiltersBar,
+  AdminMobileCard,
   AdminPageHeader,
   AdminSearchInput,
   AdminStatusBadge,
@@ -140,63 +141,103 @@ export default async function AdminBusinessesPage({
       {filtered.length === 0 ? (
         <AdminEmptyState title={t('noBusinesses')} />
       ) : (
-        <AdminDataTableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>{t('businessName')}</TableHead>
-                <TableHead>{t('owner')}</TableHead>
-                <TableHead>{t('category')}</TableHead>
-                <TableHead>{t('status')}</TableHead>
-                <TableHead>In top</TableHead>
-                <TableHead>Recommended</TableHead>
-                <TableHead>{t('created')}</TableHead>
-                <TableHead className="text-right">{t('actions')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((business) => (
-                <TableRow key={business.id}>
-                  <TableCell>
-                    <div className="font-medium text-foreground">{business.name}</div>
-                    <div className="font-mono text-[11px] text-muted-foreground">
-                      {business.slug}
-                    </div>
-                  </TableCell>
-                  <TableCell>{business.user?.displayName ?? 'N/A'}</TableCell>
-                  <TableCell>{business.category?.name ?? 'N/A'}</TableCell>
-                  <TableCell>
-                    <AdminStatusBadge>{business.status}</AdminStatusBadge>
-                  </TableCell>
-                  <TableCell>
-                    <BusinessFeatureToggle
-                      businessId={business.id}
-                      feature="isTopPartner"
-                      pressed={business.isTopPartner}
-                    />
-                  </TableCell>
-                  <TableCell>
+        <>
+          {/* Mobile card view */}
+          <div className="space-y-3 md:hidden">
+            {filtered.map((business) => (
+              <AdminMobileCard
+                key={business.id}
+                title={business.name}
+                subtitle={business.slug}
+                badge={<AdminStatusBadge>{business.status}</AdminStatusBadge>}
+                href={localizeHref(locale, `/admin/businesses/${business.id}`)}
+                rows={[
+                  { label: t('owner'), value: business.user?.displayName ?? 'N/A' },
+                  { label: t('category'), value: business.category?.name ?? 'N/A' },
+                  {
+                    label: t('created'),
+                    value: business.createdAt.toLocaleDateString(),
+                  },
+                ]}
+                actions={
+                  <>
                     <BusinessFeatureToggle
                       businessId={business.id}
                       feature="isRecommended"
                       pressed={business.isRecommended}
                     />
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {business.createdAt.toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button asChild className="h-8 rounded-md px-2" size="sm" variant="ghost">
-                      <Link href={localizeHref(locale, `/admin/businesses/${business.id}`)}>
-                        {t('view')}
-                      </Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </AdminDataTableShell>
+                    <BusinessFeatureToggle
+                      businessId={business.id}
+                      feature="isTopPartner"
+                      pressed={business.isTopPartner}
+                    />
+                  </>
+                }
+              />
+            ))}
+          </div>
+
+          {/* Desktop table view */}
+          <div className="hidden md:block">
+            <AdminDataTableShell>
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>{t('businessName')}</TableHead>
+                    <TableHead>{t('owner')}</TableHead>
+                    <TableHead>{t('category')}</TableHead>
+                    <TableHead>{t('status')}</TableHead>
+                    <TableHead>In top</TableHead>
+                    <TableHead>Recommended</TableHead>
+                    <TableHead>{t('created')}</TableHead>
+                    <TableHead className="text-right">{t('actions')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((business) => (
+                    <TableRow key={business.id}>
+                      <TableCell>
+                        <div className="font-medium text-foreground">{business.name}</div>
+                        <div className="font-mono text-[11px] text-muted-foreground">
+                          {business.slug}
+                        </div>
+                      </TableCell>
+                      <TableCell>{business.user?.displayName ?? 'N/A'}</TableCell>
+                      <TableCell>{business.category?.name ?? 'N/A'}</TableCell>
+                      <TableCell>
+                        <AdminStatusBadge>{business.status}</AdminStatusBadge>
+                      </TableCell>
+                      <TableCell>
+                        <BusinessFeatureToggle
+                          businessId={business.id}
+                          feature="isTopPartner"
+                          pressed={business.isTopPartner}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <BusinessFeatureToggle
+                          businessId={business.id}
+                          feature="isRecommended"
+                          pressed={business.isRecommended}
+                        />
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {business.createdAt.toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button asChild className="h-8 rounded-md px-2" size="sm" variant="ghost">
+                          <Link href={localizeHref(locale, `/admin/businesses/${business.id}`)}>
+                            {t('view')}
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </AdminDataTableShell>
+          </div>
+        </>
       )}
     </div>
   );
