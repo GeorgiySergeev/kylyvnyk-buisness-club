@@ -13,7 +13,7 @@ export interface AuthIdentity {
 }
 
 export function isAuthDevPhoneBypassEnabled() {
-  return env.NODE_ENV !== 'production' && env.AUTH_DEV_PHONE_BYPASS_ENABLED === '1';
+  return env.AUTH_DEV_PHONE_BYPASS_ENABLED === '1';
 }
 
 export async function getAuthIdentity(): Promise<AuthIdentity | null> {

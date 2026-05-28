@@ -16,7 +16,7 @@ function getRequestLocale(pathname: string) {
 }
 
 function isDevBypassRequest(request: NextRequest) {
-  if (process.env.NODE_ENV === 'production' || process.env.AUTH_DEV_PHONE_BYPASS_ENABLED !== '1') {
+  if (process.env.AUTH_DEV_PHONE_BYPASS_ENABLED !== '1') {
     return false;
   }
 
