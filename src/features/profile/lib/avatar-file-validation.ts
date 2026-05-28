@@ -1,8 +1,8 @@
 import {
   ALLOWED_AVATAR_MIME_TYPES,
+  type AllowedAvatarMimeType,
   AVATAR_MAX_BYTES,
   isAllowedAvatarMimeType,
-  type AllowedAvatarMimeType,
 } from '../schemas/member-profile.schema';
 
 export type AvatarUploadErrorCode =

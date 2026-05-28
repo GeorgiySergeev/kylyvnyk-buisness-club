@@ -20,7 +20,7 @@ test('admin route decision: non-admin is redirected home', () => {
   const decision = decideAdminRouteAccess({
     hasMfa: true,
     isAuthenticated: true,
-    role: 'BUSINESS',
+    role: 'MEMBER',
   });
 
   assert.equal(decision, 'REDIRECT_HOME');
@@ -96,4 +96,3 @@ test('admin API decision: admin with MFA returns ok', () => {
 
   assert.deepEqual(result, { ok: true });
 });
-

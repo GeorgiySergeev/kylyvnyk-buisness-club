@@ -1,3 +1,5 @@
+import { asc, isNull } from 'drizzle-orm';
+
 import type { SupportedLocale } from '@/components/layout/navigation';
 import {
   Table,
@@ -8,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { db } from '@/db/client';
+import { businesses, cities } from '@/db/schema';
 import {
   AdminDataTableShell,
   AdminEmptyState,
@@ -28,17 +31,27 @@ export default async function AdminCitiesPage({ params }: AdminCitiesPageProps) 
   const { locale } = await params;
   const t = getT('admin', locale);
 
-  const [rows, businessRows] = await Promise.all([
+  type CityRow = {
+    country: { iso2: string; name: string } | null;
+    countryId: number;
+    id: number;
+    name: string;
+  };
+  type BusinessCityRef = {
+    cityId: number | null;
+  };
+
+  const [rows, businessRows]: [CityRow[], BusinessCityRef[]] = await Promise.all([
     db.query.cities.findMany({
       columns: { countryId: true, id: true, name: true },
-      orderBy: (cities, { asc }) => [asc(cities.name)],
+      orderBy: [asc(cities.name)],
       with: {
         country: { columns: { iso2: true, name: true } },
       },
     }),
     db.query.businesses.findMany({
       columns: { cityId: true },
-      where: (businesses, { isNull }) => isNull(businesses.deletedAt),
+      where: isNull(businesses.deletedAt),
     }),
   ]);
 

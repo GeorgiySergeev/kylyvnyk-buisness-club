@@ -1,9 +1,11 @@
+import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
 import { db } from '@/db/client';
+import { businesses } from '@/db/schema';
 import {
   AdminDescriptionList,
   AdminPageHeader,
@@ -44,7 +46,7 @@ export default async function AdminBusinessDetailPage({ params }: AdminBusinessD
       updatedAt: true,
       website: true,
     },
-    where: (businesses, { eq }) => eq(businesses.id, businessId),
+    where: eq(businesses.id, businessId),
     with: {
       category: { columns: { name: true } },
       city: { columns: { name: true } },

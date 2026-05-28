@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import "server-only";
 
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -21,11 +22,11 @@ const createClient = () => {
   });
 };
 
-type GlobalWithDb = typeof globalThis & {
-  __db__?: ReturnType<typeof createClient>;
-};
+type DbClient = ReturnType<typeof createClient>;
 
-const globalForDb = globalThis as GlobalWithDb;
+const globalForDb = globalThis as typeof globalThis & {
+  __db__?: DbClient;
+};
 
 const db = globalForDb.__db__ ?? createClient();
 

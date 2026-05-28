@@ -22,7 +22,23 @@ export default async function IntroducePage({ params }: IntroducePageProps) {
   await guardOnboarded(locale);
   const t = getT('introductions', locale);
 
-  const [publishedBusinesses, recentRequests] = await Promise.all([
+  type PublishedBusinessRow = {
+    category: { name: string } | null;
+    city: { name: string } | null;
+    country: { name: string } | null;
+    id: string;
+    name: string;
+  };
+  type RecentRequestRow = {
+    businessName: string;
+    cityName: string | null;
+    countryName: string | null;
+    createdAt: Date;
+    id: string;
+    status: string;
+  };
+
+  const [publishedBusinesses, recentRequests]: [PublishedBusinessRow[], RecentRequestRow[]] = await Promise.all([
     db.query.businesses.findMany({
       columns: {
         id: true,

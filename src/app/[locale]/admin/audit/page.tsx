@@ -45,7 +45,18 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
   const rawPage = Number(page ?? '1');
   const currentPage = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
 
-  const allLogs = await db.query.auditLogs.findMany({
+  type AuditLogRow = {
+    action: string;
+    actor: { displayName: string | null; id: string } | null;
+    createdAt: Date;
+    entityId: string | null;
+    entityType: string | null;
+    id: string;
+    ipAddress: string | null;
+    payload: unknown;
+  };
+
+  const allLogs: AuditLogRow[] = await db.query.auditLogs.findMany({
     columns: {
       action: true,
       createdAt: true,
@@ -56,7 +67,6 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
       payload: true,
     },
     limit: 200,
-    orderBy: (auditLogs, { desc }) => [desc(auditLogs.createdAt)],
     with: {
       actor: {
         columns: {
@@ -67,7 +77,9 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
     },
   });
 
-  let filtered = allLogs;
+  let filtered = [...allLogs].sort(
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+  );
 
   if (actionFilter) {
     filtered = filtered.filter((log) => log.action === actionFilter);

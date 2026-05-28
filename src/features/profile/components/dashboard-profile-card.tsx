@@ -3,14 +3,14 @@
 import { Camera, Loader2, Pencil, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
+  type ChangeEvent,
+  type DragEvent,
+  type FormEvent,
   useEffect,
   useId,
   useRef,
   useState,
   useTransition,
-  type ChangeEvent,
-  type DragEvent,
-  type FormEvent,
 } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';

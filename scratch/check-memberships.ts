@@ -18,14 +18,14 @@ const sql = postgres(url);
 async function main() {
   try {
     // Check if memberships table exists
-    const tables = await sql`
+    const tables = await sql<{ table_name: string }[]>`
       SELECT table_name 
       FROM information_schema.tables 
       WHERE table_schema = 'public' 
       AND table_name IN ('memberships', 'stripe_links', 'stripe_subscriptions', 'catalog_items')
       ORDER BY table_name
     `;
-    console.log('Tables found:', tables.map((t: { table_name: string }) => t.table_name));
+    console.log('Tables found:', tables.map((t) => t.table_name));
 
     // Check drizzle migration journal
     const migrations = await sql`

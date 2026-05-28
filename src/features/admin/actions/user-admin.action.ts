@@ -4,8 +4,8 @@ import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
 import {
-  SUPPORTED_LOCALES,
   localizeHref,
+  SUPPORTED_LOCALES,
   type SupportedLocale,
 } from '@/components/layout/navigation';
 import { db } from '@/db/client';

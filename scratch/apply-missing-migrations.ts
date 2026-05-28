@@ -68,14 +68,14 @@ async function main() {
   }
 
   // Verify
-  const tables = await sql`
+  const tables = await sql<{ table_name: string }[]>`
     SELECT table_name 
     FROM information_schema.tables 
     WHERE table_schema = 'public' 
     AND table_name IN ('memberships', 'stripe_links', 'stripe_subscriptions', 'catalog_items')
     ORDER BY table_name
   `;
-  console.log('\n✓ Verified tables:', tables.map((t: { table_name: string }) => t.table_name));
+  console.log('\n✓ Verified tables:', tables.map((t) => t.table_name));
 
   await sql.end();
 }
@@ -84,3 +84,4 @@ main().catch((e) => {
   console.error(e);
   process.exit(1);
 });
+

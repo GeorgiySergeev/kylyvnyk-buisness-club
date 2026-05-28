@@ -1,3 +1,4 @@
+import { asc } from 'drizzle-orm';
 import Link from 'next/link';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
@@ -9,6 +10,7 @@ import {
 } from '@/components/partners/premium-partner-card';
 import { Button } from '@/components/ui/button';
 import { db } from '@/db/client';
+import { categories, countries } from '@/db/schema';
 import { getPublishedBusinesses } from '@/features/directory/lib/get-published-businesses';
 import type { PublicBusinessDto } from '@/features/directory/lib/public-business-dto';
 import { getT } from '@/lib/i18n/t-server';
@@ -83,15 +85,22 @@ export default async function DirectoryPage({ params, searchParams }: DirectoryP
   const categoryId = parsePositiveInteger(category);
   const countryId = parsePositiveInteger(country);
 
-  const [businesses, categoryOptions, countryOptions] = await Promise.all([
+  type CategoryOption = { id: number; name: string };
+  type CountryOption = { flagEmoji: string | null; id: number; name: string };
+
+  const [businesses, categoryOptions, countryOptions]: [
+    PublicBusinessDto[],
+    CategoryOption[],
+    CountryOption[],
+  ] = await Promise.all([
     getPublishedBusinesses({ categoryId, countryId, search, limit: 24 }),
     db.query.categories.findMany({
       columns: { id: true, name: true },
-      orderBy: (categories, { asc }) => [asc(categories.name)],
+      orderBy: [asc(categories.name)],
     }),
     db.query.countries.findMany({
       columns: { flagEmoji: true, id: true, name: true },
-      orderBy: (countries, { asc }) => [asc(countries.name)],
+      orderBy: [asc(countries.name)],
     }),
   ]);
   const cardLabels = {

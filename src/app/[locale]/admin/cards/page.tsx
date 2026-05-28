@@ -1,3 +1,4 @@
+import { desc } from 'drizzle-orm';
 import Link from 'next/link';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
@@ -11,6 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { db } from '@/db/client';
+import { clubCards } from '@/db/schema';
 import {
   AdminDataTableShell,
   AdminEmptyState,
@@ -41,7 +43,17 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
   const searchTerm = q?.trim() ?? '';
   const statusFilter = status?.trim() ?? '';
 
-  const allCards = await db.query.clubCards.findMany({
+  type CardRow = {
+    createdAt: Date;
+    expiresAt: Date | null;
+    id: string;
+    memberType: string;
+    number: string;
+    status: string;
+    user: { displayName: string | null; email: string | null; id: string; phone: string };
+  };
+
+  const allCards: CardRow[] = await db.query.clubCards.findMany({
     columns: {
       createdAt: true,
       expiresAt: true,
@@ -50,7 +62,7 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
       number: true,
       status: true,
     },
-    orderBy: (cards, { desc }) => [desc(cards.createdAt)],
+    orderBy: [desc(clubCards.createdAt)],
     with: {
       user: {
         columns: {

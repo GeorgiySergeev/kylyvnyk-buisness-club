@@ -1,3 +1,5 @@
+import { desc } from 'drizzle-orm';
+
 import type { SupportedLocale } from '@/components/layout/navigation';
 import {
   Table,
@@ -8,8 +10,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { db } from '@/db/client';
+import { stripeSubscriptions } from '@/db/schema';
 import { AdminEmptyState, AdminPageHeader, AdminPanel } from '@/features/admin/components/admin-ui';
-import { MIGRATION_REQUIRED_MESSAGE, isUndefinedTableError } from '@/lib/db-guard';
+import { isUndefinedTableError,MIGRATION_REQUIRED_MESSAGE } from '@/lib/db-guard';
 import { getT } from '@/lib/i18n/t-server';
 
 interface AdminSubscriptionsPageProps {
@@ -43,7 +46,7 @@ export default async function AdminSubscriptionsPage({ params }: AdminSubscripti
         stripeSubscriptionId: true,
         userId: true,
       },
-      orderBy: (stripeSubscriptions, { desc }) => [desc(stripeSubscriptions.createdAt)],
+      orderBy: [desc(stripeSubscriptions.createdAt)],
       limit: 200,
     });
   } catch (error) {

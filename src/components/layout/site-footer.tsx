@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import { getT } from '@/lib/i18n/t-server';
 
-import { type SupportedLocale, localizeHref } from './navigation';
+import { localizeHref,type SupportedLocale } from './navigation';
 
 const PLATFORM_LINKS = [
   {

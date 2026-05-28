@@ -1,3 +1,5 @@
+import { asc, isNull } from 'drizzle-orm';
+
 import type { SupportedLocale } from '@/components/layout/navigation';
 import {
   Table,
@@ -8,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { db } from '@/db/client';
+import { businesses, categories } from '@/db/schema';
 import {
   AdminDataTableShell,
   AdminEmptyState,
@@ -28,7 +31,18 @@ export default async function AdminCategoriesPage({ params }: AdminCategoriesPag
   const { locale } = await params;
   const t = getT('admin', locale);
 
-  const [categoryRows, businessRows] = await Promise.all([
+  type CategoryRow = {
+    icon: string | null;
+    id: number;
+    name: string;
+    parentId: number | null;
+    slug: string;
+  };
+  type BusinessCategoryRef = {
+    categoryId: number | null;
+  };
+
+  const [categoryRows, businessRows]: [CategoryRow[], BusinessCategoryRef[]] = await Promise.all([
     db.query.categories.findMany({
       columns: {
         icon: true,
@@ -37,13 +51,13 @@ export default async function AdminCategoriesPage({ params }: AdminCategoriesPag
         parentId: true,
         slug: true,
       },
-      orderBy: (categories, { asc }) => [asc(categories.name)],
+      orderBy: [asc(categories.name)],
     }),
     db.query.businesses.findMany({
       columns: {
         categoryId: true,
       },
-      where: (businesses, { isNull }) => isNull(businesses.deletedAt),
+      where: isNull(businesses.deletedAt),
     }),
   ]);
 

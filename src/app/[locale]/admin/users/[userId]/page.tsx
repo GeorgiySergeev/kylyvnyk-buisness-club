@@ -1,4 +1,5 @@
-﻿import {
+﻿import { and, asc, desc, eq, inArray, or } from 'drizzle-orm';
+import {
   ArrowLeft,
   Briefcase,
   CalendarDays,
@@ -14,6 +15,7 @@ import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { db } from '@/db/client';
+import { auditLogs, businesses, cities, clubCards, countries, introductions, memberships, stripeSubscriptions, users } from '@/db/schema';
 import { AdminStatusBadge, getAdminStatusTone } from '@/features/admin/components/admin-ui';
 import { UserAccountTabs } from '@/features/admin/components/user-account-tabs';
 
@@ -51,7 +53,7 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
       supabaseUserId: true,
       updatedAt: true,
     },
-    where: (users, { eq }) => eq(users.id, userId),
+    where: eq(users.id, userId),
     with: { profile: true },
   });
 
@@ -73,6 +75,39 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
     startsAt: Date;
     status: string;
   };
+  type UserBusinessRow = {
+    id: string;
+    status: string;
+  };
+  type UserIntroductionRow = {
+    adminNote: string | null;
+    clientContact: string;
+    clientName: string;
+    createdAt: Date;
+    id: string;
+    message: string | null;
+    status: string;
+    targetBusiness: { id: string; name: string } | null;
+    targetBusinessId: string;
+  };
+  type AuditLogRow = {
+    action: string;
+    createdAt: Date;
+    id: string;
+    ipAddress: string | null;
+  };
+  type NamedRow = {
+    id: number;
+    name: string;
+  };
+  type UserCardRow = {
+    createdAt: Date;
+    expiresAt: Date | null;
+    id: string;
+    memberType: string;
+    number: string;
+    status: string;
+  };
 
   async function safeQuery<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
     try {
@@ -91,10 +126,19 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
     userCards,
     userSubscriptions,
     userMemberships,
+  ]: [
+    UserBusinessRow[],
+    UserIntroductionRow[],
+    AuditLogRow[],
+    NamedRow[],
+    NamedRow[],
+    UserCardRow[],
+    SubscriptionRow[],
+    MembershipRow[],
   ] = await Promise.all([
     db.query.businesses.findMany({
       columns: { id: true, status: true },
-      where: (businesses, { eq }) => eq(businesses.userId, userId),
+      where: eq(businesses.userId, userId),
     }),
     db.query.introductions.findMany({
       columns: {
@@ -107,8 +151,8 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
         status: true,
         targetBusinessId: true,
       },
-      orderBy: (introductions, { desc }) => [desc(introductions.createdAt)],
-      where: (introductions, { eq }) => eq(introductions.requesterId, userId),
+      orderBy: [desc(introductions.createdAt)],
+      where: eq(introductions.requesterId, userId),
       with: {
         targetBusiness: {
           columns: { id: true, name: true },
@@ -118,23 +162,22 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
     db.query.auditLogs.findMany({
       columns: { action: true, createdAt: true, id: true, ipAddress: true },
       limit: 100,
-      orderBy: (auditLogs, { desc }) => [desc(auditLogs.createdAt)],
-      where: (auditLogs, { and, eq, inArray, or }) =>
-        or(
-          eq(auditLogs.actorUserId, userId),
-          and(
-            eq(auditLogs.entityId, userId),
-            inArray(auditLogs.entityType, ['user', 'profile']),
-          ),
+      orderBy: [desc(auditLogs.createdAt)],
+      where: or(
+        eq(auditLogs.actorUserId, userId),
+        and(
+          eq(auditLogs.entityId, userId),
+          inArray(auditLogs.entityType, ['user', 'profile']),
         ),
+      ),
     }),
     db.query.countries.findMany({
       columns: { id: true, name: true },
-      orderBy: (countries, { asc }) => [asc(countries.name)],
+      orderBy: [asc(countries.name)],
     }),
     db.query.cities.findMany({
       columns: { id: true, name: true },
-      orderBy: (cities, { asc }) => [asc(cities.name)],
+      orderBy: [asc(cities.name)],
     }),
     safeQuery(
       () =>
@@ -147,7 +190,7 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
             number: true,
             status: true,
           },
-          where: (cards, { eq }) => eq(cards.userId, userId),
+          where: eq(clubCards.userId, userId),
         }),
       [],
     ),
@@ -162,8 +205,8 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
             status: true,
             stripeSubscriptionId: true,
           },
-          orderBy: (subs, { desc }) => [desc(subs.createdAt)],
-          where: (subs, { eq }) => eq(subs.userId, userId),
+          orderBy: [desc(stripeSubscriptions.createdAt)],
+          where: eq(stripeSubscriptions.userId, userId),
         }),
       [],
     ),
@@ -178,8 +221,8 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
             startsAt: true,
             status: true,
           },
-          orderBy: (m, { desc }) => [desc(m.createdAt)],
-          where: (m, { eq }) => eq(m.userId, userId),
+          orderBy: [desc(memberships.createdAt)],
+          where: eq(memberships.userId, userId),
         }),
       [],
     ),
@@ -304,7 +347,7 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
         cities={allCities.map((c) => ({ id: c.id, name: c.name }))}
         countries={allCountries.map((c) => ({ id: c.id, name: c.name }))}
         introductions={userIntroductions.map((intro) => ({
-          businessName: intro.targetBusiness.name,
+          businessName: intro.targetBusiness?.name ?? 'N/A',
           clientContact: intro.clientContact,
           clientName: intro.clientName,
           createdAt: fmt(intro.createdAt),

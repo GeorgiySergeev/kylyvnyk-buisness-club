@@ -1,4 +1,4 @@
-import { count, eq } from 'drizzle-orm';
+import { asc, count, desc, eq } from 'drizzle-orm';
 import Link from 'next/link';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { db } from '@/db/client';
-import { businesses, clubCards, introductions, profiles } from '@/db/schema';
+import { businesses, cities, clubCards, countries, introductions, profiles } from '@/db/schema';
 import { guardOnboarded } from '@/features/auth/lib/role-guards';
 import { DashboardProfileCard } from '@/features/profile/components/dashboard-profile-card';
 import { env } from '@/lib/env';
@@ -28,7 +28,30 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const user = await guardOnboarded(locale);
   const t = getT('dashboard', locale);
 
-  const [card, profile, countries, cities, userBusinesses, introductionCountRow] =
+  type CountryRow = { id: number; name: string };
+  type CityRow = { country: { name: string }; id: number; name: string };
+  type UserBusinessRow = {
+    category: { name: string } | null;
+    country: { name: string } | null;
+    id: string;
+    isRecommended: boolean;
+    isTopPartner: boolean;
+    name: string;
+    slug: string;
+    status: string;
+  };
+
+  const [card, profile, allCountries, allCities, userBusinesses, introductionCountRow]: [
+    typeof clubCards.$inferSelect | undefined,
+    (typeof profiles.$inferSelect & {
+      city: { name: string } | null;
+      country: { name: string } | null;
+    }) | undefined,
+    CountryRow[],
+    CityRow[],
+    UserBusinessRow[],
+    Array<{ value: number }>,
+  ] =
     await Promise.all([
       db.query.clubCards.findFirst({
         where: eq(clubCards.userId, user.id),
@@ -49,10 +72,10 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
         },
       }),
       db.query.countries.findMany({
-        orderBy: (country, { asc }) => [asc(country.name)],
+        orderBy: [asc(countries.name)],
       }),
       db.query.cities.findMany({
-        orderBy: (city, { asc }) => [asc(city.name)],
+        orderBy: [asc(cities.name)],
         with: {
           country: true,
         },
@@ -66,7 +89,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
           isRecommended: true,
           isTopPartner: true,
         },
-        orderBy: (businesses, { desc }) => [desc(businesses.createdAt)],
+        orderBy: [desc(businesses.createdAt)],
         where: eq(businesses.userId, user.id),
         with: {
           category: {
@@ -158,11 +181,11 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
               countryName={profile?.country?.name ?? null}
               cityId={profile?.cityId ?? null}
               cityName={profile?.city?.name ?? null}
-              countries={countries.map((country) => ({
+              countries={allCountries.map((country) => ({
                 id: country.id,
                 label: country.name,
               }))}
-              cities={cities.map((city) => ({
+              cities={allCities.map((city) => ({
                 id: city.id,
                 label: `${city.name}, ${city.country.name}`,
               }))}

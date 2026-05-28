@@ -1,3 +1,4 @@
+import { desc } from 'drizzle-orm';
 import {
   ChevronLeft,
   ChevronRight,
@@ -29,6 +30,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { db } from '@/db/client';
+import { users } from '@/db/schema';
 import {
   AdminDataTableShell,
   AdminEmptyState,
@@ -72,7 +74,17 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
   const roleFilter = role?.trim() ?? '';
   const statusFilter = status?.trim() ?? '';
 
-  const allUsers = await db.query.users.findMany({
+  type UserRow = {
+    createdAt: Date;
+    displayName: string | null;
+    email: string | null;
+    id: string;
+    phone: string;
+    role: string;
+    status: string;
+  };
+
+  const allUsers: UserRow[] = await db.query.users.findMany({
     columns: {
       id: true,
       displayName: true,
@@ -82,7 +94,7 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
       status: true,
       createdAt: true,
     },
-    orderBy: (users, { desc }) => [desc(users.createdAt)],
+    orderBy: [desc(users.createdAt)],
   });
 
   let filtered = allUsers;

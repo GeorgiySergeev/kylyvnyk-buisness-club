@@ -1,9 +1,11 @@
+import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
 import { db } from '@/db/client';
+import { clubCards } from '@/db/schema';
 import {
   AdminDescriptionList,
   AdminPageHeader,
@@ -36,7 +38,7 @@ export default async function AdminCardDetailPage({ params }: AdminCardDetailPag
       status: true,
       updatedAt: true,
     },
-    where: (cards, { eq }) => eq(cards.id, cardId),
+    where: eq(clubCards.id, cardId),
     with: {
       user: {
         columns: {

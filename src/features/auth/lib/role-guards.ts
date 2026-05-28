@@ -1,5 +1,6 @@
-import { redirect } from 'next/navigation';
 import 'server-only';
+
+import { redirect } from 'next/navigation';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';

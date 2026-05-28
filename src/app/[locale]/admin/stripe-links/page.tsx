@@ -1,8 +1,11 @@
+import { desc, isNull } from 'drizzle-orm';
+
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { db } from '@/db/client';
+import { stripeLinks } from '@/db/schema';
 import { AdminEmptyState, AdminPageHeader, AdminPanel } from '@/features/admin/components/admin-ui';
 import { StripeLinksCrud } from '@/features/admin/components/stripe-links-crud';
-import { MIGRATION_REQUIRED_MESSAGE, isUndefinedTableError } from '@/lib/db-guard';
+import { isUndefinedTableError,MIGRATION_REQUIRED_MESSAGE } from '@/lib/db-guard';
 import { getT } from '@/lib/i18n/t-server';
 
 interface AdminStripeLinksPageProps {
@@ -26,8 +29,8 @@ export default async function AdminStripeLinksPage({ params }: AdminStripeLinksP
   try {
     rows = await db.query.stripeLinks.findMany({
       columns: { code: true, id: true, paymentLinkUrl: true, status: true, title: true },
-      orderBy: (stripeLinks, { desc }) => [desc(stripeLinks.createdAt)],
-      where: (stripeLinks, { isNull }) => isNull(stripeLinks.deletedAt),
+      orderBy: [desc(stripeLinks.createdAt)],
+      where: isNull(stripeLinks.deletedAt),
     });
   } catch (error) {
     if (isUndefinedTableError(error, 'stripe_links')) {

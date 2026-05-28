@@ -1,11 +1,11 @@
 import './globals.css';
 
 import type { Metadata, Viewport } from 'next';
-import { JetBrains_Mono, Playfair_Display, Plus_Jakarta_Sans, Oxanium } from 'next/font/google';
+import { JetBrains_Mono, Oxanium, Playfair_Display } from 'next/font/google';
 import type { ReactNode } from 'react';
 
 import { getT } from '@/lib/i18n/t-server';
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
 const oxanium = Oxanium({subsets:['latin'],variable:'--font-sans'});
 

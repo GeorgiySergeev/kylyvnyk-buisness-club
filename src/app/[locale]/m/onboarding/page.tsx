@@ -1,9 +1,11 @@
+import { asc } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
 import { db } from '@/db/client';
+import { cities, countries } from '@/db/schema';
 import { OnboardingForm } from '@/features/auth/components/onboarding-form';
 import { isOnboardingComplete } from '@/features/auth/lib/check-onboarding';
 import { requireUser } from '@/features/auth/lib/current-user';
@@ -26,12 +28,15 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
     redirect(localizeHref(locale, '/m/dashboard'));
   }
 
-  const [countries, cities] = await Promise.all([
+  type CountryRow = { id: number; name: string };
+  type CityRow = { country: { name: string }; id: number; name: string };
+
+  const [countryRows, cityRows]: [CountryRow[], CityRow[]] = await Promise.all([
     db.query.countries.findMany({
-      orderBy: (country, { asc }) => [asc(country.name)],
+      orderBy: [asc(countries.name)],
     }),
     db.query.cities.findMany({
-      orderBy: (city, { asc }) => [asc(city.name)],
+      orderBy: [asc(cities.name)],
       with: {
         country: true,
       },
@@ -55,11 +60,11 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
         </div>
         <div className="rounded-lg border border-border bg-card p-6 shadow-xl shadow-black/20 sm:p-8">
           <OnboardingForm
-            cities={cities.map((city) => ({
+            cities={cityRows.map((city) => ({
               id: city.id,
               label: `${city.name}, ${city.country.name}`,
             }))}
-            countries={countries.map((country) => ({
+            countries={countryRows.map((country) => ({
               id: country.id,
               label: country.name,
             }))}

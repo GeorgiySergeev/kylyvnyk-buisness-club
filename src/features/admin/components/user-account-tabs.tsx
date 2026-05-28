@@ -1,8 +1,5 @@
 'use client';
 
-import type { ComponentType } from 'react';
-import { useState } from 'react';
-
 import {
   AlertTriangle,
   ChevronLeft,
@@ -15,6 +12,8 @@ import {
   ShieldCheck,
   UserRound,
 } from 'lucide-react';
+import type { ComponentType } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { AdminPanel, AdminStatusBadge } from '@/features/admin/components/admin-ui';

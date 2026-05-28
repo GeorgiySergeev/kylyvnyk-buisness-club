@@ -53,7 +53,25 @@ export default async function AdminIntroductionsPage({
       ? (status as IntroductionStatusFilter)
       : '';
 
-  const rows = await db.query.introductions.findMany({
+  type IntroductionRow = {
+    adminNote: string | null;
+    clientContact: string;
+    clientName: string;
+    createdAt: Date;
+    id: string;
+    message: string | null;
+    requester: { displayName: string | null; phone: string } | null;
+    status: string;
+    targetBusiness: {
+      city: { name: string } | null;
+      country: { name: string } | null;
+      deletedAt: Date | null;
+      name: string;
+      status: string;
+    } | null;
+  };
+
+  const rows: IntroductionRow[] = await db.query.introductions.findMany({
     columns: {
       adminNote: true,
       clientContact: true,
@@ -96,16 +114,20 @@ export default async function AdminIntroductionsPage({
     },
   });
 
-  const filteredRows = rows.filter(
-    (row) =>
-      Boolean(row.targetBusiness) &&
-      row.targetBusiness.status === 'PUBLISHED' &&
-      row.targetBusiness.deletedAt === null &&
-      (!searchTerm ||
-        row.targetBusiness.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (row.requester?.displayName ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        row.clientName.toLowerCase().includes(searchTerm.toLowerCase())),
-  );
+  const filteredRows = rows.filter((row) => {
+    const targetBusiness = row.targetBusiness;
+    if (!targetBusiness) return false;
+    if (targetBusiness.status !== 'PUBLISHED') return false;
+    if (targetBusiness.deletedAt !== null) return false;
+    if (!searchTerm) return true;
+
+    const lowerSearch = searchTerm.toLowerCase();
+    return (
+      targetBusiness.name.toLowerCase().includes(lowerSearch) ||
+      (row.requester?.displayName ?? '').toLowerCase().includes(lowerSearch) ||
+      row.clientName.toLowerCase().includes(lowerSearch)
+    );
+  });
 
   return (
     <div className="space-y-5">

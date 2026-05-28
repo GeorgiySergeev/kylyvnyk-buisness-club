@@ -1,8 +1,11 @@
+import { desc, isNull } from 'drizzle-orm';
+
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { db } from '@/db/client';
+import { catalogItems } from '@/db/schema';
 import { AdminPageHeader, AdminPanel } from '@/features/admin/components/admin-ui';
 import { CatalogCrud } from '@/features/admin/components/catalog-crud';
-import { MIGRATION_REQUIRED_MESSAGE, isUndefinedTableError } from '@/lib/db-guard';
+import { isUndefinedTableError,MIGRATION_REQUIRED_MESSAGE } from '@/lib/db-guard';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,8 +30,8 @@ export default async function AdminCatalogPage({ params }: AdminCatalogPageProps
   try {
     rows = await db.query.catalogItems.findMany({
       columns: { businessId: true, id: true, slug: true, status: true, summary: true, title: true },
-      orderBy: (catalogItems, { desc }) => [desc(catalogItems.createdAt)],
-      where: (catalogItems, { isNull }) => isNull(catalogItems.deletedAt),
+      orderBy: [desc(catalogItems.createdAt)],
+      where: isNull(catalogItems.deletedAt),
     });
   } catch (error) {
     if (isUndefinedTableError(error, 'catalog_items')) {

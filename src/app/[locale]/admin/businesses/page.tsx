@@ -1,3 +1,4 @@
+import { desc } from 'drizzle-orm';
 import Link from 'next/link';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
@@ -11,6 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { db } from '@/db/client';
+import { businesses } from '@/db/schema';
 import {
   AdminDataTableShell,
   AdminEmptyState,
@@ -45,7 +47,19 @@ export default async function AdminBusinessesPage({
   const searchTerm = q?.trim() ?? '';
   const statusFilter = status?.trim() ?? '';
 
-  const allBusinesses = await db.query.businesses.findMany({
+  type BusinessRow = {
+    category: { name: string } | null;
+    createdAt: Date;
+    id: string;
+    isRecommended: boolean;
+    isTopPartner: boolean;
+    name: string;
+    slug: string;
+    status: string;
+    user: { displayName: string | null; id: string } | null;
+  };
+
+  const allBusinesses: BusinessRow[] = await db.query.businesses.findMany({
     columns: {
       createdAt: true,
       id: true,
@@ -55,7 +69,7 @@ export default async function AdminBusinessesPage({
       slug: true,
       status: true,
     },
-    orderBy: (businesses, { desc }) => [desc(businesses.createdAt)],
+    orderBy: [desc(businesses.createdAt)],
     with: {
       category: {
         columns: {
