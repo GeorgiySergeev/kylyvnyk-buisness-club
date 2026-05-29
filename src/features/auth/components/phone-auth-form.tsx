@@ -65,7 +65,7 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
   function requestCode(rawPhone = getFormValue('phone')) {
     setError(null);
     startTransition(async () => {
-      const result = await requestPhoneOtpAction(locale, { phone: rawPhone, captchaToken });
+      const result = await requestPhoneOtpAction(locale, { phone: rawPhone, captchaToken, displayName: displayName.trim() });
 
       if (!result.ok) {
         setError(result.error.message);
@@ -103,7 +103,7 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
   function devBypass(rawPhone = getFormValue('phone')) {
     setError(null);
     startTransition(async () => {
-      const result = await devBypassPhoneAuthAction(locale, { phone: rawPhone });
+      const result = await devBypassPhoneAuthAction(locale, { phone: rawPhone, displayName: displayName.trim() });
 
       if (!result.ok) {
         setError(result.error.message);
@@ -116,7 +116,7 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
 
   return (
     <form
-      className="w-full max-w-md space-y-5 rounded-lg border border-border bg-card p-6 shadow-xl shadow-black/20 sm:p-8"
+      className="w-full max-w-md space-y-6 border border-border/50 bg-white/2 p-6 sm:p-8"
       ref={formRef}
       noValidate
       onSubmit={(event) => {
@@ -140,7 +140,7 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
       {step === 'phone' ? (
         <>
           <div className="space-y-2">
-            <label htmlFor="displayName" className="text-sm font-semibold text-foreground">
+            <label htmlFor="displayName" className="text-sm font-medium text-white">
               {labels.name}
             </label>
             <Input
@@ -148,19 +148,19 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
               name="displayName"
               autoComplete="name"
               aria-describedby="displayName-help"
-              className="min-h-11"
+              className="min-h-11 rounded-md border-border/50 bg-transparent"
               disabled={pending}
               value={displayName}
               onChange={(event) => setDisplayName(event.target.value)}
               placeholder={labels.namePlaceholder}
             />
-            <p id="displayName-help" className="text-sm leading-6 text-muted-foreground">
+            <p id="displayName-help" className="text-sm leading-6 text-fg/50">
               {labels.nameHelp}
             </p>
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="phone" className="text-sm font-semibold text-foreground">
+            <label htmlFor="phone" className="text-sm font-medium text-white">
               {labels.phone}
             </label>
             <Input
@@ -169,13 +169,13 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
               autoComplete="tel"
               inputMode="tel"
               aria-describedby="phone-help"
-              className="min-h-11"
+              className="min-h-11 rounded-md border-border/50 bg-transparent"
               disabled={pending}
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
               placeholder={labels.phonePlaceholder}
             />
-            <p id="phone-help" className="text-sm leading-6 text-muted-foreground">
+            <p id="phone-help" className="text-sm leading-6 text-fg/50">
               {labels.phoneHelp}
             </p>
             {!devBypassEnabled && <TurnstileWidget onVerify={setCaptchaToken} />}
@@ -185,7 +185,7 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
 
       {step === 'code' ? (
         <div className="space-y-2">
-          <label htmlFor="code" className="text-sm font-semibold text-foreground">
+          <label htmlFor="code" className="text-sm font-medium text-white">
             {labels.code}
           </label>
           <Input
@@ -194,20 +194,24 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
             autoComplete="one-time-code"
             inputMode="numeric"
             aria-describedby="code-help"
-            className="min-h-11"
+            className="min-h-11 rounded-md border-border/50 bg-transparent"
             disabled={pending}
             maxLength={6}
             value={code}
             onChange={(event) => setCode(event.target.value)}
           />
-          <p id="code-help" className="text-sm leading-6 text-muted-foreground">
+          <p id="code-help" className="text-sm leading-6 text-fg/50">
             {labels.codeHelp}
           </p>
         </div>
       ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Button type="submit" disabled={pending} className="min-h-11 flex-1">
+        <Button
+          type="submit"
+          disabled={pending}
+          className="min-h-11 flex-1 rounded-md border border-border/50 bg-black text-white hover:bg-white/5"
+        >
           {pending ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
           {pending ? labels.submitting : step === 'phone' ? labels.requestCode : labels.verifyCode}
         </Button>
@@ -216,7 +220,7 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
             type="button"
             variant="outline"
             disabled={pending}
-            className="min-h-11 flex-1"
+            className="min-h-11 flex-1 rounded-md border-border/50 bg-transparent text-white hover:bg-white/5"
             onClick={() => devBypass()}
           >
             {labels.devBypass}

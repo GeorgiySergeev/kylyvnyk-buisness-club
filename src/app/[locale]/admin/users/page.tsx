@@ -49,7 +49,7 @@ interface AdminUsersPageProps {
   }>;
   searchParams: Promise<{
     q?: string;
-    role?: string;
+    plan?: string;
     status?: string;
   }>;
 }
@@ -67,25 +67,15 @@ function getInitials(name: string): string {
 
 export default async function AdminUsersPage({ params, searchParams }: AdminUsersPageProps) {
   const { locale } = await params;
-  const { q, role, status } = await searchParams;
+  const { q, plan, status } = await searchParams;
 
   const t = getT('admin', locale);
 
   const searchTerm = q?.trim() ?? '';
-  const roleFilter = role?.trim() ?? '';
+  const planFilter = plan?.trim() ?? '';
   const statusFilter = status?.trim() ?? '';
 
-  type UserRow = {
-    createdAt: Date;
-    displayName: string | null;
-    email: string | null;
-    id: string;
-    phone: string;
-    role: string;
-    status: string;
-  };
-
-  const allUsers: UserRow[] = await db.query.users.findMany({
+  const allUsers = await db.query.users.findMany({
     columns: {
       id: true,
       displayName: true,
@@ -94,6 +84,14 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
       role: true,
       status: true,
       createdAt: true,
+    },
+    with: {
+      memberships: {
+        columns: {
+          planCode: true,
+          status: true,
+        },
+      },
     },
     orderBy: [desc(users.createdAt)],
   });
@@ -109,8 +107,10 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
     );
   }
 
-  if (roleFilter) {
-    filtered = filtered.filter((u) => u.role === roleFilter);
+  if (planFilter) {
+    filtered = filtered.filter((u) =>
+      u.memberships?.some((m) => m.status === 'ACTIVE' && m.planCode === planFilter),
+    );
   }
 
   if (statusFilter) {
@@ -156,14 +156,14 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
       <UsersFilters
         searchTerm={searchTerm}
         labels={{
-          allRoles: t('allRoles'),
+          allPlans: t('allPlans'),
           allStatuses: t('allStatuses'),
-          role: t('role'),
+          membership: t('membership'),
           search: t('search'),
           searchPlaceholder: t('searchPlaceholder'),
           status: t('status'),
         }}
-        roleFilter={roleFilter}
+        planFilter={planFilter}
         statusFilter={statusFilter}
         basePath={localizeHref(locale, '/admin/users')}
       />
@@ -190,7 +190,7 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
                 subtitle={user.phone}
                 badge={
                   <div className="flex gap-1">
-                    <AdminStatusBadge>{user.role}</AdminStatusBadge>
+                    <AdminStatusBadge>{user.memberships?.find((m) => m.status === 'ACTIVE')?.planCode ?? '—'}</AdminStatusBadge>
                     <AdminStatusBadge>{user.status}</AdminStatusBadge>
                   </div>
                 }
@@ -221,7 +221,7 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
                     </TableHead>
                     <TableHead className="text-muted-foreground">{t('user')}</TableHead>
                     <TableHead className="text-muted-foreground">{t('email')}</TableHead>
-                    <TableHead className="text-muted-foreground">{t('role')}</TableHead>
+                    <TableHead className="text-muted-foreground">{t('membership')}</TableHead>
                     <TableHead className="text-muted-foreground">{t('status')}</TableHead>
                     <TableHead className="text-muted-foreground">{t('joined')}</TableHead>
                     <TableHead className="pr-4 text-right text-muted-foreground">{t('actions')}</TableHead>
@@ -245,7 +245,7 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
                       </TableCell>
                       <TableCell className="text-muted-foreground">{user.email ?? '—'}</TableCell>
                       <TableCell>
-                        <AdminStatusBadge>{user.role}</AdminStatusBadge>
+                        <AdminStatusBadge>{user.memberships?.find((m) => m.status === 'ACTIVE')?.planCode ?? '—'}</AdminStatusBadge>
                       </TableCell>
                       <TableCell>
                         <AdminStatusBadge>{user.status}</AdminStatusBadge>

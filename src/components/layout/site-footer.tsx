@@ -1,10 +1,10 @@
 // src/components/layout/site-footer.tsx
-import { ArrowUpRight, Mail, Phone } from 'lucide-react';
+import { ArrowRight, Mail, Phone } from 'lucide-react';
 import Link from 'next/link';
 
 import { getT } from '@/lib/i18n/t-server';
 
-import { localizeHref,type SupportedLocale } from './navigation';
+import { type SupportedLocale, localizeHref } from './navigation';
 
 const PLATFORM_LINKS = [
   {
@@ -65,146 +65,118 @@ export function SiteFooter({ locale }: SiteFooterProps) {
   return (
     <footer
       aria-label={tA11y('siteFooter')}
-      className="relative mt-auto border-t border-primary/10 bg-background text-white py-10 sm:py-12 md:py-16 z-10"
+      className=" border-t border-border/50 bg-fintech-black"
     >
-      <div className="kc-container relative">
-        {/* Responsive 4-Column Directory Grid - Centered on mobile, left-aligned on sm+ */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 max-w-6xl mx-auto mb-10 text-center sm:text-left">
-          {/* Column 1: Brand Info */}
-          <div className="flex flex-col items-center sm:items-start space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="relative flex items-center justify-center size-10 rounded-full border border-primary/20 bg-[#0a0a0b]/60 backdrop-blur-md shadow-[0_0_15px_rgba(212,175,55,0.04)]">
-                <svg viewBox="0 0 100 100" className="size-6 fill-primary text-primary">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="42"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="0.8"
-                    className="opacity-20"
-                  />
-                  <g transform="translate(20, 20)">
-                    <path d="M12 30 L12 34 L48 34 L48 30 L42 16 L30 24 L18 16 Z" />
-                  </g>
-                </svg>
-              </div>
-              <h2 className="font-display text-base font-bold tracking-[3px] text-white uppercase leading-none text-left">
-                KYLYVNYK
-                <span className="block mt-1 font-display font-light text-[9px] tracking-[2px] text-primary uppercase">
-                  BUSINESS CLUB
-                </span>
-              </h2>
-            </div>
+      <div className=" pointer-events-none absolute inset-0 " aria-hidden="true" />
 
-            <p className="text-[10px] font-semibold tracking-[2px] text-primary/60 uppercase">
+      <div className="  py-16 sm:py-20 md:py-24 kc-container ">
+        <div className="mx-auto ">
+          <div className="mb-12 space-y-4 text-center sm:mb-16 md:mb-20">
+            <span className="block text-[11px] font-normal uppercase tracking-[0.2em] text-fg/45 sm:text-xs">
+              {tFooter('brand')}
+            </span>
+            <h2 className="font-sans text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-[2.75rem] md:leading-tight">
               {tFooter('footerTagline')}
+            </h2>
+            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-fg/50 sm:text-base">
+              {tFooter('platformCopy')}
             </p>
 
-            <div className="flex flex-col items-center sm:items-start space-y-2 text-xs font-light text-fg/50 pt-1">
+            <div className="flex flex-wrap items-center justify-center gap-5 pt-2 text-sm text-fg/50">
               <a
+                className="inline-flex items-center gap-2 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 href="mailto:office@kclub.in"
-                className="flex items-center gap-2 hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
-                <Mail className="size-3.5 text-primary opacity-80" />
+                <Mail aria-hidden="true" className="size-4 text-fg/35" strokeWidth={1.5} />
                 <span>office@kclub.in</span>
               </a>
               <a
+                className="inline-flex items-center gap-2 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 href="tel:+380501234567"
-                className="flex items-center gap-2 hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
-                <Phone className="size-3.5 text-primary opacity-80" />
+                <Phone aria-hidden="true" className="size-4 text-fg/35" strokeWidth={1.5} />
                 <span>+380 50 123 45 67</span>
               </a>
             </div>
           </div>
 
-          {/* Column 2: Explore */}
-          <nav aria-label={tA11y('footerNavigation')} className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-[2px] text-primary/80">
-              {tFooter('quickLinksHeading')}
-            </h3>
-            <ul className="space-y-2.5">
-              {PLATFORM_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    className="inline-flex items-center gap-0.5 text-sm font-light text-fg/70 hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                    href={localizeHref(locale, link.href)}
-                  >
-                    <span>{tFooter(link.key)}</span>
-                    <ArrowUpRight
-                      aria-hidden="true"
-                      className="size-3 text-primary/40 opacity-0 -translate-x-1 transition-all duration-300 hover:opacity-100 hover:translate-x-0"
-                    />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <div className="grid grid-cols-1 border-y border-border/50 md:grid-cols-3">
+            <nav
+              aria-label={tA11y('footerNavigation')}
+              className="px-6 py-8 sm:px-8 sm:py-10 md:px-10"
+            >
+              <h3 className="mb-4 text-sm font-semibold text-white">
+                {tFooter('quickLinksHeading')}
+              </h3>
+              <ul className="space-y-3">
+                {PLATFORM_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      className="inline-flex items-center gap-2 text-sm text-fg/50 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                      href={localizeHref(locale, link.href)}
+                    >
+                      {tFooter(link.key)}
+                      <ArrowRight aria-hidden="true" className="size-3.5" strokeWidth={1.25} />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-          {/* Column 3: Legal */}
-          <nav aria-label={tFooter('legalHeading')} className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-[2px] text-primary/80">
-              {tFooter('legalHeading')}
-            </h3>
-            <ul className="space-y-2.5">
-              {FOOTER_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    className="inline-flex items-center gap-0.5 text-sm font-light text-fg/70 hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                    href={localizeHref(locale, link.href)}
-                  >
-                    <span>{tFooter(link.key)}</span>
-                    <ArrowUpRight
-                      aria-hidden="true"
-                      className="size-3 text-primary/40 opacity-0 -translate-x-1 transition-all duration-300 hover:opacity-100 hover:translate-x-0"
-                    />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+            <nav
+              aria-label={tFooter('legalHeading')}
+              className="border-t border-border/50 px-6 py-8 sm:px-8 sm:py-10 md:border-t-0 md:border-l md:px-10"
+            >
+              <h3 className="mb-4 text-sm font-semibold text-white">{tFooter('legalHeading')}</h3>
+              <ul className="space-y-3">
+                {FOOTER_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      className="inline-flex items-center gap-2 text-sm text-fg/50 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                      href={localizeHref(locale, link.href)}
+                    >
+                      {tFooter(link.key)}
+                      <ArrowRight aria-hidden="true" className="size-3.5" strokeWidth={1.25} />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-          {/* Column 4: Newsletter subscription */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-[2px] text-primary/80">
-              {tFooter('newsletterHeading')}
-            </h3>
-            <p className="text-sm font-light leading-relaxed text-fg/50">
-              {tFooter('newsletterSub')}
-            </p>
-            <div className="space-y-2 w-full sm:max-w-xs mx-auto sm:mx-0">
-              <input
-                type="email"
-                placeholder={tFooter('newsletterPlaceholder')}
-                className="w-full h-11 px-3.5 rounded-lg border border-primary/15 bg-[#0a0a0b]/60 text-sm text-white placeholder-fg/30 transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20"
-                required
-              />
-              <button
-                type="button"
-                className="w-full h-11 rounded-lg bg-background px-4 text-sm font-bold tracking-wider text-primary uppercase active:scale-[0.98] transition-all cursor-pointer border border-primary/20"
-              >
-                {tFooter('newsletterCta')}
-              </button>
+            <div className="border-t border-border/50 px-6 py-8 sm:px-8 sm:py-10 md:border-t-0 md:border-l md:px-10">
+              <h3 className="mb-4 text-sm font-semibold text-white">
+                {tFooter('newsletterHeading')}
+              </h3>
+              <p className="mb-4 text-sm leading-relaxed text-fg/50">{tFooter('newsletterSub')}</p>
+              <div className="space-y-3">
+                <input
+                  className="h-11 w-full rounded-md border border-border/50 bg-transparent px-3.5 text-sm text-white placeholder:text-fg/30 transition-colors focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/10"
+                  placeholder={tFooter('newsletterPlaceholder')}
+                  required
+                  type="email"
+                />
+                <button
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-border/50 text-sm font-semibold text-white transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  type="button"
+                >
+                  {tFooter('newsletterCta')}
+                  <ArrowRight aria-hidden="true" className="size-4" strokeWidth={1.25} />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Footnote rule */}
-        <hr className="kc-gold-rule my-8 opacity-15 max-w-6xl mx-auto" />
+          <div className="mt-10 space-y-6 border-t border-border/50 pt-10 sm:mt-12 sm:pt-12">
+            {/* <div className="mx-auto grid max-w-4xl gap-2 text-[11px] leading-relaxed text-fg/35 sm:text-xs">
+              {LEGAL_KEYS.map((key) => (
+                <p key={key}>{tFooter(key)}</p>
+              ))}
+            </div> */}
 
-        {/* Regulatory Warnings Disclaimers block & copyright */}
-        <div className="max-w-6xl mx-auto text-center sm:text-left space-y-6">
-          <div className="grid gap-2 text-[10px] leading-relaxed text-fg/35 font-light max-w-4xl mx-auto sm:mx-0">
-            {LEGAL_KEYS.map((key) => (
-              <p key={key}>{tFooter(key)}</p>
-            ))}
+            <p className="text-center text-[11px] text-fg/30 sm:text-left sm:text-xs">
+              &copy; {year} {tFooter('brand')}. {tFooter('allRightsReserved')}
+            </p>
           </div>
-
-          {/* Copyright line */}
-          <p className="text-[10px] tracking-wider text-fg/20 font-light">
-            &copy; {year} {tFooter('brand')}. {tFooter('allRightsReserved')}
-          </p>
         </div>
       </div>
     </footer>

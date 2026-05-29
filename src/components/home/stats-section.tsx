@@ -2,40 +2,55 @@
 import { StatsCounter } from '@/components/home/stats-counter';
 
 interface StatsSectionProps {
-  stats: Array<{ value: string; label: string }>;
+  eyebrow: string;
+  stats: Array<{ label: string; value: string }>;
+  subtitle: string;
+  title: string;
 }
 
-export function StatsSection({ stats }: StatsSectionProps) {
+export function StatsSection({ eyebrow, stats, subtitle, title }: StatsSectionProps) {
   return (
-    <section aria-label="Platform statistics" className="py-4 sm:py-6 md:py-8 z-10 relative">
-      {/* Top luxury gold rule divider */}
-      <hr className="kc-gold-rule mb-6 sm:mb-8 md:mb-10 opacity-45" />
+    <section
+      aria-labelledby="stats-title"
+      className="relative -mx-4 overflow-hidden px-4 py-16 xs:py-20 sm:py-24 md:-mx-12 md:px-12 md:py-28 mb-0 "
+    >
+      <div className=" pointer-events-none absolute inset-0" aria-hidden="true" />
 
-      {/* Floating Centered Stats - Stack on mobile, 3 columns on sm+ */}
-      <div className="grid grid-cols-1 xs:grid-cols-3 gap-6 xs:gap-4 sm:gap-4 max-w-5xl mx-auto">
-        {stats.map((stat) => {
-          return (
+      <div className="relative mx-auto max-w-5xl">
+        <div className="mb-12 space-y-4 text-center sm:mb-16 md:mb-20">
+          <span className="block text-[11px] font-normal uppercase tracking-[0.2em] text-fg/45 sm:text-xs">
+            {eyebrow}
+          </span>
+          <h2
+            id="stats-title"
+            className="font-sans text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-[2.75rem] md:leading-tight"
+          >
+            {title}
+          </h2>
+          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-fg/50 sm:text-base">
+            {subtitle}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 border-y border-border/50 xs:grid-cols-3">
+          {stats.map((stat, index) => (
             <div
               key={stat.label}
-              className="flex flex-col items-center text-center px-1 sm:px-4"
+              className={`flex flex-col items-center justify-center px-6 py-8 text-center sm:px-8 sm:py-10 md:px-10 md:py-12 ${
+                index > 0
+                  ? 'border-t border-border/50 xs:border-t-0 xs:border-l xs:border-border/50'
+                  : ''
+              }`}
             >
-              {/* Massive floating gold number with mobile-first sizes */}
               <StatsCounter
                 value={stat.value}
-                className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-primary leading-none mb-2 sm:mb-3"
+                className="mb-2 font-sans text-3xl font-bold leading-none tracking-tight text-white sm:mb-3 sm:text-4xl md:text-5xl"
               />
-
-              {/* Muted luxury label with mobile-first sizes */}
-              <span className="text-[7.5px] sm:text-[9px] md:text-[10px] font-semibold uppercase tracking-[2px] sm:tracking-[4px] md:tracking-[5px] text-fg/50 leading-snug">
-                {stat.label}
-              </span>
+              <span className="text-sm text-fg/50 sm:text-[15px]">{stat.label}</span>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
-
-      {/* Bottom luxury gold rule divider */}
-      <hr className="kc-gold-rule mt-6 sm:mb-8 md:mt-10 opacity-45" />
     </section>
   );
 }

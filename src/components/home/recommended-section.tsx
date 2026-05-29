@@ -1,3 +1,4 @@
+// src/components/home/recommended-section.tsx
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
@@ -7,6 +8,7 @@ import {
   PremiumPartnerCard,
   type PremiumPartnerCardViewModel,
 } from '@/components/partners/premium-partner-card';
+import { resolveCountryFlagSvg } from '@/lib/flags/resolve-country-flag-svg';
 
 export interface RecommendedPartnerData {
   category: string;
@@ -20,18 +22,22 @@ export interface RecommendedPartnerData {
 interface RecommendedSectionProps {
   condition: string;
   detailsCta: string;
+  eyebrow: string;
   locale: SupportedLocale;
   partners: RecommendedPartnerData[];
+  subtitle: string;
   title: string;
   verifiedLabel: string;
   viewAll: string;
 }
 
-export function RecommendedSection({
+export async function RecommendedSection({
   condition,
   detailsCta,
+  eyebrow,
   locale,
   partners,
+  subtitle,
   title,
   verifiedLabel,
   viewAll,
@@ -42,49 +48,87 @@ export function RecommendedSection({
     verifiedLabel,
   };
 
-  const partnerCards: PremiumPartnerCardViewModel[] = partners.map((partner) => ({
-    category: partner.category,
-    condition,
-    countryCode: partner.flagLabel,
-    description: partner.description,
-    discount: null,
-    href: localizeHref(locale, '/directory'),
-    imageUrl: partner.img,
-    isRecommended: true,
-    location: partner.location,
-    name: partner.name,
-  }));
+  const partnerCards: PremiumPartnerCardViewModel[] = await Promise.all(
+    partners.map(async (partner) => ({
+      category: partner.category,
+      condition,
+      countryCode: partner.flagLabel,
+      description: partner.description,
+      discount: null,
+      flagSvg: await resolveCountryFlagSvg(partner.flagLabel),
+      href: localizeHref(locale, '/directory'),
+      imageUrl: partner.img,
+      isRecommended: true,
+      location: partner.location,
+      name: partner.name,
+    })),
+  );
 
   return (
-    <section>
-      <div className="mb-5 flex items-center justify-between md:mb-6">
-        <div className="flex items-center gap-3">
-          <div className="h-px w-8 bg-primary" aria-hidden="true" />
-          <h2 className="text-xs font-medium uppercase tracking-[5px] text-fg md:text-sm">
+    <section
+      aria-labelledby="recommended-partners-title"
+      className="relative -mx-4 overflow-hidden px-4 py-16 xs:py-20 sm:py-24 md:-mx-12 md:px-12 md:py-28 mb-0 "
+    >
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true" />
+
+      <div className="relative mx-auto max-w-5xl">
+        <div className="mb-12 space-y-4 text-center sm:mb-16 md:mb-20">
+          <span className="block text-[11px] font-normal uppercase tracking-[0.2em] text-fg/45 sm:text-xs">
+            {eyebrow}
+          </span>
+          <h2
+            id="recommended-partners-title"
+            className="font-sans text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-[2.75rem] md:leading-tight"
+          >
             {title}
           </h2>
+          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-fg/50 sm:text-base">
+            {subtitle}
+          </p>
         </div>
-        <Link
-          href={localizeHref(locale, '/directory')}
-          className="flex min-h-10 items-center gap-1 text-xs text-primary transition-colors hover:text-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:text-sm"
-        >
-          {viewAll}
-          <ArrowRight className="size-3 md:size-4" aria-hidden="true" />
-        </Link>
-      </div>
 
-      {partnerCards.length > 0 && (
-        <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-4 md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0 md:pb-0">
-          {partnerCards.map((partner) => (
-            <div
-              key={partner.name}
-              className="w-[calc(100vw-5rem)] xs:w-[16rem] sm:w-[20rem] shrink-0 md:w-auto md:shrink"
-            >
-              <PremiumPartnerCard labels={cardLabels} partner={partner} />
-            </div>
-          ))}
+        {partnerCards.length > 0 ? (
+          <div className="grid grid-cols-1 border-y border-border/50 md:grid-cols-3">
+            {partnerCards.map((partner, index) => {
+              const isLast = index === partnerCards.length - 1;
+
+              return (
+                <div
+                  key={partner.name}
+                  className={`relative ${
+                    index > 0
+                      ? 'border-t border-border/50 md:border-t-0 md:border-l md:border-border/50'
+                      : ''
+                  }`}
+                >
+                  <div className="p-4 sm:p-5 md:p-6">
+                    <PremiumPartnerCard labels={cardLabels} partner={partner} />
+                  </div>
+
+                  {!isLast ? (
+                    <div
+                      className="absolute right-0 top-1/2 z-10 hidden -translate-y-1/2 translate-x-1/2 text-white/70 md:flex"
+                      aria-hidden="true"
+                    >
+                      <ArrowRight className="size-4" strokeWidth={1.25} />
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+
+        <div className="mt-10 flex justify-center border-t border-border/50 pt-10 sm:mt-12 sm:pt-12">
+          <Link
+            href={localizeHref(locale, '/directory')}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white transition-colors hover:text-white/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            {viewAll}
+            <ArrowRight className="size-4" strokeWidth={1.25} aria-hidden="true" />
+          </Link>
         </div>
-      )}
+      </div>
     </section>
   );
 }

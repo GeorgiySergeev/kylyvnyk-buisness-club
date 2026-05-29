@@ -1,5 +1,8 @@
 'use client';
 
+import type { ComponentType } from 'react';
+import { useState } from 'react';
+
 import {
   AlertTriangle,
   ChevronLeft,
@@ -12,8 +15,6 @@ import {
   ShieldCheck,
   UserRound,
 } from 'lucide-react';
-import type { ComponentType } from 'react';
-import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { AdminPanel, AdminStatusBadge } from '@/features/admin/components/admin-ui';
@@ -21,6 +22,7 @@ import { UserContactForm } from '@/features/admin/components/user-contact-form';
 import { UserDangerZone } from '@/features/admin/components/user-danger-zone';
 import { UserPersonalInfoForm } from '@/features/admin/components/user-personal-info-form';
 import { UserRoleForm } from '@/features/admin/components/user-role-form';
+import { UserRoleAssignment } from '@/features/roles/components/user-role-assignment';
 import { cn } from '@/lib/utils';
 
 type TabKey =
@@ -75,6 +77,22 @@ interface MembershipData {
   status: string;
 }
 
+interface RoleAssignmentData {
+  currentRoles: {
+    id: string;
+    roleId: string;
+    roleName: string;
+    roleSlug: string;
+    isSystem: boolean;
+  }[];
+  availableRoles: {
+    id: string;
+    name: string;
+    slug: string;
+    isSystem: boolean;
+  }[];
+}
+
 interface UserAccountTabsProps {
   card: CardData | null;
   cities: SelectOption[];
@@ -93,6 +111,7 @@ interface UserAccountTabsProps {
     id: string;
     ipAddress: string | null;
   }>;
+  roleAssignmentData?: RoleAssignmentData;
   subscriptions: SubscriptionData[];
   user: {
     deletedAt: string | null;
@@ -129,6 +148,7 @@ export function UserAccountTabs({
   memberships,
   profile,
   recentAuditLogs,
+  roleAssignmentData,
   subscriptions,
   user,
 }: UserAccountTabsProps) {
@@ -240,19 +260,33 @@ export function UserAccountTabs({
         {activeTab === 'card' ? <CardSection card={card} /> : null}
 
         {activeTab === 'access' ? (
-          <AdminPanel
-            description="Manage role, membership, and account status"
-            title="Access Control"
-          >
-            <UserRoleForm
-              currentMembershipTier={
-                memberships.find((m) => m.status === 'ACTIVE')?.planCode ?? null
-              }
-              currentRole={user.role}
-              currentStatus={user.status}
-              userId={user.id}
-            />
-          </AdminPanel>
+          <>
+            <AdminPanel
+              description="Manage role, membership, and account status"
+              title="Access Control"
+            >
+              <UserRoleForm
+                currentMembershipTier={
+                  memberships.find((m) => m.status === 'ACTIVE')?.planCode ?? null
+                }
+                currentRole={user.role}
+                currentStatus={user.status}
+                userId={user.id}
+              />
+            </AdminPanel>
+            {roleAssignmentData ? (
+              <AdminPanel
+                description="Assign RBAC roles to this user"
+                title="Role-Based Access Control"
+              >
+                <UserRoleAssignment
+                  userId={user.id}
+                  currentRoles={roleAssignmentData.currentRoles}
+                  availableRoles={roleAssignmentData.availableRoles}
+                />
+              </AdminPanel>
+            ) : null}
+          </>
         ) : null}
 
         {activeTab === 'introductions' ? (
@@ -260,10 +294,7 @@ export function UserAccountTabs({
         ) : null}
 
         {activeTab === 'billing' ? (
-          <BillingSection
-            memberships={memberships}
-            subscriptions={subscriptions}
-          />
+          <BillingSection memberships={memberships} subscriptions={subscriptions} />
         ) : null}
 
         {activeTab === 'danger' ? (

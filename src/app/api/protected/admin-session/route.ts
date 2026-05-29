@@ -4,7 +4,7 @@ import { decideAdminApiResult } from '@/features/auth/lib/admin-access';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { hasVerifiedMfaInSession } from '@/features/auth/lib/mfa';
 
-type ApiErrorCode = 'FORBIDDEN' | 'MFA_REQUIRED' | 'UNAUTHORIZED';
+type ApiErrorCode = 'FORBIDDEN' | 'MFA_REQUIRED' | 'SUPER_ADMIN_REQUIRED' | 'UNAUTHORIZED';
 type ApiErrorResult = { error: { code: ApiErrorCode; message: string }; ok: false };
 type ApiSuccessResult = {
   data: {

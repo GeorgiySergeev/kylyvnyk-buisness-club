@@ -1,13 +1,14 @@
-import './globals.css';
+import type { ReactNode } from 'react';
 
 import type { Metadata, Viewport } from 'next';
 import { JetBrains_Mono, Oxanium, Playfair_Display } from 'next/font/google';
-import type { ReactNode } from 'react';
 
 import { getT } from '@/lib/i18n/t-server';
 import { cn } from '@/lib/utils';
 
-const oxanium = Oxanium({subsets:['latin'],variable:'--font-sans'});
+import './globals.css';
+
+const oxanium = Oxanium({ subsets: ['latin'], variable: '--font-sans' });
 
 const playfairDisplay = Playfair_Display({
   variable: '--font-display',
@@ -47,7 +48,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn(playfairDisplay.variable, jetBrainsMono.variable, "font-sans overflow-x-hidden", oxanium.variable)}
+      className={cn(
+        playfairDisplay.variable,
+        jetBrainsMono.variable,
+        'font-sans overflow-x-hidden',
+        oxanium.variable,
+      )}
     >
       <body suppressHydrationWarning className="overflow-x-hidden min-h-dvh">
         <a

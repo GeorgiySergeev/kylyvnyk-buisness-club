@@ -1,12 +1,11 @@
 'use client';
 
-import { Crown, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import { type AuthAction, type NavItem } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,18 +17,18 @@ import { cn } from '@/lib/utils';
 import { LocaleSwitcher } from './locale-switcher';
 
 interface HomeHeaderProps {
-  homeHref: string;
-  navItems: NavItem[];
-  isAuthenticated: boolean;
-  displayName?: string;
   avatarUrl?: string;
+  displayName?: string;
   guestAuth: {
-    signIn: AuthAction;
     joinNow: AuthAction;
+    signIn: AuthAction;
   };
+  homeHref: string;
+  isAuthenticated: boolean;
   memberAuth: {
     signOut: AuthAction;
   };
+  navItems: NavItem[];
 }
 
 function getInitials(value?: string) {
@@ -38,14 +37,17 @@ function getInitials(value?: string) {
   return parts.map((part) => part[0]?.toUpperCase() ?? '').join('') || 'KC';
 }
 
+const navLinkClass =
+  'inline-flex min-h-11 items-center rounded-md px-3 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring';
+
 export function HomeHeader({
-  homeHref,
-  navItems,
-  isAuthenticated,
-  displayName,
   avatarUrl,
+  displayName,
   guestAuth,
+  homeHref,
+  isAuthenticated,
   memberAuth,
+  navItems,
 }: HomeHeaderProps) {
   const pathname = usePathname();
   const isHome = pathname === homeHref;
@@ -54,40 +56,103 @@ export function HomeHeader({
     exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border/50 bg-black/90 backdrop-blur-md">
       <div className="kc-container">
-        <div className="navbar min-h-14 px-0 py-2">
-          <div className="navbar-start">
-            <Link
-              className="group flex min-h-11 items-center gap-2 rounded-md px-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-              href={homeHref}
-            >
-              <div className="flex size-9 items-center justify-center rounded-md border border-primary/40 bg-primary/10 transition-colors group-hover:border-primary/70">
-                <Crown aria-hidden="true" className="size-4 text-primary" />
-              </div>
-              <div className="flex flex-col leading-none">
-                <span className="font-display text-sm tracking-[3px] text-primary">KYLYVNYK</span>
-                <span className="text-[9px] tracking-[3px] text-muted-foreground">
-                  BUSINESS CLUB
-                </span>
-              </div>
-            </Link>
-          </div>
+        <div className="grid min-h-14 grid-cols-[1fr_auto_1fr] items-center py-2">
+          <Link
+            className="group flex min-h-11 items-center gap-3 rounded-md px-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            href={homeHref}
+          >
+            <div className="flex flex-col leading-none">
+              <span className="font-sans text-sm font-semibold tracking-[0.18em] text-white">
+                KYLYVNYK
+              </span>
+              <span className="mt-1 text-[10px] uppercase tracking-[0.2em] text-fg/45">
+                Business Club
+              </span>
+            </div>
+          </Link>
 
-          <div className="navbar-end md:hidden">
+          <nav aria-label="Primary navigation" className="hidden md:block">
+            {isHome && !isAuthenticated ? null : (
+              <ul className="flex items-center gap-1">
+                <li className="list-none">
+                  <Link
+                    className={cn(
+                      navLinkClass,
+                      pathname === homeHref
+                        ? 'font-medium text-white'
+                        : 'text-fg/50 hover:text-white',
+                    )}
+                    href={homeHref}
+                  >
+                    Home
+                  </Link>
+                </li>
+                {navItems.map((item) => (
+                  <li key={item.href} className="list-none">
+                    <Link
+                      className={cn(
+                        navLinkClass,
+                        isActive(item.href, item.exact)
+                          ? 'font-medium text-white'
+                          : 'text-fg/50 hover:text-white',
+                      )}
+                      href={item.href}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </nav>
+
+          <div className="flex items-center justify-end gap-3">
+            <div className="hidden md:block">
+              <LocaleSwitcher />
+            </div>
+
+            <div className="hidden items-center gap-3 md:flex">
+              {isAuthenticated ? (
+                <>
+                  <Avatar className="size-9 rounded-md border border-border/50">
+                    <AvatarImage alt="" src={avatarUrl} />
+                    <AvatarFallback className="rounded-md bg-transparent text-xs font-semibold text-fg/60">
+                      {getInitials(displayName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <Link
+                    className="inline-flex min-h-11 items-center px-2 text-sm text-fg/50 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    href={memberAuth.signOut.href}
+                  >
+                    {memberAuth.signOut.label}
+                  </Link>
+                </>
+              ) : (
+                <Link
+                  className="inline-flex min-h-11 items-center px-2 text-sm font-medium text-white transition-colors hover:text-white/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  href={guestAuth.signIn.href}
+                >
+                  {guestAuth.signIn.label}
+                </Link>
+              )}
+            </div>
+
+            <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
                   aria-label="Toggle menu"
-                  className="btn btn-ghost btn-square min-h-11 min-w-11 rounded-md text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-white/80 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   type="button"
                 >
-                  <Menu aria-hidden="true" className="size-5" />
+                  <Menu aria-hidden="true" className="size-5" strokeWidth={1.5} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-72 mt-2 border border-border/70 bg-card p-3 shadow-2xl rounded-md"
+                className="mt-2 w-72 rounded-md border border-border/50 bg-black/95 p-3 shadow-none backdrop-blur-md"
               >
                 <div className="mb-2 flex justify-end">
                   <LocaleSwitcher />
@@ -97,10 +162,9 @@ export function HomeHeader({
                     <DropdownMenuItem asChild>
                       <Link
                         className={cn(
-                          'flex w-full items-center rounded-md px-3 py-2 text-sm transition-colors focus:bg-primary/20 focus:text-primary outline-none',
-                          pathname === homeHref
-                            ? 'bg-primary/10 text-primary font-medium'
-                            : 'text-muted-foreground',
+                          navLinkClass,
+                          'w-full',
+                          pathname === homeHref ? 'font-medium text-white' : 'text-fg/50 hover:text-white',
                         )}
                         href={homeHref}
                       >
@@ -112,10 +176,11 @@ export function HomeHeader({
                     <DropdownMenuItem key={item.href} asChild>
                       <Link
                         className={cn(
-                          'flex w-full items-center rounded-md px-3 py-2 text-sm transition-colors focus:bg-primary/20 focus:text-primary outline-none',
+                          navLinkClass,
+                          'w-full',
                           isActive(item.href, item.exact)
-                            ? 'bg-primary/10 text-primary font-medium'
-                            : 'text-muted-foreground',
+                            ? 'font-medium text-white'
+                            : 'text-fg/50 hover:text-white',
                         )}
                         href={item.href}
                       >
@@ -124,101 +189,42 @@ export function HomeHeader({
                     </DropdownMenuItem>
                   ))}
                 </div>
-                <div className="my-3 border-t border-border/70" />
+                <div className="my-3 border-t border-border/50" />
                 {isAuthenticated ? (
                   <div className="flex items-center justify-between gap-2 px-1">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="size-8 rounded-md border border-border/70">
-                        <AvatarImage src={avatarUrl} alt="" />
-                        <AvatarFallback className="rounded-md bg-secondary text-[10px] font-semibold text-primary">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <Avatar className="size-8 rounded-md border border-border/50">
+                        <AvatarImage alt="" src={avatarUrl} />
+                        <AvatarFallback className="rounded-md bg-transparent text-[10px] font-semibold text-fg/60">
                           {getInitials(displayName)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-xs text-muted-foreground font-medium truncate max-w-[120px]">
+                      <span className="max-w-[120px] truncate text-xs font-medium text-fg/50">
                         {displayName || 'Member'}
                       </span>
                     </div>
                     <DropdownMenuItem asChild>
                       <Link
+                        className="rounded-md px-2.5 py-1.5 text-xs font-medium text-fg/50 outline-none transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                         href={memberAuth.signOut.href}
-                        className="rounded-md text-xs text-muted-foreground hover:text-foreground focus:bg-destructive/10 focus:text-destructive px-2.5 py-1.5 font-medium outline-none transition-colors border border-transparent focus:border-destructive/25"
                       >
                         {memberAuth.signOut.label}
                       </Link>
                     </DropdownMenuItem>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-2">
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={guestAuth.signIn.href}
-                        className="flex w-full justify-start rounded-md px-3 py-2 text-sm text-muted-foreground focus:bg-primary/10 focus:text-primary outline-none transition-colors"
-                      >
-                        {guestAuth.signIn.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  </div>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      className={cn(navLinkClass, 'w-full text-fg/50 hover:text-white')}
+                      href={guestAuth.signIn.href}
+                    >
+                      {guestAuth.signIn.label}
+                    </Link>
+                  </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-
-          <div className="navbar-center hidden md:flex md:flex-none md:justify-center">
-            {isHome && !isAuthenticated ? null : (
-              <ul aria-label="Primary navigation" className="flex items-center gap-1  p-1">
-                <li className="list-none">
-                  <Link
-                    className={cn(
-                      'inline-flex min-h-10 items-center rounded-md px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                      pathname === homeHref
-                        ? 'bg-primary/20 text-primary'
-                        : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
-                    )}
-                    href={homeHref}
-                  >
-                    Home
-                  </Link>
-                </li>
-                {navItems.map((item) => (
-                  <li key={item.href} className="list-none">
-                    <Link
-                      className={cn(
-                        'inline-flex min-h-10 items-center rounded-md px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                        isActive(item.href, item.exact)
-                          ? 'bg-primary/20 text-primary'
-                          : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
-                      )}
-                      href={item.href}
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className="navbar-end hidden gap-2 md:flex">
-            <LocaleSwitcher />
-            {isAuthenticated ? (
-              <>
-                <Avatar className="size-9 rounded-md border border-border/70">
-                  <AvatarImage src={avatarUrl} alt="" />
-                  <AvatarFallback className="rounded-md  text-xs font-semibold ">
-                    {getInitials(displayName)}
-                  </AvatarFallback>
-                </Avatar>
-                <Button asChild className="btn-ghost rounded-md text-muted-foreground">
-                  <Link href={memberAuth.signOut.href}>{memberAuth.signOut.label}</Link>
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button asChild className="btn-ghost rounded-md text-foreground">
-                  <Link href={guestAuth.signIn.href}>{guestAuth.signIn.label}</Link>
-                </Button>
-              </>
-            )}
+            </div>
           </div>
         </div>
       </div>

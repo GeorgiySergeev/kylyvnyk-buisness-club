@@ -3,9 +3,14 @@ import type { ReactNode } from 'react';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { AdminHeader, type AdminShellLabels } from '@/features/admin/components/admin-header';
 import { AdminMobileNav } from '@/features/admin/components/admin-mobile-nav';
-import { ADMIN_NAV_ITEMS, type AdminNavLabels } from '@/features/admin/components/admin-nav';
+import {
+  ADMIN_NAV_ITEMS,
+  type AdminNavKey,
+  type AdminNavLabels,
+} from '@/features/admin/components/admin-nav';
 import { AdminSidebarInner } from '@/features/admin/components/admin-sidebar';
 import { guardAdmin } from '@/features/auth/lib/role-guards';
+import { isSuperAdmin } from '@/lib/auth/permissions';
 import { getT } from '@/lib/i18n/t-server';
 
 interface AdminLayoutProps {
@@ -18,13 +23,23 @@ interface AdminLayoutProps {
 export default async function AdminLayout({ children, params }: AdminLayoutProps) {
   const { locale } = await params;
   const supportedLocale = locale as SupportedLocale;
-  await guardAdmin(supportedLocale);
+  const user = await guardAdmin(supportedLocale);
 
   const t = getT('admin', supportedLocale);
+  const userIsSuperAdmin = await isSuperAdmin(user.id);
+
   const navLabels = ADMIN_NAV_ITEMS.reduce<AdminNavLabels>((labels, item) => {
     labels[item.key] = t(item.key);
     return labels;
   }, {} as AdminNavLabels);
+
+  const visibleKeys: AdminNavKey[] = ADMIN_NAV_ITEMS.filter((item) => {
+    if (item.href === '/admin/roles') {
+      return userIsSuperAdmin;
+    }
+    return true;
+  }).map((item) => item.key);
+
   const shellLabels: AdminShellLabels = {
     ...navLabels,
     adminBrand: t('adminBrand'),
@@ -48,10 +63,11 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
         <AdminSidebarInner
           locale={supportedLocale}
           labels={{ ...shellLabels, navigation: t('navigation') }}
+          visibleKeys={visibleKeys}
         />
       </aside>
 
-      <AdminMobileNav locale={supportedLocale} labels={mobileLabels} />
+      <AdminMobileNav locale={supportedLocale} labels={mobileLabels} visibleKeys={visibleKeys} />
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-background">
         <div className="max-lg:hidden">

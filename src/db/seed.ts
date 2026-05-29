@@ -8,6 +8,10 @@ import {
   clubCards,
   countries,
   introductions,
+  permissions,
+  RESOURCES,
+  roles,
+  userRoles,
   users,
 } from './schema';
 
@@ -146,6 +150,9 @@ function slugify(name: string): string {
 
 async function clearTables(): Promise<void> {
   console.log('Clearing tables...');
+  await db.delete(userRoles);
+  await db.delete(permissions);
+  await db.delete(roles);
   await db.delete(clubCards);
   await db.delete(introductions);
   await db.delete(businesses);
@@ -181,6 +188,49 @@ async function seed(): Promise<void> {
     .values([...SEED_CATEGORIES])
     .returning();
 
+  console.log('Seeding roles... (5)');
+  const SEED_ROLES = [
+    { name: 'Super Admin', slug: 'super_admin', description: 'Full system access including RBAC management', isSystem: true },
+    { name: 'Admin', slug: 'admin', description: 'Full access to all admin sections except RBAC', isSystem: true },
+    { name: 'Manager', slug: 'manager', description: 'Elevated access with limited admin capabilities', isSystem: true },
+    { name: 'Member', slug: 'member', description: 'Standard authenticated user', isSystem: true },
+    { name: 'Guest', slug: 'guest', description: 'Unauthenticated visitor', isSystem: true },
+  ] as const;
+
+  const insertedRoles = await db
+    .insert(roles)
+    .values([...SEED_ROLES])
+    .returning();
+
+  const roleBySlug = Object.fromEntries(insertedRoles.map((r) => [r.slug, r]));
+
+  console.log('Seeding permissions...');
+  const permissionValues = (Object.entries(roleBySlug) as [string, typeof insertedRoles[number]][])
+    .flatMap(([, role]) =>
+      RESOURCES.map((resource) => {
+        const isSuperAdmin = role.slug === 'super_admin';
+        const isAdmin = role.slug === 'admin';
+        const isManager = role.slug === 'manager';
+        const isMember = role.slug === 'member';
+        const isGuest = role.slug === 'guest';
+        const canView = isSuperAdmin || isAdmin || (isManager && ['dashboard', 'users', 'businesses', 'introductions', 'cards'].includes(resource)) || (isMember && ['dashboard'].includes(resource)) || (isGuest && false);
+        const canCreate = isSuperAdmin || (isAdmin && resource !== 'roles');
+        const canEdit = isSuperAdmin || (isAdmin && resource !== 'roles');
+        const canDelete = isSuperAdmin || (isAdmin && resource !== 'roles');
+        return {
+          roleId: role.id,
+          resource,
+          canView,
+          canCreate,
+          canEdit,
+          canDelete,
+        };
+      }),
+    )
+    .filter((p) => p.canView || p.canCreate || p.canEdit || p.canDelete);
+
+  await db.insert(permissions).values(permissionValues);
+
   console.log('Seeding users... (4)');
   const insertedUsers = await db
     .insert(users)
@@ -198,6 +248,15 @@ async function seed(): Promise<void> {
 
   const userByEmail = Object.fromEntries(insertedUsers.map((u) => [u.email, u]));
   const businessUser = userByEmail['business@kclub.dev']!;
+
+  console.log('Seeding user-role assignments...');
+  await db.insert(userRoles).values([
+    { userId: userByEmail['admin@kclub.dev']!.id, roleId: roleBySlug['super_admin']!.id },
+    { userId: userByEmail['business@kclub.dev']!.id, roleId: roleBySlug['admin']!.id },
+    { userId: userByEmail['business@kclub.dev']!.id, roleId: roleBySlug['manager']!.id },
+    { userId: userByEmail['member@kclub.dev']!.id, roleId: roleBySlug['member']!.id },
+    { userId: userByEmail['inactive@kclub.dev']!.id, roleId: roleBySlug['member']!.id },
+  ]);
 
   console.log('Seeding businesses... (8)');
   const businessStatuses = [

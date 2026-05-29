@@ -21,7 +21,7 @@ export function SignOutPanel({ redirectUrl, submitLabel }: SignOutPanelProps) {
     <Button
       type="button"
       disabled={pending}
-      className="min-h-11"
+      className="min-h-11 w-full max-w-xs rounded-md border border-border/50 bg-black text-white hover:bg-white/5 sm:w-auto sm:min-w-48"
       onClick={() => {
         startTransition(async () => {
           await signOutAction();

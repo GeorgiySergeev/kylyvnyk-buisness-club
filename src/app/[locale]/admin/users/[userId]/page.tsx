@@ -228,6 +228,23 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
     ),
   ]);
 
+  const userAssignedRoles = await db.query.userRoles.findMany({
+    where: (table, { eq: _eq }) => _eq(table.userId, userId),
+    with: { role: true },
+  });
+
+  const allActiveRoles = await db.query.roles.findMany({
+    where: (table, { isNull: _isNull }) => _isNull(table.deletedAt),
+  });
+
+  const currentRoleData = userAssignedRoles.map((ur) => ({
+    id: ur.id,
+    roleId: ur.roleId,
+    roleName: ur.role.name,
+    roleSlug: ur.role.slug,
+    isSystem: ur.role.isSystem,
+  }));
+
   const activeBusinesses = userBusinesses.filter((b) => b.status === 'PUBLISHED').length;
   const approvedIntros = userIntroductions.filter((i) => i.status === 'APPROVED').length;
   const joinedDate = user.createdAt.toLocaleDateString('en-US', {
@@ -395,6 +412,15 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
           phone: user.phone,
           role: user.role,
           status: user.status,
+        }}
+        roleAssignmentData={{
+          currentRoles: currentRoleData,
+          availableRoles: allActiveRoles.map((r) => ({
+            id: r.id,
+            name: r.name,
+            slug: r.slug,
+            isSystem: r.isSystem,
+          })),
         }}
       />
     </div>

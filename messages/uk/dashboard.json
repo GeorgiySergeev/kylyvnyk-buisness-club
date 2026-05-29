@@ -33,6 +33,8 @@
   "role": "Роль",
   "status": "Статус",
   "quickActionsTitle": "Швидкі дії",
+  "quickActionsDescription": "Перехід до каталогу, перевірки картки та інших інструментів учасника.",
+  "introductionsCount": "Business Introduction",
   "openDirectory": "Відкрити каталог",
   "verifyCard": "Перевірити картку",
   "businessIntroduction": "Business Introduction",

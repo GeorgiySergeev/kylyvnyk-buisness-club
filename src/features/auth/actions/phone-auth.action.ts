@@ -89,7 +89,7 @@ export async function requestPhoneOtpAction(
       devBypass: true,
       phone: parsed.data.phone,
       providerUserId: `dev:${parsed.data.phone}`,
-    });
+    }, parsed.data.displayName);
 
     if (isNew) {
       await createCardForUser(user.id, user.phone);
@@ -226,7 +226,7 @@ export async function devBypassPhoneAuthAction(
     devBypass: true,
     phone: parsed.data.phone,
     providerUserId: `dev:${parsed.data.phone}`,
-  });
+  }, parsed.data.displayName);
 
   if (isNew) {
     await createCardForUser(user.id, user.phone);

@@ -17,12 +17,13 @@ export const phoneNumberSchema = z
     message: 'Enter a valid international phone number.',
   });
 
+export const displayNameSchema = z.string().trim().min(1).max(80);
+
 export const phoneOtpRequestSchema = z.object({
   captchaToken: z.string().trim().optional(),
+  displayName: displayNameSchema.optional().or(z.literal('')),
   phone: phoneNumberSchema,
 });
-
-export const displayNameSchema = z.string().trim().min(1).max(80);
 
 export const phoneOtpVerifySchema = z.object({
   code: z.string().trim().regex(/^\d{6}$/, 'Enter the 6-digit code.'),

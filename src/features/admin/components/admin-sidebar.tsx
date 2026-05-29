@@ -10,6 +10,7 @@ import {
   type LucideIcon,
   MessageSquare,
   ReceiptText,
+  Shield,
   Tags,
   Users,
 } from 'lucide-react';
@@ -36,6 +37,7 @@ const ADMIN_NAV_ICONS: Record<AdminNavKey, LucideIcon> = {
   navMemberships: Users,
   navCatalog: Tags,
   navAudit: ClipboardList,
+  navRoles: Shield,
 };
 
 interface AdminSidebarInnerProps {
@@ -47,10 +49,14 @@ interface AdminSidebarInnerProps {
     navigation: string;
     title: string;
   };
+  visibleKeys?: AdminNavKey[];
 }
 
-export function AdminSidebarInner({ locale, labels }: AdminSidebarInnerProps) {
+export function AdminSidebarInner({ locale, labels, visibleKeys }: AdminSidebarInnerProps) {
   const pathname = usePathname();
+  const items = visibleKeys
+    ? ADMIN_NAV_ITEMS.filter((item) => visibleKeys.includes(item.key))
+    : ADMIN_NAV_ITEMS;
 
   return (
     <>
@@ -68,7 +74,7 @@ export function AdminSidebarInner({ locale, labels }: AdminSidebarInnerProps) {
         {labels.navigation}
       </div>
       <nav className="flex flex-col gap-1 px-3">
-        {ADMIN_NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const Icon = ADMIN_NAV_ICONS[item.key];
           const href = localizeHref(locale, item.href);
           const active = pathname === href || (item.href !== '/admin' && pathname.startsWith(href));
@@ -92,7 +98,7 @@ export function AdminSidebarInner({ locale, labels }: AdminSidebarInnerProps) {
       <div className="mt-auto border-t border-border p-4">
         <div className="flex items-center gap-2">
           <Avatar className="size-8">
-            <AvatarFallback className="bg-sidebar-accent text-xs text-sidebar-accent-foreground rounded-full">
+            <AvatarFallback className="rounded-full bg-sidebar-accent text-xs text-sidebar-accent-foreground">
               A
             </AvatarFallback>
           </Avatar>
