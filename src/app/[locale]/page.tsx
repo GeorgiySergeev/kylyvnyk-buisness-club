@@ -5,7 +5,7 @@ import { MobileBottomNav } from '@/components/home/mobile-bottom-nav';
 import { RecommendedSection } from '@/components/home/recommended-section';
 import { StatsSection } from '@/components/home/stats-section';
 import { type PartnerData, TopPartnersSection } from '@/components/home/top-partners-section';
-import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
+import { type SupportedLocale, localizeHref } from '@/components/layout/navigation';
 import { getPublishedBusinesses } from '@/features/directory/lib/get-published-businesses';
 import { getNavigationSession } from '@/lib/auth/navigation-session';
 import { getT } from '@/lib/i18n/t-server';
@@ -14,7 +14,6 @@ const STEP_RAW = [
   { titleKey: 'stepOneTitle', textKey: 'stepOneText' },
   { titleKey: 'stepTwoTitle', textKey: 'stepTwoText' },
   { titleKey: 'stepThreeTitle', textKey: 'stepThreeText' },
-  { titleKey: 'stepFourTitle', textKey: 'stepFourText' },
 ] as const;
 
 const FILTER_KEYS = ['filterCountry', 'filterCity', 'filterCategory'] as const;
@@ -79,7 +78,7 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
 
   return (
     <>
-      <div className="mx-auto max-w-(--kc-max-w) space-y-6 border-0 bg-card-foreground px-4 pb-24 pt-4 xs:space-y-8 xs:pb-28 xs:pt-6 sm:pb-28 sm:pt-6 md:border md:border-border md:px-12 md:pb-16 md:pt-8 lg:space-y-12 container">
+      <div className="mx-auto max-w-(--kc-max-w) space-y-6 border-0  px-4   xs:space-y-8   md:border md:border-border md:px-12  lg:space-y-12 container">
         <HeroSection
           locale={locale}
           isAuthenticated={isAuthenticated}
@@ -95,10 +94,14 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
           tierVipDesc={t('tierVipDesc')}
           tierPartnerTitle={t('tierPartnerTitle')}
           tierPartnerDesc={t('tierPartnerDesc')}
+          tierPopularBadge={t('tierPopularBadge')}
           tierApplyCta={t('tierApplyCta')}
         />
 
         <StatsSection
+          eyebrow={t('statsEyebrow')}
+          title={t('statsTitle')}
+          subtitle={t('statsSubtitle')}
           stats={[
             { value: t('statMembersValue'), label: t('statMembersLabel') },
             { value: t('statCountriesValue'), label: t('statCountriesLabel') },
@@ -108,29 +111,40 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
 
         <TopPartnersSection
           locale={locale}
+          eyebrow={t('topPartnersEyebrow')}
           title={t('topPartnersTitle')}
           subtitle={t('topPartnersSubtitle')}
           viewAll={t('viewAll')}
           detailsCta={t('detailsCta')}
           conditionLabel={t('partnerConditionLabel')}
-          recommendedLabel={t('partnerRecommendedLabel')}
-          topPartnerLabel={t('partnerTopLabel')}
           verifiedLabel={t('partnerVerifiedLabel')}
+          previousLabel={t('topPartnersPrevious')}
+          nextLabel={t('topPartnersNext')}
+          regionLabel={t('topPartnersSliderLabel')}
           partners={partners}
         />
 
-        <HowItWorksSection title={t('howTitle')} steps={steps} />
+        <HowItWorksSection
+          eyebrow={t('howEyebrow')}
+          title={t('howTitle')}
+          subtitle={t('howSubtitle')}
+          steps={steps}
+        />
 
         <FindPartnerSection
           locale={locale}
+          eyebrow={t('searchEyebrow')}
           title={t('searchTitle')}
+          subtitle={t('searchSubtitle')}
           searchCta={t('searchCta')}
           filters={filters}
         />
 
         <RecommendedSection
           locale={locale}
+          eyebrow={t('recommendedEyebrow')}
           title={t('recommendedTitle')}
+          subtitle={t('recommendedSubtitle')}
           viewAll={t('showMoreCta')}
           detailsCta={t('detailsCta')}
           condition={t('recommendedCondition')}

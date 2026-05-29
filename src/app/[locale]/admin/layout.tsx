@@ -3,9 +3,14 @@ import type { ReactNode } from 'react';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { AdminHeader, type AdminShellLabels } from '@/features/admin/components/admin-header';
 import { AdminMobileNav } from '@/features/admin/components/admin-mobile-nav';
-import { ADMIN_NAV_ITEMS, type AdminNavLabels } from '@/features/admin/components/admin-nav';
+import {
+  ADMIN_NAV_ITEMS,
+  type AdminNavKey,
+  type AdminNavLabels,
+} from '@/features/admin/components/admin-nav';
 import { AdminSidebarInner } from '@/features/admin/components/admin-sidebar';
 import { guardAdmin } from '@/features/auth/lib/role-guards';
+import { isSuperAdmin } from '@/lib/auth/permissions';
 import { getT } from '@/lib/i18n/t-server';
 
 interface AdminLayoutProps {
@@ -18,13 +23,23 @@ interface AdminLayoutProps {
 export default async function AdminLayout({ children, params }: AdminLayoutProps) {
   const { locale } = await params;
   const supportedLocale = locale as SupportedLocale;
-  await guardAdmin(supportedLocale);
+  const user = await guardAdmin(supportedLocale);
 
   const t = getT('admin', supportedLocale);
+  const userIsSuperAdmin = await isSuperAdmin(user.id);
+
   const navLabels = ADMIN_NAV_ITEMS.reduce<AdminNavLabels>((labels, item) => {
     labels[item.key] = t(item.key);
     return labels;
   }, {} as AdminNavLabels);
+
+  const visibleKeys: AdminNavKey[] = ADMIN_NAV_ITEMS.filter((item) => {
+    if (item.href === '/admin/roles') {
+      return userIsSuperAdmin;
+    }
+    return true;
+  }).map((item) => item.key);
+
   const shellLabels: AdminShellLabels = {
     ...navLabels,
     adminBrand: t('adminBrand'),
@@ -43,18 +58,24 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
   };
 
   return (
-    <div className="admin flex min-h-[calc(100dvh-4rem)] bg-background text-foreground">
-      <aside className="sticky top-0 hidden h-[calc(100dvh-4rem)] w-64 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
-        <AdminSidebarInner locale={supportedLocale} labels={{ ...shellLabels, navigation: t('navigation') }} />
+    <div className="admin flex h-dvh overflow-hidden bg-background text-foreground">
+      <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
+        <AdminSidebarInner
+          locale={supportedLocale}
+          labels={{ ...shellLabels, navigation: t('navigation') }}
+          visibleKeys={visibleKeys}
+        />
       </aside>
 
-      <AdminMobileNav locale={supportedLocale} labels={mobileLabels} />
+      <AdminMobileNav locale={supportedLocale} labels={mobileLabels} visibleKeys={visibleKeys} />
 
-      <div className="flex flex-1 flex-col bg-background">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-background">
         <div className="max-lg:hidden">
           <AdminHeader labels={shellLabels} />
         </div>
-        <main className="flex-1 overflow-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7">{children}</main>
+        <main className="container mx-auto min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -1,17 +1,20 @@
-import { relations } from "drizzle-orm";
+import { relations } from 'drizzle-orm';
 
-import { auditLogs } from "./audit";
-import { businesses } from "./business";
-import { clubCards } from "./card";
-import { catalogItems } from "./catalog";
-import { categories } from "./category";
-import { cities } from "./city";
-import { countries } from "./country";
-import { introductions } from "./introduction";
-import { memberships } from "./membership";
-import { profiles } from "./profile";
-import { stripeSubscriptions } from "./stripe";
-import { users } from "./user";
+import { auditLogs } from './audit';
+import { businesses } from './business';
+import { clubCards } from './card';
+import { catalogItems } from './catalog';
+import { categories } from './category';
+import { cities } from './city';
+import { countries } from './country';
+import { introductions } from './introduction';
+import { memberships } from './membership';
+import { permissions } from './permission';
+import { profiles } from './profile';
+import { roles } from './role';
+import { stripeSubscriptions } from './stripe';
+import { users } from './user';
+import { userRoles } from './user-role';
 
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles, {
@@ -22,8 +25,10 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   cards: many(clubCards),
   memberships: many(memberships),
   stripeSubscriptions: many(stripeSubscriptions),
-  introductions: many(introductions, { relationName: "requester" }),
+  introductions: many(introductions, { relationName: 'requester' }),
   auditLogs: many(auditLogs),
+  roleAssignments: many(userRoles),
+  assignedRoles: many(userRoles, { relationName: 'assignedBy' }),
 }));
 
 export const profilesRelations = relations(profiles, ({ one }) => ({
@@ -61,9 +66,9 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
   parent: one(categories, {
     fields: [categories.parentId],
     references: [categories.id],
-    relationName: "subcategories",
+    relationName: 'subcategories',
   }),
-  children: many(categories, { relationName: "subcategories" }),
+  children: many(categories, { relationName: 'subcategories' }),
 }));
 
 export const businessesRelations = relations(businesses, ({ one, many }) => ({
@@ -83,7 +88,7 @@ export const businessesRelations = relations(businesses, ({ one, many }) => ({
     fields: [businesses.categoryId],
     references: [categories.id],
   }),
-  introductions: many(introductions, { relationName: "targetBusiness" }),
+  introductions: many(introductions, { relationName: 'targetBusiness' }),
   catalogItems: many(catalogItems),
 }));
 
@@ -94,21 +99,18 @@ export const clubCardsRelations = relations(clubCards, ({ one }) => ({
   }),
 }));
 
-export const introductionsRelations = relations(
-  introductions,
-  ({ one }) => ({
-    requester: one(users, {
-      fields: [introductions.requesterId],
-      references: [users.id],
-      relationName: "requester",
-    }),
-    targetBusiness: one(businesses, {
-      fields: [introductions.targetBusinessId],
-      references: [businesses.id],
-      relationName: "targetBusiness",
-    }),
+export const introductionsRelations = relations(introductions, ({ one }) => ({
+  requester: one(users, {
+    fields: [introductions.requesterId],
+    references: [users.id],
+    relationName: 'requester',
   }),
-);
+  targetBusiness: one(businesses, {
+    fields: [introductions.targetBusinessId],
+    references: [businesses.id],
+    relationName: 'targetBusiness',
+  }),
+}));
 
 export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
   actor: one(users, {
@@ -135,5 +137,33 @@ export const catalogItemsRelations = relations(catalogItems, ({ one }) => ({
   business: one(businesses, {
     fields: [catalogItems.businessId],
     references: [businesses.id],
+  }),
+}));
+
+export const rolesRelations = relations(roles, ({ many }) => ({
+  permissions: many(permissions),
+  userAssignments: many(userRoles),
+}));
+
+export const permissionsRelations = relations(permissions, ({ one }) => ({
+  role: one(roles, {
+    fields: [permissions.roleId],
+    references: [roles.id],
+  }),
+}));
+
+export const userRolesRelations = relations(userRoles, ({ one }) => ({
+  user: one(users, {
+    fields: [userRoles.userId],
+    references: [users.id],
+  }),
+  role: one(roles, {
+    fields: [userRoles.roleId],
+    references: [roles.id],
+  }),
+  assignedBy: one(users, {
+    fields: [userRoles.assignedById],
+    references: [users.id],
+    relationName: 'assignedBy',
   }),
 }));

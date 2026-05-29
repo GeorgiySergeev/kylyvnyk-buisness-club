@@ -17,14 +17,14 @@ import { AdminFiltersBar, AdminSearchInput } from './admin-ui';
 interface UsersFiltersProps {
   basePath: string;
   labels: {
-    allRoles: string;
+    allPlans: string;
     allStatuses: string;
-    role: string;
+    membership: string;
     search: string;
     searchPlaceholder: string;
     status: string;
   };
-  roleFilter: string;
+  planFilter: string;
   searchTerm: string;
   statusFilter: string;
 }
@@ -32,18 +32,18 @@ interface UsersFiltersProps {
 export function UsersFilters({
   basePath,
   labels,
-  roleFilter,
+  planFilter,
   searchTerm,
   statusFilter,
 }: UsersFiltersProps) {
   const router = useRouter();
-  const [role, setRole] = useState(roleFilter || 'ALL');
+  const [plan, setPlan] = useState(planFilter || 'ALL');
   const [status, setStatus] = useState(statusFilter || 'ALL');
 
-  function applySelectFilter(nextRole = role, nextStatus = status) {
+  function applySelectFilter(nextPlan = plan, nextStatus = status) {
     const params = new URLSearchParams();
     if (searchTerm) params.set('q', searchTerm);
-    if (nextRole !== 'ALL') params.set('role', nextRole);
+    if (nextPlan !== 'ALL') params.set('plan', nextPlan);
     if (nextStatus !== 'ALL') params.set('status', nextStatus);
     const qs = params.toString();
     router.push(qs ? `${basePath}?${qs}` : basePath);
@@ -53,7 +53,7 @@ export function UsersFilters({
     <AdminFiltersBar>
       <form className="flex w-full gap-2 sm:max-w-md" method="GET">
         <AdminSearchInput placeholder={labels.searchPlaceholder} value={searchTerm} />
-        {roleFilter ? <input name="role" type="hidden" value={roleFilter} /> : null}
+        {planFilter ? <input name="plan" type="hidden" value={planFilter} /> : null}
         {statusFilter ? <input name="status" type="hidden" value={statusFilter} /> : null}
         <Button className="h-9 rounded-md" size="sm" type="submit">
           {labels.search}
@@ -61,17 +61,17 @@ export function UsersFilters({
       </form>
 
       <Select
-        value={role}
+        value={plan}
         onValueChange={(value) => {
-          setRole(value);
+          setPlan(value);
           applySelectFilter(value, status);
         }}
       >
         <SelectTrigger className="h-9 w-36 rounded-md border-border/80 bg-background/80">
-          <SelectValue placeholder={labels.role} />
+          <SelectValue placeholder={labels.membership} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="ALL">{labels.allRoles}</SelectItem>
+          <SelectItem value="ALL">{labels.allPlans}</SelectItem>
           <SelectItem value="FREE">Free</SelectItem>
           <SelectItem value="VIP">VIP</SelectItem>
           <SelectItem value="BUSINESS">Business</SelectItem>
@@ -83,7 +83,7 @@ export function UsersFilters({
         value={status}
         onValueChange={(value) => {
           setStatus(value);
-          applySelectFilter(role, value);
+          applySelectFilter(plan, value);
         }}
       >
         <SelectTrigger className="h-9 w-36 rounded-md border-border/80 bg-background/80">

@@ -1,4 +1,4 @@
-export type AdminApiErrorCode = 'FORBIDDEN' | 'MFA_REQUIRED' | 'UNAUTHORIZED';
+export type AdminApiErrorCode = 'FORBIDDEN' | 'MFA_REQUIRED' | 'UNAUTHORIZED' | 'SUPER_ADMIN_REQUIRED';
 export type AdminRouteDecision = 'ALLOW' | 'REDIRECT_HOME' | 'REDIRECT_MFA' | 'REDIRECT_SIGN_IN';
 
 export function decideAdminRouteAccess(input: {
@@ -45,6 +45,38 @@ export function decideAdminApiResult(input: {
     return {
       code: 'FORBIDDEN',
       message: 'Admin access required.',
+      ok: false,
+      status: 403,
+    };
+  }
+
+  if (!input.hasMfa) {
+    return {
+      code: 'MFA_REQUIRED',
+      message: 'Admin MFA must be verified in the active session.',
+      ok: false,
+      status: 403,
+    };
+  }
+
+  return { ok: true };
+}
+
+export function decideSuperAdminApiResult(input: {
+  hasMfa: boolean;
+  isSuperAdmin: boolean;
+}):
+  | { ok: true }
+  | {
+      code: AdminApiErrorCode;
+      message: string;
+      ok: false;
+      status: 401 | 403;
+    } {
+  if (!input.isSuperAdmin) {
+    return {
+      code: 'SUPER_ADMIN_REQUIRED',
+      message: 'Super Admin access required.',
       ok: false,
       status: 403,
     };

@@ -14,6 +14,7 @@ import { categories, countries } from '@/db/schema';
 import { getPublishedBusinesses } from '@/features/directory/lib/get-published-businesses';
 import type { PublicBusinessDto } from '@/features/directory/lib/public-business-dto';
 import { getT } from '@/lib/i18n/t-server';
+import { resolveCountryFlagSvg } from '@/lib/flags/resolve-country-flag-svg';
 
 export const dynamic = 'force-dynamic';
 
@@ -203,12 +204,16 @@ export default async function DirectoryPage({ params, searchParams }: DirectoryP
 
         {businesses.length > 0 ? (
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {businesses.map((business) => (
-              <PremiumPartnerCard
-                key={business.id}
-                labels={cardLabels}
-                partner={createPartnerCardViewModel(business, locale, cardFallback)}
-              />
+            {(await Promise.all(
+              businesses.map(async (business) => ({
+                business,
+                partner: {
+                  ...createPartnerCardViewModel(business, locale, cardFallback),
+                  flagSvg: await resolveCountryFlagSvg(business.country?.iso2),
+                },
+              })),
+            )).map(({ business, partner }) => (
+              <PremiumPartnerCard key={business.id} labels={cardLabels} partner={partner} />
             ))}
           </section>
         ) : (

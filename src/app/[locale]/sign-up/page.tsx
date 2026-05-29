@@ -1,5 +1,8 @@
 import type { SupportedLocale } from '@/components/layout/navigation';
+import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
+import { AuthAlternateLink } from '@/features/auth/components/auth-alternate-link';
+import { AuthPageHeader } from '@/features/auth/components/auth-page-header';
 import { PhoneAuthForm } from '@/features/auth/components/phone-auth-form';
 import { isAuthDevPhoneBypassEnabled } from '@/features/auth/lib/auth-identity';
 import { getT } from '@/lib/i18n/t-server';
@@ -15,20 +18,18 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
   const tAuth = getT('auth', locale);
 
   return (
-    <PageWrapper>
-      <section className="mx-auto grid w-full max-w-5xl gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div className="space-y-5">
-          <p className="text-xs font-semibold tracking-[0.32em] text-primary uppercase">
-            {tAuth('signUpCardEyebrow')}
-          </p>
-          <h1 className="font-display text-4xl leading-tight text-foreground sm:text-5xl">
-            {tAuth('signUpTitle')}
-          </h1>
-          <p className="max-w-xl text-base leading-8 text-muted-foreground">
-            {tAuth('signUpCardIntro')}
-          </p>
-        </div>
-        <div className="flex justify-center lg:justify-end">
+    <PageWrapper noTopPad className="max-w-5xl">
+      <AuthPageHeader
+        eyebrow={tAuth('signUpCardEyebrow')}
+        title={tAuth('signUpTitle')}
+        description={tAuth('signUpCardIntro')}
+        titleId="sign-up-title"
+      />
+
+      <section className="relative overflow-hidden border-y border-border/50">
+        <div className="kc-how-it-works-bg pointer-events-none absolute inset-0" aria-hidden="true" />
+
+        <div className="relative flex flex-col items-center gap-8 px-6 py-10 sm:px-8 sm:py-12 md:py-16">
           <PhoneAuthForm
             devBypassEnabled={isAuthDevPhoneBypassEnabled()}
             labels={{
@@ -46,6 +47,11 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
               verifyCode: tAuth('phoneAuthVerifyCode'),
             }}
             locale={locale}
+          />
+          <AuthAlternateLink
+            href={localizeHref(locale, '/sign-in')}
+            linkLabel={tAuth('signIn')}
+            prompt={tAuth('authAlreadyMemberPrompt')}
           />
         </div>
       </section>

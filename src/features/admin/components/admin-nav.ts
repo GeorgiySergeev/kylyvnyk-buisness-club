@@ -11,6 +11,7 @@ export const ADMIN_NAV_ITEMS = [
   { key: 'navMemberships' as const, href: '/admin/memberships' },
   { key: 'navCatalog' as const, href: '/admin/catalog' },
   { key: 'navAudit' as const, href: '/admin/audit' },
+  { key: 'navRoles' as const, href: '/admin/roles' },
 ];
 
 export type AdminNavKey = (typeof ADMIN_NAV_ITEMS)[number]['key'];

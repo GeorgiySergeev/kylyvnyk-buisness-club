@@ -6,6 +6,7 @@ import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
 import { db } from '@/db/client';
 import { cities, countries } from '@/db/schema';
+import { AuthPageHeader } from '@/features/auth/components/auth-page-header';
 import { OnboardingForm } from '@/features/auth/components/onboarding-form';
 import { isOnboardingComplete } from '@/features/auth/lib/check-onboarding';
 import { requireUser } from '@/features/auth/lib/current-user';
@@ -45,20 +46,18 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
   const tAuth = getT('auth', locale);
 
   return (
-    <PageWrapper>
-      <section className="mx-auto grid w-full max-w-5xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-        <div className="space-y-5">
-          <p className="text-xs font-semibold tracking-[0.32em] text-primary uppercase">
-            {tAuth('onboardingEyebrow')}
-          </p>
-          <h1 className="font-display text-4xl leading-tight text-foreground sm:text-5xl">
-            {tAuth('onboardingTitle')}
-          </h1>
-          <p className="max-w-xl text-base leading-8 text-muted-foreground">
-            {tAuth('onboardingDescription')}
-          </p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-6 shadow-xl shadow-black/20 sm:p-8">
+    <PageWrapper noTopPad className="max-w-5xl">
+      <AuthPageHeader
+        eyebrow={tAuth('onboardingEyebrow')}
+        title={tAuth('onboardingTitle')}
+        description={tAuth('onboardingDescription')}
+        titleId="onboarding-title"
+      />
+
+      <section className="relative overflow-hidden border-y border-border/50">
+        <div className="kc-how-it-works-bg pointer-events-none absolute inset-0" aria-hidden="true" />
+
+        <div className="relative flex justify-center px-6 py-10 sm:px-8 sm:py-12 md:py-16">
           <OnboardingForm
             cities={cityRows.map((city) => ({
               id: city.id,

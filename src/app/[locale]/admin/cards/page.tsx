@@ -17,6 +17,7 @@ import {
   AdminDataTableShell,
   AdminEmptyState,
   AdminFiltersBar,
+  AdminMobileCard,
   AdminPageHeader,
   AdminSearchInput,
   AdminStatusBadge,
@@ -131,48 +132,81 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
       {filtered.length === 0 ? (
         <AdminEmptyState title={t('noCards')} />
       ) : (
-        <AdminDataTableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>{t('cardNumber')}</TableHead>
-                <TableHead>{t('memberName')}</TableHead>
-                <TableHead>{t('memberType')}</TableHead>
-                <TableHead>{t('status')}</TableHead>
-                <TableHead>{t('cardExpiresAt')}</TableHead>
-                <TableHead>{t('created')}</TableHead>
-                <TableHead className="text-right">{t('actions')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((card) => (
-                <TableRow key={card.id}>
-                  <TableCell className="font-mono text-sm font-medium">{card.number}</TableCell>
-                  <TableCell>{card.user.displayName ?? card.user.phone}</TableCell>
-                  <TableCell>
+        <>
+          {/* Mobile card view */}
+          <div className="space-y-3 md:hidden">
+            {filtered.map((card) => (
+              <AdminMobileCard
+                key={card.id}
+                title={<span className="font-mono font-bold">{card.number}</span>}
+                subtitle={card.user.displayName ?? card.user.phone}
+                badge={
+                  <div className="flex gap-1">
                     <AdminStatusBadge>{card.memberType}</AdminStatusBadge>
-                  </TableCell>
-                  <TableCell>
                     <AdminStatusBadge>{card.status}</AdminStatusBadge>
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {card.expiresAt ? card.expiresAt.toLocaleDateString() : 'N/A'}
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {card.createdAt.toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button asChild className="h-8 rounded-md px-2" size="sm" variant="ghost">
-                      <Link href={localizeHref(locale, `/admin/cards/${card.id}`)}>
-                        {t('view')}
-                      </Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </AdminDataTableShell>
+                  </div>
+                }
+                href={localizeHref(locale, `/admin/cards/${card.id}`)}
+                rows={[
+                  {
+                    label: t('cardExpiresAt'),
+                    value: card.expiresAt ? card.expiresAt.toLocaleDateString() : 'N/A',
+                  },
+                  {
+                    label: t('created'),
+                    value: card.createdAt.toLocaleDateString(),
+                  },
+                ]}
+              />
+            ))}
+          </div>
+
+          {/* Desktop table view */}
+          <div className="hidden md:block">
+            <AdminDataTableShell>
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>{t('cardNumber')}</TableHead>
+                    <TableHead>{t('memberName')}</TableHead>
+                    <TableHead>{t('memberType')}</TableHead>
+                    <TableHead>{t('status')}</TableHead>
+                    <TableHead>{t('cardExpiresAt')}</TableHead>
+                    <TableHead>{t('created')}</TableHead>
+                    <TableHead className="text-right">{t('actions')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((card) => (
+                    <TableRow key={card.id}>
+                      <TableCell className="font-mono text-sm font-medium">{card.number}</TableCell>
+                      <TableCell>{card.user.displayName ?? card.user.phone}</TableCell>
+                      <TableCell>
+                        <AdminStatusBadge>{card.memberType}</AdminStatusBadge>
+                      </TableCell>
+                      <TableCell>
+                        <AdminStatusBadge>{card.status}</AdminStatusBadge>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {card.expiresAt ? card.expiresAt.toLocaleDateString() : 'N/A'}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {card.createdAt.toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button asChild className="h-8 rounded-md px-2" size="sm" variant="ghost">
+                          <Link href={localizeHref(locale, `/admin/cards/${card.id}`)}>
+                            {t('view')}
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </AdminDataTableShell>
+          </div>
+        </>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+import { ChevronRight, Search } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -176,6 +176,58 @@ export function AdminStatusBadge({ children, tone }: { children: ReactNode; tone
       {children}
     </Badge>
   );
+}
+
+export function AdminMobileCard({
+  actions,
+  badge,
+  href,
+  rows,
+  subtitle,
+  title,
+}: {
+  actions?: ReactNode;
+  badge?: ReactNode;
+  href?: string;
+  rows: Array<{ label: string; value: ReactNode }>;
+  subtitle?: string;
+  title: ReactNode;
+}) {
+  const inner = (
+    <div className="rounded-lg border border-border/70 bg-card/95 p-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="truncate text-sm font-semibold text-foreground">{title}</span>
+            {badge ? <span className="shrink-0">{badge}</span> : null}
+          </div>
+          {subtitle ? (
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">{subtitle}</p>
+          ) : null}
+        </div>
+        {href ? <ChevronRight className="mt-0.5 size-4 shrink-0 text-muted-foreground" /> : null}
+      </div>
+      {rows.length > 0 ? (
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          {rows.map((row) => (
+            <div key={row.label} className="min-w-0">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                {row.label}
+              </span>
+              <div className="mt-0.5 text-foreground">{row.value}</div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+      {actions ? <div className="mt-2 flex flex-wrap gap-1.5 border-t border-border/50 pt-2">{actions}</div> : null}
+    </div>
+  );
+
+  if (href) {
+    return <a className="block" href={href}>{inner}</a>;
+  }
+
+  return inner;
 }
 
 export function AdminEmptyState({ description, title }: { description?: string; title: string }) {

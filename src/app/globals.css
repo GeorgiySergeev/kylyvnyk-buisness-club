@@ -168,9 +168,13 @@ html {
 }
 
 body {
-  @apply bg-bg text-fg font-sans antialiased;
+  @apply text-fg font-sans antialiased;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+#main-content {
+  background: var(--fintech-black);
 }
 
 * {
@@ -179,7 +183,7 @@ body {
 }
 
 a {
-  color: inherit;
+  color: white;
   text-decoration: none;
 }
 
@@ -241,6 +245,22 @@ a {
 
   .kc-fade-in-delay-3 {
     animation: fadeInUp 420ms ease-out 240ms both;
+  }
+
+  .kc-how-it-works-bg {
+    background-color: var(--fintech-black);
+    background-image: repeating-linear-gradient(
+      -38deg,
+      transparent,
+      transparent 96px,
+      rgb(59 130 246 / 4%) 96px,
+      rgb(59 130 246 / 4%) 97px,
+      transparent 47px,
+      transparent 92px,
+      rgb(139 92 246 / 3%) 92px,
+      rgb(139 92 246 / 3%) 93px
+    );
+    mask-image: linear-gradient(180deg, black 0%, rgb(0 0 0 / 85%) 100%);
   }
 }
 
@@ -312,6 +332,21 @@ a {
   --color-neutral-content: var(--foreground);
   --color-error: var(--destructive);
   --color-error-content: var(--destructive-foreground);
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 10%) transparent;
+}
+
+.admin *::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin *::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 10%);
+  border-radius: 3px;
 }
 
 .dark {

@@ -86,7 +86,7 @@ export function CatalogCrud({
 
   return (
     <div className="space-y-3">
-      <form action={create} className="grid gap-2 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-[1fr_1fr_120px_1fr_120px_auto]">
+      <form action={create} className="grid gap-2 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-3 lg:grid-cols-[1fr_1fr_120px_1fr_120px_auto]">
         <Input name="businessId" placeholder={labels.businessId} required />
         <Input name="title" placeholder={labels.title} required />
         <Input name="slug" placeholder={labels.slug} required />
@@ -97,7 +97,7 @@ export function CatalogCrud({
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
 
       {rows.map((row) => (
-        <form key={row.id} action={(fd) => update(row.id, fd)} className="grid gap-2 rounded-md border border-border/70 bg-card/50 p-3 md:grid-cols-[1fr_1fr_120px_1fr_120px_auto_auto]">
+        <form key={row.id} action={(fd) => update(row.id, fd)} className="grid gap-2 rounded-md border border-border/70 bg-card/50 p-3 md:grid-cols-3 lg:grid-cols-[1fr_1fr_120px_1fr_120px_auto_auto]">
           <Input defaultValue={row.businessId} disabled />
           <Input defaultValue={row.title} name="title" required />
           <Input defaultValue={row.slug} name="slug" required />

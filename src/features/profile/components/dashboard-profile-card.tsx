@@ -16,7 +16,6 @@ import {
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -70,7 +69,7 @@ export interface DashboardProfileCardProps {
 }
 
 const fieldSelectClass =
-  'min-h-11 w-full rounded-lg border border-input bg-background/40 px-3 py-2 text-sm text-foreground transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30';
+  'min-h-11 w-full rounded-md border border-border/50 bg-transparent px-3 py-2 text-sm text-white transition-colors outline-none focus-visible:border-white/30 focus-visible:ring-1 focus-visible:ring-white/10 disabled:cursor-not-allowed disabled:opacity-50';
 
 function getInitials(value?: string | null) {
   if (!value) return 'KC';
@@ -89,10 +88,10 @@ function ProfileField({
 }) {
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium text-foreground">{label}</p>
+      <p className="text-sm font-medium text-white">{label}</p>
       <p
         className={cn(
-          'rounded-lg border border-border/60 bg-background/30 px-3 py-2.5 text-sm text-foreground',
+          'rounded-md border border-border/50 bg-white/2 px-3 py-2.5 text-sm text-fg/65',
           mono && 'font-mono text-xs',
         )}
       >
@@ -234,15 +233,11 @@ export function DashboardProfileCard({
   }
 
   return (
-    <Card className="border-border/70 bg-card shadow-sm">
-      <CardHeader className="flex flex-col gap-4 border-b border-border/50 pb-5 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1.5">
-          <CardTitle className="text-2xl font-semibold tracking-tight">
-            {labels.profileTitle}
-          </CardTitle>
-          <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-            {labels.profileDescription}
-          </p>
+    <section className="flex h-full flex-col">
+      <div className="flex flex-col gap-4 border-b border-border/50 px-6 py-6 sm:flex-row sm:items-start sm:justify-between sm:px-8 sm:py-8">
+        <div className="space-y-2">
+          <h2 className="text-base font-semibold text-white sm:text-lg">{labels.profileTitle}</h2>
+          <p className="max-w-xl text-sm leading-relaxed text-fg/50">{labels.profileDescription}</p>
         </div>
 
         <div className="flex shrink-0 flex-wrap gap-2">
@@ -250,7 +245,7 @@ export function DashboardProfileCard({
             <Button
               type="button"
               variant="outline"
-              className="min-h-11 rounded-lg"
+              className="min-h-11 rounded-md border-border/50 bg-transparent text-white hover:bg-white/5 hover:text-white"
               onClick={openEditMode}
               aria-label={labels.editProfile}
             >
@@ -260,7 +255,7 @@ export function DashboardProfileCard({
           ) : (
             <>
               <Button
-                className="min-h-11 rounded-lg"
+                className="min-h-11 rounded-md border border-border/50 bg-black text-white hover:bg-white/5"
                 disabled={pending}
                 type="button"
                 onClick={submitProfileForm}
@@ -273,7 +268,7 @@ export function DashboardProfileCard({
                 {labels.saveProfile}
               </Button>
               <Button
-                className="min-h-11 rounded-lg"
+                className="min-h-11 rounded-md border-border/50 bg-transparent text-white hover:bg-white/5"
                 disabled={pending}
                 type="button"
                 variant="outline"
@@ -284,9 +279,9 @@ export function DashboardProfileCard({
             </>
           )}
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="pt-6">
+      <div className="flex flex-1 flex-col px-6 py-6 sm:px-8 sm:py-8">
         {errorMessage ? (
           <p
             role="alert"
@@ -299,13 +294,13 @@ export function DashboardProfileCard({
         {!isEditing ? (
           <div className="space-y-8">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-              <Avatar className="size-24 border border-border/70 bg-background/40">
+              <Avatar className="size-24 border border-border/50 bg-white/2">
                 <AvatarImage src={resolvedAvatarSrc} alt="" />
-                <AvatarFallback className="text-xl">{getInitials(displayName)}</AvatarFallback>
+                <AvatarFallback className="text-xl text-fg/60">{getInitials(displayName)}</AvatarFallback>
               </Avatar>
               <div className="space-y-1">
-                <p className="text-sm font-medium text-foreground">{labels.profilePicture}</p>
-                <p className="text-sm text-muted-foreground">{resolvedDisplayName}</p>
+                <p className="text-sm font-medium text-white">{labels.profilePicture}</p>
+                <p className="text-sm text-fg/50">{resolvedDisplayName}</p>
               </div>
             </div>
 
@@ -319,8 +314,8 @@ export function DashboardProfileCard({
 
             {bio ? (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-foreground">{labels.bio}</p>
-                <p className="rounded-lg border border-border/60 bg-background/30 px-3 py-2.5 text-sm leading-6 text-foreground">
+                <p className="text-sm font-medium text-white">{labels.bio}</p>
+                <p className="rounded-md border border-border/50 bg-white/2 px-3 py-2.5 text-sm leading-6 text-fg/65">
                   {bio}
                 </p>
               </div>
@@ -335,11 +330,11 @@ export function DashboardProfileCard({
             onSubmit={handleSubmit}
           >
             <section className="space-y-4">
-              <Label className="text-sm font-medium text-foreground">{labels.profilePicture}</Label>
+              <Label className="text-sm font-medium text-white">{labels.profilePicture}</Label>
               <div
                 className={cn(
-                  'flex flex-col gap-5 rounded-xl border border-dashed border-border/70 bg-background/20 p-5 transition-colors sm:flex-row sm:items-center',
-                  isDragging && 'border-primary/60 bg-primary/5',
+                  'flex flex-col gap-5 rounded-md border border-dashed border-border/50 bg-white/2 p-5 transition-colors sm:flex-row sm:items-center',
+                  isDragging && 'border-white/30 bg-white/5',
                 )}
                 onDragLeave={handleDragLeave}
                 onDragOver={handleDragOver}
@@ -352,13 +347,13 @@ export function DashboardProfileCard({
                   onClick={() => fileInputRef.current?.click()}
                   aria-label={labels.uploadAvatar}
                 >
-                  <Avatar className="size-24 border border-border/70 bg-background/40">
+                  <Avatar className="size-24 border border-border/50 bg-white/2">
                     <AvatarImage src={resolvedAvatarSrc} alt="" />
-                    <AvatarFallback className="text-xl">{getInitials(displayName)}</AvatarFallback>
+                    <AvatarFallback className="text-xl text-fg/60">{getInitials(displayName)}</AvatarFallback>
                   </Avatar>
                   {!resolvedAvatarSrc ? (
-                    <span className="absolute inset-0 flex items-center justify-center rounded-full bg-background/60">
-                      <Camera aria-hidden="true" className="size-7 text-muted-foreground" />
+                    <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+                      <Camera aria-hidden="true" className="size-7 text-fg/45" />
                     </span>
                   ) : null}
                 </button>
@@ -367,14 +362,14 @@ export function DashboardProfileCard({
                   <Button
                     type="button"
                     variant="outline"
-                    className="min-h-11 rounded-lg"
+                    className="min-h-11 rounded-md border-border/50 bg-transparent text-white hover:bg-white/5"
                     disabled={pending}
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <Camera aria-hidden="true" className="mr-2 size-4" />
                     {labels.uploadAvatar}
                   </Button>
-                  <p className="text-xs leading-5 text-muted-foreground">{labels.avatarHint}</p>
+                  <p className="text-xs leading-5 text-fg/50">{labels.avatarHint}</p>
                   <input
                     ref={fileInputRef}
                     accept="image/jpeg,image/png,image/webp"
@@ -401,7 +396,7 @@ export function DashboardProfileCard({
                 <Input
                   required
                   aria-required="true"
-                  className="min-h-11 rounded-lg bg-background/40"
+                  className="min-h-11 rounded-md border-border/50 bg-transparent"
                   defaultValue={displayName ?? ''}
                   disabled={pending}
                   id={`${formId}-displayName`}
@@ -414,7 +409,7 @@ export function DashboardProfileCard({
                 <Input
                   type="email"
                   autoComplete="email"
-                  className="min-h-11 rounded-lg bg-background/40"
+                  className="min-h-11 rounded-md border-border/50 bg-transparent"
                   defaultValue={email ?? ''}
                   disabled={pending}
                   id={`${formId}-email`}
@@ -427,16 +422,16 @@ export function DashboardProfileCard({
                 <Input
                   readOnly
                   aria-readonly="true"
-                  className="min-h-11 rounded-lg bg-muted/20 font-mono text-xs"
+                  className="min-h-11 rounded-md border-border/50 bg-white/2 font-mono text-xs"
                   value={phone}
                 />
-                <p className="text-xs leading-5 text-muted-foreground">{labels.phoneReadOnly}</p>
+                <p className="text-xs leading-5 text-fg/50">{labels.phoneReadOnly}</p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor={`${formId}-countryId`}>
                   {labels.country}{' '}
-                  <span className="font-normal text-muted-foreground">({labels.optional})</span>
+                  <span className="font-normal text-fg/45">({labels.optional})</span>
                 </Label>
                 <select
                   defaultValue={countryId ?? ''}
@@ -457,7 +452,7 @@ export function DashboardProfileCard({
               <div className="space-y-2">
                 <Label htmlFor={`${formId}-cityId`}>
                   {labels.city}{' '}
-                  <span className="font-normal text-muted-foreground">({labels.optional})</span>
+                  <span className="font-normal text-fg/45">({labels.optional})</span>
                 </Label>
                 <select
                   defaultValue={cityId ?? ''}
@@ -482,17 +477,17 @@ export function DashboardProfileCard({
                 <span className="font-normal text-muted-foreground">({labels.optional})</span>
               </Label>
               <Textarea
-                className="min-h-32 rounded-lg bg-background/40"
+                className="min-h-32 rounded-md border-border/50 bg-transparent"
                 defaultValue={bio ?? ''}
                 disabled={pending}
                 id={`${formId}-bio`}
                 name="bio"
               />
-              <p className="text-xs leading-5 text-muted-foreground">{labels.bioHint}</p>
+              <p className="text-xs leading-5 text-fg/50">{labels.bioHint}</p>
             </div>
           </form>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

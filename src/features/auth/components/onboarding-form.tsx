@@ -87,8 +87,15 @@ export function OnboardingForm({
     });
   });
 
+  const fieldSelectClass =
+    'min-h-11 w-full rounded-md border border-border/50 bg-transparent px-3 py-2 text-sm text-white transition-colors outline-none focus-visible:border-white/30 focus-visible:ring-1 focus-visible:ring-white/10 disabled:cursor-not-allowed disabled:opacity-50';
+
   return (
-    <form onSubmit={onSubmit} className="space-y-5" noValidate>
+    <form
+      onSubmit={onSubmit}
+      className="w-full max-w-xl space-y-6 border border-border/50 bg-white/2 p-6 sm:p-8"
+      noValidate
+    >
       {errors.root?.message ? (
         <p
           role="alert"
@@ -100,15 +107,15 @@ export function OnboardingForm({
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="countryId" className="text-sm font-semibold text-foreground">
-            {labels.country} <span className="text-muted-foreground">({labels.optional})</span>
+          <label htmlFor="countryId" className="text-sm font-medium text-white">
+            {labels.country} <span className="text-fg/50">({labels.optional})</span>
           </label>
           <select
             id="countryId"
             aria-describedby={errors.countryId ? 'countryId-error' : undefined}
             aria-invalid={Boolean(errors.countryId)}
             disabled={pending}
-            className="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className={fieldSelectClass}
             {...register('countryId')}
           >
             <option value="" />
@@ -126,15 +133,15 @@ export function OnboardingForm({
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="cityId" className="text-sm font-semibold text-foreground">
-            {labels.city} <span className="text-muted-foreground">({labels.optional})</span>
+          <label htmlFor="cityId" className="text-sm font-medium text-white">
+            {labels.city} <span className="text-fg/50">({labels.optional})</span>
           </label>
           <select
             id="cityId"
             aria-describedby={errors.cityId ? 'cityId-error' : undefined}
             aria-invalid={Boolean(errors.cityId)}
             disabled={pending}
-            className="min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className={fieldSelectClass}
             {...register('cityId')}
           >
             <option value="" />
@@ -153,15 +160,15 @@ export function OnboardingForm({
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="bio" className="text-sm font-semibold text-foreground">
-          {labels.bio} <span className="text-muted-foreground">({labels.optional})</span>
+        <label htmlFor="bio" className="text-sm font-medium text-white">
+          {labels.bio} <span className="text-fg/50">({labels.optional})</span>
         </label>
         <Textarea
           id="bio"
           aria-describedby={errors.bio ? 'bio-error' : undefined}
           aria-invalid={Boolean(errors.bio)}
           disabled={pending}
-          className="min-h-28"
+          className="min-h-28 rounded-md border-border/50 bg-transparent"
           {...register('bio')}
         />
         {errors.bio?.message ? (
@@ -171,7 +178,11 @@ export function OnboardingForm({
         ) : null}
       </div>
 
-      <Button type="submit" disabled={pending} className="min-h-11 w-full sm:w-auto">
+      <Button
+        type="submit"
+        disabled={pending}
+        className="min-h-11 w-full rounded-md border border-border/50 bg-black text-white hover:bg-white/5"
+      >
         {pending ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
         {pending ? labels.submitting : labels.submit}
       </Button>

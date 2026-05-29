@@ -9,30 +9,18 @@ interface ClubCardProps {
   verifyUrl: string;
 }
 
+const CARD_SHELL_CLASS =
+  'relative w-full overflow-hidden rounded-md border border-border/50';
+
 export function ClubCard({ cardNumber, memberName, status, verifyUrl }: ClubCardProps) {
   return (
-    <div
-      className="relative w-full  overflow-hidden rounded-box"
-      role="region"
-      aria-label="Club membership card"
-    >
-      <div
-        className="relative bg-gradient-to-br from-zinc-900 via-zinc-800 to-neutral-950 p-6 pb-8 shadow-xl sm:p-8"
-        style={{
-          boxShadow: '0 0 0 1px rgba(212, 175, 55, 0.3), 0 8px 32px rgba(0, 0, 0, 0.5)',
-        }}
-      >
-        <div className="mb-6 flex items-center justify-between">
-          <span
-            className="font-display text-2xl font-bold tracking-[0.15em] text-[#d4af37]"
-            aria-label="KYLYVNYK CLUB"
-          >
-            KYC
+    <div className={CARD_SHELL_CLASS} role="region" aria-label="Club membership card">
+      <div className="relative bg-black/60 p-6 sm:p-8">
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <span className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-white">
+            KYLYVNYK
           </span>
-          <span
-            className="inline-flex items-center rounded-selector border px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#d4af37]"
-            style={{ borderColor: 'rgba(212, 175, 55, 0.4)' }}
-          >
+          <span className="inline-flex items-center border border-border/50 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-fg/45">
             {status}
           </span>
         </div>
@@ -44,15 +32,15 @@ export function ClubCard({ cardNumber, memberName, status, verifyUrl }: ClubCard
           >
             {cardNumber}
           </p>
-          <p className="text-base font-medium text-zinc-300 sm:text-lg">{memberName}</p>
+          <p className="text-base text-fg/65 sm:text-lg">{memberName}</p>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-end justify-between gap-4">
           <div className="space-y-0.5">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">Member since</p>
-            <p className="text-xs text-zinc-400">{new Date().getFullYear()}</p>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-fg/35">Member since</p>
+            <p className="text-xs text-fg/50">{new Date().getFullYear()}</p>
           </div>
-          <div className="rounded-field bg-white p-1.5">
+          <div className="rounded-md border border-border/50 bg-white p-1.5">
             <QRCodeSVG
               value={verifyUrl}
               size={64}
@@ -64,6 +52,24 @@ export function ClubCard({ cardNumber, memberName, status, verifyUrl }: ClubCard
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+interface ClubCardPlaceholderProps {
+  description: string;
+  title: string;
+}
+
+export function ClubCardPlaceholder({ description, title }: ClubCardPlaceholderProps) {
+  return (
+    <div
+      className={`${CARD_SHELL_CLASS} flex aspect-[1.586/1] flex-col items-center justify-center border-dashed bg-transparent p-6 text-center sm:p-8`}
+      role="region"
+      aria-label="Club membership card placeholder"
+    >
+      <h3 className="text-sm font-semibold text-white">{title}</h3>
+      <p className="mt-2 max-w-xs text-sm leading-relaxed text-fg/50">{description}</p>
     </div>
   );
 }
