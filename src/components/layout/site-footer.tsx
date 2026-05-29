@@ -44,15 +44,6 @@ const FOOTER_LINKS = [
   },
 ] as const;
 
-const LEGAL_KEYS = [
-  'legalLine1',
-  'legalLine2',
-  'legalLine3',
-  'legalLine4',
-  'legalLine5',
-  'legalLine6',
-] as const;
-
 interface SiteFooterProps {
   locale: SupportedLocale;
 }

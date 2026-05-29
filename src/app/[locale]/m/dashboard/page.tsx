@@ -29,9 +29,6 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const user = await guardOnboarded(locale);
   const t = getT('dashboard', locale);
 
-  type CountryRow = { id: number; name: string };
-  type CityRow = { country: { name: string }; id: number; name: string };
-
   const [card, profile, allCountries, allCities, introductionCountRow] = await Promise.all([
     db.query.clubCards.findFirst({
       where: eq(clubCards.userId, user.id),
