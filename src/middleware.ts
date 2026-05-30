@@ -32,6 +32,7 @@ export default async function middleware(request: NextRequest) {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
+    response.headers.set('x-locale', getRequestLocale(request.nextUrl.pathname));
     return response;
   }
 
@@ -60,6 +61,8 @@ export default async function middleware(request: NextRequest) {
     signInUrl.searchParams.set('returnBackUrl', request.nextUrl.pathname);
     return NextResponse.redirect(signInUrl);
   }
+
+  response.headers.set('x-locale', getRequestLocale(request.nextUrl.pathname));
 
   return response;
 }

@@ -8,6 +8,7 @@ import auth from '../../../messages/en/auth.json';
 import cards from '../../../messages/en/cards.json';
 import dashboard from '../../../messages/en/dashboard.json';
 import directory from '../../../messages/en/directory.json';
+import error from '../../../messages/en/error.json';
 import footer from '../../../messages/en/footer.json';
 import home from '../../../messages/en/home.json';
 import introductions from '../../../messages/en/introductions.json';
@@ -20,6 +21,7 @@ import authRu from '../../../messages/ru/auth.json';
 import cardsRu from '../../../messages/ru/cards.json';
 import dashboardRu from '../../../messages/ru/dashboard.json';
 import directoryRu from '../../../messages/ru/directory.json';
+import errorRu from '../../../messages/ru/error.json';
 import footerRu from '../../../messages/ru/footer.json';
 import homeRu from '../../../messages/ru/home.json';
 import introductionsRu from '../../../messages/ru/introductions.json';
@@ -32,6 +34,7 @@ import authUk from '../../../messages/uk/auth.json';
 import cardsUk from '../../../messages/uk/cards.json';
 import dashboardUk from '../../../messages/uk/dashboard.json';
 import directoryUk from '../../../messages/uk/directory.json';
+import errorUk from '../../../messages/uk/error.json';
 import footerUk from '../../../messages/uk/footer.json';
 import homeUk from '../../../messages/uk/home.json';
 import introductionsUk from '../../../messages/uk/introductions.json';
@@ -46,6 +49,7 @@ const EN_MESSAGES = {
   cards,
   dashboard,
   directory,
+  error,
   footer,
   home,
   introductions,
@@ -63,6 +67,7 @@ const MESSAGES_BY_LOCALE = {
     cards: cardsRu,
     dashboard: dashboardRu,
     directory: directoryRu,
+    error: errorRu,
     footer: footerRu,
     home: homeRu,
     introductions: introductionsRu,
@@ -77,6 +82,7 @@ const MESSAGES_BY_LOCALE = {
     cards: cardsUk,
     dashboard: dashboardUk,
     directory: directoryUk,
+    error: errorUk,
     footer: footerUk,
     home: homeUk,
     introductions: introductionsUk,
