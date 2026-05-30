@@ -1,8 +1,9 @@
 'use client';
 
+import { useState, useTransition } from 'react';
+
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
@@ -50,7 +51,7 @@ export function VipUpgradePanel({ labels, locale }: VipUpgradePanelProps) {
       ) : null}
       <Button
         type="button"
-        className="mt-4 min-h-11 w-full rounded-md border border-primary/40 bg-primary text-primary-foreground hover:bg-primary/90"
+        className="mt-4 min-h-11 w-full rounded-md border border-primary/40 hover:bg-primary/10"
         disabled={pending}
         onClick={startCheckout}
       >

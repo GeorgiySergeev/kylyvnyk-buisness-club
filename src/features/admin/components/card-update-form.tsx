@@ -10,6 +10,7 @@ import { updateCardAction } from '@/features/admin/actions/card-admin.action';
 
 interface CardUpdateFormProps {
   cardId: string;
+  currentDiscountLabel: string | null;
   currentExpiresAt: string | null;
   currentMemberType: 'FREE' | 'BUSINESS' | 'VIP';
   currentStatus: 'ACTIVE' | 'INACTIVE' | 'EXPIRED';
@@ -17,6 +18,7 @@ interface CardUpdateFormProps {
 
 export function CardUpdateForm({
   cardId,
+  currentDiscountLabel,
   currentExpiresAt,
   currentMemberType,
   currentStatus,
@@ -26,6 +28,7 @@ export function CardUpdateForm({
   const [error, setError] = useState<string | null>(null);
 
   function submit(formData: FormData) {
+    const discountLabel = String(formData.get('discountLabel') ?? '').trim() || null;
     const expiresRaw = String(formData.get('expiresAt') ?? '').trim();
     const memberType = String(formData.get('memberType') ?? currentMemberType);
     const status = String(formData.get('status') ?? currentStatus);
@@ -33,6 +36,7 @@ export function CardUpdateForm({
     startTransition(async () => {
       const result = await updateCardAction({
         cardId,
+        discountLabel,
         expiresAt: expiresRaw ? new Date(expiresRaw) : null,
         memberType,
         status,
@@ -60,6 +64,7 @@ export function CardUpdateForm({
         <option value="EXPIRED">EXPIRED</option>
       </select>
       <Input defaultValue={currentExpiresAt ?? ''} name="expiresAt" type="datetime-local" />
+      <Input defaultValue={currentDiscountLabel ?? ''} name="discountLabel" placeholder="Discount label" />
       <Button className="h-10" disabled={pending} type="submit">
         {pending ? <Loader2 className="size-4 animate-spin" /> : 'Update card'}
       </Button>

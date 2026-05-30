@@ -66,6 +66,7 @@ export const restoreBusinessSchema = z.object({
 
 export const updateCardSchema = z.object({
   cardId: z.string().uuid(),
+  discountLabel: z.string().trim().max(200).nullable().optional(),
   expiresAt: z.coerce.date().nullable().optional(),
   memberType: z.enum(['FREE', 'BUSINESS', 'VIP']),
   status: z.enum(['ACTIVE', 'INACTIVE', 'EXPIRED']),

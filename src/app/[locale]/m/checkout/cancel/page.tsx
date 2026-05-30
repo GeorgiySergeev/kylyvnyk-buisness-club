@@ -26,7 +26,7 @@ export default async function CheckoutCancelPage({ params }: CheckoutCancelPageP
       <section className="border-y border-border/50 px-6 py-10 sm:px-8">
         <Link
           className="inline-flex min-h-11 items-center rounded-md border border-border/50 bg-transparent px-5 text-sm font-semibold text-white"
-          href={localizeHref(locale, '/m/dashboard')}
+          href={localizeHref(locale, '/m/dashboard?tab=features')}
         >
           {t('checkoutReturnDashboard')}
         </Link>

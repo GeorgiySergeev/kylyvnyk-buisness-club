@@ -31,6 +31,7 @@ export default async function AdminCardDetailPage({ params }: AdminCardDetailPag
   const card = await db.query.clubCards.findFirst({
     columns: {
       createdAt: true,
+      discountLabel: true,
       expiresAt: true,
       id: true,
       memberType: true,
@@ -87,6 +88,7 @@ export default async function AdminCardDetailPage({ params }: AdminCardDetailPag
       <AdminPanel title="Card controls">
         <CardUpdateForm
           cardId={card.id}
+          currentDiscountLabel={card.discountLabel ?? null}
           currentExpiresAt={card.expiresAt ? card.expiresAt.toISOString().slice(0, 16) : null}
           currentMemberType={card.memberType}
           currentStatus={card.status}

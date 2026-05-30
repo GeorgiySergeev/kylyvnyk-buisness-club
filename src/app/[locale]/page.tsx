@@ -5,7 +5,7 @@ import { MobileBottomNav } from '@/components/home/mobile-bottom-nav';
 import { RecommendedSection } from '@/components/home/recommended-section';
 import { StatsSection } from '@/components/home/stats-section';
 import { type PartnerData, TopPartnersSection } from '@/components/home/top-partners-section';
-import { type SupportedLocale, localizeHref } from '@/components/layout/navigation';
+import { localizeHref, resolveLocale, type SupportedLocale } from '@/components/layout/navigation';
 import { getPublishedBusinesses } from '@/features/directory/lib/get-published-businesses';
 import { getNavigationSession } from '@/lib/auth/navigation-session';
 import { getT } from '@/lib/i18n/t-server';
@@ -27,7 +27,8 @@ interface LocaleHomePageProps {
 }
 
 export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
-  const { locale } = await params;
+  const { locale: localeParam } = await params;
+  const locale = resolveLocale(localeParam);
   const session = await getNavigationSession();
   const t = getT('home', locale);
 
@@ -78,7 +79,7 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
 
   return (
     <>
-      <div className="mx-auto max-w-(--kc-max-w) space-y-6 border-0  px-4   xs:space-y-8   md:border md:border-border md:px-12  lg:space-y-12 container">
+      <div className="mx-auto max-w-(--kc-max-w) space-y-6 border-0  px-4   xs:space-y-8   md:border md:border-border md:px-12  lg:space-y-12 container bg-zinc-950">
         <HeroSection
           locale={locale}
           isAuthenticated={isAuthenticated}

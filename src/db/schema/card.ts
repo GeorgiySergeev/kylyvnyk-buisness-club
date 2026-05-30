@@ -23,6 +23,7 @@ export const clubCards = pgTable(
     number: text("number").unique().notNull(),
     memberType: cardMemberTypeEnum("member_type").notNull(),
     status: cardStatusEnum("status").notNull().default("ACTIVE"),
+    discountLabel: text("discount_label"),
     expiresAt: timestamp("expires_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()

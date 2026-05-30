@@ -20,7 +20,9 @@ import { getSubscriptionPeriodEnd } from '@/lib/stripe/subscription-period';
 type BillingActionErrorCode =
   | 'ALREADY_VIP'
   | 'CHECKOUT_FAILED'
+  | 'NO_CUSTOMER'
   | 'NO_SUBSCRIPTION'
+  | 'PORTAL_FAILED'
   | 'UNAUTHORIZED';
 
 type BillingActionError = {
@@ -219,6 +221,70 @@ export async function cancelVipMembershipAction(
       error: {
         code: 'CHECKOUT_FAILED',
         message: 'VIP membership could not be canceled.',
+      },
+      ok: false,
+    };
+  }
+}
+
+export async function createBillingPortalSessionAction(
+  locale: SupportedLocale,
+): Promise<BillingActionResult<{ url: string }>> {
+  const user = await guardOnboarded(locale);
+
+  if (!(await userHasActiveVipMembership(user.id))) {
+    return {
+      error: {
+        code: 'UNAUTHORIZED',
+        message: 'VIP membership is required to access billing.',
+      },
+      ok: false,
+    };
+  }
+
+  const subscription = await db.query.stripeSubscriptions.findFirst({
+    where: (table, { and, eq }) => and(eq(table.userId, user.id), eq(table.planCode, VIP_PLAN_CODE)),
+    orderBy: (table, { desc }) => [desc(table.updatedAt)],
+  });
+
+  const stripeCustomerId = subscription?.stripeCustomerId;
+  if (!stripeCustomerId) {
+    return {
+      error: {
+        code: 'NO_CUSTOMER',
+        message: 'No billing customer was found for this account.',
+      },
+      ok: false,
+    };
+  }
+
+  try {
+    const session = await stripe.billingPortal.sessions.create({
+      customer: stripeCustomerId,
+      return_url: `${env.NEXT_PUBLIC_APP_URL}${localizeHref(locale, '/m/dashboard?tab=settings')}`,
+    });
+
+    if (!session.url) {
+      return {
+        error: {
+          code: 'PORTAL_FAILED',
+          message: 'Billing portal session could not be created.',
+        },
+        ok: false,
+      };
+    }
+
+    return {
+      data: {
+        url: session.url,
+      },
+      ok: true,
+    };
+  } catch {
+    return {
+      error: {
+        code: 'PORTAL_FAILED',
+        message: 'Billing portal session could not be created.',
       },
       ok: false,
     };

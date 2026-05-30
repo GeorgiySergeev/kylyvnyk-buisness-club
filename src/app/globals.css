@@ -19,26 +19,26 @@
   prefersdark: true;
   color-scheme: dark;
 
-  --color-base-100: #0a0a0b;
-  --color-base-200: #16161a;
-  --color-base-300: #1f1f25;
-  --color-base-content: #f5f5f0;
+  --color-base-100: #0a0a0a;
+  --color-base-200: #111111;
+  --color-base-300: #1a1a1a;
+  --color-base-content: #ededed;
   --color-primary: #d4af37;
-  --color-primary-content: #0a0a0b;
-  --color-secondary: #1f1f25;
-  --color-secondary-content: #f5f5f0;
-  --color-accent: #e6c14a;
-  --color-accent-content: #0a0a0b;
-  --color-neutral: #16161a;
-  --color-neutral-content: #f5f5f0;
-  --color-info: oklch(0.715 0.143 215.221);
-  --color-info-content: #0a0a0b;
+  --color-primary-content: #0a0a0a;
+  --color-secondary: #1a1a1a;
+  --color-secondary-content: #ededed;
+  --color-accent: #3b82f6;
+  --color-accent-content: #ffffff;
+  --color-neutral: #111111;
+  --color-neutral-content: #ededed;
+  --color-info: #3b82f6;
+  --color-info-content: #ffffff;
   --color-success: #22c55e;
-  --color-success-content: #0a0a0b;
-  --color-warning: oklch(0.769 0.188 70.08);
-  --color-warning-content: #0a0a0b;
+  --color-success-content: #0a0a0a;
+  --color-warning: #f59e0b;
+  --color-warning-content: #0a0a0a;
   --color-error: #ef4444;
-  --color-error-content: #f5f5f0;
+  --color-error-content: #ededed;
 
   --radius-selector: 0.25rem;
   --radius-field: 0.25rem;
@@ -50,55 +50,155 @@
   --noise: 0;
 }
 
+/* =====================================================================
+   DESIGN TOKEN SYSTEM (Phase 1 — REDESIGN.md)
+   Single source of truth for all visual tokens.
+   Inspired by GitHub / Vercel / Supabase dark-first aesthetic.
+   ===================================================================== */
+
 :root {
-  --radius: 0.45rem;
-  --card: #1a1a1a1a;
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(98.5% 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: #f5f5f0;
-  --border: oklch(0.92 0.004 286.32/10%);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.705 0.015 286.067);
-  --success: #22c55e;
-  --accent-hover: #e6c14a;
-  --fintech-gold: #ffd700;
-  --fintech-soft-gold: #c9a84c;
-  --fintech-bg: #1a1a1a;
-  --fintech-black: #000000;
-  --fintech-charcoal: #333333;
-  --fintech-glow: rgb(255 215 0 / 20%);
-  --kc-header-h: 4.5rem;
+  /* === SURFACES (dark-first) === */
+  --ds-bg: #0a0a0a;
+  --ds-surface: #111111;
+  --ds-surface-2: #1a1a1a;
+  --ds-surface-hover: #222222;
+  --ds-border: #262626;
+  --ds-border-strong: #333333;
+
+  /* === TEXT === */
+  --ds-text: #ededed;
+  --ds-text-muted: #888888;
+  --ds-text-faint: #444444;
+  --ds-text-inverse: #0a0a0a;
+
+  /* === ACCENT (Vercel-style blue — primary CTA, links, active states) === */
+  --ds-accent: #3b82f6;
+  --ds-accent-hover: #60a5fa;
+  --ds-accent-subtle: rgba(59, 130, 246, 0.1);
+
+  /* === BRAND (gold — logo, tier badges, brand identity) === */
+  --ds-brand: #d4af37;
+  --ds-brand-hover: #e6c14a;
+  --ds-brand-subtle: rgba(212, 175, 55, 0.1);
+
+  /* === SEMANTIC === */
+  --ds-success: #22c55e;
+  --ds-success-subtle: rgba(34, 197, 94, 0.1);
+  --ds-warning: #f59e0b;
+  --ds-warning-subtle: rgba(245, 158, 11, 0.1);
+  --ds-error: #ef4444;
+  --ds-error-subtle: rgba(239, 68, 68, 0.1);
+  --ds-info: #3b82f6;
+  --ds-info-subtle: rgba(59, 130, 246, 0.1);
+
+  /* === TYPE SCALE (compact — max --text-xl for dashboards) === */
+  --ds-text-xs: 0.75rem;
+  --ds-text-sm: 0.875rem;
+  --ds-text-base: 1rem;
+  --ds-text-lg: 1.125rem;
+  --ds-text-xl: 1.25rem;
+
+  /* === SPACING (4px base unit) === */
+  --ds-space-1: 0.25rem;
+  --ds-space-2: 0.5rem;
+  --ds-space-3: 0.75rem;
+  --ds-space-4: 1rem;
+  --ds-space-5: 1.25rem;
+  --ds-space-6: 1.5rem;
+  --ds-space-8: 2rem;
+  --ds-space-10: 2.5rem;
+  --ds-space-12: 3rem;
+  --ds-space-16: 4rem;
+
+  /* === RADIUS === */
+  --ds-radius-sm: 0.25rem;
+  --ds-radius-md: 0.375rem;
+  --ds-radius-lg: 0.5rem;
+  --ds-radius-xl: 0.75rem;
+
+  /* === SHADOWS === */
+  --ds-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --ds-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --ds-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --ds-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  /* === TRANSITIONS === */
+  --ds-transition-fast: 100ms cubic-bezier(0.16, 1, 0.3, 1);
+  --ds-transition-base: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --ds-transition-slow: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* === LAYOUT === */
+  --kc-header-h: 3.5rem;
+  --kc-sidebar-w: 15rem;
+  --kc-sidebar-collapsed-w: 3.5rem;
   --kc-max-w: 80rem;
   --kc-gutter: clamp(1rem, 4vw, 2.5rem);
-  --background: oklch(14.1% 0.005 285.823);
-  --foreground: oklch(98.5% 0 0);
-  --chart-1: oklch(0.871 0.006 286.286);
-  --chart-2: oklch(0.552 0.016 285.938);
-  --chart-3: oklch(0.442 0.017 285.786);
-  --chart-4: oklch(0.37 0.013 285.805);
-  --chart-5: oklch(0.274 0.006 286.033);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.705 0.015 286.067);
+
+  /* ===================================================================
+     BRIDGE: shadcn token names → design token system.
+     Existing components reference these names (bg-background, text-foreground,
+     bg-card, etc.). We map them to the new --ds-* tokens so everything
+     stays compatible while the new token system is the single source of truth.
+     =================================================================== */
+  --background: var(--ds-bg);
+  --foreground: var(--ds-text);
+  --card: var(--ds-surface);
+  --card-foreground: var(--ds-text);
+  --popover: var(--ds-surface-2);
+  --popover-foreground: var(--ds-text);
+  --primary: var(--ds-brand);
+  --primary-foreground: var(--ds-text-inverse);
+  --secondary: var(--ds-surface-2);
+  --secondary-foreground: var(--ds-text);
+  --muted: var(--ds-surface-2);
+  --muted-foreground: var(--ds-text-muted);
+  --accent: var(--ds-surface-2);
+  --accent-foreground: var(--ds-text);
+  --destructive: var(--ds-error);
+  --destructive-foreground: var(--ds-text);
+  --border: var(--ds-border);
+  --input: var(--ds-border);
+  --ring: var(--ds-accent);
+  --success: var(--ds-success);
+  --accent-hover: var(--ds-brand-hover);
+
+  /* Legacy fintech tokens — bridged for backward compat */
+  --fintech-gold: var(--ds-brand);
+  --fintech-soft-gold: #c9a84c;
+  --fintech-bg: var(--ds-surface-2);
+  --fintech-black: var(--ds-bg);
+  --fintech-charcoal: var(--ds-border-strong);
+  --fintech-glow: rgba(212, 175, 55, 0.2);
+
+  /* Charts */
+  --chart-1: var(--ds-text-muted);
+  --chart-2: var(--ds-text-faint);
+  --chart-3: var(--ds-border-strong);
+  --chart-4: var(--ds-border);
+  --chart-5: var(--ds-surface-hover);
+
+  /* Sidebar (admin scope will override) */
+  --sidebar: var(--ds-surface);
+  --sidebar-foreground: var(--ds-text);
+  --sidebar-primary: var(--ds-brand);
+  --sidebar-primary-foreground: var(--ds-text-inverse);
+  --sidebar-accent: var(--ds-surface-hover);
+  --sidebar-accent-foreground: var(--ds-text);
+  --sidebar-border: var(--ds-border);
+  --sidebar-ring: var(--ds-accent);
 }
 
+/* =====================================================================
+   TAILWIND THEME REGISTRATION
+   Exposes all design tokens as Tailwind utility classes.
+   e.g. --color-ds-surface → bg-ds-surface, text-ds-surface, etc.
+   ===================================================================== */
+
 @theme inline {
+  /* Breakpoints */
   --breakpoint-xs: 30rem;
+
+  /* --- shadcn bridge tokens (backward compat) --- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -118,6 +218,42 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  /* --- NEW: Design System surface tokens → bg-ds-bg, bg-ds-surface, etc. --- */
+  --color-ds-bg: var(--ds-bg);
+  --color-ds-surface: var(--ds-surface);
+  --color-ds-surface-2: var(--ds-surface-2);
+  --color-ds-surface-hover: var(--ds-surface-hover);
+  --color-ds-border: var(--ds-border);
+  --color-ds-border-strong: var(--ds-border-strong);
+
+  /* --- NEW: Design System text tokens → text-ds-text, text-ds-text-muted, etc. --- */
+  --color-ds-text: var(--ds-text);
+  --color-ds-text-muted: var(--ds-text-muted);
+  --color-ds-text-faint: var(--ds-text-faint);
+  --color-ds-text-inverse: var(--ds-text-inverse);
+
+  /* --- NEW: Design System accent tokens → bg-ds-accent, text-ds-accent, etc. --- */
+  --color-ds-accent: var(--ds-accent);
+  --color-ds-accent-hover: var(--ds-accent-hover);
+  --color-ds-accent-subtle: var(--ds-accent-subtle);
+
+  /* --- NEW: Design System brand tokens → bg-ds-brand, text-ds-brand, etc. --- */
+  --color-ds-brand: var(--ds-brand);
+  --color-ds-brand-hover: var(--ds-brand-hover);
+  --color-ds-brand-subtle: var(--ds-brand-subtle);
+
+  /* --- NEW: Design System semantic tokens --- */
+  --color-ds-success: var(--ds-success);
+  --color-ds-success-subtle: var(--ds-success-subtle);
+  --color-ds-warning: var(--ds-warning);
+  --color-ds-warning-subtle: var(--ds-warning-subtle);
+  --color-ds-error: var(--ds-error);
+  --color-ds-error-subtle: var(--ds-error-subtle);
+  --color-ds-info: var(--ds-info);
+  --color-ds-info-subtle: var(--ds-info-subtle);
+
+  /* --- Legacy aliases (existing component compat) --- */
   --color-bg: var(--background);
   --color-surface: var(--card);
   --color-surface-2: var(--popover);
@@ -131,31 +267,72 @@
   --color-fintech-bg: var(--fintech-bg);
   --color-fintech-black: var(--fintech-black);
   --color-fintech-charcoal: var(--fintech-charcoal);
+
+  /* --- Fonts --- */
   --font-sans: var(--font-sans);
   --font-display: var(--font-display), 'Arial', serif;
   --font-mono: var(--font-mono), 'JetBrains Mono', Consolas, monospace;
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
+
+  /* --- Radius (fixed values from design system, not computed) --- */
+  --radius-sm: var(--ds-radius-sm);
+  --radius-md: var(--ds-radius-md);
+  --radius-lg: var(--ds-radius-lg);
+  --radius-xl: var(--ds-radius-xl);
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.25rem;
+  --radius-4xl: 1.5rem;
+
+  /* --- Shadows (overrides Tailwind defaults for dark-first aesthetic) --- */
+  --shadow-sm: var(--ds-shadow-sm);
+  --shadow-md: var(--ds-shadow-md);
+  --shadow-lg: var(--ds-shadow-lg);
+
+  /* --- Sidebar --- */
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* --- Charts --- */
   --color-chart-1: var(--chart-1);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
 }
+
+/* =====================================================================
+   LIGHT MODE OVERRIDE
+   Activated via data-theme="light" on <html> or any ancestor.
+   Only surfaces, text, borders, and shadows change — accent stays blue.
+   ===================================================================== */
+
+[data-theme='light'] {
+  --ds-bg: #ffffff;
+  --ds-surface: #fafafa;
+  --ds-surface-2: #f4f4f5;
+  --ds-surface-hover: #f0f0f0;
+  --ds-border: #e4e4e7;
+  --ds-border-strong: #d1d1d6;
+  --ds-text: #09090b;
+  --ds-text-muted: #71717a;
+  --ds-text-faint: #a1a1aa;
+  --ds-text-inverse: #ffffff;
+  --ds-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --ds-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --ds-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+  --ds-shadow-inset: inset 0 1px 0 rgba(0, 0, 0, 0.04);
+  color-scheme: light;
+}
+
+/* =====================================================================
+   GLOBAL BASE STYLES
+   ===================================================================== */
 
 html,
 body {
@@ -174,7 +351,7 @@ body {
 }
 
 #main-content {
-  background: var(--fintech-black);
+  background: var(--ds-bg);
 }
 
 * {
@@ -183,9 +360,13 @@ body {
 }
 
 a {
-  color: white;
+  color: inherit;
   text-decoration: none;
 }
+
+/* =====================================================================
+   CUSTOM UTILITIES
+   ===================================================================== */
 
 @layer utilities {
   .kc-container {
@@ -201,9 +382,9 @@ a {
     background: linear-gradient(
       90deg,
       transparent 0%,
-      color-mix(in srgb, var(--primary) 35%, transparent) 30%,
-      var(--primary) 50%,
-      color-mix(in srgb, var(--primary) 35%, transparent) 70%,
+      color-mix(in srgb, var(--ds-brand) 35%, transparent) 30%,
+      var(--ds-brand) 50%,
+      color-mix(in srgb, var(--ds-brand) 35%, transparent) 70%,
       transparent 100%
     );
   }
@@ -211,8 +392,8 @@ a {
   .kc-fintech-footer {
     background:
       radial-gradient(circle at 12% 8%, var(--fintech-glow), transparent 24rem),
-      radial-gradient(circle at 88% 18%, rgb(201 168 76 / 14%), transparent 22rem),
-      linear-gradient(180deg, var(--fintech-bg) 0%, var(--fintech-black) 100%);
+      radial-gradient(circle at 88% 18%, rgba(201, 168, 76, 0.14), transparent 22rem),
+      linear-gradient(180deg, var(--ds-surface-2) 0%, var(--ds-bg) 100%);
   }
 
   .kc-fintech-grid {
@@ -228,7 +409,7 @@ a {
   }
 
   .kc-gold-glow {
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
   }
 
   .kc-fade-in {
@@ -248,7 +429,7 @@ a {
   }
 
   .kc-how-it-works-bg {
-    background-color: var(--fintech-black);
+    background-color: var(--ds-bg);
     background-image: repeating-linear-gradient(
       -38deg,
       transparent,
@@ -264,6 +445,10 @@ a {
   }
 }
 
+/* =====================================================================
+   KEYFRAMES
+   ===================================================================== */
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -278,62 +463,71 @@ a {
 @keyframes goldPulse {
   0%,
   100% {
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
   }
   50% {
-    box-shadow: 0 0 28px rgba(255, 215, 0, 0.38);
+    box-shadow: 0 0 28px rgba(212, 175, 55, 0.38);
   }
 }
 
+/* =====================================================================
+   ADMIN SCOPE
+   Admin pages apply the .admin class. Overrides surface, sidebar, and
+   scrollbar styles. Uses the same --ds-* token architecture.
+   ===================================================================== */
+
 .admin {
-  --background: #070707;
-  --foreground: #f5f5f2;
-  --card: #171717;
-  --card-foreground: oklch(0.987 0.002 197.1);
-  --popover: #1d1d1d;
-  --popover-foreground: oklch(0.987 0.002 197.1);
-  --primary: #d4af37;
-  --primary-foreground: #090909;
-  --secondary: #242424;
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: #242424;
-  --muted-foreground: #a3a3a3;
-  --accent: #242424;
-  --accent-foreground: oklch(0.987 0.002 197.1);
-  --destructive: #ef4444;
-  --border: rgb(255 255 255 / 10%);
-  --input: rgb(255 255 255 / 14%);
-  --ring: #8b8b8b;
+  /* Admin uses slightly darker surfaces for contrast */
+  --ds-bg: #070707;
+  --ds-surface: #111111;
+  --ds-surface-2: #1a1a1a;
+  --ds-surface-hover: #1f1f1f;
+  --ds-border: rgba(255, 255, 255, 0.1);
+  --ds-border-strong: rgba(255, 255, 255, 0.16);
+  --ds-text: #f5f5f2;
+  --ds-text-muted: #a3a3a3;
+  --ds-text-faint: #525252;
+
+  /* Admin sidebar overrides */
+  --sidebar: var(--ds-surface);
+  --sidebar-foreground: var(--ds-text);
+  --sidebar-primary: var(--ds-brand);
+  --sidebar-primary-foreground: var(--ds-text-inverse);
+  --sidebar-accent: var(--ds-surface-hover);
+  --sidebar-accent-foreground: var(--ds-text);
+  --sidebar-border: var(--ds-border);
+  --sidebar-ring: var(--ds-accent);
+
+  /* DaisyUI bridge for admin */
+  --color-base-100: var(--ds-bg);
+  --color-base-200: var(--ds-surface);
+  --color-base-300: var(--ds-surface-2);
+  --color-base-content: var(--ds-text);
+  --color-primary: var(--ds-brand);
+  --color-primary-content: var(--ds-text-inverse);
+  --color-secondary: var(--ds-surface-2);
+  --color-secondary-content: var(--ds-text);
+  --color-accent: var(--ds-accent);
+  --color-accent-content: #ffffff;
+  --color-neutral: var(--ds-surface);
+  --color-neutral-content: var(--ds-text);
+  --color-error: var(--ds-error);
+  --color-error-content: var(--ds-text);
+
+  /* Admin-specific: smaller radius */
+  --ds-radius-sm: 0.25rem;
+  --ds-radius-md: 0.375rem;
+  --ds-radius-lg: 0.375rem;
+
+  /* Chart colors for admin dashboards */
   --chart-1: oklch(0.865 0.127 207.078);
   --chart-2: oklch(0.715 0.143 215.221);
   --chart-3: oklch(0.609 0.126 221.723);
   --chart-4: oklch(0.52 0.105 223.128);
   --chart-5: oklch(0.45 0.085 224.283);
-  --radius: 0.375rem;
-  --sidebar: #171717;
-  --sidebar-foreground: oklch(0.987 0.002 197.1);
-  --sidebar-primary: #d4af37;
-  --sidebar-primary-foreground: #090909;
-  --sidebar-accent: #262626;
-  --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
-  --sidebar-border: rgb(255 255 255 / 10%);
-  --sidebar-ring: #8b8b8b;
-  --color-base-100: var(--background);
-  --color-base-200: var(--card);
-  --color-base-300: var(--popover);
-  --color-base-content: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-content: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-content: var(--secondary-foreground);
-  --color-accent: var(--ring);
-  --color-accent-content: var(--accent-foreground);
-  --color-neutral: var(--card);
-  --color-neutral-content: var(--foreground);
-  --color-error: var(--destructive);
-  --color-error-content: var(--destructive-foreground);
+
   scrollbar-width: thin;
-  scrollbar-color: rgb(255 255 255 / 10%) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
 .admin *::-webkit-scrollbar {
@@ -345,50 +539,59 @@ a {
 }
 
 .admin *::-webkit-scrollbar-thumb {
-  background: rgb(255 255 255 / 10%);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
 }
 
+/* =====================================================================
+   .dark SCOPE (shadcn compat — vestigial, kept for any components
+   that toggle .dark class directly)
+   ===================================================================== */
+
 .dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
-  --chart-1: oklch(0.871 0.006 286.286);
-  --chart-2: oklch(0.552 0.016 285.938);
-  --chart-3: oklch(0.442 0.017 285.786);
-  --chart-4: oklch(0.37 0.013 285.805);
-  --chart-5: oklch(0.274 0.006 286.033);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.552 0.016 285.938);
+  --background: var(--ds-bg);
+  --foreground: var(--ds-text);
+  --card: var(--ds-surface);
+  --card-foreground: var(--ds-text);
+  --popover: var(--ds-surface-2);
+  --popover-foreground: var(--ds-text);
+  --primary: var(--ds-brand);
+  --primary-foreground: var(--ds-text-inverse);
+  --secondary: var(--ds-surface-2);
+  --secondary-foreground: var(--ds-text);
+  --muted: var(--ds-surface-2);
+  --muted-foreground: var(--ds-text-muted);
+  --accent: var(--ds-surface-2);
+  --accent-foreground: var(--ds-text);
+  --destructive: var(--ds-error);
+  --border: var(--ds-border);
+  --input: var(--ds-border);
+  --ring: var(--ds-accent);
+  --chart-1: var(--ds-text-muted);
+  --chart-2: var(--ds-text-faint);
+  --chart-3: var(--ds-border-strong);
+  --chart-4: var(--ds-border);
+  --chart-5: var(--ds-surface-hover);
+  --sidebar: var(--ds-surface);
+  --sidebar-foreground: var(--ds-text);
+  --sidebar-primary: var(--ds-accent);
+  --sidebar-primary-foreground: var(--ds-text);
+  --sidebar-accent: var(--ds-surface-2);
+  --sidebar-accent-foreground: var(--ds-text);
+  --sidebar-border: var(--ds-border);
+  --sidebar-ring: var(--ds-accent);
 }
+
+/* =====================================================================
+   BASE LAYER
+   ===================================================================== */
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-white;
+    @apply bg-background text-foreground;
   }
   html {
     @apply font-sans;

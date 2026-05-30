@@ -4,6 +4,7 @@ import { QRCodeSVG } from 'qrcode.react';
 
 interface ClubCardProps {
   cardNumber: string;
+  discountLabel?: string | null;
   memberName: string;
   memberType: string;
   status: string;
@@ -13,7 +14,7 @@ interface ClubCardProps {
 const CARD_SHELL_CLASS =
   'relative w-full overflow-hidden rounded-md border border-border/50';
 
-export function ClubCard({ cardNumber, memberName, memberType, status, verifyUrl }: ClubCardProps) {
+export function ClubCard({ cardNumber, discountLabel, memberName, memberType, status, verifyUrl }: ClubCardProps) {
   return (
     <div className={CARD_SHELL_CLASS} role="region" aria-label="Club membership card">
       <div className="relative bg-black/60 p-6 sm:p-8">
@@ -55,6 +56,12 @@ export function ClubCard({ cardNumber, memberName, memberType, status, verifyUrl
             />
           </div>
         </div>
+
+        {discountLabel ? (
+          <div className="absolute bottom-0 left-0 bg-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-primary-foreground">
+            {discountLabel}
+          </div>
+        ) : null}
       </div>
     </div>
   );

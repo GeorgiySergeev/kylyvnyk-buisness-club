@@ -1,6 +1,6 @@
 import 'server-only';
 
-import type { SupportedLocale } from '@/components/layout/navigation';
+import { resolveLocale, type SupportedLocale } from '@/components/layout/navigation';
 
 import a11y from '../../../messages/en/a11y.json';
 import admin from '../../../messages/en/admin.json';
@@ -98,9 +98,10 @@ export type Key<N extends Namespace> = keyof Messages[N] & string;
 
 export function getT<N extends Namespace>(
   namespace: N,
-  locale: SupportedLocale = 'en',
+  locale?: string,
 ): (key: Key<N>) => string {
-  const scopedMessages = MESSAGES_BY_LOCALE[locale][namespace] as Messages[N];
+  const resolvedLocale = resolveLocale(locale);
+  const scopedMessages = MESSAGES_BY_LOCALE[resolvedLocale][namespace] as Messages[N];
 
   return (key) => scopedMessages[key] as string;
 }

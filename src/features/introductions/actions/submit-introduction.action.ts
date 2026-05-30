@@ -7,7 +7,8 @@ import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import { businesses, introductions } from '@/db/schema';
-import { guardBusiness, guardOnboarded } from '@/features/auth/lib/role-guards';
+import { guardOnboarded } from '@/features/auth/lib/role-guards';
+import { userHasActiveVipMembership } from '@/features/billing/lib/membership-lifecycle';
 import { createAuditLog } from '@/lib/audit';
 
 import { introductionRequestSchema } from '../schemas/introduction.schema';
@@ -26,8 +27,17 @@ export async function submitIntroductionAction(
   locale: SupportedLocale,
   rawInput: unknown,
 ): Promise<Result<{ introductionId: string }>> {
-  const user = await guardBusiness(locale);
-  await guardOnboarded(locale);
+  const user = await guardOnboarded(locale);
+
+  if (!(await userHasActiveVipMembership(user.id))) {
+    return {
+      error: {
+        code: 'FORBIDDEN',
+        message: 'VIP membership is required to submit a Business Introduction.',
+      },
+      ok: false,
+    };
+  }
 
   const parsed = introductionRequestSchema.safeParse(rawInput);
 
