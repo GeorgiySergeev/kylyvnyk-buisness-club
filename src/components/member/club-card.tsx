@@ -5,6 +5,7 @@ import { QRCodeSVG } from 'qrcode.react';
 interface ClubCardProps {
   cardNumber: string;
   memberName: string;
+  memberType: string;
   status: string;
   verifyUrl: string;
 }
@@ -12,13 +13,16 @@ interface ClubCardProps {
 const CARD_SHELL_CLASS =
   'relative w-full overflow-hidden rounded-md border border-border/50';
 
-export function ClubCard({ cardNumber, memberName, status, verifyUrl }: ClubCardProps) {
+export function ClubCard({ cardNumber, memberName, memberType, status, verifyUrl }: ClubCardProps) {
   return (
     <div className={CARD_SHELL_CLASS} role="region" aria-label="Club membership card">
       <div className="relative bg-black/60 p-6 sm:p-8">
         <div className="mb-6 flex items-center justify-between gap-4">
           <span className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-white">
             KYLYVNYK
+          </span>
+          <span className="inline-flex items-center border border-border/50 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-fg/45">
+            {memberType}
           </span>
           <span className="inline-flex items-center border border-border/50 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-fg/45">
             {status}

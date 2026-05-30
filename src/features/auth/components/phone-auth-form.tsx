@@ -34,11 +34,12 @@ interface PhoneAuthFormProps {
   devBypassEnabled: boolean;
   labels: PhoneAuthLabels;
   locale: SupportedLocale;
+  returnBackUrl?: string;
 }
 
 type Step = 'phone' | 'code';
 
-export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFormProps) {
+export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl }: PhoneAuthFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState<Step>('phone');
@@ -65,7 +66,12 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
   function requestCode(rawPhone = getFormValue('phone')) {
     setError(null);
     startTransition(async () => {
-      const result = await requestPhoneOtpAction(locale, { phone: rawPhone, captchaToken, displayName: displayName.trim() });
+      const result = await requestPhoneOtpAction(locale, {
+        phone: rawPhone,
+        captchaToken,
+        displayName: displayName.trim(),
+        returnBackUrl,
+      });
 
       if (!result.ok) {
         setError(result.error.message);
@@ -89,6 +95,7 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
         code: rawCode,
         phone,
         displayName: displayName.trim(),
+        returnBackUrl,
       });
 
       if (!result.ok) {
@@ -103,7 +110,11 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale }: PhoneAuthFor
   function devBypass(rawPhone = getFormValue('phone')) {
     setError(null);
     startTransition(async () => {
-      const result = await devBypassPhoneAuthAction(locale, { phone: rawPhone, displayName: displayName.trim() });
+      const result = await devBypassPhoneAuthAction(locale, {
+        phone: rawPhone,
+        displayName: displayName.trim(),
+        returnBackUrl,
+      });
 
       if (!result.ok) {
         setError(result.error.message);

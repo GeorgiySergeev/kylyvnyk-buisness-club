@@ -3,11 +3,11 @@
 import { cookies, headers } from 'next/headers';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
-import { localizeHref } from '@/components/layout/navigation';
 import { getAuthIdentity, isAuthDevPhoneBypassEnabled } from '@/features/auth/lib/auth-identity';
 import { createCardForUser } from '@/features/auth/lib/card';
 import { DEV_PHONE_AUTH_COOKIE, encodeDevPhoneAuthCookie } from '@/features/auth/lib/dev-auth';
 import { phoneOtpRequestSchema, phoneOtpVerifySchema } from '@/features/auth/lib/phone';
+import { resolvePostAuthRedirect } from '@/features/auth/lib/resolve-post-auth-redirect';
 import { syncAuthUser } from '@/features/auth/lib/sync-auth-user';
 import { verifyTurnstileToken } from '@/lib/captcha/turnstile';
 import { getT } from '@/lib/i18n/t-server';
@@ -95,10 +95,16 @@ export async function requestPhoneOtpAction(
       await createCardForUser(user.id, user.phone);
     }
 
+    const redirectTo = await resolvePostAuthRedirect(
+      locale,
+      user.id,
+      parsed.data.returnBackUrl,
+    );
+
     return {
       data: {
         devBypass: true,
-        redirectTo: localizeHref(locale, '/m/dashboard'),
+        redirectTo,
       },
       ok: true,
     };
@@ -185,9 +191,15 @@ export async function verifyPhoneOtpAction(
     await createCardForUser(user.id, user.phone);
   }
 
+  const redirectTo = await resolvePostAuthRedirect(
+    locale,
+    user.id,
+    parsed.data.returnBackUrl,
+  );
+
   return {
     data: {
-      redirectTo: localizeHref(locale, '/m/dashboard'),
+      redirectTo,
     },
     ok: true,
   };
@@ -232,9 +244,15 @@ export async function devBypassPhoneAuthAction(
     await createCardForUser(user.id, user.phone);
   }
 
+  const redirectTo = await resolvePostAuthRedirect(
+    locale,
+    user.id,
+    parsed.data.returnBackUrl,
+  );
+
   return {
     data: {
-      redirectTo: localizeHref(locale, '/m/dashboard'),
+      redirectTo,
     },
     ok: true,
   };

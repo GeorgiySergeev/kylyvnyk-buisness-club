@@ -11,10 +11,14 @@ interface SignInPageProps {
   params: Promise<{
     locale: SupportedLocale;
   }>;
+  searchParams: Promise<{
+    returnBackUrl?: string;
+  }>;
 }
 
-export default async function SignInPage({ params }: SignInPageProps) {
+export default async function SignInPage({ params, searchParams }: SignInPageProps) {
   const { locale } = await params;
+  const { returnBackUrl } = await searchParams;
   const tAuth = getT('auth', locale);
 
   return (
@@ -32,6 +36,7 @@ export default async function SignInPage({ params }: SignInPageProps) {
         <div className="relative flex flex-col items-center gap-8 px-6 py-10 sm:px-8 sm:py-12 md:py-16">
           <PhoneAuthForm
             devBypassEnabled={isAuthDevPhoneBypassEnabled()}
+            returnBackUrl={returnBackUrl}
             labels={{
               code: tAuth('phoneAuthCodeLabel'),
               codeHelp: tAuth('phoneAuthCodeHelp'),

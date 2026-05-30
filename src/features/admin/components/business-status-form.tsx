@@ -29,25 +29,28 @@ export function BusinessStatusForm({ businessId, currentStatus }: BusinessStatus
     });
   }
 
-  const statuses = ['DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN'] as const;
+  const statuses = ['DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN', 'DECLINED'] as const;
 
   return (
     <div className="space-y-3">
       <Label>Status</Label>
       <div className="flex flex-wrap gap-2">
-        {statuses.map((status) => (
-          <Button
-            key={status}
-            type="button"
-            variant={currentStatus === status ? 'default' : 'outline'}
-            size="sm"
-            disabled={pending || currentStatus === status}
-            onClick={() => changeStatus(status)}
-            className="h-8 rounded-md"
-          >
-            <AdminStatusBadge>{status}</AdminStatusBadge>
-          </Button>
-        ))}
+        {statuses.map((status) => {
+          const isDestructive = status === 'DECLINED';
+          return (
+            <Button
+              key={status}
+              type="button"
+              variant={currentStatus === status ? (isDestructive ? 'destructive' : 'default') : 'outline'}
+              size="sm"
+              disabled={pending || currentStatus === status}
+              onClick={() => changeStatus(status)}
+              className="h-8 rounded-md"
+            >
+              <AdminStatusBadge>{status}</AdminStatusBadge>
+            </Button>
+          );
+        })}
       </div>
 
       {pending ? (

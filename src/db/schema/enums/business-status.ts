@@ -5,6 +5,7 @@ export const businessStatusEnum = pgEnum("business_status", [
   "PENDING",
   "PUBLISHED",
   "HIDDEN",
+  "DECLINED",
 ]);
 
 export type BusinessStatus = (typeof businessStatusEnum.enumValues)[number];

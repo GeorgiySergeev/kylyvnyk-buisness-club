@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 
 import { localizeHref, SUPPORTED_LOCALES } from '@/components/layout/navigation';
 import { db } from '@/db/client';
-import { businesses } from '@/db/schema';
+import { businesses, clubCards } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { createAuditLog } from '@/lib/audit';
 
@@ -40,9 +40,16 @@ export async function updateBusinessStatusAction(
     .update(businesses)
     .set({ status: parsed.data.status, updatedAt: new Date() })
     .where(eq(businesses.id, parsed.data.businessId))
-    .returning({ id: businesses.id, status: businesses.status });
+    .returning({ id: businesses.id, status: businesses.status, userId: businesses.userId });
 
   if (!updated) return { error: 'Business not found.', ok: false };
+
+  if (parsed.data.status === 'PUBLISHED') {
+    await db
+      .update(clubCards)
+      .set({ memberType: 'BUSINESS', updatedAt: new Date() })
+      .where(eq(clubCards.userId, updated.userId));
+  }
 
   await createAuditLog({
     action: 'ADMIN_BUSINESS_STATUS_UPDATED',
