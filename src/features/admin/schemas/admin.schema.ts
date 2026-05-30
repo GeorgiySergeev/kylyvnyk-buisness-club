@@ -43,7 +43,7 @@ export const restoreUserSchema = z.object({
   userId: z.string().uuid(),
 });
 
-export const businessStatusEnumSchema = z.enum(['DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN']);
+export const businessStatusEnumSchema = z.enum(['DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN', 'DECLINED']);
 
 export const updateBusinessStatusSchema = z.object({
   businessId: z.string().uuid(),

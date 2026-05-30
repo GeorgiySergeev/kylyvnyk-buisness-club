@@ -8,10 +8,10 @@ import { profiles } from '@/db/schema';
 export async function isOnboardingComplete(userId: string) {
   const profile = await db.query.profiles.findFirst({
     columns: {
-      id: true,
+      countryId: true,
     },
     where: eq(profiles.userId, userId),
   });
 
-  return Boolean(profile);
+  return profile?.countryId != null;
 }

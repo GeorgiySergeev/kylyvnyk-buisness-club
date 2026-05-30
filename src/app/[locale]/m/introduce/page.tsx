@@ -1,10 +1,13 @@
 import { and, asc, desc, eq, isNull } from 'drizzle-orm';
+import { redirect } from 'next/navigation';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
+import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
 import { db } from '@/db/client';
 import { businesses, cities, countries, introductions } from '@/db/schema';
-import { guardBusiness, guardOnboarded } from '@/features/auth/lib/role-guards';
+import { guardOnboarded } from '@/features/auth/lib/role-guards';
+import { userHasActiveVipMembership } from '@/features/billing/lib/membership-lifecycle';
 import { IntroductionForm } from '@/features/introductions/components/introduction-form';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -18,8 +21,11 @@ interface IntroducePageProps {
 
 export default async function IntroducePage({ params }: IntroducePageProps) {
   const { locale } = await params;
-  const user = await guardBusiness(locale);
-  await guardOnboarded(locale);
+  const user = await guardOnboarded(locale);
+
+  if (!(await userHasActiveVipMembership(user.id))) {
+    redirect(localizeHref(locale, '/m/dashboard'));
+  }
   const t = getT('introductions', locale);
 
   type PublishedBusinessRow = {

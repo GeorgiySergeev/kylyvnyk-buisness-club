@@ -7,10 +7,15 @@ const optionalIdSchema = z.coerce
   .optional()
   .or(z.literal('').transform(() => undefined));
 
+const requiredCountryIdSchema = z.coerce
+  .number()
+  .int()
+  .positive('Country is required.');
+
 export const onboardingSchema = z.object({
   bio: z.string().trim().max(500).optional(),
   cityId: optionalIdSchema,
-  countryId: optionalIdSchema,
+  countryId: requiredCountryIdSchema,
 });
 
 export type OnboardingFormInput = z.input<typeof onboardingSchema>;

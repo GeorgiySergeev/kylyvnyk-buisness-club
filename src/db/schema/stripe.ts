@@ -2,6 +2,22 @@ import { boolean, index, pgTable, text, timestamp, uniqueIndex, uuid } from "dri
 
 import { users } from "./user";
 
+export const stripeEvents = pgTable(
+  "stripe_events",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    eventId: text("event_id").notNull(),
+    type: text("type").notNull(),
+    succeeded: boolean("succeeded").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    processedAt: timestamp("processed_at", { withTimezone: true }),
+  },
+  (t) => ({
+    eventIdUx: uniqueIndex("stripe_events_event_id_ux").on(t.eventId),
+    typeIdx: index("stripe_events_type_idx").on(t.type),
+  }),
+);
+
 export const stripeLinks = pgTable(
   "stripe_links",
   {
@@ -25,6 +41,9 @@ export const stripeSubscriptions = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     stripeSubscriptionId: text("stripe_subscription_id").notNull(),
+    stripeCustomerId: text("stripe_customer_id"),
+    stripePriceId: text("stripe_price_id"),
+    planCode: text("plan_code"),
     userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
     status: text("status").notNull(),
     currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
