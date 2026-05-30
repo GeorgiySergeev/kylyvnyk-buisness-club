@@ -218,6 +218,19 @@ form submissions.
 
 ### Observability — Sentry (ADR-009)
 
+Runtime wiring lives in `sentry.client.config.ts`, `sentry.server.config.ts`,
+`sentry.edge.config.ts`, and `src/instrumentation.ts`. Error boundaries
+(`src/app/global-error.tsx`, `src/app/[locale]/error.tsx`) call
+`Sentry.captureException` on the client.
+
+Sentry is **enabled** only when:
+
+- `NEXT_PUBLIC_SENTRY_DSN` is set and is not a placeholder (`REPLACE_ME`, `example@`), and
+- `NODE_ENV=production` **or** `VERCEL_ENV=preview`.
+
+Local development and CI placeholder DSNs skip remote capture; errors still
+render through the error boundary UI.
+
 #### `NEXT_PUBLIC_SENTRY_DSN`
 
 public · required · — · Sentry → Project → Settings → Client Keys (DSN) ·
