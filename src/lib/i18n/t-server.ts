@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { resolveLocale, type SupportedLocale } from '@/components/layout/navigation';
+import { resolveLocale } from '@/components/layout/navigation';
 
 import a11y from '../../../messages/en/a11y.json';
 import admin from '../../../messages/en/admin.json';

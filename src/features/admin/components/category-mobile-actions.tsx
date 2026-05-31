@@ -1,6 +1,6 @@
 'use client';
 
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import type { AdminCategoryRow } from '@/features/admin/lib/categories-list';

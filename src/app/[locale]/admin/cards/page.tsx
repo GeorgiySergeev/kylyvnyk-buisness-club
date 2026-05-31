@@ -25,8 +25,9 @@ import {
 import {
   AdminTableActionsCell,
   AdminTableActionsHead,
-  AdminTableNavigateAction,
 } from '@/features/admin/components/admin-table-actions';
+import { Eye } from 'lucide-react';
+import { AdminRowActions } from '@/features/admin/components/admin-row-actions';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -199,9 +200,11 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
                         {card.createdAt.toLocaleDateString()}
                       </TableCell>
                       <AdminTableActionsCell>
-                        <AdminTableNavigateAction
-                          href={localizeHref(locale, `/admin/cards/${card.id}`)}
-                          label={t('view')}
+                        <AdminRowActions
+                          actionLabel={t('actions')}
+                          actions={[
+                            { label: t('view'), href: localizeHref(locale, `/admin/cards/${card.id}`), icon: <Eye className="size-4" /> },
+                          ]}
                         />
                       </AdminTableActionsCell>
                     </TableRow>

@@ -25,9 +25,9 @@ import {
 import {
   AdminTableActionsCell,
   AdminTableActionsHead,
-  AdminTableNavigateAction,
 } from '@/features/admin/components/admin-table-actions';
 import { BusinessFeatureToggle } from '@/features/admin/components/business-feature-toggle';
+import { BusinessRowActions } from '@/features/admin/components/business-row-actions';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -230,9 +230,10 @@ export default async function AdminBusinessesPage({
                         {business.createdAt.toLocaleDateString()}
                       </TableCell>
                       <AdminTableActionsCell>
-                        <AdminTableNavigateAction
-                          href={localizeHref(locale, `/admin/businesses/${business.id}`)}
-                          label={t('view')}
+                        <BusinessRowActions
+                          actionLabel={t('actions')}
+                          viewHref={localizeHref(locale, `/admin/businesses/${business.id}`)}
+                          viewLabel={t('view')}
                         />
                       </AdminTableActionsCell>
                     </TableRow>

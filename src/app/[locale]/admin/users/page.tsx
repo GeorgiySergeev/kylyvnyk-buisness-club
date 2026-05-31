@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -34,8 +34,8 @@ import {
 import {
   AdminTableActionsCell,
   AdminTableActionsHead,
-  AdminTableNavigateAction,
 } from '@/features/admin/components/admin-table-actions';
+import { UserRowActions } from '@/features/admin/components/user-row-actions';
 import { UsersFilters } from '@/features/admin/components/users-filters';
 import { UsersPageActions } from '@/features/admin/components/users-page-actions';
 import { fetchAdminUsers, filterAdminUsers } from '@/features/admin/lib/users-list';
@@ -56,13 +56,15 @@ interface AdminUsersPageProps {
 
 const PAGE_SIZE = 10;
 
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+function formatDate(d: Date): string {
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
+}
+
+function avatarUrl(name: string): string {
+  return `https://avatar.vercel.sh/${encodeURIComponent(name)}`;
 }
 
 export default async function AdminUsersPage({ params, searchParams }: AdminUsersPageProps) {
@@ -137,30 +139,27 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
                 title={
                   <span className="flex items-center gap-2">
                     <Avatar className="size-6">
+                      <AvatarImage src={avatarUrl(user.displayName ?? user.phone)} />
                       <AvatarFallback className="rounded-full bg-muted text-[10px] text-muted-foreground">
-                        {getInitials(user.displayName ?? user.phone)}
+                        {user.displayName?.charAt(0) ?? user.phone.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
-                    {user.displayName ?? '—'}
+                    {user.displayName ?? t('notDefined')}
                   </span>
                 }
                 subtitle={user.phone}
                 badge={
                   <div className="flex gap-1">
-                    <AdminStatusBadge>{user.memberships?.find((m) => m.status === 'ACTIVE')?.planCode ?? '—'}</AdminStatusBadge>
+                    <AdminStatusBadge>{user.memberships?.find((m) => m.status === 'ACTIVE')?.planCode ?? t('notDefined')}</AdminStatusBadge>
                     <AdminStatusBadge>{user.status}</AdminStatusBadge>
                   </div>
                 }
                 href={localizeHref(locale, `/admin/users/${user.id}`)}
                 rows={[
-                  { label: t('email'), value: user.email ?? '—' },
+                  { label: t('country'), value: user.country ?? t('notDefined') },
                   {
                     label: t('joined'),
-                    value: user.createdAt.toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: '2-digit',
-                      year: 'numeric',
-                    }),
+                    value: formatDate(user.createdAt),
                   },
                 ]}
               />
@@ -172,52 +171,53 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
             <AdminDataTableShell>
               <Table>
                 <TableHeader>
-                  <TableRow className="border-0 bg-card">
+                  <TableRow>
                     <TableHead className="w-10 pl-4">
                       <Checkbox />
                     </TableHead>
-                    <TableHead className="text-muted-foreground">{t('user')}</TableHead>
-                    <TableHead className="text-muted-foreground">{t('email')}</TableHead>
-                    <TableHead className="text-muted-foreground">{t('membership')}</TableHead>
-                    <TableHead className="text-muted-foreground">{t('status')}</TableHead>
-                    <TableHead className="text-muted-foreground">{t('joined')}</TableHead>
+                    <TableHead>{t('user')}</TableHead>
+                    <TableHead>{t('membership')}</TableHead>
+                    <TableHead>{t('status')}</TableHead>
+                    <TableHead>{t('country')}</TableHead>
+                    <TableHead>{t('joined')}</TableHead>
                     <AdminTableActionsHead label={t('actions')} />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {pageUsers.map((user) => (
-                    <TableRow key={user.id} className="border-border">
+                    <TableRow key={user.id}>
                       <TableCell className="pl-4">
                         <Checkbox />
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Avatar className="size-8">
+                            <AvatarImage src={avatarUrl(user.displayName ?? user.phone)} />
                             <AvatarFallback className="rounded-full bg-muted text-xs text-muted-foreground">
-                              {getInitials(user.displayName ?? user.phone)}
+                              {user.displayName?.charAt(0) ?? user.phone.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="font-medium text-foreground">{user.displayName ?? '—'}</span>
+                          <span className="font-medium text-foreground">{user.displayName ?? t('notDefined')}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{user.email ?? '—'}</TableCell>
                       <TableCell>
-                        <AdminStatusBadge>{user.memberships?.find((m) => m.status === 'ACTIVE')?.planCode ?? '—'}</AdminStatusBadge>
+                        <AdminStatusBadge>{user.memberships?.find((m) => m.status === 'ACTIVE')?.planCode ?? t('notDefined')}</AdminStatusBadge>
                       </TableCell>
                       <TableCell>
                         <AdminStatusBadge>{user.status}</AdminStatusBadge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {user.createdAt.toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: '2-digit',
-                          year: 'numeric',
-                        })}
+                      <TableCell className="text-ds-text-muted">{user.country ?? t('notDefined')}</TableCell>
+                      <TableCell className="text-ds-text-muted">
+                        {formatDate(user.createdAt)}
                       </TableCell>
                       <AdminTableActionsCell>
-                        <AdminTableNavigateAction
-                          href={localizeHref(locale, `/admin/users/${user.id}`)}
-                          label={t('view')}
+                        <UserRowActions
+                          actionLabel={t('actions')}
+                          deleteLabel={t('block')}
+                          editLabel={t('edit')}
+                          userId={user.id}
+                          viewHref={localizeHref(locale, `/admin/users/${user.id}`)}
+                          viewLabel={t('view')}
                         />
                       </AdminTableActionsCell>
                     </TableRow>

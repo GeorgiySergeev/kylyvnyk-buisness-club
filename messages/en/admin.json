@@ -208,6 +208,7 @@
   "users": "Users",
   "edit": "Edit",
   "navRoles": "Roles & Permissions",
+  "notDefined": "Not defined",
   "rolesTitle": "Roles",
   "rolesDescription": "Manage roles and access permissions",
   "createRole": "Create Role",

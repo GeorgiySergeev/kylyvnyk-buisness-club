@@ -24,8 +24,8 @@ import {
 import {
   AdminTableActionsCell,
   AdminTableActionsHead,
-  AdminTableNavigateAction,
 } from '@/features/admin/components/admin-table-actions';
+import { RoleRowActions } from '@/features/admin/components/role-row-actions';
 import { canCreateResource, getCurrentUserPermissions } from '@/lib/auth/permissions';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -141,9 +141,14 @@ export default async function AdminRolesPage({ params }: RolesPageProps) {
                         {userCountByRole.get(role.id) ?? 0}
                       </TableCell>
                       <AdminTableActionsCell>
-                        <AdminTableNavigateAction
-                          href={localizeHref(locale, `/admin/roles/${role.id}`)}
-                          label={t('view')}
+                        <RoleRowActions
+                          actionLabel={t('actions')}
+                          deleteLabel={t('delete')}
+                          editLabel={t('edit')}
+                          roleId={role.id}
+                          isSystem={role.isSystem}
+                          viewHref={localizeHref(locale, `/admin/roles/${role.id}`)}
+                          viewLabel={t('view')}
                         />
                       </AdminTableActionsCell>
                     </TableRow>

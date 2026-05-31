@@ -160,7 +160,7 @@ export function AdminSearchInput({
 
 export function AdminDataTableShell({ children }: { children: ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-ds-radius-md border border-ds-border bg-ds-surface">{children}</div>
+    <div className="overflow-hidden rounded-ds-radius-lg border border-ds-border bg-ds-surface shadow-ds-shadow-sm">{children}</div>
   );
 }
 
@@ -193,7 +193,7 @@ export function AdminMobileCard({
   title: ReactNode;
 }) {
   const inner = (
-    <div className="rounded-ds-radius-lg border border-ds-border bg-ds-surface p-ds-space-3">
+    <div className="rounded-ds-radius-lg border border-ds-border bg-ds-surface p-ds-space-3 shadow-ds-shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
