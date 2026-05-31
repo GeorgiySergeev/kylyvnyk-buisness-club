@@ -56,6 +56,10 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          # Job sets NODE_ENV=production, but pnpm skips devDependencies in that
+          # mode — lint/typecheck need @types/*, eslint, etc.
+          NODE_ENV: development
 
       - name: Lint
         run: pnpm lint
