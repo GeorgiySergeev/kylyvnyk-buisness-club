@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
-import { localizeHref } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {

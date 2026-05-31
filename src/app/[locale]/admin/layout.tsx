@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import { Geist, Geist_Mono } from 'next/font/google';
+
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { AdminHeader, type AdminShellLabels } from '@/features/admin/components/admin-header';
 import { AdminMobileNav } from '@/features/admin/components/admin-mobile-nav';
@@ -12,6 +14,16 @@ import { AdminSidebarInner } from '@/features/admin/components/admin-sidebar';
 import { guardAdmin } from '@/features/auth/lib/role-guards';
 import { isSuperAdmin } from '@/lib/auth/permissions';
 import { getT } from '@/lib/i18n/t-server';
+
+const geistSans = Geist({
+  subsets: ['latin'],
+  variable: '--font-geist-sans',
+});
+
+const geistMono = Geist_Mono({
+  subsets: ['latin'],
+  variable: '--font-geist-mono',
+});
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -58,7 +70,7 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
   };
 
   return (
-    <div className="admin flex h-dvh overflow-hidden bg-background text-foreground">
+    <div className={["admin flex h-dvh overflow-hidden bg-background text-foreground", geistSans.variable, geistMono.variable].join(' ')}>
       <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
         <AdminSidebarInner
           locale={supportedLocale}

@@ -25,8 +25,8 @@ import {
 import {
   AdminTableActionsCell,
   AdminTableActionsHead,
-  AdminTableNavigateAction,
 } from '@/features/admin/components/admin-table-actions';
+import { IntroductionRowActions } from '@/features/admin/components/introduction-row-actions';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -301,9 +301,10 @@ export default async function AdminIntroductionsPage({
                         ) : null}
                       </TableCell>
                       <AdminTableActionsCell>
-                        <AdminTableNavigateAction
-                          href={localizeHref(locale, `/admin/introductions/${row.id}`)}
-                          label={t('view')}
+                        <IntroductionRowActions
+                          actionLabel={t('actions')}
+                          viewHref={localizeHref(locale, `/admin/introductions/${row.id}`)}
+                          viewLabel={t('view')}
                         />
                       </AdminTableActionsCell>
                     </TableRow>

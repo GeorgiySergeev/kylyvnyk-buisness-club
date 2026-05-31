@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 
 /** Shared layout for the trailing actions column in admin data tables. */
 export const adminTableActionsHeadClassName =
-  'w-[4.5rem] pr-4 text-right text-muted-foreground';
+  'w-10 pr-4 text-right';
 
 export const adminTableActionsCellClassName = 'pr-4 text-right';
 

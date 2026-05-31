@@ -14,6 +14,7 @@ export type AdminUserListItem = {
   phone: string;
   role: string;
   status: string;
+  country: string | null;
 };
 
 export interface UsersListFilters {
@@ -23,7 +24,7 @@ export interface UsersListFilters {
 }
 
 export async function fetchAdminUsers(): Promise<AdminUserListItem[]> {
-  return db.query.users.findMany({
+  const rows = await db.query.users.findMany({
     columns: {
       createdAt: true,
       displayName: true,
@@ -42,7 +43,25 @@ export async function fetchAdminUsers(): Promise<AdminUserListItem[]> {
           status: true,
         },
       },
+      profile: {
+        columns: {},
+        with: {
+          country: {
+            columns: {
+              name: true,
+            },
+          },
+        },
+      },
     },
+  });
+
+  return rows.map((row) => {
+    const { profile, ...rest } = row;
+    return {
+      ...rest,
+      country: profile?.country?.name ?? null,
+    };
   });
 }
 
@@ -92,7 +111,7 @@ function formatMembership(user: AdminUserListItem): string {
 }
 
 export function usersToCsv(rows: AdminUserListItem[]): string {
-  const header = ['ID', 'Display Name', 'Phone', 'Email', 'Role', 'Status', 'Membership', 'Joined'];
+  const header = ['ID', 'Display Name', 'Phone', 'Email', 'Role', 'Status', 'Membership', 'Country', 'Joined'];
   const lines = [
     header.join(','),
     ...rows.map((user) =>
@@ -104,6 +123,7 @@ export function usersToCsv(rows: AdminUserListItem[]): string {
         user.role,
         user.status,
         formatMembership(user),
+        user.country ?? '',
         user.createdAt.toISOString(),
       ]
         .map((value) => escapeCsvField(value))
