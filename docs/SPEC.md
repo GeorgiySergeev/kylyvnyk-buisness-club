@@ -83,11 +83,15 @@ Legend: **Public** = no sign-in; **Auth** = signed-in member; **VIP** = active V
 
 ### Member area (`/m/*`)
 
-| Page                  | Route                      | Access    | Notes                                                                                                              |
-| --------------------- | -------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------ |
-| Dashboard             | `/{locale}/m/dashboard`    | Auth      | Sections per role: digital card, catalog links, offers, profile, VIP upgrade/cancel, business status, subscription |
-| Business Introduction | `/{locale}/m/introduce`    | VIP + BUS | Submit introduction requests; admin-mediated workflow                                                              |
-| Admin 2FA required    | `/{locale}/m/2fa-required` | ADMIN     | Shown when admin has no verified second factor                                                                     |
+| Page                  | Route                         | Access    | Notes                                                                                                              |
+| --------------------- | ----------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------ |
+| Dashboard             | `/{locale}/m/dashboard`       | Auth      | Sections per role: digital card, catalog links, offers, profile, VIP upgrade/cancel, business status, subscription |
+| Business Introduction | `/{locale}/m/introduce`       | VIP + BUS | Submit introduction requests; admin-mediated workflow                                                              |
+| Admin 2FA required    | `/{locale}/m/2fa-required`    | ADMIN     | Shown when admin has no verified second factor; `robots: noindex`                                                  |
+| Card (alias)          | `/{locale}/m/card`            | Auth      | Redirect → `/m/dashboard?tab=profile` (routes-map alias, not a distinct page)                                      |
+| Profile (alias)       | `/{locale}/m/profile`         | Auth      | Redirect → `/m/dashboard?tab=profile` (routes-map alias, not a distinct page)                                      |
+| Subscription (alias)  | `/{locale}/m/subscription`    | Auth      | Redirect → `/m/dashboard?tab=features` (routes-map alias, not a distinct page)                                     |
+| My Business (alias)   | `/{locale}/m/my-business`     | Auth      | Redirect → `/m/dashboard?tab=features` (routes-map alias, not a distinct page)                                     |
 
 **Dashboard sections (same route, role-gated UI):**
 
@@ -103,12 +107,14 @@ Legend: **Public** = no sign-in; **Auth** = signed-in member; **VIP** = active V
 
 ### Billing (Stripe)
 
-| Flow                        | Route / surface                 | Access    | Notes                                                |
-| --------------------------- | ------------------------------- | --------- | ---------------------------------------------------- |
-| VIP checkout                | Stripe Payment Link (external)  | Auth      | Started from dashboard CTA                           |
-| Business placement checkout | Stripe Payment Link (external)  | VIP       | After club verification workflow                     |
-| Cancel VIP                  | `/{locale}/m/dashboard`         | VIP       | In-account cancellation; VIP active until period end |
-| Receipts / invoices         | Stripe Customer Portal or email | VIP / BUS | No custom invoice UI required in MVP                 |
+| Flow                        | Route / surface                          | Access    | Notes                                                                  |
+| --------------------------- | ---------------------------------------- | --------- | ---------------------------------------------------------------------- |
+| VIP checkout                | Stripe Payment Link (external)           | Auth      | Started from dashboard CTA                                             |
+| Business placement checkout | Stripe Payment Link (external)           | VIP       | After club verification workflow                                       |
+| Checkout success redirect   | `/{locale}/m/checkout/success`           | Auth      | Stripe `success_url` target; `robots: noindex`; redirects to dashboard |
+| Checkout cancel redirect    | `/{locale}/m/checkout/cancel`            | Auth      | Stripe `cancel_url` target; `robots: noindex`; redirects to dashboard  |
+| Cancel VIP                  | `/{locale}/m/dashboard`                  | VIP       | In-account cancellation; VIP active until period end                   |
+| Receipts / invoices         | Stripe Customer Portal or email          | VIP / BUS | No custom invoice UI required in MVP                                   |
 
 ### Legal (public)
 
@@ -128,18 +134,27 @@ See also **LEGAL PAGES** below for mandatory copy topics.
 
 ### Admin (`/admin/*`)
 
-| Page                   | Route                           | Access      | Notes                                    |
-| ---------------------- | ------------------------------- | ----------- | ---------------------------------------- |
-| Dashboard              | `/{locale}/admin`               | ADMIN + 2FA | Counts: users, businesses, pending queue |
-| Users                  | `/{locale}/admin/users`         | ADMIN + 2FA | Search, roles, block                     |
-| Businesses             | `/{locale}/admin/businesses`    | ADMIN + 2FA | Approve, reject, hide; status workflow   |
-| Business Introductions | `/{locale}/admin/introductions` | ADMIN + 2FA | Approve, reject, admin notes             |
-| Club cards             | `/{locale}/admin/cards`         | ADMIN + 2FA | Issue / revoke                           |
-| Categories             | `/{locale}/admin/categories`    | ADMIN + 2FA | CRUD                                     |
-| Countries              | `/{locale}/admin/countries`     | ADMIN + 2FA | Reference data for filters               |
-| Stripe links           | `/{locale}/admin/stripe-links`  | ADMIN + 2FA | Manage Payment Links                     |
-| Subscriptions          | `/{locale}/admin/subscriptions` | ADMIN + 2FA | Read-only sync with Stripe               |
-| Audit log              | `/{locale}/admin/audit`         | ADMIN + 2FA | Read-only                                |
+| Page                   | Route                           | Access            | Notes                                    |
+| ---------------------- | ------------------------------- | ----------------- | ---------------------------------------- |
+| Dashboard              | `/{locale}/admin`               | ADMIN + 2FA       | Counts: users, businesses, pending queue |
+| Users                  | `/{locale}/admin/users`         | ADMIN + 2FA       | Search, roles, block                     |
+| Businesses             | `/{locale}/admin/businesses`    | ADMIN + 2FA       | Approve, reject, hide; status workflow   |
+| Business Introductions | `/{locale}/admin/introductions` | ADMIN + 2FA       | Approve, reject, admin notes             |
+| Club cards             | `/{locale}/admin/cards`         | ADMIN + 2FA       | Issue / revoke                           |
+| Categories             | `/{locale}/admin/categories`    | ADMIN + 2FA       | CRUD                                     |
+| Countries              | `/{locale}/admin/countries`     | ADMIN + 2FA       | Reference data for filters               |
+| Stripe links           | `/{locale}/admin/stripe-links`  | ADMIN + 2FA       | Manage Payment Links                     |
+| Subscriptions          | `/{locale}/admin/subscriptions` | ADMIN + 2FA       | Read-only sync with Stripe               |
+| Audit log              | `/{locale}/admin/audit`         | ADMIN + 2FA       | Read-only                                |
+
+#### Admin Extended Routes (not in core SPEC, implemented as operational tools)
+
+| Page               | Route                        | Access            | Notes                                                    |
+| ------------------ | ---------------------------- | ----------------- | -------------------------------------------------------- |
+| Catalog            | `/{locale}/admin/catalog`    | ADMIN + 2FA       | Partner catalog management (mirrors `/directory` admin)  |
+| Cities             | `/{locale}/admin/cities`     | ADMIN + 2FA       | Reference data — cities (companion to countries)         |
+| Memberships        | `/{locale}/admin/memberships`| ADMIN + 2FA       | Membership plan management                               |
+| Roles              | `/{locale}/admin/roles`      | SuperAdmin + 2FA  | RBAC roles and permissions; visible only to SuperAdmin   |
 
 ### System (non-marketing)
 

@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
@@ -8,6 +9,18 @@ import { AuthPageHeader } from '@/features/auth/components/auth-page-header';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
+
+/**
+ * Prevent search engines from indexing this gate page.
+ * It contains no user-facing content — it is a redirect target for admins
+ * who have not yet completed MFA setup.
+ */
+export const metadata: Metadata = {
+  robots: {
+    follow: false,
+    index: false,
+  },
+};
 
 interface TwoFactorRequiredPageProps {
   params: Promise<{

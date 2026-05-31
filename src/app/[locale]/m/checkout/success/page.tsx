@@ -1,10 +1,22 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
 import { DashboardPageHeader } from '@/components/member/dashboard-ui';
 import { getT } from '@/lib/i18n/t-server';
+
+/**
+ * Stripe post-checkout success landing.
+ * Not a regular page — noindex to avoid being surfaced in search results.
+ */
+export const metadata: Metadata = {
+  robots: {
+    follow: false,
+    index: false,
+  },
+};
 
 interface CheckoutSuccessPageProps {
   params: Promise<{
