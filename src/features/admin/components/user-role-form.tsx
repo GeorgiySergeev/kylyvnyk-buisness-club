@@ -2,10 +2,11 @@
 
 import { Check, Loader2, ShieldOff } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
 import { cn } from '@/lib/utils';
 
 import {
@@ -59,6 +60,8 @@ const statusColorMap = {
   },
 } as const;
 
+type LoadingSection = 'membership' | 'role' | 'status';
+
 export function UserRoleForm({
   currentMembershipTier,
   currentRole,
@@ -67,67 +70,102 @@ export function UserRoleForm({
 }: UserRoleFormProps) {
   const params = useParams<{ locale?: string }>();
   const locale = (params?.locale ?? 'en') as 'en' | 'ru' | 'uk';
-  const [rolePending, startRoleTransition] = useTransition();
-  const [membershipPending, startMembershipTransition] = useTransition();
-  const [statusPending, startStatusTransition] = useTransition();
+  const { pending, refresh, run } = useAdminMutation();
+  const [role, setRole] = useState(currentRole);
+  const [membershipTier, setMembershipTier] = useState(currentMembershipTier ?? '');
+  const [status, setStatus] = useState(currentStatus ?? '');
+  const [loadingSection, setLoadingSection] = useState<LoadingSection | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [savedSection, setSavedSection] = useState<LoadingSection | null>(null);
 
-  const selectedRole = ROLE_VALUES.has(currentRole as (typeof ROLE_OPTIONS)[number]['value'])
-    ? currentRole
+  useEffect(() => {
+    setRole(currentRole);
+  }, [currentRole]);
+
+  useEffect(() => {
+    setMembershipTier(currentMembershipTier ?? '');
+  }, [currentMembershipTier]);
+
+  useEffect(() => {
+    setStatus(currentStatus ?? '');
+  }, [currentStatus]);
+
+  const selectedRole = ROLE_VALUES.has(role as (typeof ROLE_OPTIONS)[number]['value'])
+    ? role
     : undefined;
   const selectedMembershipTier =
-    currentMembershipTier &&
-    MEMBERSHIP_TIERS.has(currentMembershipTier as (typeof MEMBERSHIP_OPTIONS)[number]['value'])
-      ? currentMembershipTier
+    membershipTier &&
+    MEMBERSHIP_TIERS.has(membershipTier as (typeof MEMBERSHIP_OPTIONS)[number]['value'])
+      ? membershipTier
       : undefined;
 
-  function changeRole(value: string) {
+  async function changeRole(value: string) {
     if (!value || value === selectedRole) return;
     setError(null);
-    startRoleTransition(async () => {
-      const result = await updateUserRoleAction({ role: value, userId }, locale);
-      if (!result.ok) {
-        setError(result.error);
-      }
-    });
+    setSavedSection(null);
+    setLoadingSection('role');
+    const result = await run(() => updateUserRoleAction({ role: value, userId }, locale));
+    setLoadingSection(null);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setRole(value);
+    setSavedSection('role');
+    refresh();
   }
 
-  function changeMembership(value: string) {
+  async function changeMembership(value: string) {
     if (!value || value === selectedMembershipTier) return;
     setError(null);
-    startMembershipTransition(async () => {
-      const result = await updateUserMembershipAction(
-        { membershipTier: value, userId },
-        locale,
-      );
-      if (!result.ok) {
-        setError(result.error);
-      }
-    });
+    setSavedSection(null);
+    setLoadingSection('membership');
+    const result = await run(() =>
+      updateUserMembershipAction({ membershipTier: value, userId }, locale),
+    );
+    setLoadingSection(null);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setMembershipTier(value);
+    setSavedSection('membership');
+    refresh();
   }
 
-  function changeStatus(status: string) {
-    if (status === currentStatus) return;
+  async function changeStatus(nextStatus: string) {
+    if (nextStatus === status) return;
     setError(null);
-    startStatusTransition(async () => {
-      const result = await updateUserStatusAction({ status, userId }, locale);
-      if (!result.ok) {
-        setError(result.error);
-      }
-    });
+    setSavedSection(null);
+    setLoadingSection('status');
+    const result = await run(() => updateUserStatusAction({ status: nextStatus, userId }, locale));
+    setLoadingSection(null);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setStatus(nextStatus);
+    setSavedSection('status');
+    refresh();
   }
-
-  const pending = rolePending || membershipPending || statusPending;
 
   return (
     <div className="space-y-8">
       {error ? (
-        <p className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive" role="alert">
+        <p
+          className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          role="alert"
+        >
           {error}
         </p>
       ) : null}
 
-      {/* Role section */}
+      {savedSection ? (
+        <p className="text-sm text-emerald-600" role="status">
+          Updated successfully.
+        </p>
+      ) : null}
+
       <div className="space-y-3">
         <div className="space-y-1">
           <h3 className="text-sm font-semibold text-foreground">Role</h3>
@@ -136,7 +174,9 @@ export function UserRoleForm({
         <ToggleGroup
           aria-label="User role"
           className={cn(pending && 'pointer-events-none opacity-60')}
-          onValueChange={changeRole}
+          onValueChange={(value) => {
+            void changeRole(value);
+          }}
           type="single"
           value={selectedRole}
         >
@@ -146,7 +186,7 @@ export function UserRoleForm({
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
-        {rolePending ? (
+        {loadingSection === 'role' ? (
           <div className="flex items-center gap-1.5">
             <Loader2 className="size-3 animate-spin text-muted-foreground" />
             <span className="text-xs text-muted-foreground">Updating role...</span>
@@ -154,7 +194,6 @@ export function UserRoleForm({
         ) : null}
       </div>
 
-      {/* Membership section */}
       <div className="space-y-3">
         <div className="space-y-1">
           <h3 className="text-sm font-semibold text-foreground">Membership</h3>
@@ -165,7 +204,9 @@ export function UserRoleForm({
         <ToggleGroup
           aria-label="Membership tier"
           className={cn(pending && 'pointer-events-none opacity-60')}
-          onValueChange={changeMembership}
+          onValueChange={(value) => {
+            void changeMembership(value);
+          }}
           type="single"
           value={selectedMembershipTier}
         >
@@ -175,7 +216,7 @@ export function UserRoleForm({
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
-        {membershipPending ? (
+        {loadingSection === 'membership' ? (
           <div className="flex items-center gap-1.5">
             <Loader2 className="size-3 animate-spin text-muted-foreground" />
             <span className="text-xs text-muted-foreground">Updating membership...</span>
@@ -183,8 +224,7 @@ export function UserRoleForm({
         ) : null}
       </div>
 
-      {/* Status section */}
-      {currentStatus ? (
+      {status ? (
         <div className="space-y-3">
           <div className="space-y-1">
             <h3 className="text-sm font-semibold text-foreground">Account Status</h3>
@@ -194,7 +234,7 @@ export function UserRoleForm({
           </div>
           <div className="flex flex-wrap gap-2">
             {STATUS_OPTIONS.map(({ color, label, value }) => {
-              const isActive = currentStatus === value;
+              const isActive = status === value;
               const colors = statusColorMap[color];
               return (
                 <Button
@@ -204,7 +244,9 @@ export function UserRoleForm({
                   )}
                   disabled={pending || isActive}
                   key={value}
-                  onClick={() => changeStatus(value)}
+                  onClick={() => {
+                    void changeStatus(value);
+                  }}
                   size="sm"
                   type="button"
                   variant="outline"
@@ -219,7 +261,7 @@ export function UserRoleForm({
               );
             })}
           </div>
-          {statusPending ? (
+          {loadingSection === 'status' ? (
             <div className="flex items-center gap-1.5">
               <Loader2 className="size-3 animate-spin text-muted-foreground" />
               <span className="text-xs text-muted-foreground">Updating status...</span>

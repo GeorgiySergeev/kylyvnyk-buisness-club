@@ -1,10 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import type { Resource } from '@/db/schema/permission';
+import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
 import { updatePermissionsAction } from '@/features/roles/actions';
 
 import { RolePermissionMatrix } from './role-permission-matrix';
@@ -30,27 +30,23 @@ interface RolePermissionEditorProps {
 }
 
 export function RolePermissionEditor({ roleId, initialPermissions, labels }: RolePermissionEditorProps) {
-  const router = useRouter();
+  const { pending, refresh, run } = useAdminMutation();
   const [permissions, setPermissions] = useState<PermissionRow[]>(initialPermissions);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   async function handleSave() {
-    setSaving(true);
     setError(null);
     setSuccess(false);
 
-    const result = await updatePermissionsAction({ roleId, permissions });
+    const result = await run(() => updatePermissionsAction({ roleId, permissions }));
     if (!result.ok) {
       setError(result.error);
-      setSaving(false);
       return;
     }
 
     setSuccess(true);
-    setSaving(false);
-    router.refresh();
+    refresh();
   }
 
   return (
@@ -73,11 +69,13 @@ export function RolePermissionEditor({ roleId, initialPermissions, labels }: Rol
       />
 
       <Button
-        onClick={handleSave}
-        disabled={saving}
         className="bg-foreground text-background hover:bg-foreground/90"
+        disabled={pending}
+        onClick={() => {
+          void handleSave();
+        }}
       >
-        {saving ? 'Saving...' : 'Save Permissions'}
+        {pending ? 'Saving...' : 'Save Permissions'}
       </Button>
     </div>
   );

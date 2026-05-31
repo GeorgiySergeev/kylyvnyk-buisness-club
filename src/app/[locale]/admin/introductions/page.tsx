@@ -22,7 +22,11 @@ import {
   AdminSearchInput,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
-import { IntroductionModerationForm } from '@/features/introductions/components/introduction-moderation-form';
+import {
+  AdminTableActionsCell,
+  AdminTableActionsHead,
+  AdminTableNavigateAction,
+} from '@/features/admin/components/admin-table-actions';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -185,6 +189,7 @@ export default async function AdminIntroductionsPage({
             {filteredRows.map((row) => (
               <div key={row.id} className="rounded-lg border border-border/70 bg-card/95 p-3">
                 <AdminMobileCard
+                  href={localizeHref(locale, `/admin/introductions/${row.id}`)}
                   title={row.targetBusiness?.name ?? 'N/A'}
                   subtitle={[row.targetBusiness?.city?.name, row.targetBusiness?.country?.name]
                     .filter(Boolean)
@@ -193,11 +198,21 @@ export default async function AdminIntroductionsPage({
                   rows={[
                     {
                       label: t('requester'),
-                      value: <span>{row.requester?.displayName ?? 'N/A'}<span className="ml-1 text-muted-foreground">{row.requester?.phone}</span></span>,
+                      value: (
+                        <span>
+                          {row.requester?.displayName ?? 'N/A'}
+                          <span className="ml-1 text-muted-foreground">{row.requester?.phone}</span>
+                        </span>
+                      ),
                     },
                     {
                       label: t('client'),
-                      value: <span>{row.clientName}<span className="ml-1 text-muted-foreground">{row.clientContact}</span></span>,
+                      value: (
+                        <span>
+                          {row.clientName}
+                          <span className="ml-1 text-muted-foreground">{row.clientContact}</span>
+                        </span>
+                      ),
                     },
                     {
                       label: t('created'),
@@ -212,24 +227,12 @@ export default async function AdminIntroductionsPage({
                 {row.message ? (
                   <p className="mt-1 px-1 text-xs text-muted-foreground">{row.message}</p>
                 ) : null}
-                {row.adminNote ? (
-                  <p className="mt-1 px-1 text-xs text-amber-400/70">Note: {row.adminNote}</p>
-                ) : null}
-                <div className="mt-2 border-t border-border/50 pt-2">
-                  <IntroductionModerationForm
-                    currentNote={row.adminNote}
-                    currentStatus={row.status}
-                    introductionId={row.id}
-                    labels={{
-                      adminNotePlaceholder: t('adminNotePlaceholder'),
-                      approve: t('approve'),
-                      reject: t('reject'),
-                      save: t('save'),
-                      statusUpdated: t('introductionStatusUpdated'),
-                      underReview: t('underReview'),
-                      updateError: t('introductionUpdateError'),
-                    }}
-                  />
+                <div className="mt-3 px-1">
+                  <Button asChild className="h-9 rounded-md" size="sm" variant="outline">
+                    <Link href={localizeHref(locale, `/admin/introductions/${row.id}`)}>
+                      {t('view')}
+                    </Link>
+                  </Button>
                 </div>
               </div>
             ))}
@@ -246,7 +249,7 @@ export default async function AdminIntroductionsPage({
                     <TableHead>{t('requester')}</TableHead>
                     <TableHead>{t('client')}</TableHead>
                     <TableHead>{t('status')}</TableHead>
-                    <TableHead>{t('moderation')}</TableHead>
+                    <AdminTableActionsHead label={t('actions')} />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -260,7 +263,14 @@ export default async function AdminIntroductionsPage({
                         })}
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium text-foreground">{row.targetBusiness?.name}</div>
+                        <div className="font-medium text-foreground">
+                          <Link
+                            className="hover:underline"
+                            href={localizeHref(locale, `/admin/introductions/${row.id}`)}
+                          >
+                            {row.targetBusiness?.name}
+                          </Link>
+                        </div>
                         <div className="text-xs text-muted-foreground">
                           {[row.targetBusiness?.city?.name, row.targetBusiness?.country?.name]
                             .filter(Boolean)
@@ -285,27 +295,17 @@ export default async function AdminIntroductionsPage({
                       <TableCell>
                         <AdminStatusBadge>{row.status}</AdminStatusBadge>
                         {row.adminNote ? (
-                          <p className="mt-2 line-clamp-3 text-xs text-muted-foreground">
+                          <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">
                             {row.adminNote}
                           </p>
                         ) : null}
                       </TableCell>
-                      <TableCell className="min-w-56">
-                        <IntroductionModerationForm
-                          currentNote={row.adminNote}
-                          currentStatus={row.status}
-                          introductionId={row.id}
-                          labels={{
-                            adminNotePlaceholder: t('adminNotePlaceholder'),
-                            approve: t('approve'),
-                            reject: t('reject'),
-                            save: t('save'),
-                            statusUpdated: t('introductionStatusUpdated'),
-                            underReview: t('underReview'),
-                            updateError: t('introductionUpdateError'),
-                          }}
+                      <AdminTableActionsCell>
+                        <AdminTableNavigateAction
+                          href={localizeHref(locale, `/admin/introductions/${row.id}`)}
+                          label={t('view')}
                         />
-                      </TableCell>
+                      </AdminTableActionsCell>
                     </TableRow>
                   ))}
                 </TableBody>

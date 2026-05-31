@@ -1,12 +1,12 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState, type FormEvent } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { updateCardAction } from '@/features/admin/actions/card-admin.action';
+import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
 
 interface CardUpdateFormProps {
   cardId: string;
@@ -23,42 +23,61 @@ export function CardUpdateForm({
   currentMemberType,
   currentStatus,
 }: CardUpdateFormProps) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const { pending, refresh, run } = useAdminMutation();
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
-  function submit(formData: FormData) {
+  async function submit(formData: FormData) {
+    setSaved(false);
     const discountLabel = String(formData.get('discountLabel') ?? '').trim() || null;
     const expiresRaw = String(formData.get('expiresAt') ?? '').trim();
     const memberType = String(formData.get('memberType') ?? currentMemberType);
     const status = String(formData.get('status') ?? currentStatus);
 
-    startTransition(async () => {
-      const result = await updateCardAction({
+    const result = await run(() =>
+      updateCardAction({
         cardId,
         discountLabel,
         expiresAt: expiresRaw ? new Date(expiresRaw) : null,
         memberType,
         status,
-      });
+      }),
+    );
 
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      setError(null);
-      router.refresh();
-    });
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+
+    setError(null);
+    setSaved(true);
+    refresh();
+  }
+
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void submit(new FormData(event.currentTarget));
   }
 
   return (
-    <form action={submit} className="grid gap-3 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-4">
-      <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" defaultValue={currentMemberType} name="memberType">
+    <form
+      className="grid gap-3 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-4"
+      onSubmit={onSubmit}
+    >
+      <select
+        className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+        defaultValue={currentMemberType}
+        name="memberType"
+      >
         <option value="FREE">FREE</option>
         <option value="BUSINESS">BUSINESS</option>
         <option value="VIP">VIP</option>
       </select>
-      <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" defaultValue={currentStatus} name="status">
+      <select
+        className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+        defaultValue={currentStatus}
+        name="status"
+      >
         <option value="ACTIVE">ACTIVE</option>
         <option value="INACTIVE">INACTIVE</option>
         <option value="EXPIRED">EXPIRED</option>
@@ -68,6 +87,11 @@ export function CardUpdateForm({
       <Button className="h-10" disabled={pending} type="submit">
         {pending ? <Loader2 className="size-4 animate-spin" /> : 'Update card'}
       </Button>
+      {saved ? (
+        <p className="text-sm text-emerald-600 md:col-span-4" role="status">
+          Card updated successfully.
+        </p>
+      ) : null}
       {error ? <p className="text-sm text-red-400 md:col-span-4">{error}</p> : null}
     </form>
   );

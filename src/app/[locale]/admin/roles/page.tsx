@@ -21,6 +21,11 @@ import {
   AdminMobileCard,
   AdminPageHeader,
 } from '@/features/admin/components/admin-ui';
+import {
+  AdminTableActionsCell,
+  AdminTableActionsHead,
+  AdminTableNavigateAction,
+} from '@/features/admin/components/admin-table-actions';
 import { canCreateResource, getCurrentUserPermissions } from '@/lib/auth/permissions';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -79,7 +84,7 @@ export default async function AdminRolesPage({ params }: RolesPageProps) {
                   <span className="flex items-center gap-2">
                     {role.name}
                     {role.isSystem && (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                      <Badge variant="outline" className="text-[10px]">
                         system
                       </Badge>
                     )}
@@ -105,7 +110,7 @@ export default async function AdminRolesPage({ params }: RolesPageProps) {
                     <TableHead className="text-muted-foreground">{t('roleDescription')}</TableHead>
                     <TableHead className="text-muted-foreground">{t('isSystem')}</TableHead>
                     <TableHead className="text-right text-muted-foreground">{t('users')}</TableHead>
-                    <TableHead className="pr-4 text-right text-muted-foreground">{t('actions')}</TableHead>
+                    <AdminTableActionsHead label={t('actions')} />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -135,13 +140,12 @@ export default async function AdminRolesPage({ params }: RolesPageProps) {
                       <TableCell className="text-right text-muted-foreground">
                         {userCountByRole.get(role.id) ?? 0}
                       </TableCell>
-                      <TableCell className="pr-4 text-right">
-                        <Button variant="ghost" size="sm" className="h-8 text-foreground" asChild>
-                          <Link href={localizeHref(locale, `/admin/roles/${role.id}`)}>
-                            {t('edit')}
-                          </Link>
-                        </Button>
-                      </TableCell>
+                      <AdminTableActionsCell>
+                        <AdminTableNavigateAction
+                          href={localizeHref(locale, `/admin/roles/${role.id}`)}
+                          label={t('view')}
+                        />
+                      </AdminTableActionsCell>
                     </TableRow>
                   ))}
                 </TableBody>

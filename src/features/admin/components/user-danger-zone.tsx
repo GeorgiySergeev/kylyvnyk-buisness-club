@@ -2,68 +2,90 @@
 
 import { AlertTriangle, Loader2, RotateCcw, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
 
 import { restoreUserAction, softDeleteUserAction } from '../actions/user-admin.action';
 
 interface UserDangerZoneProps {
   deletedAt: string | null;
   userId: string;
+  usersListHref: string;
 }
 
-export function UserDangerZone({ deletedAt, userId }: UserDangerZoneProps) {
+export function UserDangerZone({ deletedAt, userId, usersListHref }: UserDangerZoneProps) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const { pending, refresh, run } = useAdminMutation();
   const [error, setError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(Boolean(deletedAt));
+  const [message, setMessage] = useState<string | null>(null);
 
-  const isDeleted = Boolean(deletedAt);
+  useEffect(() => {
+    setIsDeleted(Boolean(deletedAt));
+  }, [deletedAt]);
 
-  function handleAction() {
+  async function handleAction() {
     if (!isDeleted && !confirming) {
       setConfirming(true);
+      setMessage(null);
+      setError(null);
       return;
     }
 
-    startTransition(async () => {
-      const result = isDeleted
-        ? await restoreUserAction({ userId })
-        : await softDeleteUserAction({ userId });
+    setMessage(null);
+    setError(null);
 
-      if (!result.ok) {
-        setError(result.error);
-        setConfirming(false);
-        return;
-      }
+    const result = await run(() =>
+      isDeleted ? restoreUserAction({ userId }) : softDeleteUserAction({ userId }),
+    );
 
-      setError(null);
+    if (!result.ok) {
+      setError(result.error);
       setConfirming(false);
-      router.refresh();
-    });
+      return;
+    }
+
+    setConfirming(false);
+
+    if (isDeleted) {
+      setIsDeleted(false);
+      setMessage('User restored successfully.');
+      refresh();
+      return;
+    }
+
+    router.push(usersListHref);
   }
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+      <div className="rounded-ds-radius-lg border border-ds-error/30 bg-ds-error/5 p-ds-space-4">
         <div className="flex items-start gap-3">
-          <AlertTriangle aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-destructive" />
+          <AlertTriangle aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-ds-error" />
           <div className="space-y-1">
-            <p className="text-sm font-semibold text-foreground">
+            <p className="text-ds-text-sm font-semibold text-ds-text">
               {isDeleted ? 'This user is currently soft-deleted' : 'Delete this user'}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-ds-text-sm text-ds-text-muted">
               {isDeleted
                 ? 'The user account is marked as deleted and inactive. You can restore it to reactivate the account.'
-                : 'Soft-deleting will mark the user as inactive and set a deletion timestamp. This action can be reversed.'}
+                : 'Soft-deleting will mark the user as inactive and remove them from the users list. This action can be reversed from their profile.'}
             </p>
           </div>
         </div>
 
         <div className="mt-4 flex items-center gap-3">
           {isDeleted ? (
-            <Button disabled={pending} onClick={handleAction} variant="outline">
+            <Button
+              disabled={pending}
+              onClick={() => {
+                void handleAction();
+              }}
+              variant="outline"
+            >
               {pending ? (
                 <Loader2 aria-hidden="true" className="mr-2 size-4 animate-spin" />
               ) : (
@@ -73,7 +95,13 @@ export function UserDangerZone({ deletedAt, userId }: UserDangerZoneProps) {
             </Button>
           ) : confirming ? (
             <>
-              <Button disabled={pending} onClick={handleAction} variant="destructive">
+              <Button
+                disabled={pending}
+                onClick={() => {
+                  void handleAction();
+                }}
+                variant="destructive"
+              >
                 {pending ? (
                   <Loader2 aria-hidden="true" className="mr-2 size-4 animate-spin" />
                 ) : (
@@ -91,7 +119,13 @@ export function UserDangerZone({ deletedAt, userId }: UserDangerZoneProps) {
               </Button>
             </>
           ) : (
-            <Button disabled={pending} onClick={handleAction} variant="destructive">
+            <Button
+              disabled={pending}
+              onClick={() => {
+                void handleAction();
+              }}
+              variant="destructive"
+            >
               <Trash2 aria-hidden="true" className="mr-2 size-4" />
               Soft delete user
             </Button>
@@ -99,8 +133,14 @@ export function UserDangerZone({ deletedAt, userId }: UserDangerZoneProps) {
         </div>
       </div>
 
+      {message ? (
+        <p className="text-ds-text-sm text-emerald-600" role="status">
+          {message}
+        </p>
+      ) : null}
+
       {error ? (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="text-ds-text-sm text-ds-error" role="alert">
           {error}
         </p>
       ) : null}

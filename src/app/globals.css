@@ -274,6 +274,18 @@
   --font-mono: var(--font-mono), 'JetBrains Mono', Consolas, monospace;
   --font-heading: var(--font-sans);
 
+  /* --- Spacing --- */
+  --spacing-ds-space-1: var(--ds-space-1);
+  --spacing-ds-space-2: var(--ds-space-2);
+  --spacing-ds-space-3: var(--ds-space-3);
+  --spacing-ds-space-4: var(--ds-space-4);
+  --spacing-ds-space-5: var(--ds-space-5);
+  --spacing-ds-space-6: var(--ds-space-6);
+  --spacing-ds-space-8: var(--ds-space-8);
+  --spacing-ds-space-10: var(--ds-space-10);
+  --spacing-ds-space-12: var(--ds-space-12);
+  --spacing-ds-space-16: var(--ds-space-16);
+
   /* --- Radius (fixed values from design system, not computed) --- */
   --radius-sm: var(--ds-radius-sm);
   --radius-md: var(--ds-radius-md);
@@ -362,6 +374,21 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+@layer components {
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.125rem;
+    min-height: 1.125rem;
+    padding-inline: 0.375rem;
+    padding-block: 0;
+    font-size: 0.625rem;
+    line-height: 1.125rem;
+    font-weight: 500;
+  }
 }
 
 /* =====================================================================

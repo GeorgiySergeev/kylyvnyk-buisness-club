@@ -61,16 +61,16 @@ export function AdminSidebarInner({ locale, labels, visibleKeys }: AdminSidebarI
   return (
     <>
       <div className="flex items-center gap-3 px-4 py-5">
-        <div className="flex size-8 items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-[11px] font-bold uppercase text-primary">
+        <div className="flex size-8 items-center justify-center rounded-ds-radius-md border border-ds-brand-subtle bg-ds-brand-subtle text-ds-text-xs font-bold uppercase text-ds-brand">
           K
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-semibold text-sidebar-foreground">{labels.adminBrand}</div>
-          <div className="text-[11px] text-sidebar-foreground/55">{labels.backOffice}</div>
+          <div className="text-ds-text-sm font-semibold text-ds-text">{labels.adminBrand}</div>
+          <div className="text-ds-text-xs text-ds-text-muted">{labels.backOffice}</div>
         </div>
       </div>
 
-      <div className="px-4 pb-2 text-[11px] font-medium text-sidebar-foreground/50">
+      <div className="px-4 pb-2 text-ds-text-xs uppercase tracking-[0.08em] font-medium text-ds-text-faint">
         {labels.navigation}
       </div>
       <nav className="flex flex-col gap-1 px-3">
@@ -83,8 +83,8 @@ export function AdminSidebarInner({ locale, labels, visibleKeys }: AdminSidebarI
             <Link
               key={item.href}
               className={cn(
-                'flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                active && 'bg-sidebar-accent text-sidebar-accent-foreground',
+                'flex h-9 items-center gap-2 rounded-ds-radius-md px-ds-space-3 text-ds-text-sm font-medium text-ds-text-muted transition-ds-transition-fast hover:bg-ds-surface-2',
+                active && 'bg-ds-accent-subtle text-ds-accent',
               )}
               href={href}
             >

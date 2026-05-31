@@ -11,10 +11,12 @@ import {
 import { db } from '@/db/client';
 import { memberships, profiles, users } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
+import { createCardForUser } from '@/features/auth/lib/card';
 import { createAuditLog } from '@/lib/audit';
 import { log } from '@/lib/log';
 
 import {
+  createUserSchema,
   restoreUserSchema,
   softDeleteUserSchema,
   updateUserDetailsSchema,
@@ -356,4 +358,92 @@ export async function restoreUserAction(
 
   revalidateUsersPages(parsed.data.userId);
   return { data: { userId: updated.id }, ok: true };
+}
+
+export async function createUserAction(
+  rawInput: unknown,
+  locale: SupportedLocale,
+): Promise<ActionResult<{ userId: string }>> {
+  const start = Date.now();
+  const admin = await getCurrentUserWithRole('ADMIN');
+
+  if (!admin.ok) {
+    log.warn('Admin user create denied', { reason: admin.error });
+    return { error: 'Unauthorized. Admin access required.', ok: false };
+  }
+
+  const parsed = createUserSchema.safeParse(rawInput);
+
+  if (!parsed.success) {
+    log.warn('Admin user create validation failed', { userId: admin.data.id });
+    return { error: 'Invalid input.', ok: false };
+  }
+
+  const now = new Date();
+  const email = parsed.data.email?.trim() ? parsed.data.email.trim() : null;
+
+  try {
+    const created = await db.transaction(async (tx) => {
+      const [user] = await tx
+        .insert(users)
+        .values({
+          displayName: parsed.data.displayName ?? null,
+          email,
+          phone: parsed.data.phone,
+          role: parsed.data.role,
+          status: parsed.data.status,
+          updatedAt: now,
+        })
+        .returning({ id: users.id, phone: users.phone });
+
+      if (!user) {
+        throw new Error('Failed to create user.');
+      }
+
+      await tx.insert(profiles).values({ userId: user.id }).onConflictDoNothing();
+
+      if (parsed.data.membershipTier) {
+        await tx.insert(memberships).values({
+          planCode: parsed.data.membershipTier,
+          startsAt: now,
+          status: 'ACTIVE',
+          userId: user.id,
+        });
+      }
+
+      return user;
+    });
+
+    if (parsed.data.issueCard) {
+      const memberType = parsed.data.membershipTier ?? 'FREE';
+      await createCardForUser(created.id, created.phone, memberType);
+    }
+
+    await createAuditLog({
+      action: 'ADMIN_USER_CREATED',
+      actorUserId: admin.data.id,
+      entityId: created.id,
+      entityType: 'user',
+      payload: {
+        phone: parsed.data.phone,
+        role: parsed.data.role,
+        status: parsed.data.status,
+      },
+    });
+
+    revalidateUsersPages(created.id, locale);
+    log.info('Admin user created', {
+      durationMs: Date.now() - start,
+      targetUserId: created.id,
+    });
+
+    return { data: { userId: created.id }, ok: true };
+  } catch (error) {
+    const code = (error as { code?: string })?.code;
+    if (code === '23505') {
+      return { error: 'Phone or email already exists.', ok: false };
+    }
+
+    throw error;
+  }
 }

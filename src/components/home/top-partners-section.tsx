@@ -80,16 +80,16 @@ export async function TopPartnersSection({
 
       <div className="relative mx-auto max-w-5xl">
         <div className="relative mb-12 space-y-4 text-center sm:mb-16 md:mb-20">
-          <span className="block text-[11px] font-normal uppercase tracking-[0.2em] text-fg/45 sm:text-xs">
+          <span className="block text-[11px] font-normal uppercase tracking-[0.2em] text-ds-text-faint sm:text-ds-text-xs">
             {eyebrow}
           </span>
           <h2
             id="top-partners-title"
-            className="font-sans text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-[2.75rem] md:leading-tight"
+            className="font-sans text-3xl font-bold tracking-tight text-ds-text sm:text-4xl md:text-[2.75rem] md:leading-tight"
           >
             {title}
           </h2>
-          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-fg/50 sm:text-base">
+          <p className="mx-auto max-w-2xl text-ds-text-sm leading-relaxed text-ds-text-muted sm:text-ds-text-base">
             {subtitle}
           </p>
         </div>
@@ -104,10 +104,10 @@ export async function TopPartnersSection({
           />
         ) : null}
 
-        <div className="mt-10 flex justify-center border-t border-border/50 pt-10 sm:mt-12 sm:pt-12">
+        <div className="mt-10 flex justify-center border-t border-ds-border pt-10 sm:mt-12 sm:pt-12">
           <Link
             href={localizeHref(locale, '/directory')}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-white transition-colors hover:text-white/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="inline-flex items-center gap-ds-space-2 text-ds-text-sm font-semibold text-ds-text transition-ds-transition-fast hover:text-ds-text-muted focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
           >
             {viewAll}
             <ArrowRight className="size-4" strokeWidth={1.25} aria-hidden="true" />

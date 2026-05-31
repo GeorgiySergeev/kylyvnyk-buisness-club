@@ -45,38 +45,38 @@ export function AdminHeader({ labels }: AdminHeaderProps) {
     : labels.title;
 
   return (
-    <header className="flex h-14 items-center justify-between gap-4 border-b border-border bg-background/95 px-4 sm:px-6">
-      <div className="hidden min-w-0 items-center gap-3 text-sm max-lg:hidden lg:flex">
-        <span className="font-semibold tracking-tight text-foreground">{labels.adminBrand}</span>
-        <span className="text-muted-foreground">{labels.backOffice}</span>
-        <ChevronRight className="size-4 text-muted-foreground" />
-        <span className="truncate font-medium text-foreground">{pageTitle}</span>
+    <header className="flex h-14 items-center justify-between gap-4 border-b border-ds-border bg-ds-bg/95 px-ds-space-4 sm:px-ds-space-6">
+      <div className="hidden min-w-0 items-center gap-3 text-ds-text-sm max-lg:hidden lg:flex">
+        <span className="font-semibold tracking-tight text-ds-text">{labels.adminBrand}</span>
+        <span className="text-ds-text-muted">{labels.backOffice}</span>
+        <ChevronRight className="size-4 text-ds-text-muted" />
+        <span className="truncate font-medium text-ds-text">{pageTitle}</span>
       </div>
 
       <div className="relative hidden flex-1 sm:block sm:max-w-xl">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ds-text-muted" />
         <Input
           placeholder={labels.adminSearchPlaceholder}
-          className="h-9 rounded-md border-border/70 bg-card/70 pl-9 text-foreground placeholder:text-muted-foreground"
+          className="h-9 rounded-ds-radius-md border-ds-border/70 bg-ds-surface/70 pl-9 text-ds-text placeholder:text-ds-text-muted"
         />
       </div>
 
       <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-        <div className="hidden items-center gap-1.5 text-xs text-muted-foreground xl:flex">
+        <div className="hidden items-center gap-1.5 text-ds-text-xs text-ds-text-muted xl:flex">
           <CircleDot className="size-3 fill-emerald-400 text-emerald-400" />
           <span>{labels.operational}</span>
         </div>
-        <Button variant="ghost" size="icon" className="size-9 text-foreground">
+        <Button variant="ghost" size="icon" className="size-9 text-ds-text">
           <Moon className="size-4" />
           <span className="sr-only">{labels.theme}</span>
         </Button>
-        <Button variant="ghost" size="icon" className="relative size-9 text-foreground">
+        <Button variant="ghost" size="icon" className="relative size-9 text-ds-text">
           <Bell className="size-4" />
           <span className="absolute right-2 top-2 size-1.5 rounded-full bg-red-500" />
           <span className="sr-only">{labels.notifications}</span>
         </Button>
         <Avatar className="size-8">
-          <AvatarFallback className="rounded-full bg-muted text-xs text-foreground">
+          <AvatarFallback className="rounded-full bg-ds-surface-2 text-ds-text-xs text-ds-text">
             K
           </AvatarFallback>
         </Avatar>

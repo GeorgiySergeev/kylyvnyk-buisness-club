@@ -1,8 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
 
 import { setIntroductionStatusAction } from '../actions/set-introduction-status.action';
 
@@ -39,6 +39,15 @@ const MODERATION_STATUSES = [
   { labelKey: 'REJECTED', value: 'REJECTED' },
 ] as const;
 
+type ModerationStatus = (typeof MODERATION_STATUSES)[number]['value'];
+
+function normalizeModerationStatus(status: string): ModerationStatus {
+  if (status === 'APPROVED' || status === 'REJECTED' || status === 'UNDER_REVIEW') {
+    return status;
+  }
+  return 'UNDER_REVIEW';
+}
+
 function getStatusLabel(
   value: string,
   labels: Pick<IntroductionModerationFormLabels, 'approve' | 'reject' | 'underReview'>,
@@ -54,39 +63,52 @@ export function IntroductionModerationForm({
   introductionId,
   labels,
 }: IntroductionModerationFormProps) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
-  const [status, setStatus] = useState(currentStatus);
+  const { pending, refresh, run } = useAdminMutation();
+  const [status, setStatus] = useState<ModerationStatus>(() =>
+    normalizeModerationStatus(currentStatus),
+  );
   const [adminNote, setAdminNote] = useState(currentNote ?? '');
   const [message, setMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
 
-  function submit() {
+  useEffect(() => {
+    setStatus(normalizeModerationStatus(currentStatus));
+  }, [currentStatus]);
+
+  useEffect(() => {
+    setAdminNote(currentNote ?? '');
+  }, [currentNote]);
+
+  async function submit() {
     setMessage(null);
     setIsError(false);
 
-    startTransition(async () => {
-      const result = await setIntroductionStatusAction({
+    const result = await run(() =>
+      setIntroductionStatusAction({
         adminNote,
         introductionId,
         status,
-      });
+      }),
+    );
 
-      if (!result.ok) {
-        setIsError(true);
-        setMessage(result.error || labels.updateError);
-        return;
-      }
+    if (!result.ok) {
+      setIsError(true);
+      setMessage(result.error || labels.updateError);
+      return;
+    }
 
-      setIsError(false);
-      setMessage(labels.statusUpdated);
-      router.refresh();
-    });
+    setIsError(false);
+    setMessage(labels.statusUpdated);
+    refresh();
   }
 
   return (
     <div className="space-y-3">
-      <Select disabled={pending} value={status} onValueChange={setStatus}>
+      <Select
+        disabled={pending}
+        onValueChange={(value) => setStatus(value as ModerationStatus)}
+        value={status}
+      >
         <SelectTrigger className="h-8 rounded-md border-border/80 bg-background/80 text-xs">
           <SelectValue />
         </SelectTrigger>
@@ -113,14 +135,18 @@ export function IntroductionModerationForm({
         disabled={pending}
         size="sm"
         type="button"
-        onClick={submit}
+        onClick={() => {
+          void submit();
+        }}
       >
         {pending ? <Loader2 className="size-4 animate-spin" /> : null}
         {labels.save}
       </Button>
 
       {message ? (
-        <p className={`text-xs ${isError ? 'text-destructive' : 'text-emerald-600'}`}>{message}</p>
+        <p className={`text-xs ${isError ? 'text-destructive' : 'text-emerald-600'}`} role="status">
+          {message}
+        </p>
       ) : null}
     </div>
   );

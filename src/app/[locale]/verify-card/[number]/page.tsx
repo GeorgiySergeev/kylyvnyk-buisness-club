@@ -81,8 +81,8 @@ function VerifyCardView({ dto, locale }: { dto: PublicCardDto; locale: Supported
                 KYLYVNYK CLUB
               </p>
               <Badge
+                className={cn('uppercase tracking-wider', getStatusClassName(dto.status))}
                 variant="outline"
-                className={cn('min-h-8 px-3 uppercase tracking-wider', getStatusClassName(dto.status))}
               >
                 {statusLabel}
               </Badge>

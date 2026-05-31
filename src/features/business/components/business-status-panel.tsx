@@ -3,6 +3,7 @@
 import Link from 'next/link';
 
 import { DashboardEmptyState, DashboardQuickLink } from '@/components/member/dashboard-ui';
+import { Badge } from '@/components/ui/badge';
 
 interface BusinessStatusPanelProps {
   actionHref?: string;
@@ -45,9 +46,9 @@ export function BusinessStatusPanel({
     <div className="rounded-md border border-border/50 bg-white/2 p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-base font-semibold text-white">{title}</h3>
-        <span className="inline-flex min-h-8 items-center rounded-md border border-border/50 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+        <Badge className="uppercase tracking-[0.12em] text-primary" variant="outline">
           {statusLabel}: {status}
-        </span>
+        </Badge>
       </div>
       <p className="mt-2 text-sm leading-relaxed text-fg/50">{description}</p>
       <div className="mt-4 flex flex-wrap gap-4">

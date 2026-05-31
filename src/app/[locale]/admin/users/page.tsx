@@ -1,14 +1,9 @@
-import { desc } from 'drizzle-orm';
 import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Download,
-  MoreHorizontal,
-  Plus,
 } from 'lucide-react';
-import Link from 'next/link';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -29,8 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { db } from '@/db/client';
-import { users } from '@/db/schema';
 import {
   AdminDataTableShell,
   AdminEmptyState,
@@ -38,7 +31,14 @@ import {
   AdminPageHeader,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
+import {
+  AdminTableActionsCell,
+  AdminTableActionsHead,
+  AdminTableNavigateAction,
+} from '@/features/admin/components/admin-table-actions';
 import { UsersFilters } from '@/features/admin/components/users-filters';
+import { UsersPageActions } from '@/features/admin/components/users-page-actions';
+import { fetchAdminUsers, filterAdminUsers } from '@/features/admin/lib/users-list';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -75,47 +75,13 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
   const planFilter = plan?.trim() ?? '';
   const statusFilter = status?.trim() ?? '';
 
-  const allUsers = await db.query.users.findMany({
-    columns: {
-      id: true,
-      displayName: true,
-      phone: true,
-      email: true,
-      role: true,
-      status: true,
-      createdAt: true,
-    },
-    with: {
-      memberships: {
-        columns: {
-          planCode: true,
-          status: true,
-        },
-      },
-    },
-    orderBy: [desc(users.createdAt)],
+  const allUsers = await fetchAdminUsers();
+
+  const filtered = filterAdminUsers(allUsers, {
+    plan: planFilter,
+    q: searchTerm,
+    status: statusFilter,
   });
-
-  let filtered = allUsers;
-
-  if (searchTerm) {
-    filtered = filtered.filter(
-      (u) =>
-        u.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.phone.includes(searchTerm) ||
-        u.email?.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }
-
-  if (planFilter) {
-    filtered = filtered.filter((u) =>
-      u.memberships?.some((m) => m.status === 'ACTIVE' && m.planCode === planFilter),
-    );
-  }
-
-  if (statusFilter) {
-    filtered = filtered.filter((u) => u.status === statusFilter);
-  }
 
   const totalCount = allUsers.length;
   const filteredCount = filtered.length;
@@ -133,23 +99,14 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
         description={`${totalCount.toLocaleString()} total users - ${activeCount.toLocaleString()} active accounts`}
         title={t('usersTitle')}
         actions={
-          <>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 gap-2 border-0 bg-card text-foreground"
-            >
-              <Download className="size-4" />
-              <span className="hidden sm:inline">{t('export')}</span>
-            </Button>
-            <Button
-              size="sm"
-              className="h-9 gap-2 bg-foreground text-background hover:bg-foreground/90"
-            >
-              <Plus className="size-4" />
-              <span className="hidden sm:inline">{t('addUser')}</span>
-            </Button>
-          </>
+          <UsersPageActions
+            addUserLabel={t('addUser')}
+            exportLabel={t('export')}
+            locale={locale}
+            planFilter={planFilter}
+            searchTerm={searchTerm}
+            statusFilter={statusFilter}
+          />
         }
       />
 
@@ -224,7 +181,7 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
                     <TableHead className="text-muted-foreground">{t('membership')}</TableHead>
                     <TableHead className="text-muted-foreground">{t('status')}</TableHead>
                     <TableHead className="text-muted-foreground">{t('joined')}</TableHead>
-                    <TableHead className="pr-4 text-right text-muted-foreground">{t('actions')}</TableHead>
+                    <AdminTableActionsHead label={t('actions')} />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -257,13 +214,12 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
                           year: 'numeric',
                         })}
                       </TableCell>
-                      <TableCell className="pr-4 text-right">
-                        <Button variant="ghost" size="icon" className="size-8 text-foreground" asChild>
-                          <Link href={localizeHref(locale, `/admin/users/${user.id}`)}>
-                            <MoreHorizontal className="size-4" />
-                          </Link>
-                        </Button>
-                      </TableCell>
+                      <AdminTableActionsCell>
+                        <AdminTableNavigateAction
+                          href={localizeHref(locale, `/admin/users/${user.id}`)}
+                          label={t('view')}
+                        />
+                      </AdminTableActionsCell>
                     </TableRow>
                   ))}
                 </TableBody>

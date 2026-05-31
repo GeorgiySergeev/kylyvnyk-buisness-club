@@ -1,9 +1,8 @@
-import { createRequire } from 'node:module';
+import { randomBytes } from 'node:crypto';
 
 import type { CardMemberType } from '@/db/schema/enums/card-status';
 
 const CROCKFORD_BASE32_ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
-const loadNodeModule = createRequire(import.meta.url);
 
 const PHONE_PREFIX_TO_COUNTRY: Record<string, string> = {
   '380': 'UA',
@@ -56,9 +55,6 @@ export function deriveCountryCodeFromPhone(phone: string): string {
 }
 
 export function generateCardEntropy(): string {
-  const { randomBytes } = loadNodeModule('node:' + 'cr' + 'yp' + 'to') as {
-    randomBytes: (size: number) => Uint8Array;
-  };
   const bytes = randomBytes(7);
   let value = BigInt(0);
 

@@ -36,7 +36,7 @@ export async function AppShell({
   memberAuth,
 }: AppShellProps) {
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
+    <div className="flex min-h-dvh flex-col bg-ds-bg text-ds-text">
       <PublicChromeGate locale={locale}>
         <HomeHeader
           homeHref={homeHref}

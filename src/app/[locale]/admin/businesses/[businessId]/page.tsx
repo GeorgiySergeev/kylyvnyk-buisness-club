@@ -1,19 +1,10 @@
 import { eq } from 'drizzle-orm';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
-import { Button } from '@/components/ui/button';
 import { db } from '@/db/client';
 import { businesses } from '@/db/schema';
-import {
-  AdminDescriptionList,
-  AdminPageHeader,
-  AdminPanel,
-  AdminStatusBadge,
-} from '@/features/admin/components/admin-ui';
-import { BusinessAdminControls as BusinessControls } from '@/features/admin/components/business-admin-controls';
-import { BusinessStatusForm } from '@/features/admin/components/business-status-form';
+import { BusinessDetailTabs } from '@/features/admin/components/business-detail-tabs';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -65,65 +56,51 @@ export default async function AdminBusinessDetailPage({ params }: AdminBusinessD
   if (!business) redirect(localizeHref(locale, '/admin/businesses'));
 
   return (
-    <div className="max-w-5xl space-y-5">
-      <Button asChild className="h-8 rounded-md px-0" size="sm" variant="link">
-        <Link href={localizeHref(locale, '/admin/businesses')}>Back to businesses</Link>
-      </Button>
-
-      <AdminPageHeader
-        actions={<AdminStatusBadge>{business.status}</AdminStatusBadge>}
-        description={business.slug}
-        title={business.name}
-      />
-
-      <AdminPanel title={t('businessDetail')}>
-        <AdminDescriptionList
-          items={[
-            { label: t('slug'), value: <span className="font-mono text-xs">{business.slug}</span> },
-            { label: t('status'), value: <AdminStatusBadge>{business.status}</AdminStatusBadge> },
-            { label: t('owner'), value: business.user?.displayName ?? 'N/A' },
-            {
-              label: t('phone'),
-              value: <span className="font-mono text-xs">{business.user?.phone ?? 'N/A'}</span>,
-            },
-            { label: t('email'), value: business.user?.email ?? 'N/A' },
-            { label: t('category'), value: business.category?.name ?? 'N/A' },
-            { label: t('country'), value: business.country?.name ?? 'N/A' },
-            { label: t('city'), value: business.city?.name ?? 'N/A' },
-            {
-              label: t('website'),
-              value: business.website ? (
-                <a
-                  className="text-primary underline underline-offset-2 hover:text-primary/80"
-                  href={business.website}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {business.website}
-                </a>
-              ) : (
-                'N/A'
-              ),
-            },
-            { label: t('description'), value: business.description ?? 'N/A' },
-            { label: t('created'), value: business.createdAt.toLocaleString() },
-            { label: 'Updated', value: business.updatedAt.toLocaleString() },
-          ]}
-        />
-      </AdminPanel>
-
-      <AdminPanel title={t('changeStatus')}>
-        <BusinessStatusForm businessId={businessId} currentStatus={business.status} />
-      </AdminPanel>
-
-      <AdminPanel title="Business controls">
-        <BusinessControls
-          businessId={business.id}
-          isDeleted={business.deletedAt !== null}
-          isRecommended={business.isRecommended}
-          isTopPartner={business.isTopPartner}
-        />
-      </AdminPanel>
-    </div>
+    <BusinessDetailTabs
+      backHref={localizeHref(locale, '/admin/businesses')}
+      backLabel={t('backToBusinesses')}
+      business={{
+        categoryName: business.category?.name ?? null,
+        cityName: business.city?.name ?? null,
+        countryName: business.country?.name ?? null,
+        createdAt: business.createdAt.toLocaleString(),
+        description: business.description,
+        email: business.email,
+        id: business.id,
+        isDeleted: business.deletedAt !== null,
+        isRecommended: business.isRecommended,
+        isTopPartner: business.isTopPartner,
+        name: business.name,
+        ownerEmail: business.user?.email ?? null,
+        ownerName: business.user?.displayName ?? null,
+        ownerPhone: business.user?.phone ?? null,
+        phone: business.phone,
+        slug: business.slug,
+        status: business.status,
+        updatedAt: business.updatedAt.toLocaleString(),
+        website: business.website,
+      }}
+      changeStatusLabel={t('changeStatus')}
+      controlsTitle={t('businessControls')}
+      detailTitle={t('businessDetail')}
+      labels={{
+        category: t('category'),
+        city: t('city'),
+        country: t('country'),
+        created: t('created'),
+        description: t('description'),
+        email: t('email'),
+        owner: t('owner'),
+        phone: t('phone'),
+        slug: t('slug'),
+        status: t('status'),
+        website: t('website'),
+      }}
+      tabLabels={{
+        controls: t('controls'),
+        overview: t('summary'),
+        status: t('status'),
+      }}
+    />
   );
 }

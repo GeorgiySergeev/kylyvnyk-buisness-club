@@ -43,6 +43,16 @@ export const restoreUserSchema = z.object({
   userId: z.string().uuid(),
 });
 
+export const createUserSchema = z.object({
+  displayName: z.string().trim().min(1).max(120).nullable().optional(),
+  email: z.union([z.string().email(), z.literal('')]).optional(),
+  issueCard: z.boolean().default(true),
+  membershipTier: membershipTierEnumSchema.optional(),
+  phone: z.string().trim().min(6).max(32),
+  role: userRoleEnumSchema.default('MEMBER'),
+  status: userStatusEnumSchema.default('ACTIVE'),
+});
+
 export const businessStatusEnumSchema = z.enum(['DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN', 'DECLINED']);
 
 export const updateBusinessStatusSchema = z.object({

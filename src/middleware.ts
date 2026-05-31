@@ -24,15 +24,28 @@ function isDevBypassRequest(request: NextRequest) {
 }
 
 export default async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  const locale = getRequestLocale(pathname);
+  const devBypass = isDevBypassRequest(request);
+
   let response = NextResponse.next({
     request,
   });
+  response.headers.set('x-locale', locale);
+
+  // Public routes must not wait on Supabase — that blocked client-side navigation.
+  if (!isProtectedRoute(pathname)) {
+    return response;
+  }
+
+  if (devBypass) {
+    return response;
+  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    response.headers.set('x-locale', getRequestLocale(request.nextUrl.pathname));
     return response;
   }
 
@@ -55,14 +68,12 @@ export default async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (isProtectedRoute(request.nextUrl.pathname) && !user && !isDevBypassRequest(request)) {
+  if (!user) {
     const signInUrl = request.nextUrl.clone();
-    signInUrl.pathname = `/${getRequestLocale(request.nextUrl.pathname)}/sign-in`;
-    signInUrl.searchParams.set('returnBackUrl', request.nextUrl.pathname);
+    signInUrl.pathname = `/${locale}/sign-in`;
+    signInUrl.searchParams.set('returnBackUrl', pathname);
     return NextResponse.redirect(signInUrl);
   }
-
-  response.headers.set('x-locale', getRequestLocale(request.nextUrl.pathname));
 
   return response;
 }

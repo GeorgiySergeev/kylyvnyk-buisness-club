@@ -42,7 +42,7 @@ export function BillingPortalButton({ errorLabel, labels, locale }: BillingPorta
       <Button
         type="button"
         variant="outline"
-        className="min-h-11 rounded-md border-border/50 bg-transparent text-white hover:bg-white/5"
+        className="min-h-11 rounded-ds-radius-md border-ds-border bg-transparent text-ds-text hover:bg-ds-surface-hover"
         disabled={pending}
         onClick={openPortal}
       >
@@ -50,7 +50,7 @@ export function BillingPortalButton({ errorLabel, labels, locale }: BillingPorta
         {pending ? labels.pending : labels.cta}
       </Button>
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-ds-text-sm text-ds-error">
           {error}
         </p>
       ) : null}

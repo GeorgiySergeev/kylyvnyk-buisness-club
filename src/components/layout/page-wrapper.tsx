@@ -16,7 +16,7 @@ export function PageWrapper({
   noTopPad = false,
 }: PageWrapperProps) {
   return (
-    <div className={cn('kc-container ', !noTopPad && 'pt-10 md:pt-16', flush && 'px-0', className)}>
+    <div className={cn('kc-container', !noTopPad && 'pt-ds-space-10 md:pt-ds-space-16', flush && 'px-0', className)}>
       {children}
     </div>
   );

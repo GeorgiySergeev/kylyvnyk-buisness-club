@@ -7,12 +7,12 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 const toggleGroupVariants = cva(
-  'inline-flex items-center gap-1 rounded-lg bg-muted p-1',
+  'inline-flex items-center gap-1 rounded-ds-radius-lg bg-ds-surface p-1',
   {
     variants: {
       variant: {
         default: '',
-        outline: 'border border-border bg-transparent',
+        outline: 'border border-ds-border bg-transparent',
       },
     },
     defaultVariants: {
@@ -22,14 +22,14 @@ const toggleGroupVariants = cva(
 );
 
 const toggleGroupItemVariants = cva(
-  'inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center rounded-ds-radius-md px-3 py-1.5 text-ds-text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-accent disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
         default:
-          'text-muted-foreground hover:text-foreground data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm',
+          'text-ds-text-muted hover:text-ds-text data-[state=on]:bg-ds-surface-hover data-[state=on]:text-ds-text data-[state=on]:shadow-sm',
         outline:
-          'text-muted-foreground hover:text-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground',
+          'text-ds-text-muted hover:text-ds-text data-[state=on]:bg-ds-accent data-[state=on]:text-ds-bg',
       },
       size: {
         default: 'h-8 px-3',

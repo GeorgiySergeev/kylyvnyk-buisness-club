@@ -1,8 +1,5 @@
 'use client';
 
-import type { ComponentType } from 'react';
-import { useState } from 'react';
-
 import {
   AlertTriangle,
   ChevronLeft,
@@ -15,15 +12,18 @@ import {
   ShieldCheck,
   UserRound,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { AdminDetailTabNav, type AdminDetailTabItem } from '@/features/admin/components/admin-detail-tab-nav';
 import { AdminPanel, AdminStatusBadge } from '@/features/admin/components/admin-ui';
 import { UserContactForm } from '@/features/admin/components/user-contact-form';
 import { UserDangerZone } from '@/features/admin/components/user-danger-zone';
 import { UserPersonalInfoForm } from '@/features/admin/components/user-personal-info-form';
 import { UserRoleForm } from '@/features/admin/components/user-role-form';
 import { UserRoleAssignment } from '@/features/roles/components/user-role-assignment';
-import { cn } from '@/lib/utils';
 
 type TabKey =
   | 'personal'
@@ -94,10 +94,20 @@ interface RoleAssignmentData {
 }
 
 interface UserAccountTabsProps {
+  backHref: string;
+  backLabel: string;
   card: CardData | null;
   cities: SelectOption[];
   countries: SelectOption[];
+  fallbackInitials: string;
+  headerStats: {
+    approvedIntroductions: number;
+    cardNumber?: string;
+    publishedBusinesses: number;
+  };
   introductions: IntroductionData[];
+  joinedDate: string;
+  membershipLabel: string;
   memberships: MembershipData[];
   profile: {
     avatarUrl: string | null;
@@ -124,12 +134,7 @@ interface UserAccountTabsProps {
   };
 }
 
-const tabs: Array<{
-  icon: ComponentType<{ className?: string }>;
-  key: TabKey;
-  label: string;
-  section?: 'main' | 'danger';
-}> = [
+const tabs: AdminDetailTabItem<TabKey>[] = [
   { icon: UserRound, key: 'personal', label: 'Personal Info' },
   { icon: Phone, key: 'contact', label: 'Contact' },
   { icon: CreditCard, key: 'card', label: 'Club Card' },
@@ -137,14 +142,20 @@ const tabs: Array<{
   { icon: Handshake, key: 'introductions', label: 'Introductions' },
   { icon: Receipt, key: 'billing', label: 'Billing' },
   { icon: ClipboardList, key: 'activity', label: 'Activity' },
-  { icon: AlertTriangle, key: 'danger', label: 'Danger Zone', section: 'danger' },
+  { icon: AlertTriangle, key: 'danger', label: 'Danger Zone' },
 ];
 
 export function UserAccountTabs({
+  backHref,
+  backLabel,
   card,
   cities,
   countries,
+  fallbackInitials,
+  headerStats,
   introductions,
+  joinedDate,
+  membershipLabel,
   memberships,
   profile,
   recentAuditLogs,
@@ -162,72 +173,57 @@ export function UserAccountTabs({
     }
   }
 
+  const resolvedName = user.displayName ?? 'No display name';
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
-      {/* Desktop sidebar */}
-      <aside className="hidden lg:block">
-        <div className="sticky top-6 rounded-xl border border-border/80 bg-card/80 p-2">
-          <nav aria-label="User sections" className="space-y-0.5">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.key;
-              const isDanger = tab.section === 'danger';
-              return (
-                <button
-                  aria-current={isActive ? 'page' : undefined}
-                  className={cn(
-                    'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors',
-                    isActive
-                      ? isDanger
-                        ? 'bg-destructive/10 text-destructive'
-                        : 'bg-primary/15 text-primary'
-                      : isDanger
-                        ? 'text-destructive/70 hover:bg-destructive/5 hover:text-destructive'
-                        : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
-                  )}
-                  key={tab.key}
-                  onClick={() => handleTabChange(tab.key)}
-                  type="button"
-                >
-                  <Icon className="size-4" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-      </aside>
-
-      {/* Mobile horizontal pills */}
-      <div className="overflow-x-auto lg:hidden">
-        <nav
-          aria-label="User sections"
-          className="inline-flex min-w-full gap-1.5 rounded-xl border border-border/80 bg-card/70 p-1.5"
+    <div className="flex flex-col gap-8">
+      <header className="space-y-6">
+        <Link
+          className="inline-flex min-h-11 items-center gap-1.5 text-sm text-ds-text-muted transition-colors hover:text-ds-text focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
+          href={backHref}
         >
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.key;
-            return (
-              <button
-                aria-current={isActive ? 'page' : undefined}
-                className={cn(
-                  'whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
-                  isActive
-                    ? 'bg-foreground text-background'
-                    : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground',
-                )}
-                key={`${tab.key}-mobile`}
-                onClick={() => handleTabChange(tab.key)}
-                type="button"
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
+          <ChevronLeft aria-hidden="true" className="size-4" strokeWidth={1.5} />
+          {backLabel}
+        </Link>
 
-      {/* Tab content */}
-      <section className="min-w-0 space-y-4 lg:col-start-2 lg:row-start-1">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            <Avatar className="size-11 shrink-0 bg-ds-surface-2">
+              {profile?.avatarUrl ? <AvatarImage alt="" src={profile.avatarUrl} /> : null}
+              <AvatarFallback className="text-sm text-ds-text-muted">{fallbackInitials}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-ds-text">{resolvedName}</p>
+              <p className="truncate text-xs text-ds-text-muted">{user.phone}</p>
+              {user.email ? (
+                <p className="truncate text-xs text-ds-text-muted">{user.email}</p>
+              ) : null}
+              <p className="mt-1 text-[10px] uppercase tracking-widest text-ds-text-faint">
+                {user.role} · {membershipLabel} · {user.status}
+                {user.deletedAt ? ' · deleted' : ''}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ds-text-muted">
+            <span>
+              {headerStats.publishedBusinesses} businesses · {headerStats.approvedIntroductions}{' '}
+              introductions
+            </span>
+            {headerStats.cardNumber ? <span>Card #{headerStats.cardNumber}</span> : null}
+            <span>Joined {joinedDate}</span>
+          </div>
+        </div>
+
+        <AdminDetailTabNav
+          activeTab={activeTab}
+          ariaLabel="User sections"
+          onChange={handleTabChange}
+          tabs={tabs}
+        />
+      </header>
+
+      <section className="min-w-0 space-y-6">
         {activeTab === 'personal' ? (
           <AdminPanel description="Name, avatar, and bio" title="Personal Information">
             <UserPersonalInfoForm
@@ -299,7 +295,11 @@ export function UserAccountTabs({
 
         {activeTab === 'danger' ? (
           <AdminPanel description="Irreversible actions for this account" title="Danger Zone">
-            <UserDangerZone deletedAt={user.deletedAt} userId={user.id} />
+            <UserDangerZone
+              deletedAt={user.deletedAt}
+              userId={user.id}
+              usersListHref={backHref}
+            />
           </AdminPanel>
         ) : null}
 
@@ -333,25 +333,25 @@ function ActivitySection({
   const items = logs.slice(start, start + PAGE_SIZE);
 
   if (logs.length === 0) {
-    return <p className="text-sm text-muted-foreground">No activity yet.</p>;
+    return <p className="text-sm text-ds-text-muted">No activity yet.</p>;
   }
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
+      <div className="space-y-3">
         {items.map((log) => (
-          <div className="rounded-lg border border-border/70 bg-background/50 p-3" key={log.id}>
-            <p className="text-sm font-medium text-foreground">{log.action}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {log.createdAt} &middot; {log.ipAddress ?? 'N/A'}
+          <div className="border-b border-ds-border/40 py-3 last:border-0" key={log.id}>
+            <p className="text-sm font-medium text-ds-text">{log.action}</p>
+            <p className="mt-1 text-xs text-ds-text-muted">
+              {log.createdAt} · {log.ipAddress ?? 'N/A'}
             </p>
           </div>
         ))}
       </div>
 
       {totalPages > 1 ? (
-        <div className="flex items-center justify-between border-t border-border/70 pt-3">
-          <p className="text-xs text-muted-foreground">
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-xs text-ds-text-muted">
             Page {currentPage} of {totalPages}
           </p>
           <div className="flex items-center gap-2">
@@ -382,112 +382,75 @@ function ActivitySection({
   );
 }
 
-/* ─── Card Section ─────────────────────────────────────────────── */
-
 function CardSection({ card }: { card: CardData | null }) {
   if (!card) {
     return (
       <AdminPanel description="Club membership card details" title="Club Card">
-        <div className="rounded-lg border border-dashed border-border/80 bg-background/50 p-6 text-center">
-          <CreditCard aria-hidden="true" className="mx-auto size-8 text-muted-foreground/50" />
-          <p className="mt-2 text-sm font-medium text-muted-foreground">No club card assigned</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Create a card from the Cards management page.
-          </p>
-        </div>
+        <p className="text-sm text-ds-text-muted">No club card assigned.</p>
       </AdminPanel>
     );
   }
 
   return (
     <AdminPanel description="Club membership card details" title="Club Card">
-      <div className="rounded-lg border border-border/70 bg-background/50 p-4">
-        <div className="flex items-start justify-between">
-          <div className="space-y-3">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                Card Number
-              </p>
-              <p className="mt-0.5 font-mono text-lg font-bold tracking-wider text-foreground">
-                {card.number}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-4">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  Member Type
-                </p>
-                <div className="mt-1">
-                  <AdminStatusBadge>{card.memberType}</AdminStatusBadge>
-                </div>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  Status
-                </p>
-                <div className="mt-1">
-                  <AdminStatusBadge>{card.status}</AdminStatusBadge>
-                </div>
-              </div>
-            </div>
-          </div>
-          <CreditCard aria-hidden="true" className="size-10 text-primary/30" />
+      <dl className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Card number</dt>
+          <dd className="mt-1 font-mono text-sm text-ds-text">{card.number}</dd>
         </div>
-
-        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 border-t border-border/60 pt-4 text-sm">
-          <div>
-            <span className="text-xs text-muted-foreground">Issued</span>
-            <p className="font-medium text-foreground">{card.createdAt}</p>
-          </div>
-          <div>
-            <span className="text-xs text-muted-foreground">Expires</span>
-            <p className="font-medium text-foreground">{card.expiresAt ?? 'No expiry'}</p>
-          </div>
+        <div>
+          <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Member type</dt>
+          <dd className="mt-1">
+            <AdminStatusBadge>{card.memberType}</AdminStatusBadge>
+          </dd>
         </div>
-      </div>
+        <div>
+          <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Status</dt>
+          <dd className="mt-1">
+            <AdminStatusBadge>{card.status}</AdminStatusBadge>
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Issued</dt>
+          <dd className="mt-1 text-sm text-ds-text">{card.createdAt}</dd>
+        </div>
+        <div>
+          <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Expires</dt>
+          <dd className="mt-1 text-sm text-ds-text">{card.expiresAt ?? 'No expiry'}</dd>
+        </div>
+      </dl>
     </AdminPanel>
   );
 }
-
-/* ─── Introductions Section ─────────────────────────────────────── */
 
 function IntroductionsSection({ introductions }: { introductions: IntroductionData[] }) {
   return (
     <AdminPanel description="All Business Introduction requests by this user" title="Introductions">
       {introductions.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border/80 bg-background/50 p-6 text-center">
-          <Handshake aria-hidden="true" className="mx-auto size-8 text-muted-foreground/50" />
-          <p className="mt-2 text-sm font-medium text-muted-foreground">
-            No introduction requests yet
-          </p>
-        </div>
+        <p className="text-sm text-ds-text-muted">No introduction requests yet.</p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {introductions.map((intro) => (
-            <div className="rounded-lg border border-border/70 bg-background/50 p-4" key={intro.id}>
+            <div className="border-b border-ds-border/40 pb-4 last:border-0" key={intro.id}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-semibold text-foreground">
-                      {intro.businessName}
-                    </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="truncate text-sm font-medium text-ds-text">{intro.businessName}</p>
                     <AdminStatusBadge>{intro.status}</AdminStatusBadge>
                   </div>
-                  <div className="mt-2 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">
+                  <div className="mt-2 grid gap-1 text-xs text-ds-text-muted sm:grid-cols-2">
                     <span>
-                      Client: <span className="text-foreground">{intro.clientName}</span>
+                      Client: <span className="text-ds-text">{intro.clientName}</span>
                     </span>
                     <span>
-                      Contact: <span className="text-foreground">{intro.clientContact}</span>
+                      Contact: <span className="text-ds-text">{intro.clientContact}</span>
                     </span>
                   </div>
                   {intro.message ? (
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                      {intro.message}
-                    </p>
+                    <p className="mt-2 text-xs leading-relaxed text-ds-text-muted">{intro.message}</p>
                   ) : null}
                 </div>
-                <span className="shrink-0 text-xs text-muted-foreground">{intro.createdAt}</span>
+                <span className="shrink-0 text-xs text-ds-text-faint">{intro.createdAt}</span>
               </div>
             </div>
           ))}
@@ -497,8 +460,6 @@ function IntroductionsSection({ introductions }: { introductions: IntroductionDa
   );
 }
 
-/* ─── Billing Section ──────────────────────────────────────────── */
-
 function BillingSection({
   memberships,
   subscriptions,
@@ -506,109 +467,68 @@ function BillingSection({
   memberships: MembershipData[];
   subscriptions: SubscriptionData[];
 }) {
-  const hasAnyData = memberships.length > 0 || subscriptions.length > 0;
   const activeTier = memberships.find((m) => m.status === 'ACTIVE')?.planCode;
 
   return (
-    <div className="space-y-4">
-      {/* VIP notice */}
+    <div className="space-y-6">
       {activeTier === 'VIP' ? (
-        <div className="rounded-lg border border-border/80 bg-muted/50 px-4 py-3">
-          <p className="text-sm font-medium text-foreground">
-            VIP Member &mdash; Monthly subscription billing is active
-          </p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Recurring payments are tracked below via Stripe subscriptions.
-          </p>
-        </div>
-      ) : null}
-
-      {/* Subscriptions */}
-      <AdminPanel description="Stripe subscription records" title="Subscriptions">
-        {subscriptions.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border/80 bg-background/50 p-6 text-center">
-            <Receipt aria-hidden="true" className="mx-auto size-8 text-muted-foreground/50" />
-            <p className="mt-2 text-sm font-medium text-muted-foreground">No subscriptions found</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {subscriptions.map((sub) => (
-              <div className="rounded-lg border border-border/70 bg-background/50 p-4" key={sub.id}>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-mono text-xs text-muted-foreground">
-                        {sub.stripeSubscriptionId}
-                      </p>
-                      <AdminStatusBadge>{sub.status}</AdminStatusBadge>
-                    </div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                      <span>
-                        Started: <span className="text-foreground">{sub.createdAt}</span>
-                      </span>
-                      {sub.currentPeriodEnd ? (
-                        <span>
-                          Current period ends:{' '}
-                          <span className="text-foreground">{sub.currentPeriodEnd}</span>
-                        </span>
-                      ) : null}
-                      {sub.cancelAtPeriodEnd ? (
-                        <span className="font-medium text-amber-400">Cancels at period end</span>
-                      ) : null}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </AdminPanel>
-
-      {/* Memberships */}
-      <AdminPanel description="Membership plan records" title="Memberships">
-        {memberships.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border/80 bg-background/50 p-6 text-center">
-            <CreditCard aria-hidden="true" className="mx-auto size-8 text-muted-foreground/50" />
-            <p className="mt-2 text-sm font-medium text-muted-foreground">
-              No membership records found
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {memberships.map((m) => (
-              <div className="rounded-lg border border-border/70 bg-background/50 p-4" key={m.id}>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-foreground">{m.planCode}</p>
-                      <AdminStatusBadge>{m.status}</AdminStatusBadge>
-                    </div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                      <span>
-                        Starts: <span className="text-foreground">{m.startsAt}</span>
-                      </span>
-                      {m.endsAt ? (
-                        <span>
-                          Ends: <span className="text-foreground">{m.endsAt}</span>
-                        </span>
-                      ) : (
-                        <span className="text-foreground">No end date</span>
-                      )}
-                    </div>
-                  </div>
-                  <span className="shrink-0 text-xs text-muted-foreground">{m.createdAt}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </AdminPanel>
-
-      {!hasAnyData && activeTier !== 'VIP' ? (
-        <p className="text-center text-sm text-muted-foreground">
-          No billing data available for this user.
+        <p className="text-sm text-ds-text-muted">
+          VIP member — recurring subscription billing is tracked below.
         </p>
       ) : null}
+
+      <AdminPanel description="Stripe subscription records" title="Subscriptions">
+        {subscriptions.length === 0 ? (
+          <p className="text-sm text-ds-text-muted">No subscriptions found.</p>
+        ) : (
+          <div className="space-y-4">
+            {subscriptions.map((sub) => (
+              <div className="border-b border-ds-border/40 pb-4 last:border-0" key={sub.id}>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-mono text-xs text-ds-text-muted">{sub.stripeSubscriptionId}</p>
+                  <AdminStatusBadge>{sub.status}</AdminStatusBadge>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ds-text-muted">
+                  <span>
+                    Started: <span className="text-ds-text">{sub.createdAt}</span>
+                  </span>
+                  {sub.currentPeriodEnd ? (
+                    <span>
+                      Period ends: <span className="text-ds-text">{sub.currentPeriodEnd}</span>
+                    </span>
+                  ) : null}
+                  {sub.cancelAtPeriodEnd ? <span>Cancels at period end</span> : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </AdminPanel>
+
+      <AdminPanel description="Membership plan records" title="Memberships">
+        {memberships.length === 0 ? (
+          <p className="text-sm text-ds-text-muted">No membership records found.</p>
+        ) : (
+          <div className="space-y-4">
+            {memberships.map((m) => (
+              <div className="border-b border-ds-border/40 pb-4 last:border-0" key={m.id}>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-medium text-ds-text">{m.planCode}</p>
+                  <AdminStatusBadge>{m.status}</AdminStatusBadge>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ds-text-muted">
+                  <span>
+                    Starts: <span className="text-ds-text">{m.startsAt}</span>
+                  </span>
+                  <span>
+                    Ends: <span className="text-ds-text">{m.endsAt ?? 'No end date'}</span>
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </AdminPanel>
     </div>
   );
 }

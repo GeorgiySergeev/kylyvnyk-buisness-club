@@ -1,13 +1,13 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { updateBusinessStatusAction } from '@/features/admin/actions/business-admin.action';
+import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
 
-import { updateBusinessStatusAction } from '../actions/business-admin.action';
 import { AdminStatusBadge } from './admin-ui';
 
 interface BusinessStatusFormProps {
@@ -16,17 +16,22 @@ interface BusinessStatusFormProps {
 }
 
 export function BusinessStatusForm({ businessId, currentStatus }: BusinessStatusFormProps) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const { pending, refresh, run } = useAdminMutation();
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
-  function changeStatus(status: string) {
-    startTransition(async () => {
-      const result = await updateBusinessStatusAction({ businessId, status });
+  async function changeStatus(status: string) {
+    setError(null);
+    setSaved(false);
+    const result = await run(() => updateBusinessStatusAction({ businessId, status }));
 
-      if (result.ok) {
-        router.refresh();
-      }
-    });
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+
+    setSaved(true);
+    refresh();
   }
 
   const statuses = ['DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN', 'DECLINED'] as const;
@@ -44,7 +49,9 @@ export function BusinessStatusForm({ businessId, currentStatus }: BusinessStatus
               variant={currentStatus === status ? (isDestructive ? 'destructive' : 'default') : 'outline'}
               size="sm"
               disabled={pending || currentStatus === status}
-              onClick={() => changeStatus(status)}
+              onClick={() => {
+                void changeStatus(status);
+              }}
               className="h-8 rounded-md"
             >
               <AdminStatusBadge>{status}</AdminStatusBadge>
@@ -59,6 +66,12 @@ export function BusinessStatusForm({ businessId, currentStatus }: BusinessStatus
           Saving...
         </div>
       ) : null}
+      {saved ? (
+        <p className="text-sm text-emerald-600" role="status">
+          Status updated successfully.
+        </p>
+      ) : null}
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );
 }

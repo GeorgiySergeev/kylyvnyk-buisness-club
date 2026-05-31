@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
 import { assignRoleAction, revokeRoleAction } from '@/features/roles/actions';
 
 interface UserRoleAssignmentProps {
@@ -36,10 +36,9 @@ export function UserRoleAssignment({
   currentRoles,
   availableRoles,
 }: UserRoleAssignmentProps) {
-  const router = useRouter();
+  const { pending, refresh, run } = useAdminMutation();
   const [selectedRoleId, setSelectedRoleId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
 
   const unassignedRoles = availableRoles.filter(
     (r) => !currentRoles.some((cr) => cr.roleId === r.id),
@@ -47,34 +46,28 @@ export function UserRoleAssignment({
 
   async function handleAssign() {
     if (!selectedRoleId) return;
-    setPending(true);
     setError(null);
 
-    const result = await assignRoleAction({ userId, roleId: selectedRoleId });
+    const result = await run(() => assignRoleAction({ userId, roleId: selectedRoleId }));
     if (!result.ok) {
       setError(result.error);
-      setPending(false);
       return;
     }
 
     setSelectedRoleId('');
-    setPending(false);
-    router.refresh();
+    refresh();
   }
 
   async function handleRevoke(roleId: string) {
-    setPending(true);
     setError(null);
 
-    const result = await revokeRoleAction({ userId, roleId });
+    const result = await run(() => revokeRoleAction({ userId, roleId }));
     if (!result.ok) {
       setError(result.error);
-      setPending(false);
       return;
     }
 
-    setPending(false);
-    router.refresh();
+    refresh();
   }
 
   return (

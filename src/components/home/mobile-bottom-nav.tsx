@@ -23,8 +23,8 @@ export function MobileBottomNav({ locale, labels }: MobileBottomNavProps) {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card md:hidden">
-      <div className="flex items-center justify-around px-4 py-3">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-ds-border bg-ds-surface md:hidden">
+      <div className="flex items-center justify-around px-ds-space-4 py-ds-space-3">
         {NAV_ITEMS.map(({ key, href, Icon }) => {
           const localizedHref = localizeHref(locale, href);
           const isActive = pathname === localizedHref;
@@ -33,10 +33,10 @@ export function MobileBottomNav({ locale, labels }: MobileBottomNavProps) {
               key={key}
               href={localizedHref}
               className={cn(
-                'flex min-h-11 flex-col items-center gap-0.5 rounded-lg px-4 py-1.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                'flex min-h-11 flex-col items-center gap-0.5 rounded-ds-radius-lg px-ds-space-4 py-1.5 transition-ds-transition-fast focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none',
                 isActive
-                  ? 'bg-secondary text-primary'
-                  : 'text-muted-foreground hover:text-foreground',
+                  ? 'bg-ds-surface-2 text-ds-brand'
+                  : 'text-ds-text-muted hover:text-ds-text',
               )}
             >
               <Icon className="size-5" aria-hidden="true" />

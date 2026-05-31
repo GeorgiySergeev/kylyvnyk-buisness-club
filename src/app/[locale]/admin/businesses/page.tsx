@@ -22,6 +22,11 @@ import {
   AdminSearchInput,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
+import {
+  AdminTableActionsCell,
+  AdminTableActionsHead,
+  AdminTableNavigateAction,
+} from '@/features/admin/components/admin-table-actions';
 import { BusinessFeatureToggle } from '@/features/admin/components/business-feature-toggle';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -190,7 +195,7 @@ export default async function AdminBusinessesPage({
                     <TableHead>In top</TableHead>
                     <TableHead>Recommended</TableHead>
                     <TableHead>{t('created')}</TableHead>
-                    <TableHead className="text-right">{t('actions')}</TableHead>
+                    <AdminTableActionsHead label={t('actions')} />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -224,13 +229,12 @@ export default async function AdminBusinessesPage({
                       <TableCell className="text-xs text-muted-foreground">
                         {business.createdAt.toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <Button asChild className="h-8 rounded-md px-2" size="sm" variant="ghost">
-                          <Link href={localizeHref(locale, `/admin/businesses/${business.id}`)}>
-                            {t('view')}
-                          </Link>
-                        </Button>
-                      </TableCell>
+                      <AdminTableActionsCell>
+                        <AdminTableNavigateAction
+                          href={localizeHref(locale, `/admin/businesses/${business.id}`)}
+                          label={t('view')}
+                        />
+                      </AdminTableActionsCell>
                     </TableRow>
                   ))}
                 </TableBody>

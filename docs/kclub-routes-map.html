@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KCLUB Routes Access Map</title>
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --surface: #16161a;
+      --surface-2: #1f1f25;
+      --border: #2a2a32;
+      --text: #f5f5f0;
+      --muted: #a8a8a0;
+      --subtle: #6b6b66;
+      --accent: #d4af37;
+      --accent-soft: rgba(212,175,55,.14);
+      --success: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --info: #60a5fa;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      background: radial-gradient(circle at top right, rgba(212,175,55,.08), transparent 30%), var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .wrap { max-width: 1600px; margin: 0 auto; padding: 28px; }
+    h1,h2,h3,p { margin: 0; }
+    .hero {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 24px;
+      padding: 24px;
+      background: linear-gradient(180deg, rgba(212,175,55,.08), rgba(255,255,255,0) 40%), var(--surface);
+      border: 1px solid rgba(212,175,55,.24);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+    .eyebrow {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .hero h1 { font-size: clamp(28px, 4vw, 48px); font-family: Georgia, serif; }
+    .hero p { color: var(--muted); max-width: 900px; }
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;
+    }
+    .pill {
+      padding: 8px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;
+      border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+    }
+    .allow { border-color: rgba(34,197,94,.35); color: var(--success); }
+    .partial { border-color: rgba(245,158,11,.35); color: var(--warn); }
+    .deny { border-color: rgba(239,68,68,.35); color: var(--danger); }
+    .public { border-color: rgba(96,165,250,.35); color: var(--info); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 300px repeat(5, minmax(210px, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+    .col {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      min-height: 100%;
+      box-shadow: var(--shadow);
+    }
+    .col.role {
+      position: sticky;
+      top: 16px;
+      background: linear-gradient(180deg, rgba(212,175,55,.06), transparent 24%), var(--surface);
+    }
+    .col h2 {
+      font-size: 18px;
+      margin-bottom: 14px;
+      color: var(--accent);
+    }
+    .section {
+      margin-bottom: 16px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.04);
+      border-radius: 14px;
+      background: rgba(255,255,255,.02);
+    }
+    .section:last-child { margin-bottom: 0; }
+    .section h3 {
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+    li {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--surface-2);
+      border: 1px solid rgba(255,255,255,.05);
+      font-size: 14px;
+    }
+    li small { display: block; color: var(--subtle); margin-top: 4px; font-size: 12px; }
+    .tag {
+      display: inline-block; margin-bottom: 8px; padding: 4px 8px; border-radius: 999px;
+      font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+      background: var(--accent-soft); color: var(--accent);
+      border: 1px solid rgba(212,175,55,.22);
+    }
+    .note {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .note .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .note p { color: var(--muted); margin-top: 8px; }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+    }
+    @media (max-width: 1280px) {
+      .grid { grid-template-columns: 1fr; }
+      .col.role { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">KCLUB MVP · route access schema</div>
+      <h1>Визуальная схема доступа по ролям</h1>
+      <p>Схема собрана по спецификации MVP и дизайн-документу проекта. Она показывает, какие разделы доступны публично, какие доступны после логина, а какие открыты только для VIP, BUSINESS и ADMIN.</p>
+      <div class="legend">
+        <span class="pill public">Публично</span>
+        <span class="pill allow">Полный доступ</span>
+        <span class="pill partial">Ограниченный / частичный</span>
+        <span class="pill deny">Нет доступа</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="col role">
+        <h2>Роуты / разделы</h2>
+        <div class="section">
+          <h3>Публичные</h3>
+          <ul>
+            <li><code>/</code><small>Главная, hero, CTA, top partners</small></li>
+            <li><code>/directory</code><small>Каталог партнёров, часть контента гостям</small></li>
+            <li><code>/directory/[slug]</code><small>Страница бизнеса, offers частично gated</small></li>
+            <li><code>/verify-card/[card]</code><small>Проверка клубной карты по QR</small></li>
+            <li><code>/sign-in</code>, <code>/sign-up</code><small>Аутентификация</small></li>
+            <li><code>/legal/*</code><small>Terms, Privacy, Refund, Rules, Disclaimer</small></li>
+          </ul>
+        </div>
+        <div class="section">
+          <h3>Member area</h3>
+          <ul>
+            <li><code>/m/onboarding</code><small>Завершение профиля после регистрации</small></li>
+            <li><code>/m/dashboard</code><small>Личный кабинет, карта, quick actions</small></li>
+            <li><code>/m/card</code><small>Цифровая карта участника</small></li>
+            <li><code>/m/profile</code><small>Профиль пользователя</small></li>
+            <li><code>/m/subscription</code><small>Управление VIP-подпиской</small></li>
+          </ul>
+        </div>
+        <div class="section">
+          <h3>VIP / Business</h3>
+          <ul>
+            <li><code>/m/introduce</code><small>Business Introductions / Recommend a Client</small></li>
+            <li><code>/m/my-business</code><small>Мой бизнес, статус публикации</small></li>
+            <li><code>/m/business/new</code><small>Подача бизнеса на размещение</small></li>
+          </ul>
+        </div>
+        <div class="section">
+          <h3>Admin</h3>
+          <ul>
+            <li><code>/admin</code><small>Dashboard</small></li>
+            <li><code>/admin/users</code><small>Пользователи</small></li>
+            <li><code>/admin/businesses</code><small>Бизнесы</small></li>
+            <li><code>/admin/introductions</code><small>Интродукции</small></li>
+            <li><code>/admin/cards</code><small>Карты</small></li>
+            <li><code>/admin/categories</code><small>Категории</small></li>
+            <li><code>/admin/audit</code><small>Audit log</small></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col">
+        <h2>Guest</h2>
+        <span class="tag">Без логина</span>
+        <div class="section"><h3>Доступно</h3><ul>
+          <li class="public">Главная <small>Видит маркетинговые блоки и CTA</small></li>
+          <li class="public">Каталог <small>Видит имя бизнеса, категорию, страну</small></li>
+          <li class="partial">Страница бизнеса <small>Offers и часть деталей скрыты до входа</small></li>
+          <li class="public">Verify card <small>Проверка карты по QR публична</small></li>
+          <li class="public">Auth и legal pages <small>Страницы входа, регистрации и правовые документы</small></li>
+        </ul></div>
+        <div class="section"><h3>Недоступно</h3><ul>
+          <li class="deny">Dashboard / card / profile</li>
+          <li class="deny">VIP features</li>
+          <li class="deny">Business submission</li>
+          <li class="deny">Admin panel</li>
+        </ul></div>
+      </div>
+
+      <div class="col">
+        <h2>Free Member</h2>
+        <span class="tag">Авторизованный участник</span>
+        <div class="section"><h3>Полный доступ</h3><ul>
+          <li class="allow">/m/dashboard <small>Карта, каталог, offers после логина, upgrade to VIP, profile</small></li>
+          <li class="allow">/m/card <small>Цифровая клубная карта</small></li>
+          <li class="allow">/m/profile <small>Управление профилем</small></li>
+          <li class="allow">/directory и /directory/[slug] <small>Полный просмотр каталога и special offers после логина</small></li>
+        </ul></div>
+        <div class="section"><h3>Ограничено</h3><ul>
+          <li class="partial">/m/introduce <small>Вместо функции показываем upgrade/contact prompt</small></li>
+          <li class="partial">/m/subscription <small>Может оформить переход в VIP</small></li>
+        </ul></div>
+        <div class="section"><h3>Нет доступа</h3><ul>
+          <li class="deny">/m/my-business</li>
+          <li class="deny">/m/business/new</li>
+          <li class="deny">/admin/*</li>
+        </ul></div>
+      </div>
+
+      <div class="col">
+        <h2>VIP Member</h2>
+        <span class="tag">Платный участник</span>
+        <div class="section"><h3>Полный доступ</h3><ul>
+          <li class="allow">Все возможности Free Member</li>
+          <li class="allow">/m/introduce <small>Business Introductions доступны только VIP</small></li>
+          <li class="allow">/m/subscription <small>Управление подпиской, cancel until period end</small></li>
+        </ul></div>
+        <div class="section"><h3>Ограничено</h3><ul>
+          <li class="partial">/m/business/new <small>Может submit 1 business</small></li>
+          <li class="partial">/m/my-business <small>Есть только если бизнес уже подан и создан профиль</small></li>
+        </ul></div>
+        <div class="section"><h3>Нет доступа</h3><ul>
+          <li class="deny">/admin/*</li>
+        </ul></div>
+      </div>
+
+      <div class="col">
+        <h2>Business</h2>
+        <span class="tag">Владелец business profile</span>
+        <div class="section"><h3>Полный доступ</h3><ul>
+          <li class="allow">/m/dashboard <small>Отдельный quick action Recommend a Client</small></li>
+          <li class="allow">/m/introduce <small>Форма рекомендации клиента доступна BUSINESS role</small></li>
+          <li class="allow">/m/my-business <small>Мой бизнес, publication status, profile</small></li>
+          <li class="allow">/m/subscription <small>Подписка и статус размещения</small></li>
+        </ul></div>
+        <div class="section"><h3>Ограничено</h3><ul>
+          <li class="partial">/directory/[slug] <small>Как член клуба видит offers; публичная витрина зависит от admin approval</small></li>
+        </ul></div>
+        <div class="section"><h3>Нет доступа</h3><ul>
+          <li class="deny">/admin/*</li>
+        </ul></div>
+      </div>
+
+      <div class="col">
+        <h2>Admin</h2>
+        <span class="tag">2FA required</span>
+        <div class="section"><h3>Полный доступ</h3><ul>
+          <li class="allow">/admin <small>Dashboard: users, businesses, pending queue</small></li>
+          <li class="allow">/admin/users <small>Список, поиск, change role, ban</small></li>
+          <li class="allow">/admin/businesses <small>Approve, reject, hide, view public page</small></li>
+          <li class="allow">/admin/introductions <small>Approve, reject, add admin note</small></li>
+          <li class="allow">/admin/cards <small>List, revoke</small></li>
+          <li class="allow">/admin/categories <small>CRUD категорий</small></li>
+          <li class="allow">/admin/audit <small>Read-only audit log</small></li>
+        </ul></div>
+        <div class="section"><h3>Особенности</h3><ul>
+          <li class="partial">Требуется 2FA <small>Явно указано для admin panel MVP</small></li>
+          <li class="partial">Управляет статусами <small>ACTIVE, BLOCKED, UNDER REVIEW, PUBLISHED, HIDDEN и др.</small></li>
+        </ul></div>
+      </div>
+    </section>
+
+    <section class="note">
+      <div class="card">
+        <h2>Логика access control</h2>
+        <p>Основная модель доступа в MVP строится вокруг пяти состояний: Guest, Free Member, VIP Member, Business и Admin. При этом каталог и verify-card частично публичные, а ценность членства раскрывается через доступ к offers, digital card, VIP-функциям и Business Introductions.</p>
+      </div>
+      <div class="card">
+        <h2>Что важно для реализации</h2>
+        <p>Для фронтенда удобно держать матрицу доступа отдельно: route → allowedRoles → fallback UI. Для gated sections внутри одной страницы лучше использовать не redirect, а условный рендер блоков: teaser, upgrade prompt, sign-in prompt, admin actions.</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

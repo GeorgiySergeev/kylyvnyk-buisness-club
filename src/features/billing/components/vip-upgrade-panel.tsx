@@ -41,17 +41,17 @@ export function VipUpgradePanel({ labels, locale }: VipUpgradePanelProps) {
   }
 
   return (
-    <div className="rounded-md border border-primary/30 bg-primary/5 p-5">
-      <h3 className="text-base font-semibold text-white">{labels.title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-fg/60">{labels.description}</p>
+    <div className="rounded-ds-radius-md border border-ds-accent/30 bg-ds-accent/5 p-ds-space-5">
+      <h3 className="text-ds-text-base font-semibold text-ds-text">{labels.title}</h3>
+      <p className="mt-2 text-ds-text-sm leading-relaxed text-ds-text-muted">{labels.description}</p>
       {error ? (
-        <p role="alert" className="mt-3 text-sm text-destructive">
+        <p role="alert" className="mt-3 text-ds-text-sm text-ds-error">
           {labels.error}
         </p>
       ) : null}
       <Button
         type="button"
-        className="mt-4 min-h-11 w-full rounded-md border border-primary/40 hover:bg-primary/10"
+        className="mt-ds-space-4 min-h-11 w-full rounded-ds-radius-md border border-ds-accent/40 hover:bg-ds-accent/10"
         disabled={pending}
         onClick={startCheckout}
       >

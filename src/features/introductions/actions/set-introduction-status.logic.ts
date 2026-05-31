@@ -28,7 +28,7 @@ export type SetIntroductionStatusDeps = {
   }) => Promise<void>;
   findIntroduction: (introductionId: string) => Promise<IntroductionRecord | undefined>;
   getCurrentAdmin: () => Promise<AuthResult>;
-  revalidate: () => void;
+  revalidate: (introductionId: string) => void;
   updateIntroduction: (input: {
     adminNote: string | null;
     introductionId: string;
@@ -96,7 +96,7 @@ export function createSetIntroductionStatusHandler(deps: SetIntroductionStatusDe
       },
     });
 
-    deps.revalidate();
+    deps.revalidate(parsed.data.introductionId);
 
     return {
       data: {

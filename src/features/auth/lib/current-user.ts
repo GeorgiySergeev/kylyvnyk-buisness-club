@@ -3,6 +3,7 @@ import 'server-only';
 import { eq, isNull, or } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { cache } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
@@ -17,7 +18,7 @@ export type PublicUser = Pick<AuthUser, 'displayName' | 'id' | 'role' | 'status'
 export type AuthErrorCode = 'FORBIDDEN' | 'UNAUTHORIZED';
 export type AuthResult<T> = { data: T; ok: true } | { error: AuthErrorCode; ok: false };
 
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   await headers();
 
   const identity = await getAuthIdentity();
@@ -47,7 +48,7 @@ export async function getCurrentUser() {
   }
 
   return user;
-}
+});
 
 export async function requireUser(locale: SupportedLocale) {
   const user = await getCurrentUser();

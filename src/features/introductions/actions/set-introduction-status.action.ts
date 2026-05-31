@@ -33,9 +33,10 @@ export const setIntroductionStatusAction = createSetIntroductionStatusHandler({
       },
     }),
   getCurrentAdmin: async () => getCurrentUserWithRole('ADMIN'),
-  revalidate: () => {
+  revalidate: (introductionId) => {
     SUPPORTED_LOCALES.forEach((locale) => {
       revalidatePath(localizeHref(locale, '/admin/introductions'));
+      revalidatePath(localizeHref(locale, `/admin/introductions/${introductionId}`));
       revalidatePath(localizeHref(locale, '/m/introduce'));
     });
   },

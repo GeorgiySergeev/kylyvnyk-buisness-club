@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { cookies, headers } from 'next/headers';
+import { cache } from 'react';
 
 import { decodeDevPhoneAuthCookie,DEV_PHONE_AUTH_COOKIE } from '@/features/auth/lib/dev-auth';
 import { env } from '@/lib/env';
@@ -16,7 +17,7 @@ export function isAuthDevPhoneBypassEnabled() {
   return env.AUTH_DEV_PHONE_BYPASS_ENABLED === '1';
 }
 
-export async function getAuthIdentity(): Promise<AuthIdentity | null> {
+export const getAuthIdentity = cache(async (): Promise<AuthIdentity | null> => {
   await headers();
 
   if (isAuthDevPhoneBypassEnabled()) {
@@ -46,4 +47,4 @@ export async function getAuthIdentity(): Promise<AuthIdentity | null> {
     phone,
     providerUserId: user.id,
   };
-}
+});

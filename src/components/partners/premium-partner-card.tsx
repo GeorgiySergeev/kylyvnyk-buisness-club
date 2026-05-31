@@ -1,6 +1,7 @@
 import { ArrowRight, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 export interface PremiumPartnerCardViewModel {
   category: string;
@@ -33,8 +34,8 @@ export function PremiumPartnerCard({ labels, partner }: PremiumPartnerCardProps)
   const imageSrc = partner.imageUrl?.trim() || fallbackImageSrc;
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden bg-transparent text-card-foreground">
-      <div className="relative h-44 shrink-0 overflow-hidden border border-border/50 bg-black">
+    <article className="group relative flex h-full flex-col overflow-hidden bg-transparent text-ds-text">
+      <div className="relative h-44 shrink-0 overflow-hidden border border-ds-border bg-black">
         {/* Partner images may come from arbitrary approved records, so keep this as a plain img. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -48,60 +49,72 @@ export function PremiumPartnerCard({ labels, partner }: PremiumPartnerCardProps)
 
         <div className="absolute left-3 top-3 flex flex-wrap gap-2">
           {partner.isTopPartner ? (
-            <span className="inline-flex min-h-7 items-center border border-border/50 bg-black/70 px-2 text-[10px] uppercase tracking-[0.14em] text-fg/45 backdrop-blur-sm">
+            <Badge
+              className="border-ds-border bg-black/70 uppercase tracking-[0.14em] text-ds-text-faint backdrop-blur-sm"
+              variant="outline"
+            >
               {labels.verifiedLabel}
-            </span>
+            </Badge>
           ) : null}
           {partner.isRecommended ? (
-            <span className="inline-flex min-h-7 items-center border border-border/50 bg-black/70 px-2 text-[10px] uppercase tracking-[0.14em] text-fg/45 backdrop-blur-sm">
+            <Badge
+              className="border-ds-border bg-black/70 uppercase tracking-[0.14em] text-ds-text-faint backdrop-blur-sm"
+              variant="outline"
+            >
               {labels.verifiedLabel}
-            </span>
+            </Badge>
           ) : null}
         </div>
 
         {partner.countryCode ? (
-          <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 border border-border/50 bg-black/70 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-fg/60 backdrop-blur-sm">
+          <Badge
+            className="absolute right-3 top-3 gap-1 border-ds-border bg-black/70 uppercase tracking-[0.14em] text-ds-text-muted backdrop-blur-sm"
+            variant="outline"
+          >
             {partner.flagSvg ? (
               <span
                 aria-hidden="true"
                 className={cn(
-                  'inline-flex h-3 w-[1.125rem] shrink-0 overflow-hidden rounded-sm [&_svg]:size-full',
+                  'inline-flex h-2.5 w-3.5 shrink-0 overflow-hidden rounded-sm [&_svg]:size-full',
                 )}
                 dangerouslySetInnerHTML={{ __html: partner.flagSvg }}
               />
             ) : null}
             {partner.countryCode}
-          </span>
+          </Badge>
         ) : null}
-        <span className="absolute bottom-3 left-3 max-w-[calc(100%-1.5rem)] border border-border/50 bg-black/70 px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-fg/50 backdrop-blur-sm">
+        <Badge
+          className="absolute bottom-3 left-3 max-w-[calc(100%-1.5rem)] border-ds-border bg-black/70 uppercase tracking-[0.14em] text-ds-text-muted backdrop-blur-sm"
+          variant="outline"
+        >
           {partner.category}
-        </span>
+        </Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col justify-start pt-5">
         <div className="min-h-0">
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-fg/45">
-            <MapPin aria-hidden="true" className="size-3.5 text-fg/35" strokeWidth={1.5} />
+          <div className="flex items-center gap-2 text-ds-text-xs uppercase tracking-[0.14em] text-ds-text-faint">
+            <MapPin aria-hidden="true" className="size-3.5 text-ds-text-faint" strokeWidth={1.5} />
             <span className="truncate">{partner.location}</span>
           </div>
 
-          <h3 className="mt-2 min-w-0 text-lg font-semibold leading-tight text-white transition-colors group-hover:text-white/80">
+          <h3 className="mt-2 min-w-0 text-ds-text-lg font-semibold leading-tight text-ds-text transition-ds-transition-fast group-hover:text-ds-text-muted">
             {partner.name}
           </h3>
 
           {partner.description ? (
-            <p className="mt-3 h-18 overflow-hidden text-sm leading-6 text-fg/50 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+            <p className="mt-3 h-18 overflow-hidden text-ds-text-sm leading-6 text-ds-text-muted [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
               {partner.description}
             </p>
           ) : null}
         </div>
 
-        <div className="mt-4 flex shrink-0 items-center justify-between gap-4 border-t border-border/50 pt-4">
+        <div className="mt-4 flex shrink-0 items-center justify-between gap-4 border-t border-ds-border pt-4">
           {partner.discount ? (
-            <span className="text-lg font-semibold tracking-tight text-white">{partner.discount}</span>
+            <span className="text-ds-text-lg font-semibold tracking-tight text-ds-text">{partner.discount}</span>
           ) : null}
           <Link
-            className="ml-auto inline-flex min-h-10 shrink-0 items-center gap-2 text-sm font-semibold text-white transition-colors hover:text-white/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="ml-auto inline-flex min-h-10 shrink-0 items-center gap-ds-space-2 text-ds-text-sm font-semibold text-ds-text transition-ds-transition-fast hover:text-ds-text-muted focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
             href={partner.href}
           >
             {labels.detailsLabel}

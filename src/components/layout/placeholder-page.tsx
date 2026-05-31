@@ -24,20 +24,20 @@ export function PlaceholderPage({
 
   return (
     <PageWrapper>
-      <section className="mx-auto max-w-3xl rounded-lg border border-border bg-card p-6 shadow-xl shadow-black/20 sm:p-8">
+      <section className="mx-auto max-w-3xl rounded-ds-radius-lg border border-ds-border bg-ds-surface p-ds-space-6 shadow-ds-shadow-lg sm:p-ds-space-8">
         <div className="space-y-5">
-          <p className="text-xs font-semibold tracking-[0.32em] text-primary uppercase">
+          <p className="text-ds-text-xs font-semibold tracking-[0.32em] text-ds-brand uppercase">
             {tPlaceholders(eyebrowKey)}
           </p>
-          <h1 className="font-display text-3xl leading-tight text-foreground sm:text-5xl">
+          <h1 className="font-display text-3xl leading-tight text-ds-text sm:text-5xl">
             {tPlaceholders(titleKey)}
           </h1>
-          <p className="max-w-2xl text-base leading-8 text-muted-foreground">
+          <p className="max-w-2xl text-ds-text-base leading-8 text-ds-text-muted">
             {tPlaceholders(descriptionKey)}
           </p>
           <Link
             href={localizeHref(locale, '/')}
-            className="inline-flex min-h-11 items-center justify-center rounded-md bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-[var(--accent-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="inline-flex min-h-11 items-center justify-center rounded-ds-radius-md bg-ds-brand px-ds-space-5 py-ds-space-3 text-ds-text-sm font-bold text-ds-text-inverse transition-ds-transition-fast hover:bg-ds-brand-hover focus-visible:border-ds-accent focus-visible:ring-[3px] focus-visible:ring-ds-accent-subtle focus-visible:outline-none"
           >
             {tPlaceholders(primaryActionKey)}
           </Link>

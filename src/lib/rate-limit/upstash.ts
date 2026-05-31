@@ -73,13 +73,13 @@ export async function checkVerifyCardRateLimit(input: { ip: string; number: stri
     ]);
 
     return { success: ipResult.success && numberResult.success };
-  } catch (error) {
-    log.error("Verify card rate limiter error", {
-      error,
+  } catch (cause) {
+    log.warn("Verify card rate limiter error (fail-open)", {
+      cause: cause instanceof Error ? cause.message : String(cause),
       ip: input.ip,
       numberPrefix: input.number.trim().slice(0, 8).toUpperCase(),
     });
 
-    return { success: false };
+    return { success: true };
   }
 }

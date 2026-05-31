@@ -48,19 +48,19 @@ export function CancelVipButton({
   }
 
   return (
-    <div className="rounded-md border border-border/50 bg-white/2 p-5">
-      <h3 className="text-base font-semibold text-white">{labels.title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-fg/60">{labels.description}</p>
+    <div className="rounded-ds-radius-md border border-ds-border bg-ds-surface p-ds-space-5">
+      <h3 className="text-ds-text-base font-semibold text-ds-text">{labels.title}</h3>
+      <p className="mt-2 text-ds-text-sm leading-relaxed text-ds-text-muted">{labels.description}</p>
       {periodEndLabel ? (
-        <p className="mt-2 text-sm text-fg/50">{periodEndLabel}</p>
+        <p className="mt-2 text-ds-text-sm text-ds-text-muted">{periodEndLabel}</p>
       ) : null}
       {cancelAtPeriodEnd ? (
-        <p className="mt-3 text-sm font-medium text-primary">{labels.scheduled}</p>
+        <p className="mt-3 text-ds-text-sm font-medium text-ds-accent">{labels.scheduled}</p>
       ) : (
         <Button
           type="button"
           variant="outline"
-          className="mt-4 min-h-11 rounded-md border-border/50 bg-transparent text-white hover:bg-white/5"
+          className="mt-ds-space-4 min-h-11 rounded-ds-radius-md border-ds-border bg-transparent text-ds-text hover:bg-ds-surface-hover"
           disabled={pending}
           onClick={cancelMembership}
         >
@@ -69,7 +69,7 @@ export function CancelVipButton({
         </Button>
       )}
       {error ? (
-        <p role="alert" className="mt-3 text-sm text-destructive">
+        <p role="alert" className="mt-3 text-ds-text-sm text-ds-error">
           {labels.error}
         </p>
       ) : null}

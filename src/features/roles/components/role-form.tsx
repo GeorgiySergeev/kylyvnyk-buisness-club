@@ -1,7 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { roles as rolesTable } from '@/db/schema';
+import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
 import { createRoleAction, updateRoleAction } from '@/features/roles/actions';
 
 type Role = typeof rolesTable.$inferSelect;
@@ -19,48 +19,65 @@ interface RoleFormProps {
 }
 
 export function RoleForm({ locale, role }: RoleFormProps) {
-  const router = useRouter();
+  const { pending, refresh, run } = useAdminMutation();
   const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const isEdit = !!role;
 
   async function handleSubmit(formData: FormData) {
-    setPending(true);
     setError(null);
+    setSaved(false);
 
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
     const description = (formData.get('description') as string) || '';
 
     if (isEdit && role) {
-      const result = await updateRoleAction({ id: role.id, name, description });
+      const result = await run(() => updateRoleAction({ id: role.id, name, description }));
       if (!result.ok) {
         setError(result.error);
-        setPending(false);
         return;
       }
-      router.refresh();
-    } else {
-      const result = await createRoleAction({ name, slug, description });
-      if (!result.ok) {
-        setError(result.error);
-        setPending(false);
-        return;
-      }
-      router.push(localizeHref(locale, `/admin/roles/${result.data.id}`));
+      setSaved(true);
+      refresh();
+      return;
     }
 
-    setPending(false);
+    const result = await run(async () => {
+      const created = await createRoleAction({ name, slug, description });
+      if (!created.ok) {
+        return created;
+      }
+      window.location.assign(localizeHref(locale, `/admin/roles/${created.data.id}`));
+      return { ok: true as const };
+    });
+    if (!result.ok) {
+      setError(result.error);
+    }
+  }
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await handleSubmit(new FormData(event.currentTarget));
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4">
-      {error && (
+    <form className="space-y-4" onSubmit={onSubmit}>
+      {error ? (
         <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
         </div>
-      )}
+      ) : null}
+
+      {saved ? (
+        <div
+          className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-600"
+          role="status"
+        >
+          Role updated successfully.
+        </div>
+      ) : null}
 
       <div className="space-y-2">
         <Label htmlFor="name">Name</Label>

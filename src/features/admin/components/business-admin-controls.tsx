@@ -1,8 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -10,6 +9,7 @@ import {
   softDeleteBusinessAction,
   toggleBusinessFeatureAction,
 } from '@/features/admin/actions/business-admin.action';
+import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
 
 interface BusinessAdminControlsProps {
   businessId: string;
@@ -24,34 +24,36 @@ export function BusinessAdminControls({
   isRecommended,
   isTopPartner,
 }: BusinessAdminControlsProps) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const { pending, refresh, run } = useAdminMutation();
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
-  function toggle(payload: { isRecommended?: boolean; isTopPartner?: boolean }) {
-    startTransition(async () => {
-      const result = await toggleBusinessFeatureAction({ businessId, ...payload });
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      setError(null);
-      router.refresh();
-    });
+  async function toggle(payload: { isRecommended?: boolean; isTopPartner?: boolean }) {
+    setError(null);
+    setSaved(false);
+    const result = await run(() => toggleBusinessFeatureAction({ businessId, ...payload }));
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setSaved(true);
+    refresh();
   }
 
-  function toggleDelete() {
-    startTransition(async () => {
-      const result = isDeleted
-        ? await restoreBusinessAction({ businessId })
-        : await softDeleteBusinessAction({ businessId });
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      setError(null);
-      router.refresh();
-    });
+  async function toggleDelete() {
+    setError(null);
+    setSaved(false);
+    const result = await run(() =>
+      isDeleted
+        ? restoreBusinessAction({ businessId })
+        : softDeleteBusinessAction({ businessId }),
+    );
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setSaved(true);
+    refresh();
   }
 
   return (
@@ -59,7 +61,9 @@ export function BusinessAdminControls({
       <div className="flex flex-wrap gap-2">
         <Button
           disabled={pending}
-          onClick={() => toggle({ isRecommended: !isRecommended })}
+          onClick={() => {
+            void toggle({ isRecommended: !isRecommended });
+          }}
           type="button"
           variant={isRecommended ? 'default' : 'outline'}
         >
@@ -67,18 +71,35 @@ export function BusinessAdminControls({
         </Button>
         <Button
           disabled={pending}
-          onClick={() => toggle({ isTopPartner: !isTopPartner })}
+          onClick={() => {
+            void toggle({ isTopPartner: !isTopPartner });
+          }}
           type="button"
           variant={isTopPartner ? 'default' : 'outline'}
         >
           {isTopPartner ? 'Top Partner: ON' : 'Top Partner: OFF'}
         </Button>
-        <Button disabled={pending} onClick={toggleDelete} type="button" variant={isDeleted ? 'outline' : 'destructive'}>
+        <Button
+          disabled={pending}
+          onClick={() => {
+            void toggleDelete();
+          }}
+          type="button"
+          variant={isDeleted ? 'outline' : 'destructive'}
+        >
           {isDeleted ? 'Restore' : 'Soft Delete'}
         </Button>
       </div>
       {pending ? (
-        <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />Saving...</p>
+        <p className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" />
+          Saving...
+        </p>
+      ) : null}
+      {saved ? (
+        <p className="text-sm text-emerald-600" role="status">
+          Updated successfully.
+        </p>
       ) : null}
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
     </div>

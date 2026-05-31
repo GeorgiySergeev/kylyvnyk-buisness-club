@@ -1,15 +1,17 @@
 'use client';
 
 import {
+  Compass,
+  CreditCard,
   Handshake,
   LogOut,
   Settings,
   Sparkles,
   UserRound,
+  type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import type { ComponentType } from 'react';
 import { useState } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
@@ -139,58 +141,17 @@ export interface MemberDashboardLabels {
 }
 
 const tabs: Array<{
-  icon: ComponentType<{ className?: string }>;
+  icon: LucideIcon;
   key: MemberDashboardTab;
   labelKey: keyof Pick<
     MemberDashboardLabels,
     'tabFeatures' | 'tabIntroduction' | 'tabProfile' | 'tabSettings'
   >;
-  styles: {
-    active: string;
-    icon: string;
-    idle: string;
-  };
 }> = [
-  {
-    icon: UserRound,
-    key: 'profile',
-    labelKey: 'tabProfile',
-    styles: {
-      active: 'border-primary/60 bg-primary/15 ring-1 ring-primary/30',
-      icon: 'bg-primary/25 text-primary',
-      idle: 'border-border/50 bg-white/5 hover:border-primary/40 hover:bg-primary/10',
-    },
-  },
-  {
-    icon: Sparkles,
-    key: 'features',
-    labelKey: 'tabFeatures',
-    styles: {
-      active: 'border-violet-500/60 bg-violet-500/15 ring-1 ring-violet-500/30',
-      icon: 'bg-violet-500/25 text-violet-300',
-      idle: 'border-border/50 bg-white/5 hover:border-violet-500/40 hover:bg-violet-500/10',
-    },
-  },
-  {
-    icon: Handshake,
-    key: 'introduction',
-    labelKey: 'tabIntroduction',
-    styles: {
-      active: 'border-teal-500/60 bg-teal-500/15 ring-1 ring-teal-500/30',
-      icon: 'bg-teal-500/25 text-teal-300',
-      idle: 'border-border/50 bg-white/5 hover:border-teal-500/40 hover:bg-teal-500/10',
-    },
-  },
-  {
-    icon: Settings,
-    key: 'settings',
-    labelKey: 'tabSettings',
-    styles: {
-      active: 'border-amber-500/60 bg-amber-500/15 ring-1 ring-amber-500/30',
-      icon: 'bg-amber-500/25 text-amber-300',
-      idle: 'border-border/50 bg-white/5 hover:border-amber-500/40 hover:bg-amber-500/10',
-    },
-  },
+  { icon: UserRound, key: 'profile', labelKey: 'tabProfile' },
+  { icon: Sparkles, key: 'features', labelKey: 'tabFeatures' },
+  { icon: Handshake, key: 'introduction', labelKey: 'tabIntroduction' },
+  { icon: Settings, key: 'settings', labelKey: 'tabSettings' },
 ];
 
 function resolveActiveTabDescription(tab: MemberDashboardTab, labels: MemberDashboardLabels) {
@@ -255,148 +216,110 @@ export function MemberDashboardTabs({
   const resolvedContact = profile.email ?? profile.phone;
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
-      <aside className="w-full shrink-0 lg:w-[17.5rem] xl:w-[19rem]">
-        <div className="sticky top-6 space-y-5 rounded-xl border border-border/50 bg-card/30 p-4 sm:p-5">
-          <div className="flex items-center gap-3 border-b border-border/50 pb-4">
-            <Avatar className="size-12 shrink-0 border border-border/50 bg-white/5">
+    <div className="flex flex-col gap-8">
+      <header className="space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            <Avatar className="size-11 shrink-0 bg-white/5">
               <AvatarImage alt="" src={profile.avatarUrl ?? undefined} />
-              <AvatarFallback className="text-sm text-fg/60">{fallbackInitials}</AvatarFallback>
+              <AvatarFallback className="text-sm text-ds-text-muted">{fallbackInitials}</AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-white">{resolvedName}</p>
-              <p className="truncate text-xs text-fg/50">{resolvedContact}</p>
-              <span className="mt-1.5 inline-flex max-w-full items-center rounded-md border border-primary/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-primary">
+              <p className="truncate text-sm font-medium text-ds-text">{resolvedName}</p>
+              <p className="truncate text-xs text-ds-text-muted">{resolvedContact}</p>
+              <p className="mt-1 text-[10px] uppercase tracking-widest text-ds-text-faint">
                 {memberTierLabel}
-              </span>
+              </p>
             </div>
           </div>
 
-          <nav aria-label="Dashboard sections" className="grid grid-cols-2 gap-2">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.key;
-              return (
-                <button
-                  aria-current={isActive ? 'page' : undefined}
-                  className={cn(
-                    'flex min-h-[4.5rem] flex-col items-center justify-center gap-2 rounded-xl border px-2 py-3 text-center text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                    isActive ? cn(tab.styles.active, 'text-white') : cn(tab.styles.idle, 'text-fg/55'),
-                  )}
-                  key={tab.key}
-                  onClick={() => handleTabChange(tab.key)}
-                  type="button"
-                >
-                  <span
-                    className={cn(
-                      'inline-flex size-9 items-center justify-center rounded-lg',
-                      tab.styles.icon,
-                    )}
-                  >
-                    <Icon aria-hidden="true" className="size-4" />
-                  </span>
-                  <span className="leading-tight">{labels[tab.labelKey]}</span>
-                </button>
-              );
-            })}
-          </nav>
-
-          <ul className="space-y-0.5 border-t border-border/50 pt-4">
-            <li>
-              <Link
-                className="flex min-h-10 items-center gap-2.5 rounded-lg px-2 text-sm text-fg/55 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                href={localizeHref(locale, '/directory')}
-              >
-                {labels.openDirectory}
-              </Link>
-            </li>
-            <li>
-              <Link
-                className="flex min-h-10 items-center gap-2.5 rounded-lg px-2 text-sm text-fg/55 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                href={verifyUrl}
-              >
-                {labels.verifyCard}
-              </Link>
-            </li>
-          </ul>
-
-          <div className="border-t border-border/50 pt-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:justify-end">
             <Link
-              className="flex min-h-10 items-center gap-2.5 rounded-lg px-2 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="inline-flex min-h-11 items-center gap-2 text-sm text-ds-text-muted transition-colors hover:text-ds-text focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
+              href={localizeHref(locale, '/directory')}
+            >
+              <Compass aria-hidden="true" className="size-4 shrink-0" strokeWidth={1.5} />
+              <span>{labels.openDirectory}</span>
+            </Link>
+            <Link
+              className="inline-flex min-h-11 items-center gap-2 text-sm text-ds-text-muted transition-colors hover:text-ds-text focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
+              href={verifyUrl}
+            >
+              <CreditCard aria-hidden="true" className="size-4 shrink-0" strokeWidth={1.5} />
+              <span>{labels.verifyCard}</span>
+            </Link>
+            <Link
+              className="inline-flex min-h-11 items-center gap-2 text-sm text-ds-text-muted transition-colors hover:text-ds-text focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
               href={localizeHref(locale, '/sign-out')}
             >
-              <LogOut aria-hidden="true" className="size-4 shrink-0" />
-              {labels.settingsSignOut}
+              <LogOut aria-hidden="true" className="size-4 shrink-0" strokeWidth={1.5} />
+              <span>{labels.settingsSignOut}</span>
             </Link>
           </div>
         </div>
-      </aside>
 
-      <div className="min-w-0 flex-1">
-        <div className="mb-4 lg:hidden">
-          <nav
-            aria-label="Dashboard sections"
-            className="inline-flex w-full gap-1.5 overflow-x-auto rounded-xl border border-border/50 bg-card/30 p-1.5"
-          >
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.key;
-              return (
-                <button
-                  aria-current={isActive ? 'page' : undefined}
-                  className={cn(
-                    'whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                    isActive
-                      ? 'bg-white text-black'
-                      : 'text-fg/50 hover:bg-white/5 hover:text-white',
-                  )}
-                  key={`${tab.key}-mobile`}
-                  onClick={() => handleTabChange(tab.key)}
-                  type="button"
-                >
-                  {labels[tab.labelKey]}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
+        <nav
+          aria-label="Dashboard sections"
+          className="flex gap-6 overflow-x-auto [-ms-overflow-style:none] scrollbar-none [&::-webkit-scrollbar]:hidden"
+        >
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                aria-current={isActive ? 'page' : undefined}
+                className={cn(
+                  'inline-flex min-h-11 shrink-0 items-center gap-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none',
+                  isActive
+                    ? 'font-medium text-ds-text'
+                    : 'text-ds-text-muted hover:text-ds-text',
+                )}
+                key={tab.key}
+                onClick={() => handleTabChange(tab.key)}
+                type="button"
+              >
+                <Icon aria-hidden="true" className="size-4 shrink-0" strokeWidth={1.5} />
+                <span className="whitespace-nowrap">{labels[tab.labelKey]}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </header>
 
-        <div className="rounded-xl border border-border/50 bg-card/30">
-          <header className="border-b border-border/50 px-5 py-5 sm:px-8 sm:py-6">
-            <h2 className="text-lg font-semibold text-white sm:text-xl">
-              {resolveActiveTabTitle(activeTab, labels)}
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-fg/50">
-              {resolveActiveTabDescription(activeTab, labels)}
-            </p>
-          </header>
+      <div className="min-w-0">
+        <div>
+          {activeTab === 'profile' ? (
+            <div className="mb-8 max-w-md">
+              {card ? (
+                <ClubCard
+                  cardNumber={card.number}
+                  memberName={profile.displayName ?? 'Member'}
+                  memberType={card.memberType}
+                  status={card.status}
+                  verifyUrl={verifyUrl}
+                />
+              ) : (
+                <ClubCardPlaceholder
+                  description={labels.cardMissingDescription}
+                  title={labels.cardMissingTitle}
+                />
+              )}
+            </div>
+          ) : (
+            <header className="mb-6">
+              <h2 className="text-lg font-medium text-ds-text sm:text-xl">
+                {resolveActiveTabTitle(activeTab, labels)}
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ds-text-muted">
+                {resolveActiveTabDescription(activeTab, labels)}
+              </p>
+            </header>
+          )}
 
-          <div className="space-y-6 p-5 sm:p-8">
+          <div className="space-y-8">
             {activeTab === 'profile' ? (
               <>
-                <DashboardTabPanel
-                  embedded
-                  description={labels.profileDescription}
-                  title={labels.profileTitle}
-                >
-                  <DashboardProfileView labels={profileLabels} {...profile} />
-                </DashboardTabPanel>
-
-                <DashboardTabPanel embedded description={labels.cardDescription} title={labels.cardTitle}>
-                  {card ? (
-                    <ClubCard
-                      cardNumber={card.number}
-                      memberName={profile.displayName ?? 'Member'}
-                      memberType={card.memberType}
-                      status={card.status}
-                      verifyUrl={verifyUrl}
-                    />
-                  ) : (
-                    <ClubCardPlaceholder
-                      description={labels.cardMissingDescription}
-                      title={labels.cardMissingTitle}
-                    />
-                  )}
-                </DashboardTabPanel>
+                <DashboardProfileView labels={profileLabels} {...profile} />
 
                 <DashboardTabPanel
                   embedded

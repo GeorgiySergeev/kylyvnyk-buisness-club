@@ -343,7 +343,7 @@ export function MembershipPossibilitiesPanel({
             key={plan.title}
           >
             {plan.highlighted ? (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-2 py-px text-[10px] font-medium text-primary-foreground">
                 {labels.planPopularBadge}
               </span>
             ) : null}

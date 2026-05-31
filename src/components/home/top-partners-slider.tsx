@@ -88,9 +88,9 @@ export function TopPartnersSlider({
     <div className="relative">
       {canNavigate ? (
         <div className="mb-6 flex items-center justify-center gap-4 sm:mb-8 md:hidden">
-          <span aria-live="polite" className="font-mono text-xs text-fg/45">
+          <span aria-live="polite" className="font-mono text-ds-text-xs text-ds-text-faint">
             {String(activeIndex + 1).padStart(2, '0')}
-            <span className="text-fg/30"> / </span>
+            <span className="text-ds-text-muted"> / </span>
             {String(slideCount).padStart(2, '0')}
           </span>
 
@@ -98,7 +98,7 @@ export function TopPartnersSlider({
             <button
               type="button"
               aria-label={previousLabel}
-              className="inline-flex size-10 items-center justify-center rounded-full border border-border/50 text-white/80 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="inline-flex size-10 items-center justify-center rounded-full border border-ds-border text-ds-text-muted transition-ds-transition-fast hover:bg-ds-surface-hover hover:text-ds-text focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
               onClick={goPrev}
             >
               <ChevronLeft aria-hidden="true" className="size-5" strokeWidth={1.25} />
@@ -106,7 +106,7 @@ export function TopPartnersSlider({
             <button
               type="button"
               aria-label={nextLabel}
-              className="inline-flex size-10 items-center justify-center rounded-full border border-border/50 text-white/80 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="inline-flex size-10 items-center justify-center rounded-full border border-ds-border text-ds-text-muted transition-ds-transition-fast hover:bg-ds-surface-hover hover:text-ds-text focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
               onClick={goNext}
             >
               <ChevronRight aria-hidden="true" className="size-5" strokeWidth={1.25} />
@@ -120,7 +120,7 @@ export function TopPartnersSlider({
         aria-label={regionLabel}
         aria-roledescription="carousel"
         className={cn(
-          'flex border-y border-border/50 py-4 sm:py-6',
+          'flex border-y border-ds-border py-4 sm:py-6',
           'max-md:gap-4 max-md:overflow-x-auto max-md:scroll-smooth max-md:snap-x max-md:snap-mandatory',
           'max-md:[-ms-overflow-style:none] max-md:[scrollbar-width:none] max-md:[&::-webkit-scrollbar]:hidden',
           'md:overflow-hidden',
@@ -136,7 +136,7 @@ export function TopPartnersSlider({
             className={cn(
               'relative shrink-0 px-4 sm:px-5 md:w-1/3 md:px-6',
               'max-md:w-full max-md:snap-start max-md:basis-full',
-              index > 0 && 'md:border-l md:border-border/50',
+              index > 0 && 'md:border-l md:border-ds-border',
             )}
             data-slide
             role="group"
@@ -158,7 +158,7 @@ export function TopPartnersSlider({
               aria-label={`${index + 1} / ${slideCount}`}
               className={cn(
                 'size-1.5 rounded-full transition-colors',
-                index === activeIndex ? 'bg-white' : 'bg-white/25',
+                index === activeIndex ? 'bg-ds-text' : 'bg-ds-text-muted',
               )}
               onClick={() => scrollToIndex(index)}
             />

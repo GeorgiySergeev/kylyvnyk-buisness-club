@@ -1,6 +1,9 @@
 import { asc, isNull } from 'drizzle-orm';
+import Link from 'next/link';
 
-import type { SupportedLocale } from '@/components/layout/navigation';
+import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -12,24 +15,60 @@ import {
 import { db } from '@/db/client';
 import { businesses, categories } from '@/db/schema';
 import {
+  AdminTableActionsCell,
+  AdminTableActionsHead,
+} from '@/features/admin/components/admin-table-actions';
+import { CategoryAdminProvider } from '@/features/admin/components/category-admin-provider';
+import { CategoryMobileActions } from '@/features/admin/components/category-mobile-actions';
+import { CategoryRowActions } from '@/features/admin/components/category-row-actions';
+import { CategoriesPageActions } from '@/features/admin/components/categories-page-actions';
+import {
   AdminDataTableShell,
   AdminEmptyState,
+  AdminFiltersBar,
+  AdminMobileCard,
   AdminPageHeader,
+  AdminSearchInput,
 } from '@/features/admin/components/admin-ui';
-import { CategoriesCrud } from '@/features/admin/components/categories-crud';
+import {
+  buildCategoryDisplayRows,
+  type AdminCategoryRow,
+  type CategoryScopeFilter,
+} from '@/features/admin/lib/categories-list';
+import { cn } from '@/lib/utils';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
+
+const SCOPE_FILTERS = ['ALL', 'TOP_LEVEL', 'IN_USE'] as const;
+
+const DEPTH_PADDING: Record<number, string> = {
+  0: '',
+  1: 'pl-4',
+  2: 'pl-8',
+  3: 'pl-12',
+  4: 'pl-16',
+};
 
 interface AdminCategoriesPageProps {
   params: Promise<{
     locale: SupportedLocale;
   }>;
+  searchParams: Promise<{
+    q?: string;
+    scope?: string;
+  }>;
 }
 
-export default async function AdminCategoriesPage({ params }: AdminCategoriesPageProps) {
+export default async function AdminCategoriesPage({ params, searchParams }: AdminCategoriesPageProps) {
   const { locale } = await params;
+  const { q, scope } = await searchParams;
   const t = getT('admin', locale);
+
+  const searchTerm = q?.trim() ?? '';
+  const rawScope = scope?.trim() ?? '';
+  const scopeFilter: CategoryScopeFilter =
+    rawScope === 'TOP_LEVEL' || rawScope === 'IN_USE' ? rawScope : '';
 
   type CategoryRow = {
     icon: string | null;
@@ -61,69 +100,216 @@ export default async function AdminCategoriesPage({ params }: AdminCategoriesPag
     }),
   ]);
 
-  const categoryNamesById = new Map(categoryRows.map((category) => [category.id, category.name]));
   const businessCountsByCategory = businessRows.reduce<Map<number, number>>((counts, business) => {
     if (business.categoryId === null) return counts;
     counts.set(business.categoryId, (counts.get(business.categoryId) ?? 0) + 1);
     return counts;
   }, new Map());
 
+  const childCountsByCategory = categoryRows.reduce<Map<number, number>>((counts, category) => {
+    if (category.parentId === null) return counts;
+    counts.set(category.parentId, (counts.get(category.parentId) ?? 0) + 1);
+    return counts;
+  }, new Map());
+
+  const allRows: AdminCategoryRow[] = categoryRows.map((category) => ({
+    ...category,
+    childCategories: childCountsByCategory.get(category.id) ?? 0,
+    linkedBusinesses: businessCountsByCategory.get(category.id) ?? 0,
+  }));
+
+  const totalCount = allRows.length;
+  const topLevelCount = allRows.filter((row) => row.parentId === null).length;
+  const linkedCount = allRows.filter((row) => row.linkedBusinesses > 0).length;
+
+  const displayRows = buildCategoryDisplayRows(allRows, { q: searchTerm, scope: scopeFilter });
+  const categoryNamesById = new Map(allRows.map((category) => [category.id, category.name]));
+
+  const dialogLabels = {
+    addCategory: t('addCategory'),
+    cancel: t('cancel'),
+    categoryDeleteBlockedBusinesses: t('categoryDeleteBlockedBusinesses'),
+    categoryDeleteBlockedChildren: t('categoryDeleteBlockedChildren'),
+    categoryIcon: t('categoryIcon'),
+    categoryName: t('categoryName'),
+    categoryNoParent: t('categoryNoParent'),
+    categoryParent: t('categoryParent'),
+    confirmDeleteCategory: t('confirmDeleteCategory'),
+    create: t('create'),
+    createCategoryDialogTitle: t('createCategoryDialogTitle'),
+    delete: t('delete'),
+    editCategory: t('editCategory'),
+    editCategoryDialogTitle: t('editCategoryDialogTitle'),
+    emptyValue: t('emptyValue'),
+    saveShort: t('saveShort'),
+    slug: t('slug'),
+    slugHint: t('slugHint'),
+  };
+
+  const basePath = localizeHref(locale, '/admin/categories');
+
   return (
-    <div className="space-y-5">
-      <AdminPageHeader description={t('categoriesDescription')} title={t('categoriesTitle')} />
+    <CategoryAdminProvider allRows={allRows} labels={dialogLabels}>
+      <div className="space-y-5">
+        <AdminPageHeader
+          description={`${totalCount.toLocaleString()} categories · ${topLevelCount.toLocaleString()} top-level · ${linkedCount.toLocaleString()} in use`}
+          title={t('categoriesTitle')}
+          actions={<CategoriesPageActions addCategoryLabel={t('addCategory')} />}
+        />
 
-      <CategoriesCrud
-        labels={{
-          create: t('create'),
-          delete: t('delete'),
-          icon: t('categoryIcon'),
-          name: t('categoryName'),
-          parentId: t('parentId'),
-          save: t('saveShort'),
-          slug: t('slug'),
-        }}
-        rows={categoryRows.map((category) => ({
-          ...category,
-          linkedBusinesses: businessCountsByCategory.get(category.id) ?? 0,
-        }))}
-      />
+        <AdminFiltersBar>
+          <form className="flex w-full gap-2 sm:max-w-md" method="GET">
+            <AdminSearchInput
+              name="q"
+              placeholder={t('categoriesSearchPlaceholder')}
+              value={searchTerm}
+            />
+            {scopeFilter ? <input name="scope" type="hidden" value={scopeFilter} /> : null}
+            <Button className="h-9 rounded-md" size="sm" type="submit">
+              {t('search')}
+            </Button>
+          </form>
 
-      {categoryRows.length === 0 ? (
-        <AdminEmptyState description={t('noCategoriesDescription')} title={t('noCategories')} />
-      ) : (
-        <AdminDataTableShell>
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>{t('categoryName')}</TableHead>
-                <TableHead>{t('slug')}</TableHead>
-                <TableHead>{t('categoryParent')}</TableHead>
-                <TableHead>{t('categoryIcon')}</TableHead>
-                <TableHead className="text-right">{t('linkedBusinesses')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {categoryRows.map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell className="font-medium text-foreground">{category.name}</TableCell>
-                  <TableCell className="font-mono text-[11px] text-muted-foreground">
-                    {category.slug}
-                  </TableCell>
-                  <TableCell>
-                    {category.parentId
-                      ? (categoryNamesById.get(category.parentId) ?? t('emptyValue'))
-                      : t('emptyValue')}
-                  </TableCell>
-                  <TableCell>{category.icon ?? t('emptyValue')}</TableCell>
-                  <TableCell className="text-right">
-                    {businessCountsByCategory.get(category.id) ?? 0}
-                  </TableCell>
-                </TableRow>
+          <div className="flex flex-wrap gap-1.5">
+            {SCOPE_FILTERS.map((item) => {
+              const isActive = item === 'ALL' ? !scopeFilter : scopeFilter === item;
+              const href =
+                item === 'ALL'
+                  ? `${basePath}${searchTerm ? `?q=${encodeURIComponent(searchTerm)}` : ''}`
+                  : `${basePath}?scope=${item}${searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''}`;
+
+              const label =
+                item === 'ALL'
+                  ? t('categoriesFilterAll')
+                  : item === 'TOP_LEVEL'
+                    ? t('categoriesFilterTopLevel')
+                    : t('categoriesFilterInUse');
+
+              return (
+                <Button
+                  asChild
+                  className="h-8 rounded-md"
+                  key={item}
+                  size="sm"
+                  variant={isActive ? 'default' : 'outline'}
+                >
+                  <Link href={href}>{label}</Link>
+                </Button>
+              );
+            })}
+          </div>
+        </AdminFiltersBar>
+
+        {totalCount === 0 ? (
+          <AdminEmptyState
+            description={t('noCategoriesDescription')}
+            title={t('noCategories')}
+          />
+        ) : displayRows.length === 0 ? (
+          <AdminEmptyState title={t('categoriesNoSearchResults')} />
+        ) : (
+          <>
+            <div className="space-y-3 md:hidden">
+              {displayRows.map((row) => (
+                <AdminMobileCard
+                  actions={
+                    <CategoryMobileActions
+                      deleteLabel={t('delete')}
+                      editLabel={t('edit')}
+                      row={row}
+                    />
+                  }
+                  badge={
+                    row.linkedBusinesses > 0 ? (
+                      <Badge variant="secondary">{row.linkedBusinesses}</Badge>
+                    ) : undefined
+                  }
+                  key={row.id}
+                  rows={[
+                    {
+                      label: t('slug'),
+                      value: <span className="font-mono text-[11px]">{row.slug}</span>,
+                    },
+                    {
+                      label: t('categoryParent'),
+                      value: row.parentId
+                        ? (categoryNamesById.get(row.parentId) ?? t('emptyValue'))
+                        : t('emptyValue'),
+                    },
+                    { label: t('linkedBusinesses'), value: row.linkedBusinesses },
+                  ]}
+                  subtitle={row.slug}
+                  title={
+                    <span className={cn('inline-flex items-center gap-2', DEPTH_PADDING[row.depth] ?? 'pl-16')}>
+                      {row.icon ? <span aria-hidden>{row.icon}</span> : null}
+                      {row.name}
+                    </span>
+                  }
+                />
               ))}
-            </TableBody>
-          </Table>
-        </AdminDataTableShell>
-      )}
-    </div>
+            </div>
+
+            <div className="hidden md:block">
+              <AdminDataTableShell>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-0 bg-card hover:bg-transparent">
+                      <TableHead className="text-muted-foreground">{t('categoryName')}</TableHead>
+                      <TableHead className="text-muted-foreground">{t('slug')}</TableHead>
+                      <TableHead className="text-muted-foreground">{t('categoryParent')}</TableHead>
+                      <TableHead className="text-muted-foreground">{t('linkedBusinesses')}</TableHead>
+                      <AdminTableActionsHead label={t('actions')} />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {displayRows.map((row) => (
+                      <TableRow className="border-border" key={row.id}>
+                        <TableCell>
+                          <div
+                            className={cn(
+                              'flex items-center gap-2',
+                              DEPTH_PADDING[row.depth] ?? 'pl-16',
+                            )}
+                          >
+                            {row.icon ? (
+                              <span aria-hidden className="text-base leading-none">
+                                {row.icon}
+                              </span>
+                            ) : null}
+                            <span className="font-medium text-foreground">{row.name}</span>
+                            {row.childCategories > 0 ? (
+                              <Badge className="bg-muted text-muted-foreground" variant="secondary">
+                                {row.childCategories} {t('subcategories')}
+                              </Badge>
+                            ) : null}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-mono text-[11px] text-muted-foreground">
+                          {row.slug}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {row.parentId
+                            ? (categoryNamesById.get(row.parentId) ?? t('emptyValue'))
+                            : t('emptyValue')}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{row.linkedBusinesses}</TableCell>
+                        <AdminTableActionsCell>
+                          <CategoryRowActions
+                            actionsLabel={t('actions')}
+                            deleteLabel={t('delete')}
+                            editLabel={t('edit')}
+                            row={row}
+                          />
+                        </AdminTableActionsCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </AdminDataTableShell>
+            </div>
+          </>
+        )}
+      </div>
+    </CategoryAdminProvider>
   );
 }

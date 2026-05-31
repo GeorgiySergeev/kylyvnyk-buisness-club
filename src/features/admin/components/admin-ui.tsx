@@ -9,12 +9,12 @@ import { cn } from '@/lib/utils';
 type StatusTone = 'default' | 'success' | 'warning' | 'danger' | 'info' | 'muted';
 
 const statusToneClasses: Record<StatusTone, string> = {
-  danger: 'border-red-500/25 bg-red-500/10 text-red-300',
-  default: 'border-primary/30 bg-primary/10 text-primary',
-  info: 'border-blue-500/25 bg-blue-500/10 text-blue-300',
-  muted: 'border-white/10 bg-white/5 text-muted-foreground',
-  success: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  warning: 'border-amber-500/25 bg-amber-500/10 text-amber-300',
+  danger: 'bg-ds-error-subtle text-ds-error',
+  default: 'bg-ds-surface-2 text-ds-text-muted',
+  info: 'bg-ds-accent-subtle text-ds-accent',
+  muted: 'bg-ds-surface text-ds-text-faint',
+  success: 'bg-ds-success-subtle text-ds-success',
+  warning: 'bg-ds-warning-subtle text-ds-warning',
 };
 
 export function getAdminStatusTone(status: string): StatusTone {
@@ -42,13 +42,13 @@ export function AdminPageHeader({
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0 space-y-1">
         {eyebrow ? (
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary/80">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ds-accent/80">
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="truncate text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+        <h1 className="truncate text-ds-text-2xl font-semibold tracking-tight text-ds-text">{title}</h1>
         {description ? (
-          <p className="max-w-3xl text-sm text-muted-foreground">{description}</p>
+          <p className="max-w-3xl text-ds-text-sm text-ds-text-muted">{description}</p>
         ) : null}
       </div>
       {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
@@ -70,23 +70,23 @@ export function AdminMetricCard({
   value: ReactNode;
 }) {
   return (
-    <Card className="border-border/80 bg-card/95 shadow-none">
+    <Card className="border-ds-border bg-ds-surface shadow-none">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 p-4 pb-2">
-        <CardTitle className="text-xs font-semibold text-muted-foreground">{label}</CardTitle>
-        {icon ? <div className="text-muted-foreground">{icon}</div> : null}
+        <CardTitle className="text-ds-text-xs uppercase text-ds-text-muted">{label}</CardTitle>
+        {icon ? <div className="text-ds-text-muted">{icon}</div> : null}
       </CardHeader>
       <CardContent className="p-4 pt-0">
         <div
           className={cn(
-            'text-2xl font-semibold tracking-tight text-foreground',
-            tone === 'success' && 'text-emerald-300',
-            tone === 'warning' && 'text-amber-300',
-            tone === 'danger' && 'text-red-300',
+            'text-ds-text-xl font-bold font-mono tracking-tight text-ds-text',
+            tone === 'success' && 'text-ds-success',
+            tone === 'warning' && 'text-ds-warning',
+            tone === 'danger' && 'text-ds-error',
           )}
         >
           {value}
         </div>
-        {meta ? <p className="mt-1 text-xs text-muted-foreground">{meta}</p> : null}
+        {meta ? <p className="mt-1 text-ds-text-xs text-ds-text-muted">{meta}</p> : null}
       </CardContent>
     </Card>
   );
@@ -104,14 +104,14 @@ export function AdminPanel({
   title?: string;
 }) {
   return (
-    <Card className={cn('border-border/80 bg-card/95 shadow-none', className)}>
+    <Card className={cn('border-ds-border bg-ds-surface shadow-none', className)}>
       {title ? (
-        <CardHeader className="space-y-1 p-4">
-          <CardTitle className="text-base font-semibold text-foreground">{title}</CardTitle>
-          {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
+        <CardHeader className="space-y-1 p-ds-space-4">
+          <CardTitle className="text-ds-text-base font-semibold text-ds-text">{title}</CardTitle>
+          {description ? <p className="text-ds-text-sm text-ds-text-muted">{description}</p> : null}
         </CardHeader>
       ) : null}
-      <CardContent className={cn('p-4', title && 'pt-0')}>{children}</CardContent>
+      <CardContent className={cn('p-ds-space-4', title && 'pt-0')}>{children}</CardContent>
     </Card>
   );
 }
@@ -126,7 +126,7 @@ export function AdminFiltersBar({
   return (
     <div
       className={cn(
-        'flex flex-col gap-3 rounded-md border border-border/80 bg-card/70 p-3 sm:flex-row sm:flex-wrap sm:items-center',
+        'flex flex-col gap-3 rounded-ds-radius-md border border-ds-border bg-ds-surface p-ds-space-3 sm:flex-row sm:flex-wrap sm:items-center',
         className,
       )}
     >
@@ -146,9 +146,9 @@ export function AdminSearchInput({
 }) {
   return (
     <div className="relative min-w-0 flex-1 sm:min-w-64">
-      <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ds-text-muted" />
       <Input
-        className="h-9 border-border/80 bg-background/80 pl-9 text-sm"
+        className="h-9 border-ds-border bg-ds-bg pl-9 text-ds-text-sm"
         defaultValue={value}
         name={name}
         placeholder={placeholder}
@@ -160,7 +160,7 @@ export function AdminSearchInput({
 
 export function AdminDataTableShell({ children }: { children: ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-md border border-border/80 bg-card/95">{children}</div>
+    <div className="overflow-hidden rounded-ds-radius-md border border-ds-border bg-ds-surface">{children}</div>
   );
 }
 
@@ -168,10 +168,9 @@ export function AdminStatusBadge({ children, tone }: { children: ReactNode; tone
   return (
     <Badge
       className={cn(
-        'rounded-md px-2 py-0.5 text-[11px] font-medium uppercase tracking-[0.02em]',
+        'uppercase',
         statusToneClasses[tone ?? getAdminStatusTone(String(children))],
       )}
-      variant="outline"
     >
       {children}
     </Badge>
@@ -194,32 +193,32 @@ export function AdminMobileCard({
   title: ReactNode;
 }) {
   const inner = (
-    <div className="rounded-lg border border-border/70 bg-card/95 p-3">
+    <div className="rounded-ds-radius-lg border border-ds-border bg-ds-surface p-ds-space-3">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="truncate text-sm font-semibold text-foreground">{title}</span>
+            <span className="truncate text-ds-text-sm font-semibold text-ds-text">{title}</span>
             {badge ? <span className="shrink-0">{badge}</span> : null}
           </div>
           {subtitle ? (
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">{subtitle}</p>
+            <p className="mt-0.5 truncate text-ds-text-xs text-ds-text-muted">{subtitle}</p>
           ) : null}
         </div>
-        {href ? <ChevronRight className="mt-0.5 size-4 shrink-0 text-muted-foreground" /> : null}
+        {href ? <ChevronRight className="mt-0.5 size-4 shrink-0 text-ds-text-muted" /> : null}
       </div>
       {rows.length > 0 ? (
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-ds-text-xs text-ds-text-muted">
           {rows.map((row) => (
             <div key={row.label} className="min-w-0">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+              <span className="text-ds-text-xs font-semibold uppercase tracking-wider text-ds-text-muted/70">
                 {row.label}
               </span>
-              <div className="mt-0.5 text-foreground">{row.value}</div>
+              <div className="mt-0.5 text-ds-text">{row.value}</div>
             </div>
           ))}
         </div>
       ) : null}
-      {actions ? <div className="mt-2 flex flex-wrap gap-1.5 border-t border-border/50 pt-2">{actions}</div> : null}
+      {actions ? <div className="mt-2 flex flex-wrap gap-1.5 border-t border-ds-border pt-ds-space-2">{actions}</div> : null}
     </div>
   );
 
@@ -232,9 +231,9 @@ export function AdminMobileCard({
 
 export function AdminEmptyState({ description, title }: { description?: string; title: string }) {
   return (
-    <div className="rounded-md border border-dashed border-border/80 bg-card/50 p-8 text-center">
-      <p className="text-sm font-medium text-foreground">{title}</p>
-      {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
+    <div className="rounded-ds-radius-md border border-dashed border-ds-border bg-ds-surface p-ds-space-8 text-center">
+      <p className="text-ds-text-sm font-medium text-ds-text">{title}</p>
+      {description ? <p className="mt-1 text-ds-text-sm text-ds-text-muted">{description}</p> : null}
     </div>
   );
 }
@@ -245,13 +244,13 @@ export function AdminDescriptionList({
   items: Array<{ label: string; value: ReactNode }>;
 }) {
   return (
-    <dl className="grid gap-px overflow-hidden rounded-md border border-border/80 bg-border/80 sm:grid-cols-2">
+    <dl className="grid gap-px overflow-hidden rounded-ds-radius-md border border-ds-border bg-ds-border sm:grid-cols-2">
       {items.map((item) => (
-        <div className="bg-card p-3" key={item.label}>
-          <dt className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <div className="bg-ds-surface p-ds-space-3" key={item.label}>
+          <dt className="text-ds-text-xs font-semibold uppercase tracking-[0.18em] text-ds-text-muted">
             {item.label}
           </dt>
-          <dd className="mt-1 break-words text-sm text-foreground">{item.value}</dd>
+          <dd className="mt-1 break-words text-ds-text-sm text-ds-text">{item.value}</dd>
         </div>
       ))}
     </dl>

@@ -1,9 +1,9 @@
 import type { SupportedLocale } from '@/components/layout/navigation';
+import { Badge } from '@/components/ui/badge';
 import {
   IntroductionForm,
   type IntroductionBusinessOption,
 } from '@/features/introductions/components/introduction-form';
-import { cn } from '@/lib/utils';
 
 export interface IntroductionFormLabels {
   clientContact: string;
@@ -125,13 +125,9 @@ export function DashboardIntroductionTab({
                   <span className="text-fg/45">
                     {labels.recentCreated}: {dateFormatter.format(request.createdAt)}
                   </span>
-                  <span
-                    className={cn(
-                      'rounded-md border border-border/50 px-2 py-0.5 font-medium uppercase tracking-wide text-fg/60',
-                    )}
-                  >
+                  <Badge className="uppercase tracking-wide text-fg/60" variant="outline">
                     {request.status}
-                  </span>
+                  </Badge>
                 </div>
               </li>
             ))}

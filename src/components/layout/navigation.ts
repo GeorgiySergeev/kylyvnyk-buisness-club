@@ -5,7 +5,7 @@ export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 export type SessionRole = 'guest' | 'MEMBER' | 'MANAGER' | 'ADMIN' | 'OWNER';
 
 export interface NavItemConfig {
-  key: 'directory' | 'dashboard' | 'recommendClient' | 'admin';
+  key: 'directory' | 'dashboard' | 'admin';
   href: string;
   roles: SessionRole[];
   exact?: boolean;
@@ -40,11 +40,7 @@ export const PRIMARY_NAV: NavItemConfig[] = [
     href: '/m/dashboard',
     roles: ['MEMBER', 'MANAGER', 'ADMIN', 'OWNER'],
   },
-  {
-    key: 'recommendClient',
-    href: '/m/introduce',
-    roles: ['MEMBER', 'MANAGER', 'ADMIN', 'OWNER'],
-  },
+
   {
     key: 'admin',
     href: '/admin',

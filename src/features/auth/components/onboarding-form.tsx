@@ -61,45 +61,52 @@ export function OnboardingForm({
 
   const onSubmit = handleSubmit((values) => {
     startTransition(async () => {
-      const result = await completeOnboardingAction(locale, values);
+      try {
+        const result = await completeOnboardingAction(locale, values);
 
-      if (!result.ok) {
-        if (result.error.fieldErrors) {
-          Object.entries(result.error.fieldErrors).forEach(([field, messages]) => {
-            if (messages?.[0]) {
-              setError(field as keyof OnboardingFormInput, {
-                message: messages[0],
-                type: 'server',
-              });
-            }
+        if (!result.ok) {
+          if (result.error.fieldErrors) {
+            Object.entries(result.error.fieldErrors).forEach(([field, messages]) => {
+              if (messages?.[0]) {
+                setError(field as keyof OnboardingFormInput, {
+                  message: messages[0],
+                  type: 'server',
+                });
+              }
+            });
+          }
+
+          setError('root', {
+            message: result.error.message || labels.formError,
+            type: result.error.code,
           });
+          return;
         }
 
+        router.push(result.data.redirectTo);
+        router.refresh();
+      } catch (e) {
         setError('root', {
-          message: result.error.message || labels.formError,
-          type: result.error.code,
+          message: e instanceof Error ? e.message : labels.formError,
+          type: 'SERVER_ERROR',
         });
-        return;
       }
-
-      router.push(result.data.redirectTo);
-      router.refresh();
     });
   });
 
   const fieldSelectClass =
-    'min-h-11 w-full rounded-md border border-border/50 bg-transparent px-3 py-2 text-sm text-white transition-colors outline-none focus-visible:border-white/30 focus-visible:ring-1 focus-visible:ring-white/10 disabled:cursor-not-allowed disabled:opacity-50';
+    'min-h-11 w-full rounded-ds-radius-md border border-ds-border bg-transparent px-ds-space-3 py-ds-space-2 text-ds-text-sm text-ds-text transition-colors outline-none focus-visible:border-ds-border focus-visible:ring-1 focus-visible:ring-ds-border/50 disabled:cursor-not-allowed disabled:opacity-50';
 
   return (
     <form
       onSubmit={onSubmit}
-      className="w-full max-w-xl space-y-6 border border-border/50 bg-white/2 p-6 sm:p-8"
+      className="w-full max-w-xl space-y-ds-space-6 rounded-ds-radius-lg border border-ds-border bg-ds-surface p-ds-space-6 sm:p-ds-space-8"
       noValidate
     >
       {errors.root?.message ? (
         <p
           role="alert"
-          className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          className="rounded-ds-radius-md border border-ds-error/40 bg-ds-error/10 px-ds-space-4 py-ds-space-3 text-ds-text-sm text-ds-error"
         >
           {errors.root.message}
         </p>
@@ -107,8 +114,8 @@ export function OnboardingForm({
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="countryId" className="text-sm font-medium text-white">
-            {labels.country} <span className="text-fg/50">({labels.optional})</span>
+          <label htmlFor="countryId" className="text-ds-text-sm font-medium text-ds-text">
+            {labels.country} <span className="text-ds-text-muted">({labels.optional})</span>
           </label>
           <select
             id="countryId"
@@ -126,15 +133,15 @@ export function OnboardingForm({
             ))}
           </select>
           {errors.countryId?.message ? (
-            <p id="countryId-error" role="alert" className="text-sm text-destructive">
+            <p id="countryId-error" role="alert" className="text-ds-text-sm text-ds-error">
               {errors.countryId.message}
             </p>
           ) : null}
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="cityId" className="text-sm font-medium text-white">
-            {labels.city} <span className="text-fg/50">({labels.optional})</span>
+          <label htmlFor="cityId" className="text-ds-text-sm font-medium text-ds-text">
+            {labels.city} <span className="text-ds-text-muted">({labels.optional})</span>
           </label>
           <select
             id="cityId"
@@ -152,7 +159,7 @@ export function OnboardingForm({
             ))}
           </select>
           {errors.cityId?.message ? (
-            <p id="cityId-error" role="alert" className="text-sm text-destructive">
+            <p id="cityId-error" role="alert" className="text-ds-text-sm text-ds-error">
               {errors.cityId.message}
             </p>
           ) : null}
@@ -160,19 +167,19 @@ export function OnboardingForm({
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="bio" className="text-sm font-medium text-white">
-          {labels.bio} <span className="text-fg/50">({labels.optional})</span>
+        <label htmlFor="bio" className="text-ds-text-sm font-medium text-ds-text">
+          {labels.bio} <span className="text-ds-text-muted">({labels.optional})</span>
         </label>
         <Textarea
           id="bio"
           aria-describedby={errors.bio ? 'bio-error' : undefined}
           aria-invalid={Boolean(errors.bio)}
           disabled={pending}
-          className="min-h-28 rounded-md border-border/50 bg-transparent"
+          className="min-h-28 rounded-ds-radius-md border-ds-border bg-transparent text-ds-text"
           {...register('bio')}
         />
         {errors.bio?.message ? (
-          <p id="bio-error" role="alert" className="text-sm text-destructive">
+          <p id="bio-error" role="alert" className="text-ds-text-sm text-ds-error">
             {errors.bio.message}
           </p>
         ) : null}
@@ -181,7 +188,7 @@ export function OnboardingForm({
       <Button
         type="submit"
         disabled={pending}
-        className="min-h-11 w-full rounded-md border border-border/50 bg-black text-white hover:bg-white/5"
+        className="min-h-11 w-full rounded-ds-radius-md border border-ds-border bg-ds-surface-hover text-ds-text hover:bg-ds-surface-hover-2"
       >
         {pending ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
         {pending ? labels.submitting : labels.submit}

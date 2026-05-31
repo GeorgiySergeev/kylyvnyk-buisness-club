@@ -49,7 +49,7 @@ interface IntroductionFormProps {
 }
 
 const dashboardFieldClass =
-  'min-h-11 w-full rounded-md border border-border/50 bg-white/5 px-3 text-sm text-white outline-none transition-colors placeholder:text-fg/40 focus-visible:border-white/30 focus-visible:ring-1 focus-visible:ring-white/10 disabled:cursor-not-allowed disabled:opacity-50';
+  'min-h-11 w-full rounded-ds-radius-md border border-ds-border bg-ds-surface px-ds-space-3 text-ds-text-sm text-ds-text outline-none transition-colors placeholder:text-ds-text-muted focus-visible:border-ds-border focus-visible:ring-1 focus-visible:ring-ds-border/50 disabled:cursor-not-allowed disabled:opacity-50';
 
 export function IntroductionForm({
   businesses,
@@ -115,7 +115,7 @@ export function IntroductionForm({
           className={cn(
             'rounded-md border px-4 py-3 text-sm',
             isDashboard
-              ? 'border-destructive/40 bg-destructive/10 text-destructive'
+              ? 'border-ds-error/40 bg-ds-error/10 text-ds-error'
               : 'alert alert-error rounded-box',
           )}
           role="alert"
@@ -129,7 +129,7 @@ export function IntroductionForm({
           className={cn(
             'rounded-md border px-4 py-3 text-sm',
             isDashboard
-              ? 'border-primary/40 bg-primary/10 text-primary'
+              ? 'border-ds-accent/40 bg-ds-accent/10 text-ds-accent'
               : 'alert alert-success rounded-box',
           )}
           role="status"
@@ -140,7 +140,7 @@ export function IntroductionForm({
 
       <div className="space-y-2">
         <label
-          className={cn('text-sm font-semibold', isDashboard ? 'text-white' : 'text-foreground')}
+          className="text-ds-text-sm font-semibold text-ds-text"
           htmlFor="targetBusinessId"
         >
           {labels.selectBusiness}
@@ -163,7 +163,7 @@ export function IntroductionForm({
           ))}
         </select>
         {errors.targetBusinessId?.message ? (
-          <p className="text-sm text-destructive" id="targetBusinessId-error" role="alert">
+          <p className="text-ds-text-sm text-ds-error" id="targetBusinessId-error" role="alert">
             {errors.targetBusinessId.message}
           </p>
         ) : null}
@@ -172,7 +172,7 @@ export function IntroductionForm({
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
           <label
-            className={cn('text-sm font-semibold', isDashboard ? 'text-white' : 'text-foreground')}
+            className="text-ds-text-sm font-semibold text-ds-text"
             htmlFor="clientName"
           >
             {labels.clientName}
@@ -187,7 +187,7 @@ export function IntroductionForm({
             {...register('clientName')}
           />
           {errors.clientName?.message ? (
-            <p className="text-sm text-destructive" id="clientName-error" role="alert">
+            <p className="text-ds-text-sm text-ds-error" id="clientName-error" role="alert">
               {errors.clientName.message}
             </p>
           ) : null}
@@ -195,7 +195,7 @@ export function IntroductionForm({
 
         <div className="space-y-2">
           <label
-            className={cn('text-sm font-semibold', isDashboard ? 'text-white' : 'text-foreground')}
+            className="text-ds-text-sm font-semibold text-ds-text"
             htmlFor="clientContact"
           >
             {labels.clientContact}
@@ -210,13 +210,13 @@ export function IntroductionForm({
             {...register('clientContact')}
           />
           <p
-            className={cn('text-xs leading-5', isDashboard ? 'text-fg/50' : 'text-muted-foreground')}
+            className="text-ds-text-xs leading-5 text-ds-text-muted"
             id="clientContact-help"
           >
             {labels.clientContactHelp}
           </p>
           {errors.clientContact?.message ? (
-            <p className="text-sm text-destructive" id="clientContact-error" role="alert">
+            <p className="text-ds-text-sm text-ds-error" id="clientContact-error" role="alert">
               {errors.clientContact.message}
             </p>
           ) : null}
@@ -225,11 +225,11 @@ export function IntroductionForm({
 
       <div className="space-y-2">
         <label
-          className={cn('text-sm font-semibold', isDashboard ? 'text-white' : 'text-foreground')}
+          className="text-ds-text-sm font-semibold text-ds-text"
           htmlFor="message"
         >
           {labels.message}{' '}
-          <span className={isDashboard ? 'text-fg/45' : 'text-muted-foreground'}>({labels.optional})</span>
+          <span className="text-ds-text-muted">({labels.optional})</span>
         </label>
         <textarea
           aria-describedby="message-help message-error"
@@ -237,7 +237,7 @@ export function IntroductionForm({
           className={cn(
             'min-h-28 w-full resize-y px-3 py-2 text-sm outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50',
             isDashboard
-              ? 'rounded-md border border-border/50 bg-white/5 text-white placeholder:text-fg/40 focus-visible:border-white/30 focus-visible:ring-1 focus-visible:ring-white/10'
+              ? 'rounded-ds-radius-md border border-ds-border bg-ds-surface text-ds-text placeholder:text-ds-text-muted focus-visible:border-ds-border focus-visible:ring-1 focus-visible:ring-ds-border/50'
               : 'textarea textarea-bordered rounded-field bg-background',
           )}
           disabled={pending}
@@ -245,13 +245,13 @@ export function IntroductionForm({
           {...register('message')}
         />
         <p
-          className={cn('text-xs leading-5', isDashboard ? 'text-fg/50' : 'text-muted-foreground')}
+          className="text-ds-text-xs leading-5 text-ds-text-muted"
           id="message-help"
         >
           {labels.messageHelp}
         </p>
         {errors.message?.message ? (
-          <p className="text-sm text-destructive" id="message-error" role="alert">
+          <p className="text-ds-text-sm text-ds-error" id="message-error" role="alert">
             {errors.message.message}
           </p>
         ) : null}

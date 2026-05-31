@@ -1,18 +1,10 @@
 import { eq } from 'drizzle-orm';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
-import { Button } from '@/components/ui/button';
 import { db } from '@/db/client';
 import { clubCards } from '@/db/schema';
-import {
-  AdminDescriptionList,
-  AdminPageHeader,
-  AdminPanel,
-  AdminStatusBadge,
-} from '@/features/admin/components/admin-ui';
-import { CardUpdateForm } from '@/features/admin/components/card-update-form';
+import { CardDetailTabs } from '@/features/admin/components/card-detail-tabs';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -55,45 +47,41 @@ export default async function AdminCardDetailPage({ params }: AdminCardDetailPag
   if (!card) redirect(localizeHref(locale, '/admin/cards'));
 
   return (
-    <div className="max-w-4xl space-y-5">
-      <Button asChild className="h-8 rounded-md px-0" size="sm" variant="link">
-        <Link href={localizeHref(locale, '/admin/cards')}>Back to cards</Link>
-      </Button>
-
-      <AdminPageHeader
-        actions={<AdminStatusBadge>{card.status}</AdminStatusBadge>}
-        description={card.user.displayName ?? card.user.phone}
-        title={card.number}
-      />
-
-      <AdminPanel title={t('cardsTitle')}>
-        <AdminDescriptionList
-          items={[
-            { label: t('cardNumber'), value: <span className="font-mono text-xs">{card.number}</span> },
-            { label: t('memberType'), value: <AdminStatusBadge>{card.memberType}</AdminStatusBadge> },
-            { label: t('status'), value: <AdminStatusBadge>{card.status}</AdminStatusBadge> },
-            { label: t('memberName'), value: card.user.displayName ?? 'N/A' },
-            { label: t('phone'), value: card.user.phone },
-            { label: t('email'), value: card.user.email ?? 'N/A' },
-            {
-              label: t('cardExpiresAt'),
-              value: card.expiresAt ? card.expiresAt.toLocaleString() : 'N/A',
-            },
-            { label: t('created'), value: card.createdAt.toLocaleString() },
-            { label: 'Updated', value: card.updatedAt.toLocaleString() },
-          ]}
-        />
-      </AdminPanel>
-
-      <AdminPanel title="Card controls">
-        <CardUpdateForm
-          cardId={card.id}
-          currentDiscountLabel={card.discountLabel ?? null}
-          currentExpiresAt={card.expiresAt ? card.expiresAt.toISOString().slice(0, 16) : null}
-          currentMemberType={card.memberType}
-          currentStatus={card.status}
-        />
-      </AdminPanel>
-    </div>
+    <CardDetailTabs
+      backHref={localizeHref(locale, '/admin/cards')}
+      backLabel={t('backToCards')}
+      card={{
+        createdAt: card.createdAt.toLocaleString(),
+        discountLabel: card.discountLabel ?? null,
+        expiresAt: card.expiresAt ? card.expiresAt.toLocaleString() : null,
+        expiresAtInput: card.expiresAt ? card.expiresAt.toISOString().slice(0, 16) : null,
+        id: card.id,
+        memberType: card.memberType as 'FREE' | 'BUSINESS' | 'VIP',
+        number: card.number,
+        status: card.status as 'ACTIVE' | 'INACTIVE' | 'EXPIRED',
+        updatedAt: card.updatedAt.toLocaleString(),
+      }}
+      controlsTitle={t('cardControls')}
+      detailTitle={t('cardDetail')}
+      labels={{
+        cardExpiresAt: t('cardExpiresAt'),
+        cardNumber: t('cardNumber'),
+        created: t('created'),
+        email: t('email'),
+        memberName: t('memberName'),
+        memberType: t('memberType'),
+        phone: t('phone'),
+        status: t('status'),
+      }}
+      member={{
+        displayName: card.user.displayName,
+        email: card.user.email,
+        phone: card.user.phone,
+      }}
+      tabLabels={{
+        controls: t('controls'),
+        details: t('summary'),
+      }}
+    />
   );
 }

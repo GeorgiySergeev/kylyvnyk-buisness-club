@@ -2,14 +2,14 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
 
 import { updateUserDetailsAction, updateUserProfileAction } from '../actions/user-admin.action';
 
@@ -45,8 +45,8 @@ export function UserContactForm({
   defaultValues,
   userId,
 }: UserContactFormProps) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const { pending, refresh, run } = useAdminMutation();
+  const [saved, setSaved] = useState(false);
 
   const {
     formState: { errors, isDirty },
@@ -64,8 +64,9 @@ export function UserContactForm({
     resolver: zodResolver(contactSchema),
   });
 
-  const onSubmit = handleSubmit((values) => {
-    startTransition(async () => {
+  const onSubmit = handleSubmit(async (values) => {
+    setSaved(false);
+    const result = await run(async () => {
       const detailsResult = await updateUserDetailsAction({
         email: values.email || null,
         phone: values.phone,
@@ -73,24 +74,24 @@ export function UserContactForm({
       });
 
       if (!detailsResult.ok) {
-        setError('root', { message: detailsResult.error, type: 'server' });
-        return;
+        return detailsResult;
       }
 
-      const profileResult = await updateUserProfileAction({
+      return updateUserProfileAction({
         cityId: values.cityId ? Number(values.cityId) : null,
         countryId: values.countryId ? Number(values.countryId) : null,
         userId,
       });
-
-      if (!profileResult.ok) {
-        setError('root', { message: profileResult.error, type: 'server' });
-        return;
-      }
-
-      reset(values);
-      router.refresh();
     });
+
+    if (!result.ok) {
+      setError('root', { message: result.error, type: 'server' });
+      return;
+    }
+
+    reset(values);
+    setSaved(true);
+    refresh();
   });
 
   return (
@@ -101,6 +102,12 @@ export function UserContactForm({
           role="alert"
         >
           {errors.root.message}
+        </p>
+      ) : null}
+
+      {saved ? (
+        <p className="text-sm text-emerald-600" role="status">
+          Saved successfully.
         </p>
       ) : null}
 
@@ -198,7 +205,10 @@ export function UserContactForm({
         </Button>
         <Button
           disabled={pending || !isDirty}
-          onClick={() => reset()}
+          onClick={() => {
+            reset();
+            setSaved(false);
+          }}
           type="button"
           variant="outline"
         >

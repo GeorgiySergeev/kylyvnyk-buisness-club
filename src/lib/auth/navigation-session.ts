@@ -2,6 +2,7 @@ import 'server-only';
 
 import { eq, isNull, or } from 'drizzle-orm';
 import { headers } from 'next/headers';
+import { cache } from 'react';
 
 import type { SessionRole } from '@/components/layout/navigation';
 import { db } from '@/db/client';
@@ -27,7 +28,7 @@ function toSessionRole(role: UserRole): SessionRole {
   return role;
 }
 
-export async function getNavigationSession(): Promise<NavigationSession> {
+export const getNavigationSession = cache(async (): Promise<NavigationSession> => {
   await headers();
 
   const identity = await getAuthIdentity();
@@ -77,4 +78,4 @@ export async function getNavigationSession(): Promise<NavigationSession> {
     role: toSessionRole(user.role),
     userId: user.id,
   };
-}
+});
