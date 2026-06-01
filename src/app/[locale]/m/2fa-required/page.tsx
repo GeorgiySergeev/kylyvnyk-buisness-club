@@ -1,19 +1,20 @@
-import { ArrowRight } from 'lucide-react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
 import { AuthPageHeader } from '@/features/auth/components/auth-page-header';
+import { TotpMfaForm } from '@/features/auth/components/totp-mfa-form';
+import { requireRole } from '@/features/auth/lib/current-user';
+import { getVerifiedTotpFactorId, hasVerifiedMfaInSession } from '@/features/auth/lib/mfa';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * Prevent search engines from indexing this gate page.
- * It contains no user-facing content — it is a redirect target for admins
- * who have not yet completed MFA setup.
+ * It is a protected setup target for admins who have not yet completed MFA.
  */
 export const metadata: Metadata = {
   robots: {
@@ -32,6 +33,13 @@ export default async function TwoFactorRequiredPage({
   params,
 }: TwoFactorRequiredPageProps) {
   const { locale } = await params;
+  await requireRole(locale, ['ADMIN', 'OWNER']);
+
+  if (await hasVerifiedMfaInSession()) {
+    redirect(localizeHref(locale, '/admin'));
+  }
+
+  const verifiedFactorId = await getVerifiedTotpFactorId();
   const tAuth = getT('auth', locale);
 
   return (
@@ -46,20 +54,25 @@ export default async function TwoFactorRequiredPage({
       <section className="relative overflow-hidden border-y border-border/50">
         <div className="kc-how-it-works-bg pointer-events-none absolute inset-0" aria-hidden="true" />
 
-        <div className="relative flex flex-col items-center gap-3 px-6 py-10 sm:flex-row sm:justify-center sm:px-8 sm:py-12 md:py-16">
-          <Link
-            href={localizeHref(locale, '/sign-in')}
-            className="inline-flex min-h-11 w-full max-w-xs items-center justify-center gap-2 rounded-md border border-border/50 bg-black px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:w-auto"
-          >
-            {tAuth('twoFactorRequiredPrimaryAction')}
-            <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
-          </Link>
-          <Link
-            href={localizeHref(locale, '/')}
-            className="inline-flex min-h-11 w-full max-w-xs items-center justify-center rounded-md border border-border/50 bg-transparent px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:w-auto"
-          >
-            {tAuth('twoFactorRequiredSecondaryAction')}
-          </Link>
+        <div className="relative flex justify-center px-6 py-10 sm:px-8 sm:py-12 md:py-16">
+          <TotpMfaForm
+            initialFactorId={verifiedFactorId ?? undefined}
+            labels={{
+              challengeDescription: tAuth('mfaChallengeDescription'),
+              challengeTitle: tAuth('mfaChallengeTitle'),
+              codeHelp: tAuth('mfaCodeHelp'),
+              codeLabel: tAuth('mfaCodeLabel'),
+              loading: tAuth('mfaLoadingSetup'),
+              qrAlt: tAuth('mfaQrAlt'),
+              secretLabel: tAuth('mfaSecretLabel'),
+              setupDescription: tAuth('mfaSetupDescription'),
+              setupTitle: tAuth('mfaSetupTitle'),
+              submit: tAuth('mfaSubmit'),
+              submitting: tAuth('mfaSubmitting'),
+            }}
+            locale={locale}
+            mode={verifiedFactorId ? 'challenge' : 'enroll'}
+          />
         </div>
       </section>
     </PageWrapper>

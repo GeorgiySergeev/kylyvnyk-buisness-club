@@ -6,9 +6,12 @@ import Link from 'next/link';
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
 
+import { UsersImportDialog, type UsersImportLabels } from './users-import-dialog';
+
 interface UsersPageActionsProps {
   addUserLabel: string;
   exportLabel: string;
+  importLabels: UsersImportLabels;
   locale: SupportedLocale;
   planFilter: string;
   searchTerm: string;
@@ -18,6 +21,7 @@ interface UsersPageActionsProps {
 export function UsersPageActions({
   addUserLabel,
   exportLabel,
+  importLabels,
   locale,
   planFilter,
   searchTerm,
@@ -36,6 +40,7 @@ export function UsersPageActions({
 
   return (
     <>
+      <UsersImportDialog labels={importLabels} />
       <Button
         variant="outline"
         size="sm"
@@ -49,7 +54,7 @@ export function UsersPageActions({
       </Button>
       <Button
         size="sm"
-        className="h-9 gap-2 bg-foreground text-background hover:bg-foreground/90"
+        className="h-9 gap-2 bg-black text-white hover:bg-black/90"
         asChild
       >
         <Link href={localizeHref(locale, '/admin/users/new')}>

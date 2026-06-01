@@ -112,8 +112,9 @@ code rejects this bypass when `NODE_ENV=production`.
 #### `AUTH_DEV_2FA_BYPASS_ENABLED`
 
 server · optional flag · empty by default · owner: tech lead · rotates: never ·
-breaks: admin 2FA check. When set to `1`, `hasVerifiedMfaInSession()` returns
-`true` unconditionally, allowing admin access without a verified 2FA session.
+breaks: local/admin 2FA testing. When set to `1` outside production,
+`hasVerifiedMfaInSession()` returns `true`, allowing admin access without a
+verified Supabase `aal2` session. Production code ignores this bypass.
 
 #### Member avatars (Supabase Storage)
 

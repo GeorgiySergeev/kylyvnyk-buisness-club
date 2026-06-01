@@ -15,6 +15,16 @@ import {
 } from '../actions/phone-auth.action';
 import { TurnstileWidget } from './turnstile-widget';
 
+// Mirrors PHONE_PATTERN from /features/auth/lib/phone.ts — kept here to
+// avoid pulling server-only modules into a Client Component bundle.
+const PHONE_PATTERN = /^\+[1-9]\d{7,14}$/;
+
+function normalizePhone(input: string): string {
+  const trimmed = input.trim();
+  const prefixed = trimmed.startsWith('+') ? trimmed : `+${trimmed}`;
+  return prefixed.replace(/[^\d+]/g, '');
+}
+
 interface PhoneAuthLabels {
   code: string;
   codeHelp: string;
@@ -24,6 +34,7 @@ interface PhoneAuthLabels {
   namePlaceholder: string;
   phone: string;
   phoneHelp: string;
+  phoneInvalid: string;
   phonePlaceholder: string;
   requestCode: string;
   submitting: string;
@@ -44,10 +55,17 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
   const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState<Step>('phone');
   const [displayName, setDisplayName] = useState('');
-  const [phone, setPhone] = useState('');
+  // phoneInput — controlled value of the phone <Input> (what the user types).
+  // sentPhone  — normalised phone returned by the server after OTP dispatch;
+  //              intentionally separate so it never overwrites the input value
+  //              and can never silently bypass client-side validation.
+  const [phoneInput, setPhoneInput] = useState('');
+  const [sentPhone, setSentPhone] = useState('');
   const [code, setCode] = useState('');
   const [captchaToken, setCaptchaToken] = useState('');
+  const [turnstileKey, setTurnstileKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   function finish(redirectTo: string) {
@@ -63,12 +81,29 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
     return typeof value === 'string' ? value : '';
   }
 
+  function resetTurnstile() {
+    setCaptchaToken('');
+    setTurnstileKey((current) => current + 1);
+  }
+
+  function validatePhone(rawPhone: string): boolean {
+    const normalized = normalizePhone(rawPhone);
+    if (!PHONE_PATTERN.test(normalized)) {
+      setPhoneError(labels.phoneInvalid);
+      return false;
+    }
+    setPhoneError(null);
+    return true;
+  }
+
   function requestCode(rawPhone = getFormValue('phone')) {
     setError(null);
+    if (!validatePhone(rawPhone)) return;
+    const phone = normalizePhone(rawPhone);
     startTransition(async () => {
       try {
         const result = await requestPhoneOtpAction(locale, {
-          phone: rawPhone,
+          phone,
           captchaToken,
           displayName: displayName.trim(),
           returnBackUrl,
@@ -84,10 +119,16 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
           return;
         }
 
-        setPhone(result.data.phone);
+        // Store the server-normalised phone in a dedicated state so it never
+        // overwrites the input value and cannot bypass validation on re-submit.
+        setSentPhone(result.data.phone);
         setStep('code');
       } catch (e) {
         setError(e instanceof Error ? e.message : 'An unexpected error occurred.');
+      } finally {
+        if (!devBypassEnabled) {
+          resetTurnstile();
+        }
       }
     });
   }
@@ -98,7 +139,7 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
       try {
         const result = await verifyPhoneOtpAction(locale, {
           code: rawCode,
-          phone,
+          phone: sentPhone,
           displayName: displayName.trim(),
           returnBackUrl,
         });
@@ -117,10 +158,12 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
 
   function devBypass(rawPhone = getFormValue('phone')) {
     setError(null);
+    if (!validatePhone(rawPhone)) return;
+    const phone = normalizePhone(rawPhone);
     startTransition(async () => {
       try {
         const result = await devBypassPhoneAuthAction(locale, {
-          phone: rawPhone,
+          phone,
           displayName: displayName.trim(),
           returnBackUrl,
         });
@@ -191,17 +234,35 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
               name="phone"
               autoComplete="tel"
               inputMode="tel"
-              aria-describedby="phone-help"
-              className="min-h-11 rounded-ds-radius-md border-ds-border bg-transparent text-ds-text"
+              aria-describedby={phoneError ? 'phone-error' : 'phone-help'}
+              aria-invalid={phoneError ? true : undefined}
+              className={`min-h-11 rounded-ds-radius-md border-ds-border bg-transparent text-ds-text${
+                phoneError ? ' border-ds-error focus-visible:ring-ds-error/50' : ''
+              }`}
               disabled={pending}
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
+              value={phoneInput}
+              onChange={(event) => {
+                setPhoneInput(event.target.value);
+                if (phoneError) setPhoneError(null);
+              }}
               placeholder={labels.phonePlaceholder}
             />
-            <p id="phone-help" className="text-ds-text-sm leading-6 text-ds-text-muted">
-              {labels.phoneHelp}
-            </p>
-            {!devBypassEnabled && <TurnstileWidget onVerify={setCaptchaToken} />}
+            {phoneError ? (
+              <p
+                id="phone-error"
+                role="alert"
+                className="text-ds-text-sm text-ds-error"
+              >
+                {phoneError}
+              </p>
+            ) : (
+              <p id="phone-help" className="text-ds-text-sm leading-6 text-ds-text-muted">
+                {labels.phoneHelp}
+              </p>
+            )}
+            {!devBypassEnabled && (
+              <TurnstileWidget key={turnstileKey} onVerify={setCaptchaToken} />
+            )}
           </div>
         </>
       ) : null}

@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { decodeDevPhoneAuthCookie,DEV_PHONE_AUTH_COOKIE } from '@/features/auth/lib/dev-auth';
+import { decodeDevPhoneAuthCookie, DEV_PHONE_AUTH_COOKIE } from '@/features/auth/lib/dev-auth';
 
 const PROTECTED_ROUTE_PATTERN = /^\/(en|ru|uk)\/(?:m|admin)(?:\/|$)/;
 const LOCALE_PATTERN = /^\/(en|ru|uk)(?:\/|$)/;
@@ -16,11 +16,25 @@ function getRequestLocale(pathname: string) {
 }
 
 function isDevBypassRequest(request: NextRequest) {
+  if (process.env.NODE_ENV === 'production') {
+    return false;
+  }
+
   if (process.env.AUTH_DEV_PHONE_BYPASS_ENABLED !== '1') {
     return false;
   }
 
   return Boolean(decodeDevPhoneAuthCookie(request.cookies.get(DEV_PHONE_AUTH_COOKIE)?.value));
+}
+
+function redirectToSignIn(request: NextRequest, locale: string, returnBackUrl: string) {
+  const signInUrl = request.nextUrl.clone();
+  signInUrl.pathname = `/${locale}/sign-in`;
+  signInUrl.searchParams.set('returnBackUrl', returnBackUrl);
+
+  const redirectResponse = NextResponse.redirect(signInUrl);
+  redirectResponse.headers.set('x-locale', locale);
+  return redirectResponse;
 }
 
 export default async function middleware(request: NextRequest) {
@@ -46,7 +60,7 @@ export default async function middleware(request: NextRequest) {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return response;
+    return redirectToSignIn(request, locale, pathname);
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
@@ -69,10 +83,7 @@ export default async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    const signInUrl = request.nextUrl.clone();
-    signInUrl.pathname = `/${locale}/sign-in`;
-    signInUrl.searchParams.set('returnBackUrl', pathname);
-    return NextResponse.redirect(signInUrl);
+    return redirectToSignIn(request, locale, pathname);
   }
 
   return response;

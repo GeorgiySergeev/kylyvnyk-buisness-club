@@ -8,10 +8,13 @@ import { db } from '@/db/client';
 import { businesses, clubCards } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { createAuditLog } from '@/lib/audit';
+import { log } from '@/lib/log';
 
 import type { AdminActionResult } from '../lib/action-result';
 import { updateBusinessStatusSchema } from '../schemas/admin.schema';
 import {
+  createBusinessSchema,
+  importBusinessesSchema,
   restoreBusinessSchema,
   softDeleteBusinessSchema,
   toggleBusinessFeatureSchema,
@@ -153,4 +156,185 @@ export async function restoreBusinessAction(
   });
   revalidateBusinessesPages();
   return { ok: true, data: { businessId: updated.id } };
+}
+
+export async function createBusinessAction(
+  rawInput: unknown,
+): Promise<ActionResult<{ businessId: string }>> {
+  const start = Date.now();
+  const admin = await getCurrentUserWithRole('ADMIN');
+
+  if (!admin.ok) {
+    log.warn('Admin business create denied', { reason: admin.error });
+    return { error: 'Unauthorized. Admin access required.', ok: false };
+  }
+
+  const parsed = createBusinessSchema.safeParse(rawInput);
+
+  if (!parsed.success) {
+    log.warn('Admin business create validation failed', { userId: admin.data.id });
+    return { error: 'Invalid input.', ok: false };
+  }
+
+  const now = new Date();
+
+  try {
+    const owner = await db.query.users.findFirst({
+      columns: { id: true },
+      where: (u, { eq }) => eq(u.phone, parsed.data.ownerPhone),
+    });
+
+    if (!owner) {
+      return { error: `User with phone "${parsed.data.ownerPhone}" not found.`, ok: false };
+    }
+
+    const slug = parsed.data.slug ?? slugify(parsed.data.name);
+
+    const [business] = await db
+      .insert(businesses)
+      .values({
+        cityId: null,
+        countryId: null,
+        description: parsed.data.description ?? null,
+        email: parsed.data.email ?? null,
+        name: parsed.data.name,
+        phone: parsed.data.phone ?? null,
+        slug,
+        status: parsed.data.status,
+        userId: owner.id,
+        website: parsed.data.website ?? null,
+        updatedAt: now,
+      })
+      .returning({ id: businesses.id, name: businesses.name });
+
+    if (!business) return { error: 'Failed to create business.', ok: false };
+
+    await createAuditLog({
+      action: 'ADMIN_BUSINESS_CREATED',
+      actorUserId: admin.data.id,
+      entityId: business.id,
+      entityType: 'business',
+      payload: { name: business.name, ownerPhone: parsed.data.ownerPhone },
+    });
+
+    revalidateBusinessesPages();
+    log.info('Admin business created', {
+      durationMs: Date.now() - start,
+      targetBusinessId: business.id,
+    });
+
+    return { data: { businessId: business.id }, ok: true };
+  } catch (error) {
+    const code = (error as { code?: string })?.code;
+    if (code === '23505') {
+      return { error: 'Slug already exists.', ok: false };
+    }
+
+    throw error;
+  }
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 120);
+}
+
+export interface ImportBusinessesResult {
+  imported: number;
+  total: number;
+  errors: { row: number; name: string; error: string }[];
+}
+
+export async function importBusinessesAction(
+  rawInput: unknown,
+): Promise<ActionResult<ImportBusinessesResult>> {
+  const start = Date.now();
+  const admin = await getCurrentUserWithRole('ADMIN');
+
+  if (!admin.ok) {
+    log.warn('Admin businesses import denied', { reason: admin.error });
+    return { error: 'Unauthorized. Admin access required.', ok: false };
+  }
+
+  const parsed = importBusinessesSchema.safeParse(rawInput);
+
+  if (!parsed.success) {
+    log.warn('Admin businesses import validation failed', { userId: admin.data.id });
+    return { error: 'Invalid input', ok: false };
+  }
+
+  const errors: ImportBusinessesResult['errors'] = [];
+  let imported = 0;
+  const now = new Date();
+
+  for (let i = 0; i < parsed.data.businesses.length; i++) {
+    const row = parsed.data.businesses[i];
+    const rowNum = i + 1;
+
+    try {
+      const owner = await db.query.users.findFirst({
+        columns: { id: true },
+        where: (u, { eq }) => eq(u.phone, row.ownerPhone),
+      });
+
+      if (!owner) {
+        errors.push({ row: rowNum, name: row.name, error: `User with phone "${row.ownerPhone}" not found` });
+        continue;
+      }
+
+      const slug = row.slug ?? slugify(row.name);
+
+      const [business] = await db
+        .insert(businesses)
+        .values({
+          cityId: null,
+          countryId: null,
+          description: row.description ?? null,
+          email: row.email ?? null,
+          name: row.name,
+          phone: row.phone ?? null,
+          slug,
+          status: row.status,
+          userId: owner.id,
+          website: row.website ?? null,
+          updatedAt: now,
+        })
+        .returning({ id: businesses.id });
+
+      if (!business) throw new Error('Failed to create business.');
+
+      imported++;
+    } catch (error) {
+      const code = (error as { code?: string })?.code;
+      const message = code === '23505'
+        ? 'Slug already exists'
+        : (error as Error)?.message ?? 'Unknown error';
+
+      errors.push({ row: rowNum, name: row.name, error: message });
+    }
+  }
+
+  await createAuditLog({
+    action: 'ADMIN_BUSINESSES_IMPORTED',
+    actorUserId: admin.data.id,
+    entityType: 'business',
+    payload: { imported, total: parsed.data.businesses.length, errorCount: errors.length },
+  });
+
+  revalidateBusinessesPages();
+  log.info('Admin businesses imported', {
+    durationMs: Date.now() - start,
+    imported,
+    total: parsed.data.businesses.length,
+    errors: errors.length,
+  });
+
+  return {
+    data: { imported, total: parsed.data.businesses.length, errors },
+    ok: true,
+  };
 }

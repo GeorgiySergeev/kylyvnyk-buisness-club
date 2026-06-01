@@ -104,6 +104,25 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
           <UsersPageActions
             addUserLabel={t('addUser')}
             exportLabel={t('export')}
+            importLabels={{
+              cancel: t('cancel'),
+              close: t('close'),
+              importConfirm: t('importConfirm'),
+              importDropzone: t('importDropzone'),
+              importEmpty: t('importEmpty'),
+              importErrors: t('importErrors'),
+              importInvalidFile: t('importInvalidFile'),
+              importPartialSuccess: t('importPartialSuccess'),
+              importPreview: t('importPreview'),
+              importRowError: t('importRowError'),
+              importSelectedRows: t('importSelectedRows'),
+              importSuccess: t('importSuccess'),
+              importTooManyRows: t('importTooManyRows'),
+              importUsers: t('importUsers'),
+              importUsersDescription: t('importUsersDescription'),
+              importUsersTitle: t('importUsersTitle'),
+              importing: t('importing'),
+            }}
             locale={locale}
             planFilter={planFilter}
             searchTerm={searchTerm}

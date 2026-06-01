@@ -53,7 +53,60 @@ export const createUserSchema = z.object({
   status: userStatusEnumSchema.default('ACTIVE'),
 });
 
+export const importUserRowSchema = z.object({
+  phone: z.string().trim().min(6).max(32),
+  displayName: z.string().trim().max(120).nullable().optional(),
+  email: z.union([z.string().email(), z.literal('')]).optional(),
+  role: userRoleEnumSchema.default('MEMBER'),
+  status: userStatusEnumSchema.default('ACTIVE'),
+  membershipTier: membershipTierEnumSchema.optional(),
+});
+
+export const importUsersSchema = z.object({
+  users: z.array(importUserRowSchema).min(1).max(500),
+});
+
+export type ImportUserRow = z.infer<typeof importUserRowSchema>;
+
 export const businessStatusEnumSchema = z.enum(['DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN', 'DECLINED']);
+
+export const createBusinessSchema = z.object({
+  ownerPhone: z.string().trim().min(6).max(32),
+  name: z.string().trim().min(1).max(200),
+  slug: z
+    .string()
+    .trim()
+    .min(2)
+    .max(120)
+    .regex(/^[a-z0-9-]+$/)
+    .optional(),
+  description: z.string().trim().max(5000).nullable().optional(),
+  website: z.string().url().nullable().optional(),
+  phone: z.string().trim().max(32).nullable().optional(),
+  email: z.string().email().nullable().optional(),
+  status: businessStatusEnumSchema.default('DRAFT'),
+});
+
+export const importBusinessRowSchema = z.object({
+  ownerPhone: z.string().trim().min(6).max(32),
+  name: z.string().trim().min(1).max(200),
+  slug: z
+    .string()
+    .trim()
+    .min(2)
+    .max(120)
+    .regex(/^[a-z0-9-]+$/)
+    .optional(),
+  description: z.string().trim().max(5000).nullable().optional(),
+  website: z.string().url().nullable().optional(),
+  phone: z.string().trim().max(32).nullable().optional(),
+  email: z.string().email().nullable().optional(),
+  status: businessStatusEnumSchema.default('DRAFT'),
+});
+
+export const importBusinessesSchema = z.object({
+  businesses: z.array(importBusinessRowSchema).min(1).max(500),
+});
 
 export const updateBusinessStatusSchema = z.object({
   businessId: z.string().uuid(),

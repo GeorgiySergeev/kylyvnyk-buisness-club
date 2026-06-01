@@ -1,12 +1,13 @@
 'use client';
 
-import { Bell, ChevronRight, CircleDot, Moon, Search } from 'lucide-react';
+import { Bell, ChevronRight, CircleDot, Moon } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import type { SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
+import { AdminAccountMenu, type AdminAccountMenuLabels } from './admin-account-menu';
+import { AdminGlobalSearch, type AdminGlobalSearchLabels } from './admin-global-search';
 import type { AdminNavKey, AdminNavLabels } from './admin-nav';
 
 const BREADCRUMB_MAP: Record<string, AdminNavKey> = {
@@ -20,9 +21,11 @@ const BREADCRUMB_MAP: Record<string, AdminNavKey> = {
   '/admin/audit': 'navAudit',
 };
 
-export interface AdminShellLabels extends AdminNavLabels {
+export interface AdminShellLabels
+  extends AdminNavLabels,
+    AdminAccountMenuLabels,
+    AdminGlobalSearchLabels {
   adminBrand: string;
-  adminRole: string;
   adminSearchPlaceholder: string;
   backOffice: string;
   notifications: string;
@@ -33,9 +36,10 @@ export interface AdminShellLabels extends AdminNavLabels {
 
 interface AdminHeaderProps {
   labels: AdminShellLabels;
+  locale: SupportedLocale;
 }
 
-export function AdminHeader({ labels }: AdminHeaderProps) {
+export function AdminHeader({ labels, locale }: AdminHeaderProps) {
   const pathname = usePathname();
 
   const parts = pathname.split('/').filter(Boolean);
@@ -53,13 +57,11 @@ export function AdminHeader({ labels }: AdminHeaderProps) {
         <span className="truncate font-medium text-ds-text">{pageTitle}</span>
       </div>
 
-      <div className="relative hidden flex-1 sm:block sm:max-w-xl">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ds-text-muted" />
-        <Input
-          placeholder={labels.adminSearchPlaceholder}
-          className="h-9 rounded-ds-radius-md border-ds-border/70 bg-ds-surface/70 pl-9 text-ds-text placeholder:text-ds-text-muted"
-        />
-      </div>
+      <AdminGlobalSearch
+        labels={labels}
+        locale={locale}
+        placeholder={labels.adminSearchPlaceholder}
+      />
 
       <div className="flex shrink-0 items-center gap-1 sm:gap-2">
         <div className="hidden items-center gap-1.5 text-ds-text-xs text-ds-text-muted xl:flex">
@@ -75,11 +77,7 @@ export function AdminHeader({ labels }: AdminHeaderProps) {
           <span className="absolute right-2 top-2 size-1.5 rounded-full bg-red-500" />
           <span className="sr-only">{labels.notifications}</span>
         </Button>
-        <Avatar className="size-8">
-          <AvatarFallback className="rounded-full bg-ds-surface-2 text-ds-text-xs text-ds-text">
-            K
-          </AvatarFallback>
-        </Avatar>
+        <AdminAccountMenu labels={labels} locale={locale} />
       </div>
     </header>
   );

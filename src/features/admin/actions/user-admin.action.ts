@@ -17,6 +17,7 @@ import { log } from '@/lib/log';
 
 import {
   createUserSchema,
+  importUsersSchema,
   restoreUserSchema,
   softDeleteUserSchema,
   updateUserDetailsSchema,
@@ -446,4 +447,98 @@ export async function createUserAction(
 
     throw error;
   }
+}
+
+export interface ImportUsersResult {
+  imported: number;
+  total: number;
+  errors: { row: number; phone: string; error: string }[];
+}
+
+export async function importUsersAction(
+  rawInput: unknown,
+): Promise<ActionResult<ImportUsersResult>> {
+  const start = Date.now();
+  const admin = await getCurrentUserWithRole('ADMIN');
+
+  if (!admin.ok) {
+    log.warn('Admin users import denied', { reason: admin.error });
+    return { error: 'Unauthorized. Admin access required.', ok: false };
+  }
+
+  const parsed = importUsersSchema.safeParse(rawInput);
+
+  if (!parsed.success) {
+    log.warn('Admin users import validation failed', { userId: admin.data.id });
+    return { error: 'Invalid input', ok: false };
+  }
+
+  const errors: ImportUsersResult['errors'] = [];
+  let imported = 0;
+  const now = new Date();
+
+  for (let i = 0; i < parsed.data.users.length; i++) {
+    const row = parsed.data.users[i];
+    const rowNum = i + 1;
+
+    try {
+      await db.transaction(async (tx) => {
+        const email = row.email?.trim() ? row.email.trim() : null;
+
+        const [user] = await tx
+          .insert(users)
+          .values({
+            displayName: row.displayName ?? null,
+            email,
+            phone: row.phone,
+            role: row.role,
+            status: row.status,
+            updatedAt: now,
+          })
+          .returning({ id: users.id });
+
+        if (!user) throw new Error('Failed to create user.');
+
+        await tx.insert(profiles).values({ userId: user.id }).onConflictDoNothing();
+
+        if (row.membershipTier) {
+          await tx.insert(memberships).values({
+            planCode: row.membershipTier,
+            startsAt: now,
+            status: 'ACTIVE',
+            userId: user.id,
+          });
+        }
+      });
+
+      imported++;
+    } catch (error) {
+      const code = (error as { code?: string })?.code;
+      const message = code === '23505'
+        ? 'Phone or email already exists'
+        : (error as Error)?.message ?? 'Unknown error';
+
+      errors.push({ row: rowNum, phone: row.phone, error: message });
+    }
+  }
+
+  await createAuditLog({
+    action: 'ADMIN_USERS_IMPORTED',
+    actorUserId: admin.data.id,
+    entityType: 'user',
+    payload: { imported, total: parsed.data.users.length, errorCount: errors.length },
+  });
+
+  revalidateUsersPages();
+  log.info('Admin users imported', {
+    durationMs: Date.now() - start,
+    imported,
+    total: parsed.data.users.length,
+    errors: errors.length,
+  });
+
+  return {
+    data: { imported, total: parsed.data.users.length, errors },
+    ok: true,
+  };
 }

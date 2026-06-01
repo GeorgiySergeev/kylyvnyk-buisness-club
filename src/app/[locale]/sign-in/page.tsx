@@ -46,6 +46,7 @@ export default async function SignInPage({ params, searchParams }: SignInPagePro
               namePlaceholder: tAuth('phoneAuthNamePlaceholder'),
               phone: tAuth('phoneAuthPhoneLabel'),
               phoneHelp: tAuth('phoneAuthPhoneHelp'),
+              phoneInvalid: tAuth('phoneAuthPhoneInvalid'),
               phonePlaceholder: tAuth('phoneAuthPhonePlaceholder'),
               requestCode: tAuth('phoneAuthRequestCode'),
               submitting: tAuth('phoneAuthSubmitting'),

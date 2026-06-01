@@ -1,3 +1,4 @@
+import { Download, Plus } from 'lucide-react';
 import { desc } from 'drizzle-orm';
 import Link from 'next/link';
 
@@ -26,6 +27,7 @@ import {
   AdminTableActionsCell,
   AdminTableActionsHead,
 } from '@/features/admin/components/admin-table-actions';
+import { BusinessesImportDialog } from '@/features/admin/components/businesses-import-dialog';
 import { BusinessFeatureToggle } from '@/features/admin/components/business-feature-toggle';
 import { BusinessRowActions } from '@/features/admin/components/business-row-actions';
 import { getT } from '@/lib/i18n/t-server';
@@ -109,7 +111,56 @@ export default async function AdminBusinessesPage({
 
   return (
     <div className="space-y-5">
-      <AdminPageHeader description={t('businessesDescription')} title={t('businessesTitle')} />
+      <AdminPageHeader
+        description={t('businessesDescription')}
+        title={t('businessesTitle')}
+        actions={
+          <>
+            <BusinessesImportDialog
+              labels={{
+                cancel: t('cancel'),
+                close: t('close'),
+                importBusinesses: t('importBusinesses'),
+                importBusinessesTitle: t('importBusinessesTitle'),
+                importBusinessesDescription: t('importBusinessesDescription'),
+                importDropzone: t('importDropzone'),
+                importPreview: t('importPreview'),
+                importSelectedRows: t('importSelectedRows'),
+                importConfirm: t('importConfirmBusiness'),
+                importing: t('importing'),
+                importSuccess: t('importBusinessSuccess'),
+                importPartialSuccess: t('importPartialSuccess'),
+                importErrors: t('importErrors'),
+                importRowError: t('importRowError'),
+                importInvalidFile: t('importInvalidFile'),
+                importTooManyRows: t('importTooManyRows'),
+                importEmpty: t('importEmpty'),
+              }}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-2 border-0 bg-card text-foreground"
+              asChild
+            >
+              <a download href="/api/admin/businesses/export">
+                <Download aria-hidden="true" className="size-4" />
+                <span className="hidden sm:inline">{t('export')}</span>
+              </a>
+            </Button>
+            <Button
+              size="sm"
+              className="h-9 gap-2 bg-black text-white hover:bg-black/90"
+              asChild
+            >
+              <Link href={localizeHref(locale, '/admin/businesses/new')}>
+                <Plus aria-hidden="true" className="size-4" />
+                <span className="hidden sm:inline">{t('addBusiness')}</span>
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       <AdminFiltersBar>
         <form className="flex w-full gap-2 sm:max-w-md" method="GET">

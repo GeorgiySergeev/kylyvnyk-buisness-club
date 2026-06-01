@@ -54,6 +54,10 @@ export const getNavigationSession = cache(async (): Promise<NavigationSession> =
 
   if (!user) {
     const synced = await syncAuthUser(identity);
+    if (synced.user.status !== 'ACTIVE') {
+      return GUEST_SESSION;
+    }
+
     const syncedProfile = await db.query.profiles.findFirst({
       columns: {
         avatarUrl: true,
@@ -68,7 +72,7 @@ export const getNavigationSession = cache(async (): Promise<NavigationSession> =
     };
   }
 
-  if (!user || user.status !== 'ACTIVE') {
+  if (user.status !== 'ACTIVE') {
     return GUEST_SESSION;
   }
 

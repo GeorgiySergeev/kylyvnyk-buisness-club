@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react';
-
 import { Geist, Geist_Mono } from 'next/font/google';
+import type { ReactNode } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { AdminHeader, type AdminShellLabels } from '@/features/admin/components/admin-header';
@@ -54,19 +53,29 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
 
   const shellLabels: AdminShellLabels = {
     ...navLabels,
+    accountMenuLabel: t('accountMenuLabel'),
     adminBrand: t('adminBrand'),
+    adminSearchError: t('adminSearchError'),
+    adminSearchLoading: t('adminSearchLoading'),
+    adminSearchMinChars: t('adminSearchMinChars'),
+    adminSearchNoResults: t('adminSearchNoResults'),
     adminRole: t('adminRole'),
     adminSearchPlaceholder: t('adminSearchPlaceholder'),
+    adminSearchTypeBusiness: t('adminSearchTypeBusiness'),
+    adminSearchTypeCard: t('adminSearchTypeCard'),
+    adminSearchTypeCategory: t('adminSearchTypeCategory'),
+    adminSearchTypeIntroduction: t('adminSearchTypeIntroduction'),
+    adminSearchTypeUser: t('adminSearchTypeUser'),
+    adminSearchViewAll: t('adminSearchViewAll'),
     backOffice: t('backOffice'),
+    goToAdminDashboard: t('goToAdminDashboard'),
+    goToMemberDashboard: t('goToMemberDashboard'),
+    goToProfile: t('goToProfile'),
     notifications: t('notifications'),
     operational: t('operational'),
+    signOut: t('signOut'),
     theme: t('theme'),
     title: t('title'),
-  };
-  const mobileLabels = {
-    ...shellLabels,
-    closeMenu: t('closeMenu'),
-    openMenu: t('openMenu'),
   };
 
   return (
@@ -79,11 +88,11 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
         />
       </aside>
 
-      <AdminMobileNav locale={supportedLocale} labels={mobileLabels} visibleKeys={visibleKeys} />
+      <AdminMobileNav locale={supportedLocale} labels={shellLabels} />
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-background">
         <div className="max-lg:hidden">
-          <AdminHeader labels={shellLabels} />
+          <AdminHeader labels={shellLabels} locale={supportedLocale} />
         </div>
         <main className="container mx-auto min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
           {children}

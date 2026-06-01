@@ -11,8 +11,9 @@ Product authorization is still read from Postgres through Drizzle:
 Phone numbers are PII and must not be emitted in public DTOs, Open Graph data,
 analytics properties, Sentry events, or card verification responses.
 
-Admin routes keep the MFA gate. Until a Supabase-compatible admin MFA policy is
-implemented, admin access is denied by the MFA check.
+Admin routes keep the MFA gate. Production admin access requires a Supabase
+Auth session with authenticator assurance level `aal2`, obtained through the
+self-service TOTP setup and verification flow at `/{locale}/m/2fa-required`.
 
 ## CSP
 

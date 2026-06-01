@@ -81,7 +81,7 @@ export async function requestPhoneOtpAction(
       name: DEV_PHONE_AUTH_COOKIE,
       path: '/',
       sameSite: 'lax',
-      secure: false,
+      secure: process.env.NODE_ENV === 'production',
       value: encodeDevPhoneAuthCookie(parsed.data.phone),
     });
 
@@ -230,7 +230,7 @@ export async function devBypassPhoneAuthAction(
     name: DEV_PHONE_AUTH_COOKIE,
     path: '/',
     sameSite: 'lax',
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     value: encodeDevPhoneAuthCookie(parsed.data.phone),
   });
 

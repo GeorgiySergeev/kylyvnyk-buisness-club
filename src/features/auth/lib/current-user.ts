@@ -40,10 +40,17 @@ export const getCurrentUser = cache(async () => {
 
   if (!user) {
     const synced = await syncAuthUser(identity);
-    return synced.user.status === 'ACTIVE' ? synced.user : null;
+    const syncedUser = await db.query.users.findFirst({
+      where: (table, { and }) => and(isNull(table.deletedAt), eq(table.id, synced.user.id)),
+      with: {
+        profile: true,
+      },
+    });
+
+    return syncedUser?.status === 'ACTIVE' ? syncedUser : null;
   }
 
-  if (!user || user.status !== 'ACTIVE') {
+  if (user.status !== 'ACTIVE') {
     return null;
   }
 

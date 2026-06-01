@@ -115,7 +115,7 @@ export function OnboardingForm({
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <label htmlFor="countryId" className="text-ds-text-sm font-medium text-ds-text">
-            {labels.country} <span className="text-ds-text-muted">({labels.optional})</span>
+            {labels.country}
           </label>
           <select
             id="countryId"

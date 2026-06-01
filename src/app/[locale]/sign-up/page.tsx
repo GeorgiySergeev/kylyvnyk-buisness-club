@@ -41,6 +41,7 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
               namePlaceholder: tAuth('phoneAuthNamePlaceholder'),
               phone: tAuth('phoneAuthPhoneLabel'),
               phoneHelp: tAuth('phoneAuthPhoneHelp'),
+              phoneInvalid: tAuth('phoneAuthPhoneInvalid'),
               phonePlaceholder: tAuth('phoneAuthPhonePlaceholder'),
               requestCode: tAuth('phoneAuthRequestCode'),
               submitting: tAuth('phoneAuthSubmitting'),

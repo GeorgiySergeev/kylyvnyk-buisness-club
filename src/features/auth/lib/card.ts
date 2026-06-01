@@ -1,7 +1,5 @@
 import 'server-only';
 
-import { eq } from 'drizzle-orm';
-
 import { db } from '@/db/client';
 import { clubCards } from '@/db/schema';
 import type { CardMemberType } from '@/db/schema/enums/card-status';
@@ -16,13 +14,6 @@ export async function createCardForUser(
   for (let attempt = 0; attempt < 5; attempt++) {
     const number = generateCardNumber(phone, memberType);
 
-    const existing = await db.query.clubCards.findFirst({
-      columns: { id: true },
-      where: eq(clubCards.number, number),
-    });
-
-    if (existing) continue;
-
     const [card] = await db
       .insert(clubCards)
       .values({
@@ -31,9 +22,12 @@ export async function createCardForUser(
         memberType,
         status: 'ACTIVE',
       })
+      .onConflictDoNothing({ target: clubCards.number })
       .returning();
 
-    return card;
+    if (card) {
+      return card;
+    }
   }
 
   throw new Error('Failed to generate a unique club card number after 5 attempts.');
