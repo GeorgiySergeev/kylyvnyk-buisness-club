@@ -13,18 +13,23 @@ interface DashboardPageProps {
   }>;
   searchParams: Promise<{
     tab?: string;
+    welcome?: string;
   }>;
 }
 
 export default async function DashboardPage({ params, searchParams }: DashboardPageProps) {
   const { locale } = await params;
-  const { tab } = await searchParams;
+  const { tab, welcome } = await searchParams;
 
   return (
     <PageWrapper noTopPad className="max-w-5xl">
       <div className="px-4 pb-8 pt-6 sm:px-0 sm:pt-8">
         <Suspense fallback={<MemberDashboardSkeleton />}>
-          <MemberDashboardPageContent locale={locale} tab={tab} />
+          <MemberDashboardPageContent
+            locale={locale}
+            showWelcomeModal={welcome === 'card-ready'}
+            tab={tab}
+          />
         </Suspense>
       </div>
     </PageWrapper>

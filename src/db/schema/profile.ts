@@ -27,6 +27,9 @@ export const profiles = pgTable(
       onDelete: "set null",
     }),
     bio: text("bio"),
+    onboardingSkippedAt: timestamp("onboarding_skipped_at", {
+      withTimezone: true,
+    }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

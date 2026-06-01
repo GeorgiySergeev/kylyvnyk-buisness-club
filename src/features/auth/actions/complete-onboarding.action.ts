@@ -1,11 +1,12 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { eq } from 'drizzle-orm';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { db } from '@/db/client';
-import { auditLogs, profiles } from '@/db/schema';
+import { auditLogs, profiles, users } from '@/db/schema';
 
 import { requireUser } from '../lib/current-user';
 import { onboardingSchema } from '../schemas/onboarding.schema';
@@ -43,11 +44,20 @@ export async function completeOnboardingAction(
   try {
     await db.transaction(async (tx) => {
       await tx
+        .update(users)
+        .set({
+          displayName: parsed.data.displayName,
+          updatedAt: now,
+        })
+        .where(eq(users.id, user.id));
+
+      await tx
         .insert(profiles)
         .values({
           bio: parsed.data.bio || null,
           cityId: parsed.data.cityId,
           countryId: parsed.data.countryId,
+          onboardingSkippedAt: null,
           updatedAt: now,
           userId: user.id,
         })
@@ -56,6 +66,7 @@ export async function completeOnboardingAction(
             bio: parsed.data.bio || null,
             cityId: parsed.data.cityId,
             countryId: parsed.data.countryId,
+            onboardingSkippedAt: null,
             updatedAt: now,
           },
           target: profiles.userId,
@@ -98,4 +109,52 @@ export async function completeOnboardingAndRedirect(locale: SupportedLocale, raw
   }
 
   return result;
+}
+
+export async function skipOnboardingAction(
+  locale: SupportedLocale,
+): Promise<Result<{ redirectTo: string }>> {
+  const user = await requireUser(locale);
+  const now = new Date();
+
+  try {
+    await db.transaction(async (tx) => {
+      await tx
+        .insert(profiles)
+        .values({
+          onboardingSkippedAt: now,
+          updatedAt: now,
+          userId: user.id,
+        })
+        .onConflictDoUpdate({
+          set: {
+            onboardingSkippedAt: now,
+            updatedAt: now,
+          },
+          target: profiles.userId,
+        });
+
+      await tx.insert(auditLogs).values({
+        action: 'USER_ONBOARDING_SKIPPED',
+        actorUserId: user.id,
+        entityId: user.id,
+        entityType: 'user',
+      });
+    });
+  } catch {
+    return {
+      error: {
+        code: 'SERVER_ERROR',
+        message: 'Onboarding could not be skipped. Please try again.',
+      },
+      ok: false,
+    };
+  }
+
+  return {
+    data: {
+      redirectTo: localizeHref(locale, '/m/dashboard?welcome=card-ready&tab=profile'),
+    },
+    ok: true,
+  };
 }

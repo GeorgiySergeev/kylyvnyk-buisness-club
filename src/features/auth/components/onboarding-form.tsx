@@ -8,9 +8,13 @@ import { useForm } from 'react-hook-form';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
-import { completeOnboardingAction } from '../actions/complete-onboarding.action';
+import {
+  completeOnboardingAction,
+  skipOnboardingAction,
+} from '../actions/complete-onboarding.action';
 import {
   type OnboardingFormInput,
   type OnboardingInput,
@@ -26,6 +30,8 @@ interface OnboardingFormLabels {
   bio: string;
   city: string;
   country: string;
+  displayName: string;
+  fillLater: string;
   formError: string;
   optional: string;
   submit: string;
@@ -50,6 +56,7 @@ export function OnboardingForm({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const {
+    clearErrors,
     formState: { errors },
     handleSubmit,
     register,
@@ -113,6 +120,25 @@ export function OnboardingForm({
       ) : null}
 
       <div className="grid gap-5 sm:grid-cols-2">
+        <div className="space-y-2 sm:col-span-2">
+          <label htmlFor="displayName" className="text-ds-text-sm font-medium text-ds-text">
+            {labels.displayName}
+          </label>
+          <Input
+            id="displayName"
+            aria-describedby={errors.displayName ? 'displayName-error' : undefined}
+            aria-invalid={Boolean(errors.displayName)}
+            disabled={pending}
+            className="min-h-11 rounded-ds-radius-md border-ds-border bg-transparent text-ds-text"
+            {...register('displayName')}
+          />
+          {errors.displayName?.message ? (
+            <p id="displayName-error" role="alert" className="text-ds-text-sm text-ds-error">
+              {errors.displayName.message}
+            </p>
+          ) : null}
+        </div>
+
         <div className="space-y-2">
           <label htmlFor="countryId" className="text-ds-text-sm font-medium text-ds-text">
             {labels.country}
@@ -185,14 +211,39 @@ export function OnboardingForm({
         ) : null}
       </div>
 
-      <Button
-        type="submit"
-        disabled={pending}
-        className="min-h-11 w-full rounded-ds-radius-md border border-ds-border bg-ds-surface-hover text-ds-text hover:bg-ds-surface-hover-2"
-      >
-        {pending ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
-        {pending ? labels.submitting : labels.submit}
-      </Button>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Button
+          type="submit"
+          disabled={pending}
+          className="min-h-11 flex-1 rounded-ds-radius-md border border-ds-border bg-ds-surface-hover text-ds-text hover:bg-ds-surface-hover-2"
+        >
+          {pending ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
+          {pending ? labels.submitting : labels.submit}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={pending}
+          className="min-h-11 flex-1 rounded-ds-radius-md border-ds-border bg-transparent text-ds-text hover:bg-ds-surface-hover"
+          onClick={() => {
+            clearErrors('root');
+            startTransition(async () => {
+              const result = await skipOnboardingAction(locale);
+              if (!result.ok) {
+                setError('root', {
+                  message: result.error.message || labels.formError,
+                  type: result.error.code,
+                });
+                return;
+              }
+              router.push(result.data.redirectTo);
+              router.refresh();
+            });
+          }}
+        >
+          {labels.fillLater}
+        </Button>
+      </div>
     </form>
   );
 }

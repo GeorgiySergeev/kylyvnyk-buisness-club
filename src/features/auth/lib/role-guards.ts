@@ -6,15 +6,15 @@ import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 
 import { decideAdminRouteAccess } from './admin-access';
-import { isOnboardingComplete } from './check-onboarding';
 import { requireRole, requireUser } from './current-user';
 import { hasVerifiedMfaInSession } from './mfa';
 
 export async function guardOnboarded(locale: SupportedLocale) {
   const user = await requireUser(locale);
-  const complete = await isOnboardingComplete(user.id);
 
-  if (!complete) {
+  // `requireUser` already loads the related profile (`with: { profile: true }`),
+  // so we read onboarding state from it instead of issuing a second query.
+  if (user.profile?.countryId == null && user.profile?.onboardingSkippedAt == null) {
     redirect(localizeHref(locale, '/m/onboarding'));
   }
 

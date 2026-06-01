@@ -36,8 +36,11 @@ export default async function SignInPage({ params, searchParams }: SignInPagePro
         <div className="relative flex flex-col items-center gap-8 px-6 py-10 sm:px-8 sm:py-12 md:py-16">
           <PhoneAuthForm
             devBypassEnabled={isAuthDevPhoneBypassEnabled()}
+            intent="sign-in"
             returnBackUrl={returnBackUrl}
             labels={{
+              accountExists: tAuth('phoneAuthGoToSignIn'),
+              accountNotFound: tAuth('phoneAuthGoToSignUp'),
               code: tAuth('phoneAuthCodeLabel'),
               codeHelp: tAuth('phoneAuthCodeHelp'),
               devBypass: tAuth('phoneAuthDevBypass'),

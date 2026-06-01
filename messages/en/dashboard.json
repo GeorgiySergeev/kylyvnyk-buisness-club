@@ -144,5 +144,7 @@
   "settingsDangerZoneTitle": "Danger zone",
   "memberTierFree": "Free member",
   "memberTierVip": "VIP member",
-  "memberTierBusiness": "Business member"
+  "memberTierBusiness": "Business member",
+  "welcomeModalTitle": "Congratulations! Welcome to KYLYVNYK Business Club!",
+  "welcomeModalDescription": "Your club card is ready."
 }

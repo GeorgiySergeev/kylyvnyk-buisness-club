@@ -1,22 +1,19 @@
-import { and, asc, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import dynamic from 'next/dynamic';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { db } from '@/db/client';
-import {
-  businesses,
-  cities,
-  clubCards,
-  countries,
-  introductions,
-  profiles,
-} from '@/db/schema';
+import { businesses, cities, clubCards, countries, introductions, memberships } from '@/db/schema';
 import { guardOnboarded } from '@/features/auth/lib/role-guards';
-import { userHasActiveVipMembership } from '@/features/billing/lib/membership-lifecycle';
 import { MemberDashboardSkeleton } from '@/features/member/components/member-dashboard-skeleton';
 import { isMemberDashboardTab } from '@/features/member/lib/member-dashboard-tab';
 import { getInitials } from '@/features/profile/components/dashboard-profile-shared';
+import {
+  getCachedCities,
+  getCachedCountries,
+  getCachedPublishedBusinessOptions,
+} from '@/lib/db/reference-data';
 import { env } from '@/lib/env';
 import { getT } from '@/lib/i18n/t-server';
 import { VIP_PLAN_CODE } from '@/lib/stripe/config';
@@ -31,6 +28,7 @@ const MemberDashboardTabs = dynamic(
 
 interface MemberDashboardPageContentProps {
   locale: SupportedLocale;
+  showWelcomeModal?: boolean;
   tab?: string;
 }
 
@@ -63,41 +61,38 @@ function resolveMemberTierLabel(
   return t('memberTierFree');
 }
 
-export async function MemberDashboardPageContent({ locale, tab }: MemberDashboardPageContentProps) {
+function isActiveVipMembership(
+  membership: { endsAt: Date | null; status: string } | null | undefined,
+): boolean {
+  if (!membership || membership.status !== 'ACTIVE') {
+    return false;
+  }
+
+  if (membership.endsAt && membership.endsAt.getTime() < Date.now()) {
+    return false;
+  }
+
+  return true;
+}
+
+export async function MemberDashboardPageContent({
+  locale,
+  showWelcomeModal = false,
+  tab,
+}: MemberDashboardPageContentProps) {
   const user = await guardOnboarded(locale);
+  const profile = user.profile;
   const t = getT('dashboard', locale);
   const tIntro = getT('introductions', locale);
 
-  const [card, profile, allCountries, allCities, publishedBusinesses, introductionRecentRows, business, vipSubscription, isVip] =
+  const [card, allCountries, allCities, publishedBusinesses, introductionRecentRows, business, vipSubscription, vipMembership] =
     await Promise.all([
       db.query.clubCards.findFirst({
         where: eq(clubCards.userId, user.id),
       }),
-      db.query.profiles.findFirst({
-        where: eq(profiles.userId, user.id),
-        with: {
-          city: { columns: { name: true } },
-          country: { columns: { name: true } },
-        },
-      }),
-      db.query.countries.findMany({ orderBy: [asc(countries.name)] }),
-      db.query.cities.findMany({
-        orderBy: [asc(cities.name)],
-        with: { country: true },
-      }),
-      db.query.businesses.findMany({
-        columns: {
-          id: true,
-          name: true,
-        },
-        orderBy: [asc(businesses.name)],
-        where: and(eq(businesses.status, 'PUBLISHED'), isNull(businesses.deletedAt)),
-        with: {
-          category: { columns: { name: true } },
-          city: { columns: { name: true } },
-          country: { columns: { name: true } },
-        },
-      }),
+      getCachedCountries(),
+      getCachedCities(),
+      getCachedPublishedBusinessOptions(),
       db
         .select({
           businessName: businesses.name,
@@ -128,8 +123,17 @@ export async function MemberDashboardPageContent({ locale, tab }: MemberDashboar
         where: (table, { and, eq }) => and(eq(table.userId, user.id), eq(table.planCode, VIP_PLAN_CODE)),
         orderBy: (table, { desc }) => [desc(table.updatedAt)],
       }),
-      userHasActiveVipMembership(user.id),
+      db.query.memberships.findFirst({
+        where: and(
+          eq(memberships.userId, user.id),
+          eq(memberships.planCode, VIP_PLAN_CODE),
+          isNull(memberships.deletedAt),
+        ),
+        orderBy: [desc(memberships.updatedAt)],
+      }),
     ]);
+
+  const isVip = isActiveVipMembership(vipMembership);
 
   const introductionBusinesses = publishedBusinesses.map((item) => ({
     category: item.category?.name ?? null,
@@ -223,6 +227,8 @@ export async function MemberDashboardPageContent({ locale, tab }: MemberDashboar
     upgradeVipTitle: t('upgradeVipTitle'),
     verifyCard: t('verifyCard'),
     viewPublicProfile: t('viewPublicProfile'),
+    welcomeModalDescription: t('welcomeModalDescription'),
+    welcomeModalTitle: t('welcomeModalTitle'),
   };
 
   const initialTab = isMemberDashboardTab(tab) ? tab : 'profile';
@@ -354,6 +360,7 @@ export async function MemberDashboardPageContent({ locale, tab }: MemberDashboar
         phone: user.phone,
       }}
       profileLabels={profileLabels}
+      showWelcomeModal={showWelcomeModal}
       verifyUrl={verifyUrl}
       vipSubscription={
         vipSubscription

@@ -25,6 +25,13 @@ import {
   DashboardTabPanel,
 } from '@/components/member/dashboard-ui';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { BillingPortalButton } from '@/features/billing/components/billing-portal-button';
 import {
   DashboardIntroductionTab,
@@ -83,6 +90,7 @@ interface MemberDashboardTabsProps {
   possibilitiesLabels: MembershipPossibilitiesLabels;
   profile: DashboardProfileData;
   profileLabels: DashboardProfileLabels;
+  showWelcomeModal?: boolean;
   verifyUrl: string;
   vipSubscription: {
     cancelAtPeriodEnd: boolean;
@@ -145,6 +153,8 @@ export interface MemberDashboardLabels {
   upgradeVipTitle: string;
   verifyCard: string;
   viewPublicProfile: string;
+  welcomeModalDescription: string;
+  welcomeModalTitle: string;
 }
 
 const tabs: Array<{
@@ -207,6 +217,7 @@ export function MemberDashboardTabs({
   possibilitiesLabels,
   profile,
   profileLabels,
+  showWelcomeModal = false,
   verifyUrl,
   vipSubscription,
 }: MemberDashboardTabsProps) {
@@ -215,10 +226,28 @@ export function MemberDashboardTabs({
   const [activeTab, setActiveTab] = useState<MemberDashboardTab>(() =>
     resolveTabFromUrl(searchParams.get('tab'), initialTab),
   );
+  const [welcomeOpen, setWelcomeOpen] = useState(showWelcomeModal);
 
   useEffect(() => {
     setActiveTab(resolveTabFromUrl(searchParams.get('tab'), initialTab));
   }, [searchParams, initialTab]);
+
+  useEffect(() => {
+    setWelcomeOpen(showWelcomeModal);
+  }, [showWelcomeModal]);
+
+  function handleWelcomeOpenChange(nextOpen: boolean) {
+    setWelcomeOpen(nextOpen);
+    if (nextOpen) {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('welcome');
+    const query = params.toString();
+    const url = query ? `${pathname}?${query}` : pathname;
+    window.history.replaceState(null, '', url);
+  }
 
   function handleTabChange(tab: MemberDashboardTab) {
     setActiveTab(tab);
@@ -230,6 +259,31 @@ export function MemberDashboardTabs({
 
   return (
     <div className="flex flex-col gap-8">
+      <Dialog open={welcomeOpen} onOpenChange={handleWelcomeOpenChange}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{labels.welcomeModalTitle}</DialogTitle>
+            <DialogDescription>{labels.welcomeModalDescription}</DialogDescription>
+          </DialogHeader>
+          <div className="mt-2">
+            {card ? (
+              <ClubCard
+                cardNumber={card.number}
+                memberName={profile.displayName ?? 'Member'}
+                memberType={card.memberType}
+                status={card.status}
+                verifyUrl={verifyUrl}
+              />
+            ) : (
+              <ClubCardPlaceholder
+                description={labels.cardMissingDescription}
+                title={labels.cardMissingTitle}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <header className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-3">

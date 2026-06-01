@@ -1,6 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRef, useState, useTransition } from 'react';
 
@@ -13,6 +14,7 @@ import {
   requestPhoneOtpAction,
   verifyPhoneOtpAction,
 } from '../actions/phone-auth.action';
+import { getAuthErrorLink } from '../lib/phone-auth-intent';
 import { TurnstileWidget } from './turnstile-widget';
 
 // Mirrors PHONE_PATTERN from /features/auth/lib/phone.ts — kept here to
@@ -26,6 +28,8 @@ function normalizePhone(input: string): string {
 }
 
 interface PhoneAuthLabels {
+  accountExists: string;
+  accountNotFound: string;
   code: string;
   codeHelp: string;
   devBypass: string;
@@ -40,6 +44,7 @@ interface PhoneAuthLabels {
 
 interface PhoneAuthFormProps {
   devBypassEnabled: boolean;
+  intent: 'sign-in' | 'sign-up';
   labels: PhoneAuthLabels;
   locale: SupportedLocale;
   returnBackUrl?: string;
@@ -47,7 +52,13 @@ interface PhoneAuthFormProps {
 
 type Step = 'phone' | 'code';
 
-export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl }: PhoneAuthFormProps) {
+export function PhoneAuthForm({
+  devBypassEnabled,
+  intent,
+  labels,
+  locale,
+  returnBackUrl,
+}: PhoneAuthFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState<Step>('phone');
@@ -61,6 +72,7 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
   const [captchaToken, setCaptchaToken] = useState('');
   const [turnstileKey, setTurnstileKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [errorLink, setErrorLink] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -94,11 +106,12 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
 
   function requestCode(rawPhone = getFormValue('phone')) {
     setError(null);
+    setErrorLink(null);
     if (!validatePhone(rawPhone)) return;
     const phone = normalizePhone(rawPhone);
     startTransition(async () => {
       try {
-        const result = await requestPhoneOtpAction(locale, {
+        const result = await requestPhoneOtpAction(locale, intent, {
           phone,
           captchaToken,
           returnBackUrl,
@@ -106,6 +119,12 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
 
         if (!result.ok) {
           setError(result.error.message);
+          if (
+            result.error.code === 'ACCOUNT_NOT_FOUND' ||
+            result.error.code === 'ACCOUNT_ALREADY_EXISTS'
+          ) {
+            setErrorLink(getAuthErrorLink(result.error.code));
+          }
           return;
         }
 
@@ -125,9 +144,10 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
 
   function verifyCode(rawCode = getFormValue('code')) {
     setError(null);
+    setErrorLink(null);
     startTransition(async () => {
       try {
-        const result = await verifyPhoneOtpAction(locale, {
+        const result = await verifyPhoneOtpAction(locale, intent, {
           code: rawCode,
           phone: sentPhone,
           returnBackUrl,
@@ -135,6 +155,12 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
 
         if (!result.ok) {
           setError(result.error.message);
+          if (
+            result.error.code === 'ACCOUNT_NOT_FOUND' ||
+            result.error.code === 'ACCOUNT_ALREADY_EXISTS'
+          ) {
+            setErrorLink(getAuthErrorLink(result.error.code));
+          }
           return;
         }
 
@@ -147,17 +173,24 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
 
   function devBypass(rawPhone = getFormValue('phone')) {
     setError(null);
+    setErrorLink(null);
     if (!validatePhone(rawPhone)) return;
     const phone = normalizePhone(rawPhone);
     startTransition(async () => {
       try {
-        const result = await devBypassPhoneAuthAction(locale, {
+        const result = await devBypassPhoneAuthAction(locale, intent, {
           phone,
           returnBackUrl,
         });
 
         if (!result.ok) {
           setError(result.error.message);
+          if (
+            result.error.code === 'ACCOUNT_NOT_FOUND' ||
+            result.error.code === 'ACCOUNT_ALREADY_EXISTS'
+          ) {
+            setErrorLink(getAuthErrorLink(result.error.code));
+          }
           return;
         }
 
@@ -183,12 +216,19 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
       }}
     >
       {error ? (
-        <p
+        <div
           role="alert"
           className="rounded-ds-radius-md border border-ds-error/40 bg-ds-error/10 px-ds-space-4 py-ds-space-3 text-ds-text-sm text-ds-error"
         >
-          {error}
-        </p>
+          <p>{error}</p>
+          {errorLink ? (
+            <p className="mt-2">
+              <Link className="underline underline-offset-2" href={`/${locale}${errorLink}`}>
+                {errorLink === '/sign-up' ? labels.accountNotFound : labels.accountExists}
+              </Link>
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       {step === 'phone' ? (

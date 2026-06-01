@@ -9,9 +9,10 @@ export async function isOnboardingComplete(userId: string) {
   const profile = await db.query.profiles.findFirst({
     columns: {
       countryId: true,
+      onboardingSkippedAt: true,
     },
     where: eq(profiles.userId, userId),
   });
 
-  return profile?.countryId != null;
+  return profile?.countryId != null || profile?.onboardingSkippedAt != null;
 }

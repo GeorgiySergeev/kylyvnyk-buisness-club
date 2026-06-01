@@ -11,12 +11,36 @@ import { db } from '@/db/client';
 import type { UserRole } from '@/db/schema/enums/user-role';
 
 import { getAuthIdentity } from './auth-identity';
-import { syncAuthUser } from './sync-auth-user';
+import type { AuthIdentity } from './auth-identity';
 
 export type AuthUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
 export type PublicUser = Pick<AuthUser, 'displayName' | 'id' | 'role' | 'status'>;
 export type AuthErrorCode = 'FORBIDDEN' | 'UNAUTHORIZED';
 export type AuthResult<T> = { data: T; ok: true } | { error: AuthErrorCode; ok: false };
+
+export async function findExistingUserByPhone(phone: string) {
+  return db.query.users.findFirst({
+    where: (table, { and }) => and(isNull(table.deletedAt), eq(table.phone, phone)),
+  });
+}
+
+export async function findExistingUserByIdentity(identity: AuthIdentity) {
+  return db.query.users.findFirst({
+    where: (table, { and }) =>
+      and(
+        isNull(table.deletedAt),
+        or(eq(table.supabaseUserId, identity.providerUserId), eq(table.phone, identity.phone)),
+      ),
+    with: {
+      profile: {
+        with: {
+          city: { columns: { name: true } },
+          country: { columns: { name: true } },
+        },
+      },
+    },
+  });
+}
 
 export const getCurrentUser = cache(async () => {
   await headers();
@@ -27,27 +51,10 @@ export const getCurrentUser = cache(async () => {
     return null;
   }
 
-  const user = await db.query.users.findFirst({
-    where: (table, { and }) =>
-      and(
-        isNull(table.deletedAt),
-        or(eq(table.supabaseUserId, identity.providerUserId), eq(table.phone, identity.phone)),
-      ),
-    with: {
-      profile: true,
-    },
-  });
+  const user = await findExistingUserByIdentity(identity);
 
   if (!user) {
-    const synced = await syncAuthUser(identity);
-    const syncedUser = await db.query.users.findFirst({
-      where: (table, { and }) => and(isNull(table.deletedAt), eq(table.id, synced.user.id)),
-      with: {
-        profile: true,
-      },
-    });
-
-    return syncedUser?.status === 'ACTIVE' ? syncedUser : null;
+    return null;
   }
 
   if (user.status !== 'ACTIVE') {

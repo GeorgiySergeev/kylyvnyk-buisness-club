@@ -71,11 +71,14 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
               bio: '',
               cityId: undefined,
               countryId: undefined,
+              displayName: user.displayName ?? '',
             }}
             labels={{
               bio: tAuth('bioLabel'),
               city: tAuth('cityLabel'),
               country: tAuth('countryLabel'),
+              displayName: tAuth('displayNameLabel'),
+              fillLater: tAuth('onboardingFillLater'),
               formError: tAuth('formError'),
               optional: tAuth('onboardingOptional'),
               submit: tAuth('onboardingSubmit'),
