@@ -5,6 +5,7 @@ import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
 import { Button } from '@/components/ui/button';
+import { getCurrentUser } from '@/features/auth/lib/current-user';
 import { getBusinessBySlug } from '@/features/directory/lib/get-business-by-slug';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -20,7 +21,10 @@ interface DirectoryDetailPageProps {
 export default async function DirectoryDetailPage({ params }: DirectoryDetailPageProps) {
   const { locale, slug } = await params;
   const t = getT('directory', locale);
-  const business = await getBusinessBySlug(decodeURIComponent(slug));
+  const [business, user] = await Promise.all([
+    getBusinessBySlug(decodeURIComponent(slug)),
+    getCurrentUser(),
+  ]);
 
   if (!business) {
     notFound();
@@ -107,19 +111,21 @@ export default async function DirectoryDetailPage({ params }: DirectoryDetailPag
               </aside>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_20rem]">
+            <div className={user ? 'grid gap-4 md:grid-cols-[minmax(0,1fr)_20rem]' : 'grid gap-4'}>
               <section className="rounded-box border border-border bg-background/40 p-5">
                 <h2 className="text-lg font-semibold text-foreground">{t('about')}</h2>
                 <p className="mt-3 text-sm leading-7 text-muted-foreground">
                   {business.description}
                 </p>
               </section>
-              <section className="rounded-box border border-primary/30 bg-primary/5 p-5">
-                <h2 className="text-lg font-semibold text-foreground">{t('specialConditions')}</h2>
-                <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                  {t('specialConditionsFallback')}
-                </p>
-              </section>
+              {user ? (
+                <section className="rounded-box border border-primary/30 bg-primary/5 p-5">
+                  <h2 className="text-lg font-semibold text-foreground">{t('specialConditions')}</h2>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                    {business.discountLabel ?? t('specialConditionsFallback')}
+                  </p>
+                </section>
+              ) : null}
             </div>
 
             <p className="border-t border-border pt-4 text-xs leading-6 text-muted-foreground">

@@ -25,20 +25,24 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  AdminTableActionsCell,
+  AdminTableActionsHead,
+} from '@/features/admin/components/admin-table-actions';
+import {
   AdminDataTableShell,
   AdminEmptyState,
   AdminMobileCard,
   AdminPageHeader,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
-import {
-  AdminTableActionsCell,
-  AdminTableActionsHead,
-} from '@/features/admin/components/admin-table-actions';
 import { UserRowActions } from '@/features/admin/components/user-row-actions';
 import { UsersFilters } from '@/features/admin/components/users-filters';
 import { UsersPageActions } from '@/features/admin/components/users-page-actions';
-import { fetchAdminUsers, filterAdminUsers } from '@/features/admin/lib/users-list';
+import {
+  fetchAdminUsers,
+  filterAdminUsers,
+  formatAdminUserMembership,
+} from '@/features/admin/lib/users-list';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -169,7 +173,7 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
                 subtitle={user.phone}
                 badge={
                   <div className="flex gap-1">
-                    <AdminStatusBadge>{user.memberships?.find((m) => m.status === 'ACTIVE')?.planCode ?? t('notDefined')}</AdminStatusBadge>
+                    <AdminStatusBadge>{formatAdminUserMembership(user, t('notDefined'))}</AdminStatusBadge>
                     <AdminStatusBadge>{user.status}</AdminStatusBadge>
                   </div>
                 }
@@ -220,7 +224,7 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
                         </div>
                       </TableCell>
                       <TableCell>
-                        <AdminStatusBadge>{user.memberships?.find((m) => m.status === 'ACTIVE')?.planCode ?? t('notDefined')}</AdminStatusBadge>
+                        <AdminStatusBadge>{formatAdminUserMembership(user, t('notDefined'))}</AdminStatusBadge>
                       </TableCell>
                       <TableCell>
                         <AdminStatusBadge>{user.status}</AdminStatusBadge>

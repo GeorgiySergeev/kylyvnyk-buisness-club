@@ -145,6 +145,7 @@
   "memberTierFree": "Free member",
   "memberTierVip": "VIP member",
   "memberTierBusiness": "Business member",
+  "membershipVipActiveUntil": "VIP active until {date}",
   "welcomeModalTitle": "Congratulations! Welcome to KYLYVNYK Business Club!",
   "welcomeModalDescription": "Your club card is ready."
 }

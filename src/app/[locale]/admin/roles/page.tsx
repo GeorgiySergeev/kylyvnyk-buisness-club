@@ -16,16 +16,17 @@ import {
 import { db } from '@/db/client';
 import { roles, userRoles } from '@/db/schema';
 import {
+  AdminTableActionsCell,
+  AdminTableActionsHead,
+} from '@/features/admin/components/admin-table-actions';
+import {
   AdminDataTableShell,
   AdminEmptyState,
   AdminMobileCard,
   AdminPageHeader,
 } from '@/features/admin/components/admin-ui';
-import {
-  AdminTableActionsCell,
-  AdminTableActionsHead,
-} from '@/features/admin/components/admin-table-actions';
 import { RoleRowActions } from '@/features/admin/components/role-row-actions';
+import { guardSuperAdmin } from '@/features/auth/lib/permission-guards';
 import { canCreateResource, getCurrentUserPermissions } from '@/lib/auth/permissions';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -39,6 +40,7 @@ interface RolesPageProps {
 
 export default async function AdminRolesPage({ params }: RolesPageProps) {
   const { locale } = await params;
+  await guardSuperAdmin(locale);
   const t = getT('admin', locale);
   const userPerms = await getCurrentUserPermissions();
 

@@ -215,6 +215,7 @@ export async function MemberDashboardPageContent({
     status: t('status'),
     submitBusinessCta: t('submitBusinessCta'),
     subscriptionDescription: t('subscriptionDescription'),
+    subscriptionPeriodEnd: t('subscriptionPeriodEnd'),
     subscriptionTitle: t('subscriptionTitle'),
     tabFeatures: t('tabFeatures'),
     tabIntroduction: t('tabIntroduction'),
@@ -233,6 +234,18 @@ export async function MemberDashboardPageContent({
 
   const initialTab = isMemberDashboardTab(tab) ? tab : 'profile';
   const memberTierLabel = resolveMemberTierLabel(card?.memberType, isVip, t);
+  const vipPeriodEnd = vipSubscription?.currentPeriodEnd ?? vipMembership?.endsAt ?? null;
+  const membershipStatusDescription =
+    isVip && vipPeriodEnd
+      ? t('membershipVipActiveUntil').replace(
+          '{date}',
+          new Intl.DateTimeFormat(locale, {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          }).format(vipPeriodEnd),
+        )
+      : null;
 
   const possibilitiesLabels = {
     billingMonthly: t('planBillingMonthly'),
@@ -266,6 +279,7 @@ export async function MemberDashboardPageContent({
     planUpgradeVipPending: t('upgradeVipPending'),
     planUpgradeVipError: t('upgradeVipError'),
     planViewBusiness: t('viewPublicProfile'),
+    status: t('status'),
     planVipPriceMonthly: t('planVipPriceMonthly'),
     planVipPriceNoteMonthly: t('planVipPriceNoteMonthly'),
     planVipPriceNoteYearly: t('planVipPriceNoteYearly'),
@@ -347,6 +361,7 @@ export async function MemberDashboardPageContent({
       isVip={isVip}
       labels={labels}
       locale={locale}
+      membershipStatusDescription={membershipStatusDescription}
       possibilitiesLabels={possibilitiesLabels}
       profile={{
         avatarUrl: profile?.avatarUrl ?? null,
@@ -366,6 +381,7 @@ export async function MemberDashboardPageContent({
         vipSubscription
           ? {
               cancelAtPeriodEnd: vipSubscription.cancelAtPeriodEnd,
+              currentPeriodEnd: vipSubscription.currentPeriodEnd,
             }
           : null
       }

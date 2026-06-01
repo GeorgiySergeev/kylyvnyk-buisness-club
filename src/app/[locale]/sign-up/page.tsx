@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
@@ -5,6 +7,10 @@ import { AuthAlternateLink } from '@/features/auth/components/auth-alternate-lin
 import { AuthPageHeader } from '@/features/auth/components/auth-page-header';
 import { PhoneAuthForm } from '@/features/auth/components/phone-auth-form';
 import { isAuthDevPhoneBypassEnabled } from '@/features/auth/lib/auth-identity';
+import { resolveAuthenticatedAuthPageRedirectPath } from '@/features/auth/lib/auth-page-redirect';
+import { isOnboardingComplete } from '@/features/auth/lib/check-onboarding';
+import { getCurrentUser } from '@/features/auth/lib/current-user';
+import { hasVerifiedMfaInSession } from '@/features/auth/lib/mfa';
 import { getT } from '@/lib/i18n/t-server';
 
 interface SignUpPageProps {
@@ -15,6 +21,19 @@ interface SignUpPageProps {
 
 export default async function SignUpPage({ params }: SignUpPageProps) {
   const { locale } = await params;
+  const user = await getCurrentUser();
+
+  if (user) {
+    const isAdminRole = user.role === 'ADMIN' || user.role === 'OWNER';
+    const redirectPath = resolveAuthenticatedAuthPageRedirectPath({
+      hasMfa: isAdminRole ? await hasVerifiedMfaInSession() : false,
+      onboardingComplete: await isOnboardingComplete(user.id),
+      role: user.role,
+    });
+
+    redirect(localizeHref(locale, redirectPath));
+  }
+
   const tAuth = getT('auth', locale);
 
   return (

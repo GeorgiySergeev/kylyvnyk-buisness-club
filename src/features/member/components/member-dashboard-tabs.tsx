@@ -5,10 +5,10 @@ import {
   CreditCard,
   Handshake,
   LogOut,
+  type LucideIcon,
   Settings,
   Sparkles,
   UserRound,
-  type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -16,7 +16,6 @@ import { useEffect, useState } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ClubCard, ClubCardPlaceholder } from '@/components/member/club-card';
 import {
   DashboardDangerZone,
@@ -24,6 +23,8 @@ import {
   DashboardSettingsRow,
   DashboardTabPanel,
 } from '@/components/member/dashboard-ui';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -33,6 +34,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { BillingPortalButton } from '@/features/billing/components/billing-portal-button';
+import { CancelVipButton } from '@/features/billing/components/cancel-vip-button';
+import type { IntroductionBusinessOption } from '@/features/introductions/components/introduction-form';
 import {
   DashboardIntroductionTab,
   type DashboardIntroductionTabLabels,
@@ -40,21 +43,20 @@ import {
   type IntroductionRecentRequest,
 } from '@/features/member/components/dashboard-introduction-tab';
 import {
-  MembershipPossibilitiesPanel,
   type MembershipPossibilitiesLabels,
+  MembershipPossibilitiesPanel,
 } from '@/features/member/components/membership-possibilities-panel';
-import type { IntroductionBusinessOption } from '@/features/introductions/components/introduction-form';
+import {
+  isMemberDashboardTab,
+  type MemberDashboardTab,
+} from '@/features/member/lib/member-dashboard-tab';
+import { DashboardProfileSettingsForm } from '@/features/profile/components/dashboard-profile-settings-form';
 import {
   type DashboardProfileData,
   type DashboardProfileLabels,
   type SelectOption,
 } from '@/features/profile/components/dashboard-profile-shared';
-import { DashboardProfileSettingsForm } from '@/features/profile/components/dashboard-profile-settings-form';
 import { DashboardProfileView } from '@/features/profile/components/dashboard-profile-view';
-import {
-  isMemberDashboardTab,
-  type MemberDashboardTab,
-} from '@/features/member/lib/member-dashboard-tab';
 import { cn } from '@/lib/utils';
 
 function resolveTabFromUrl(tabParam: string | null, fallback: MemberDashboardTab): MemberDashboardTab {
@@ -86,6 +88,7 @@ interface MemberDashboardTabsProps {
   labels: MemberDashboardLabels;
   locale: SupportedLocale;
   memberTierLabel: string;
+  membershipStatusDescription: string | null;
   notSetLabel: string;
   possibilitiesLabels: MembershipPossibilitiesLabels;
   profile: DashboardProfileData;
@@ -94,6 +97,7 @@ interface MemberDashboardTabsProps {
   verifyUrl: string;
   vipSubscription: {
     cancelAtPeriodEnd: boolean;
+    currentPeriodEnd: Date | null;
   } | null;
 }
 
@@ -141,6 +145,7 @@ export interface MemberDashboardLabels {
   status: string;
   submitBusinessCta: string;
   subscriptionDescription: string;
+  subscriptionPeriodEnd: string;
   subscriptionTitle: string;
   tabFeatures: string;
   tabIntroduction: string;
@@ -213,6 +218,7 @@ export function MemberDashboardTabs({
   labels,
   locale,
   memberTierLabel,
+  membershipStatusDescription,
   notSetLabel,
   possibilitiesLabels,
   profile,
@@ -256,6 +262,13 @@ export function MemberDashboardTabs({
 
   const resolvedName = profile.displayName ?? notSetLabel;
   const resolvedContact = profile.email ?? profile.phone;
+  const subscriptionPeriodEndLabel = vipSubscription?.currentPeriodEnd
+    ? `${labels.subscriptionPeriodEnd}: ${new Intl.DateTimeFormat(locale, {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }).format(vipSubscription.currentPeriodEnd)}`
+    : null;
 
   return (
     <div className="flex flex-col gap-8">
@@ -294,9 +307,14 @@ export function MemberDashboardTabs({
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-ds-text">{resolvedName}</p>
               <p className="truncate text-xs text-ds-text-muted">{resolvedContact}</p>
-              <p className="mt-1 text-[10px] uppercase tracking-widest text-ds-text-faint">
-                {memberTierLabel}
-              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Badge className="uppercase tracking-[0.12em] text-ds-accent" variant="outline">
+                  {memberTierLabel}
+                </Badge>
+                {membershipStatusDescription ? (
+                  <span className="text-xs text-ds-text-muted">{membershipStatusDescription}</span>
+                ) : null}
+              </div>
             </div>
           </div>
 
@@ -410,6 +428,7 @@ export function MemberDashboardTabs({
                   business
                     ? {
                         slug: business.slug,
+                        formattedStatus: business.formattedStatus,
                         status: business.status,
                       }
                     : null
@@ -450,6 +469,22 @@ export function MemberDashboardTabs({
                 </DashboardTabPanel>
 
                 <DashboardTabPanel embedded title={labels.settingsTitle}>
+                  {isVip && vipSubscription ? (
+                    <CancelVipButton
+                      cancelAtPeriodEnd={vipSubscription.cancelAtPeriodEnd}
+                      labels={{
+                        cta: labels.cancelVipCta,
+                        description: labels.cancelVipDescription,
+                        error: labels.cancelVipError,
+                        pending: labels.cancelVipPending,
+                        scheduled: labels.cancelVipScheduled,
+                        title: labels.cancelVipTitle,
+                      }}
+                      locale={locale}
+                      periodEndLabel={subscriptionPeriodEndLabel}
+                    />
+                  ) : null}
+
                   <div className="divide-y divide-border/50">
                     {isVip && hasBillingPortal ? (
                       <DashboardSettingsRow

@@ -144,5 +144,7 @@
   "settingsDangerZoneTitle": "Небезпечна зона",
   "memberTierFree": "Учасник",
   "memberTierVip": "VIP-учасник",
-  "memberTierBusiness": "Бізнес-учасник",  "welcomeModalTitle": "Вітаємо! Ласкаво просимо до KYLYVNYK Business Club!",
+  "memberTierBusiness": "Бізнес-учасник",
+  "membershipVipActiveUntil": "VIP активний до {date}",
+  "welcomeModalTitle": "Вітаємо! Ласкаво просимо до KYLYVNYK Business Club!",
   "welcomeModalDescription": "Ваша клубна картка вже готова."}

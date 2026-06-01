@@ -4,14 +4,21 @@ import { and, eq, isNull } from 'drizzle-orm';
 import type Stripe from 'stripe';
 
 import { db } from '@/db/client';
-import { auditLogs, clubCards, memberships, stripeSubscriptions } from '@/db/schema';
-import type { CardMemberType } from '@/db/schema/enums/card-status';
+import { auditLogs, memberships, stripeSubscriptions } from '@/db/schema';
+import {
+  syncPrimaryMembershipAccess,
+} from '@/features/billing/lib/membership-access';
+import { hasMembershipTransitionChanged } from '@/features/billing/lib/membership-resolver';
 import { BUSINESS_PLAN_CODE, type MembershipPlanCode, VIP_PLAN_CODE } from '@/features/billing/lib/plan-codes';
+import { env } from '@/lib/env';
+import { stripe } from '@/lib/stripe/config';
 import {
   getSubscriptionPeriodEnd,
+  getSubscriptionPeriodStart,
   mapStripeSubscriptionStatus,
 } from '@/lib/stripe/subscription-period';
 
+import { resolveCheckoutReconciliationInput } from './checkout-reconciliation';
 import { resolvePlanCodeFromMetadata } from './membership-plan';
 
 export type MembershipStatus = 'ACTIVE' | 'CANCELED' | 'EXPIRED' | 'PAST_DUE';
@@ -63,6 +70,13 @@ async function upsertMembershipRow(input: {
   const now = new Date();
 
   if (existing) {
+    const shouldAuditTransition = hasMembershipTransitionChanged({
+      currentEndsAt: existing.endsAt,
+      currentStatus: existing.status,
+      nextEndsAt: input.endsAt,
+      nextStatus: input.status,
+    });
+
     const [updated] = await db
       .update(memberships)
       .set({
@@ -74,19 +88,21 @@ async function upsertMembershipRow(input: {
       .where(eq(memberships.id, existing.id))
       .returning();
 
-    await db.insert(auditLogs).values({
-      action: `MEMBERSHIP_${input.status}`,
-      actorUserId: input.userId,
-      entityId: existing.id,
-      entityType: 'membership',
-      payload: {
-        fromStatus: existing.status,
-        periodEnd: input.endsAt?.toISOString() ?? null,
-        planCode: input.planCode,
-        stripeEventId: input.stripeEventId,
-        toStatus: input.status,
-      },
-    });
+    if (shouldAuditTransition) {
+      await db.insert(auditLogs).values({
+        action: `MEMBERSHIP_${input.status}`,
+        actorUserId: input.userId,
+        entityId: existing.id,
+        entityType: 'membership',
+        payload: {
+          fromStatus: existing.status,
+          periodEnd: input.endsAt?.toISOString() ?? null,
+          planCode: input.planCode,
+          stripeEventId: input.stripeEventId,
+          toStatus: input.status,
+        },
+      });
+    }
 
     return updated ?? existing;
   }
@@ -117,25 +133,6 @@ async function upsertMembershipRow(input: {
   }
 
   return created;
-}
-
-async function syncClubCardMemberType(userId: string, memberType: CardMemberType, expiresAt: Date | null) {
-  const card = await db.query.clubCards.findFirst({
-    where: eq(clubCards.userId, userId),
-  });
-
-  if (!card) {
-    return;
-  }
-
-  await db
-    .update(clubCards)
-    .set({
-      expiresAt,
-      memberType,
-      updatedAt: new Date(),
-    })
-    .where(eq(clubCards.id, card.id));
 }
 
 async function upsertStripeSubscriptionRow(input: {
@@ -183,6 +180,7 @@ export async function applySubscriptionState(input: {
 }) {
   const mappedStatus = mapStripeSubscriptionStatus(input.subscription.status);
   const periodEnd = getSubscriptionPeriodEnd(input.subscription);
+  const periodStart = getSubscriptionPeriodStart(input.subscription) ?? new Date();
   const priceId = input.subscription.items.data[0]?.price.id ?? null;
 
   await upsertStripeSubscriptionRow({
@@ -202,19 +200,19 @@ export async function applySubscriptionState(input: {
   await upsertMembershipRow({
     endsAt: periodEnd,
     planCode: input.planCode,
-    startsAt: new Date(),
+    startsAt: periodStart,
     status: mappedStatus,
     stripeEventId: input.stripeEventId,
     userId: input.userId,
   });
 
   if (input.planCode === VIP_PLAN_CODE) {
-    if (mappedStatus === 'ACTIVE') {
-      await syncClubCardMemberType(input.userId, 'VIP', periodEnd);
-      return;
-    }
-
-    await syncClubCardMemberType(input.userId, 'FREE', null);
+    await syncPrimaryMembershipAccess({
+      expiresAt: periodEnd,
+      status: mappedStatus,
+      tier: VIP_PLAN_CODE,
+      userId: input.userId,
+    });
   }
 
   if (input.planCode === BUSINESS_PLAN_CODE && mappedStatus !== 'ACTIVE') {
@@ -229,6 +227,31 @@ export async function applySubscriptionState(input: {
         ),
       );
   }
+}
+
+export async function reconcileCheckoutSessionMembership(sessionId: string, userId: string) {
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const reconciliation = resolveCheckoutReconciliationInput(
+    session,
+    userId,
+    env.STRIPE_PRICE_VIP_ANNUAL,
+    env.STRIPE_PRICE_BUSINESS_ANNUAL,
+  );
+
+  if (!reconciliation) {
+    return { synced: false as const };
+  }
+
+  const subscription = await stripe.subscriptions.retrieve(reconciliation.subscriptionId);
+
+  await applySubscriptionState({
+    planCode: reconciliation.planCode,
+    stripeEventId: `checkout_session:${session.id}`,
+    subscription,
+    userId,
+  });
+
+  return { synced: true as const };
 }
 
 export async function handleCheckoutSessionCompleted(
