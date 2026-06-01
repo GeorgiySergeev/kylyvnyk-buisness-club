@@ -23,3 +23,16 @@ Define a pragmatic testing scope for MVP that protects critical flows with minim
 - Stripe CLI (webhooks integration)
 - GitHub Actions (CI)
 - oha/autocannon (optional perf smoke)
+
+## Execution order
+
+| Step | File | Notes |
+| ---- | ---- | ----- |
+| **0** | **`06-tests-foundation-init-pr.md`** | **Run first** — Vitest (node/jsdom), MSW, Playwright `/en/admin` smoke, CI coverage + E2E |
+| 1 | `01-vitest-rtl-setup.md` | Superseded for bootstrap by step 0; use for additional RTL component tests |
+| 2 | `02-playwright-auth-checkout-verifycard.md` | Extended E2E flows after foundation |
+| 3 | `03-stripe-cli-mocks-webhook-tests.md` | Webhook integration |
+| 4 | `04-ci-lint-type-checks.md` | Extra CI gates (after step 0 baseline) |
+| 5 | `05-minimal-load-smoke.md` | Optional perf smoke |
+
+Alias: `tests/test-plan-init-pr.md` → step 0.

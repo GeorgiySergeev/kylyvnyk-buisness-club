@@ -29,9 +29,6 @@ interface PhoneAuthLabels {
   code: string;
   codeHelp: string;
   devBypass: string;
-  name: string;
-  nameHelp: string;
-  namePlaceholder: string;
   phone: string;
   phoneHelp: string;
   phoneInvalid: string;
@@ -54,7 +51,6 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState<Step>('phone');
-  const [displayName, setDisplayName] = useState('');
   // phoneInput — controlled value of the phone <Input> (what the user types).
   // sentPhone  — normalised phone returned by the server after OTP dispatch;
   //              intentionally separate so it never overwrites the input value
@@ -105,17 +101,11 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
         const result = await requestPhoneOtpAction(locale, {
           phone,
           captchaToken,
-          displayName: displayName.trim(),
           returnBackUrl,
         });
 
         if (!result.ok) {
           setError(result.error.message);
-          return;
-        }
-
-        if (result.data.devBypass) {
-          finish(result.data.redirectTo);
           return;
         }
 
@@ -140,7 +130,6 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
         const result = await verifyPhoneOtpAction(locale, {
           code: rawCode,
           phone: sentPhone,
-          displayName: displayName.trim(),
           returnBackUrl,
         });
 
@@ -164,7 +153,6 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
       try {
         const result = await devBypassPhoneAuthAction(locale, {
           phone,
-          displayName: displayName.trim(),
           returnBackUrl,
         });
 
@@ -205,26 +193,6 @@ export function PhoneAuthForm({ devBypassEnabled, labels, locale, returnBackUrl 
 
       {step === 'phone' ? (
         <>
-          <div className="space-y-2">
-            <label htmlFor="displayName" className="text-ds-text-sm font-medium text-ds-text">
-              {labels.name}
-            </label>
-            <Input
-              id="displayName"
-              name="displayName"
-              autoComplete="name"
-              aria-describedby="displayName-help"
-              className="min-h-11 rounded-ds-radius-md border-ds-border bg-transparent text-ds-text"
-              disabled={pending}
-              value={displayName}
-              onChange={(event) => setDisplayName(event.target.value)}
-              placeholder={labels.namePlaceholder}
-            />
-            <p id="displayName-help" className="text-ds-text-sm leading-6 text-ds-text-muted">
-              {labels.nameHelp}
-            </p>
-          </div>
-
           <div className="space-y-2">
             <label htmlFor="phone" className="text-ds-text-sm font-medium text-ds-text">
               {labels.phone}

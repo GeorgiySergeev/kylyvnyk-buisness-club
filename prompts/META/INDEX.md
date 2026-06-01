@@ -55,7 +55,7 @@ Order is strict. Each block has 3–7 steps; run them in numeric order.
 | B13   | legal-compliance-pages     | —                                                                                           |
 | B14   | security-hardening         | —                                                                                           |
 | B15   | i18n-content               | Locales: `['en']` MVP                                                                       |
-| B16   | testing-qa                 | —                                                                                           |
+| B16   | testing-qa                 | **Start with `06-tests-foundation-init-pr.md`** (Vitest/MSW/Playwright init PR); then `01`–`05`. Alias: `tests/test-plan-init-pr.md`. |
 | B17   | observability-analytics    | Sentry `beforeSend` scrubber required (see SECURITY.md §PII)                                |
 | B18   | ci-cd-environments         | CI must include forbidden-vocab grep + i18n-diff                                            |
 | B19   | seed-and-fixtures          | Seeds must NOT contain real PII; use Faker with fixed seed                                  |

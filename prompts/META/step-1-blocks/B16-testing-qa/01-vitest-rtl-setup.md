@@ -1,5 +1,7 @@
 # 01-vitest-rtl-setup.md
 
+> **Superseded-By (bootstrap):** `06-tests-foundation-init-pr.md` — use this file for additional RTL component tests after step 06 lands.
+
 ## Title
 
 Vitest + React Testing Library — setup

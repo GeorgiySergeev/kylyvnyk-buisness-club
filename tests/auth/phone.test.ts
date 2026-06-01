@@ -14,12 +14,14 @@ test('normalizes an international phone number', () => {
 test('accepts valid phone auth request input', () => {
   const parsed = phoneOtpRequestSchema.safeParse({
     phone: '+380 50 123 45 67',
+    displayName: 'Legacy Name',
   });
 
   assert.equal(parsed.success, true);
 
   if (parsed.success) {
     assert.equal(parsed.data.phone, '+380501234567');
+    assert.equal('displayName' in parsed.data, false);
   }
 });
 

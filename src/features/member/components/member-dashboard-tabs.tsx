@@ -11,8 +11,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
@@ -44,8 +44,15 @@ import {
 } from '@/features/profile/components/dashboard-profile-shared';
 import { DashboardProfileSettingsForm } from '@/features/profile/components/dashboard-profile-settings-form';
 import { DashboardProfileView } from '@/features/profile/components/dashboard-profile-view';
-import type { MemberDashboardTab } from '@/features/member/lib/member-dashboard-tab';
+import {
+  isMemberDashboardTab,
+  type MemberDashboardTab,
+} from '@/features/member/lib/member-dashboard-tab';
 import { cn } from '@/lib/utils';
+
+function resolveTabFromUrl(tabParam: string | null, fallback: MemberDashboardTab): MemberDashboardTab {
+  return isMemberDashboardTab(tabParam) ? tabParam : fallback;
+}
 
 interface MemberDashboardTabsProps {
   business: {
@@ -203,13 +210,19 @@ export function MemberDashboardTabs({
   verifyUrl,
   vipSubscription,
 }: MemberDashboardTabsProps) {
-  const router = useRouter();
   const pathname = usePathname();
-  const [activeTab, setActiveTab] = useState<MemberDashboardTab>(initialTab);
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<MemberDashboardTab>(() =>
+    resolveTabFromUrl(searchParams.get('tab'), initialTab),
+  );
+
+  useEffect(() => {
+    setActiveTab(resolveTabFromUrl(searchParams.get('tab'), initialTab));
+  }, [searchParams, initialTab]);
 
   function handleTabChange(tab: MemberDashboardTab) {
     setActiveTab(tab);
-    router.replace(`${pathname}?tab=${tab}`, { scroll: false });
+    window.history.replaceState(null, '', `${pathname}?tab=${tab}`);
   }
 
   const resolvedName = profile.displayName ?? notSetLabel;

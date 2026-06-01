@@ -43,8 +43,7 @@ function validationError(
 }
 
 type RequestOtpResult =
-  | { data: { devBypass: false; phone: string }; ok: true }
-  | { data: { devBypass: true; redirectTo: string }; ok: true }
+  | { data: { phone: string }; ok: true }
   | { error: AuthActionError; ok: false };
 
 export async function requestPhoneOtpAction(
@@ -72,41 +71,6 @@ export async function requestPhoneOtpAction(
         message: tAuth('phoneAuthRateLimitError'),
       },
       ok: false,
-    };
-  }
-
-  if (isAuthDevPhoneBypassEnabled()) {
-    (await cookies()).set({
-      httpOnly: true,
-      name: DEV_PHONE_AUTH_COOKIE,
-      path: '/',
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      value: encodeDevPhoneAuthCookie(parsed.data.phone),
-    });
-
-    const { isNew, user } = await syncAuthUser({
-      devBypass: true,
-      phone: parsed.data.phone,
-      providerUserId: `dev:${parsed.data.phone}`,
-    }, parsed.data.displayName);
-
-    if (isNew) {
-      await createCardForUser(user.id, user.phone);
-    }
-
-    const redirectTo = await resolvePostAuthRedirect(
-      locale,
-      user.id,
-      parsed.data.returnBackUrl,
-    );
-
-    return {
-      data: {
-        devBypass: true,
-        redirectTo,
-      },
-      ok: true,
     };
   }
 
@@ -139,7 +103,6 @@ export async function requestPhoneOtpAction(
 
   return {
     data: {
-      devBypass: false,
       phone: parsed.data.phone,
     },
     ok: true,
@@ -185,7 +148,7 @@ export async function verifyPhoneOtpAction(
     };
   }
 
-  const { isNew, user } = await syncAuthUser(identity, parsed.data.displayName);
+  const { isNew, user } = await syncAuthUser(identity);
 
   if (isNew) {
     await createCardForUser(user.id, user.phone);
@@ -238,7 +201,7 @@ export async function devBypassPhoneAuthAction(
     devBypass: true,
     phone: parsed.data.phone,
     providerUserId: `dev:${parsed.data.phone}`,
-  }, parsed.data.displayName);
+  });
 
   if (isNew) {
     await createCardForUser(user.id, user.phone);

@@ -1,5 +1,5 @@
-import { AdminPageLoading } from '@/features/admin/components/admin-page-loading';
+import { LocalePageLoading } from '@/components/layout/locale-page-loading';
 
 export default function LocaleLoading() {
-  return <AdminPageLoading />;
+  return <LocalePageLoading />;
 }
