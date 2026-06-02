@@ -18,12 +18,14 @@ import {
 const BREADCRUMB_MAP: Record<string, AdminNavKey> = {
   '/admin': 'navDashboard',
   '/admin/users': 'navUsers',
+  '/admin/access': 'navAccess',
   '/admin/businesses': 'navBusinesses',
   '/admin/cards': 'navCards',
   '/admin/introductions': 'navIntroductions',
   '/admin/memberships': 'navMemberships',
   '/admin/catalog': 'navCatalog',
   '/admin/audit': 'navAudit',
+  '/admin/roles': 'navRoles',
 };
 
 export interface AdminShellLabels

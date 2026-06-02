@@ -35,10 +35,10 @@ test('business registration flow keeps member-only status off public card dto', 
       expiresAt: null,
       memberName: 'Ada Lovelace',
       memberType: 'BUSINESS',
-      number: 'BUS-US-0123456789',
+      number: 'business-US-0123456789',
       status: 'ACTIVE',
     },
-    'BUS-US-0123456789',
+    'business-US-0123456789',
     'Member',
   );
 

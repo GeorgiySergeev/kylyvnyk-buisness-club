@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 
@@ -136,7 +136,7 @@ function VerifyCardView({ dto, locale }: { dto: PublicCardDto; locale: Supported
 
 export default async function VerifyCardNumberPage({ params }: VerifyCardNumberPageProps) {
   const { locale, number } = await params;
-  const decodedNumber = decodeURIComponent(number).trim().toUpperCase();
+  const decodedNumber = decodeURIComponent(number).trim();
   const t = getT('cards', locale);
   const headersList = await headers();
   const rateLimit = await checkVerifyCardRateLimit({
@@ -163,7 +163,12 @@ export default async function VerifyCardNumberPage({ params }: VerifyCardNumberP
     })
     .from(clubCards)
     .leftJoin(users, eq(users.id, clubCards.userId))
-    .where(eq(clubCards.number, decodedNumber))
+    .where(
+      and(
+        eq(clubCards.status, 'ACTIVE'),
+        sql`lower(${clubCards.number}) = lower(${decodedNumber})`,
+      ),
+    )
     .limit(1);
 
   return (

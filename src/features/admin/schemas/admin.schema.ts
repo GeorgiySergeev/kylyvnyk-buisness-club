@@ -132,7 +132,7 @@ export const updateCardSchema = z.object({
   discountLabel: z.string().trim().max(200).nullable().optional(),
   expiresAt: z.coerce.date().nullable().optional(),
   memberType: z.enum(['FREE', 'BUSINESS', 'VIP']),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'EXPIRED']),
+  status: z.enum(['ACTIVE', 'INACTIVE', 'EXPIRED', 'ARCHIVED']),
 });
 
 export const createCardSchema = z.object({

@@ -5,8 +5,10 @@ import { revalidatePath } from 'next/cache';
 
 import { localizeHref, SUPPORTED_LOCALES } from '@/components/layout/navigation';
 import { db } from '@/db/client';
-import { businesses, clubCards } from '@/db/schema';
+import { businesses } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
+import { setUserMembershipTier } from '@/features/billing/lib/membership-access';
+import { BUSINESS_PLAN_CODE } from '@/features/billing/lib/plan-codes';
 import { createAuditLog } from '@/lib/audit';
 import { log } from '@/lib/log';
 
@@ -48,10 +50,7 @@ export async function updateBusinessStatusAction(
   if (!updated) return { error: 'Business not found.', ok: false };
 
   if (parsed.data.status === 'PUBLISHED') {
-    await db
-      .update(clubCards)
-      .set({ memberType: 'BUSINESS', updatedAt: new Date() })
-      .where(eq(clubCards.userId, updated.userId));
+    await setUserMembershipTier(updated.userId, BUSINESS_PLAN_CODE, new Date(), admin.data.id);
   }
 
   await createAuditLog({

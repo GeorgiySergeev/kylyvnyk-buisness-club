@@ -35,7 +35,15 @@ const PHONE_PREFIX_TO_COUNTRY: Record<string, string> = {
 };
 
 function getMemberTypePrefix(memberType: CardMemberType): string {
-  return memberType === 'BUSINESS' ? 'BUS' : memberType;
+  if (memberType === 'BUSINESS') {
+    return 'business';
+  }
+
+  if (memberType === 'VIP') {
+    return 'vip';
+  }
+
+  return memberType;
 }
 
 export function shouldRotateCardNumber(

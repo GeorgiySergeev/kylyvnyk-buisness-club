@@ -4,8 +4,14 @@ import { and, eq, inArray, or } from 'drizzle-orm';
 import { headers } from 'next/headers';
 
 import { db } from '@/db/client';
-import { permissions, RESOURCES } from '@/db/schema';
+import { permissions } from '@/db/schema';
 import type { PermissionAction, Resource } from '@/db/schema/permission';
+import {
+  applyPermissionOverrides,
+  mergePermissions,
+  type MergedPermission,
+  type PermissionOverrideSummary,
+} from '@/lib/auth/permission-override-helpers';
 
 export type { PermissionAction, Resource };
 
@@ -24,37 +30,33 @@ export interface RoleWithPermissions {
   }[];
 }
 
-interface MergedPermission {
-  resource: Resource;
-  canView: boolean;
-  canCreate: boolean;
-  canEdit: boolean;
-  canDelete: boolean;
-}
-
-function mergePermissions(allPerms: { resource: string; canView: boolean; canCreate: boolean; canEdit: boolean; canDelete: boolean }[]): MergedPermission[] {
-  const merged = new Map<string, MergedPermission>();
-  for (const r of RESOURCES) {
-    merged.set(r, { resource: r, canView: false, canCreate: false, canEdit: false, canDelete: false });
-  }
-  for (const p of allPerms) {
-    const existing = merged.get(p.resource);
-    if (existing) {
-      existing.canView = existing.canView || p.canView;
-      existing.canCreate = existing.canCreate || p.canCreate;
-      existing.canEdit = existing.canEdit || p.canEdit;
-      existing.canDelete = existing.canDelete || p.canDelete;
-    }
-  }
-  return Array.from(merged.values());
-}
-
 async function getRoleIdsForUser(userId: string): Promise<string[]> {
   const userRoleAssignments = await db.query.userRoles.findMany({
     where: (table, { eq }) => eq(table.userId, userId),
     columns: { roleId: true },
   });
   return userRoleAssignments.map((a) => a.roleId);
+}
+
+export async function getUserPermissionOverrides(userId: string): Promise<PermissionOverrideSummary[]> {
+  const overrides = await db.query.userPermissionOverrides.findMany({
+    columns: {
+      denyCreate: true,
+      denyDelete: true,
+      denyEdit: true,
+      denyView: true,
+      resource: true,
+    },
+    where: (table, { eq }) => eq(table.userId, userId),
+  });
+
+  return overrides.map((override) => ({
+    resource: override.resource as Resource,
+    denyView: override.denyView,
+    denyCreate: override.denyCreate,
+    denyEdit: override.denyEdit,
+    denyDelete: override.denyDelete,
+  }));
 }
 
 export async function getUserRoles(userId: string) {
@@ -77,6 +79,10 @@ export async function canAccess(
   resource: Resource,
   action: PermissionAction,
 ): Promise<boolean> {
+  if (await isSuperAdmin(userId)) {
+    return true;
+  }
+
   const roleIds = await getRoleIdsForUser(userId);
   if (roleIds.length === 0) return false;
 
@@ -96,7 +102,34 @@ export async function canAccess(
       ),
     );
 
-  return perms.length > 0;
+  if (perms.length === 0) {
+    return false;
+  }
+
+  const overrides = await getUserPermissionOverrides(userId);
+  const effectivePermissions = applyPermissionOverrides(
+    mergePermissions(
+      perms.map((permission) => ({
+        resource: permission.resource,
+        canView: permission.canView,
+        canCreate: permission.canCreate,
+        canEdit: permission.canEdit,
+        canDelete: permission.canDelete,
+      })),
+    ),
+    overrides,
+  );
+
+  const effective = effectivePermissions.find((permission) => permission.resource === resource);
+
+  if (!effective) {
+    return false;
+  }
+
+  if (action === 'view') return effective.canView;
+  if (action === 'create') return effective.canCreate;
+  if (action === 'edit') return effective.canEdit;
+  return effective.canDelete;
 }
 
 export async function getUserRolesWithPermissions(userId: string): Promise<RoleWithPermissions[]> {
@@ -133,17 +166,40 @@ export async function getCurrentUserPermissions() {
   const user = await getCurrentUser();
 
   if (!user) {
-    return { roles: [], permissions: [] as MergedPermission[], isSuperAdmin: false };
+    return { roles: [], permissions: [] as MergedPermission[], overrides: [] as PermissionOverrideSummary[], isSuperAdmin: false };
   }
 
   const rolesWithPerms = await getUserRolesWithPermissions(user.id);
   const allPermissions = rolesWithPerms.flatMap((r) => r.permissions);
-  const merged = mergePermissions(allPermissions);
+  const overrides = await getUserPermissionOverrides(user.id);
+  const merged = applyPermissionOverrides(mergePermissions(allPermissions), overrides);
 
   return {
     roles: rolesWithPerms,
     permissions: merged,
+    overrides,
     isSuperAdmin: rolesWithPerms.some((r) => r.slug === 'super_admin'),
+  };
+}
+
+export async function getUserEffectivePermissions(userId: string) {
+  const [roles, overrides, superAdmin] = await Promise.all([
+    getUserRolesWithPermissions(userId),
+    getUserPermissionOverrides(userId),
+    isSuperAdmin(userId),
+  ]);
+
+  const basePermissions = mergePermissions(roles.flatMap((role) => role.permissions));
+  const effectivePermissions = superAdmin
+    ? basePermissions
+    : applyPermissionOverrides(basePermissions, overrides);
+
+  return {
+    roles,
+    overrides,
+    isSuperAdmin: superAdmin,
+    basePermissions,
+    effectivePermissions,
   };
 }
 

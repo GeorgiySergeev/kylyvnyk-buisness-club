@@ -85,6 +85,13 @@
       "when": 1780358400000,
       "tag": "0011_membership_effective_tier_sync",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1780444800000,
+      "tag": "0012_card_history_and_user_permission_overrides",
+      "breakpoints": true
     }
   ]
 }

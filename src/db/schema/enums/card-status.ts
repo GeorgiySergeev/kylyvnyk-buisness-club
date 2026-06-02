@@ -4,6 +4,7 @@ export const cardStatusEnum = pgEnum("card_status", [
   "ACTIVE",
   "INACTIVE",
   "EXPIRED",
+  "ARCHIVED",
 ]);
 
 export type CardStatus = (typeof cardStatusEnum.enumValues)[number];
