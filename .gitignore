@@ -64,3 +64,5 @@ temp/
 # OS / misc
 *.tsbuildinfo
 next-env.d.ts
+
+kclub-mvp-V2.code-workspace
