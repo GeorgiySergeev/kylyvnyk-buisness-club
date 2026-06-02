@@ -4,13 +4,14 @@ import { desc, isNull } from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import { users } from '@/db/schema';
+import { resolveEffectiveMembership } from '@/features/billing/lib/membership-resolver';
 
 export type AdminUserListItem = {
   createdAt: Date;
   displayName: string | null;
   email: string | null;
   id: string;
-  memberships: { planCode: string; status: string }[] | null;
+  memberships: { createdAt: Date; planCode: string; status: string; updatedAt: Date }[] | null;
   phone: string;
   role: string;
   status: string;
@@ -39,8 +40,10 @@ export async function fetchAdminUsers(): Promise<AdminUserListItem[]> {
     with: {
       memberships: {
         columns: {
+          createdAt: true,
           planCode: true,
           status: true,
+          updatedAt: true,
         },
       },
       profile: {
@@ -86,9 +89,7 @@ export function filterAdminUsers(
   }
 
   if (planFilter) {
-    filtered = filtered.filter((user) =>
-      user.memberships?.some((membership) => membership.status === 'ACTIVE' && membership.planCode === planFilter),
-    );
+    filtered = filtered.filter((user) => resolveEffectiveMembership(user.memberships)?.planCode === planFilter);
   }
 
   if (statusFilter) {
@@ -106,8 +107,8 @@ function escapeCsvField(value: string): string {
   return value;
 }
 
-function formatMembership(user: AdminUserListItem): string {
-  return user.memberships?.find((membership) => membership.status === 'ACTIVE')?.planCode ?? '';
+export function formatAdminUserMembership(user: AdminUserListItem, fallback = ''): string {
+  return resolveEffectiveMembership(user.memberships)?.planCode ?? fallback;
 }
 
 export function usersToCsv(rows: AdminUserListItem[]): string {
@@ -122,7 +123,7 @@ export function usersToCsv(rows: AdminUserListItem[]): string {
         user.email ?? '',
         user.role,
         user.status,
-        formatMembership(user),
+        formatAdminUserMembership(user),
         user.country ?? '',
         user.createdAt.toISOString(),
       ]

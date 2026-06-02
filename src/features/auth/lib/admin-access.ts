@@ -1,4 +1,5 @@
 export type AdminApiErrorCode = 'FORBIDDEN' | 'MFA_REQUIRED' | 'UNAUTHORIZED' | 'SUPER_ADMIN_REQUIRED';
+export type MemberRouteDecision = 'ALLOW' | 'REDIRECT_ADMIN' | 'REDIRECT_MFA';
 export type AdminRouteDecision = 'ALLOW' | 'REDIRECT_HOME' | 'REDIRECT_MFA' | 'REDIRECT_SIGN_IN';
 
 export function decideAdminRouteAccess(input: {
@@ -19,6 +20,21 @@ export function decideAdminRouteAccess(input: {
   }
 
   return 'ALLOW';
+}
+
+export function decideMemberRouteAccess(input: {
+  hasMfa: boolean;
+  role: 'ADMIN' | 'GUEST' | 'MANAGER' | 'MEMBER' | 'OWNER' | null;
+}): MemberRouteDecision {
+  if (input.role !== 'ADMIN' && input.role !== 'OWNER') {
+    return 'ALLOW';
+  }
+
+  if (!input.hasMfa) {
+    return 'REDIRECT_MFA';
+  }
+
+  return 'REDIRECT_ADMIN';
 }
 
 export function decideAdminApiResult(input: {

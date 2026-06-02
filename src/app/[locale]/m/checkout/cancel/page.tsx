@@ -1,10 +1,11 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
 import { DashboardPageHeader } from '@/components/member/dashboard-ui';
+import { guardOnboarded } from '@/features/auth/lib/role-guards';
 import { getT } from '@/lib/i18n/t-server';
 
 /**
@@ -26,6 +27,7 @@ interface CheckoutCancelPageProps {
 
 export default async function CheckoutCancelPage({ params }: CheckoutCancelPageProps) {
   const { locale } = await params;
+  await guardOnboarded(locale);
   const t = getT('dashboard', locale);
 
   return (

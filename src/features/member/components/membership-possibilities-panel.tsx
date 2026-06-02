@@ -57,6 +57,7 @@ export interface MembershipPossibilitiesLabels {
   planUpgradeVipPending: string;
   planUpgradeVipError: string;
   planViewBusiness: string;
+  status: string;
   planVipPriceMonthly: string;
   planVipPriceNoteMonthly: string;
   planVipPriceNoteYearly: string;
@@ -67,6 +68,7 @@ export interface MembershipPossibilitiesLabels {
 
 interface MembershipPossibilitiesPanelProps {
   business: {
+    formattedStatus: string;
     slug: string;
     status: string;
   } | null;
@@ -247,6 +249,15 @@ export function MembershipPossibilitiesPanel({
     ) : business?.status === 'PUBLISHED' ? (
       <Button asChild className="min-h-11 w-full rounded-lg" type="button" variant="outline">
         <Link href={localizeHref(locale, `/directory/${business.slug}`)}>{labels.planViewBusiness}</Link>
+      </Button>
+    ) : business ? (
+      <Button
+        type="button"
+        variant="outline"
+        className="min-h-11 w-full rounded-lg border-border/50 bg-transparent text-fg/60"
+        disabled
+      >
+        {labels.status}: {business.formattedStatus}
       </Button>
     ) : (
       <Button asChild className="min-h-11 w-full rounded-lg" type="button" variant="outline">

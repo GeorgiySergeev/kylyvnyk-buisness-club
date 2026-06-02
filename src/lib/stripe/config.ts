@@ -8,7 +8,10 @@ import { env } from '@/lib/env';
 
 export {
   BUSINESS_PLAN_CODE,
+  FREE_PLAN_CODE,
   type MembershipPlanCode,
+  type MembershipTierCode,
+  type PaidMembershipPlanCode,
   VIP_PLAN_CODE,
 } from '@/features/billing/lib/plan-codes';
 

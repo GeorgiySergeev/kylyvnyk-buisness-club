@@ -18,6 +18,7 @@ import {
   users,
 } from '@/db/schema';
 import { UserAccountTabs } from '@/features/admin/components/user-account-tabs';
+import { resolveEffectiveMembership } from '@/features/billing/lib/membership-resolver';
 import { getInitials } from '@/features/profile/components/dashboard-profile-shared';
 import { getT } from '@/lib/i18n/t-server';
 
@@ -63,6 +64,7 @@ export async function AdminUserDetailContent({ locale, userId }: AdminUserDetail
     planCode: string;
     startsAt: Date;
     status: string;
+    updatedAt: Date;
   };
   type UserBusinessRow = {
     id: string;
@@ -175,6 +177,7 @@ export async function AdminUserDetailContent({ locale, userId }: AdminUserDetail
             memberType: true,
             number: true,
             status: true,
+            updatedAt: true,
           },
           where: eq(clubCards.userId, userId),
         }),
@@ -206,6 +209,7 @@ export async function AdminUserDetailContent({ locale, userId }: AdminUserDetail
             planCode: true,
             startsAt: true,
             status: true,
+            updatedAt: true,
           },
           orderBy: [desc(memberships.createdAt)],
           where: eq(memberships.userId, userId),
@@ -240,8 +244,7 @@ export async function AdminUserDetailContent({ locale, userId }: AdminUserDetail
   });
 
   const activeCard = userCards[0] ?? null;
-  const primaryMembership =
-    userMemberships.find((m) => m.status === 'ACTIVE') ?? userMemberships[0] ?? null;
+  const primaryMembership = resolveEffectiveMembership(userMemberships);
 
   const fmt = (d: Date) =>
     d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -281,6 +284,7 @@ export async function AdminUserDetailContent({ locale, userId }: AdminUserDetail
       }))}
       joinedDate={joinedDate}
       membershipLabel={primaryMembership?.planCode ?? t('noMembership')}
+      effectiveMembershipTier={primaryMembership?.planCode ?? null}
       memberships={userMemberships.map((m) => ({
         createdAt: fmt(m.createdAt),
         endsAt: m.endsAt ? fmt(m.endsAt) : null,

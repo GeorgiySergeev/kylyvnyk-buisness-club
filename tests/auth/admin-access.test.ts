@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   decideAdminApiResult,
   decideAdminRouteAccess,
+  decideMemberRouteAccess,
 } from '../../src/features/auth/lib/admin-access';
 
 test('admin route decision: anonymous is redirected to sign-in', () => {
@@ -44,6 +45,33 @@ test('admin route decision: admin with MFA is allowed', () => {
   });
 
   assert.equal(decision, 'ALLOW');
+});
+
+test('member route decision: member is allowed', () => {
+  const decision = decideMemberRouteAccess({
+    hasMfa: false,
+    role: 'MEMBER',
+  });
+
+  assert.equal(decision, 'ALLOW');
+});
+
+test('member route decision: admin without MFA is redirected to MFA page', () => {
+  const decision = decideMemberRouteAccess({
+    hasMfa: false,
+    role: 'ADMIN',
+  });
+
+  assert.equal(decision, 'REDIRECT_MFA');
+});
+
+test('member route decision: admin with MFA is redirected to admin', () => {
+  const decision = decideMemberRouteAccess({
+    hasMfa: true,
+    role: 'ADMIN',
+  });
+
+  assert.equal(decision, 'REDIRECT_ADMIN');
 });
 
 test('admin API decision: unauthorized maps to 401 contract', () => {

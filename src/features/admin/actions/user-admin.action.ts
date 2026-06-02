@@ -10,8 +10,10 @@ import {
 } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import { memberships, profiles, users } from '@/db/schema';
-import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { createCardForUser } from '@/features/auth/lib/card';
+import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
+import { setUserMembershipTier } from '@/features/billing/lib/membership-access';
+import { FREE_PLAN_CODE, type MembershipTierCode } from '@/features/billing/lib/plan-codes';
 import { createAuditLog } from '@/lib/audit';
 import { log } from '@/lib/log';
 
@@ -110,26 +112,7 @@ export async function updateUserMembershipAction(
     return { error: 'Invalid input.', ok: false };
   }
 
-  const now = new Date();
-
-  const existingMembership = await db.query.memberships.findFirst({
-    where: (m, { and, eq: eqOp }) =>
-      and(eqOp(m.userId, parsed.data.userId), eqOp(m.status, 'ACTIVE')),
-  });
-
-  if (existingMembership) {
-    await db
-      .update(memberships)
-      .set({ planCode: parsed.data.membershipTier, updatedAt: now })
-      .where(eq(memberships.id, existingMembership.id));
-  } else {
-    await db.insert(memberships).values({
-      userId: parsed.data.userId,
-      planCode: parsed.data.membershipTier,
-      status: 'ACTIVE',
-      startsAt: now,
-    });
-  }
+  await setUserMembershipTier(parsed.data.userId, parsed.data.membershipTier);
 
   await createAuditLog({
     action: 'ADMIN_USER_MEMBERSHIP_UPDATED',
@@ -403,20 +386,14 @@ export async function createUserAction(
 
       await tx.insert(profiles).values({ userId: user.id }).onConflictDoNothing();
 
-      if (parsed.data.membershipTier) {
-        await tx.insert(memberships).values({
-          planCode: parsed.data.membershipTier,
-          startsAt: now,
-          status: 'ACTIVE',
-          userId: user.id,
-        });
-      }
-
       return user;
     });
 
+    const membershipTier = parsed.data.membershipTier ?? FREE_PLAN_CODE;
+    await setUserMembershipTier(created.id, membershipTier);
+
     if (parsed.data.issueCard) {
-      const memberType = parsed.data.membershipTier ?? 'FREE';
+      const memberType = membershipTier;
       await createCardForUser(created.id, created.phone, memberType);
     }
 
@@ -501,14 +478,12 @@ export async function importUsersAction(
 
         await tx.insert(profiles).values({ userId: user.id }).onConflictDoNothing();
 
-        if (row.membershipTier) {
-          await tx.insert(memberships).values({
-            planCode: row.membershipTier,
-            startsAt: now,
-            status: 'ACTIVE',
-            userId: user.id,
-          });
-        }
+        await tx.insert(memberships).values({
+          planCode: (row.membershipTier ?? FREE_PLAN_CODE) as MembershipTierCode,
+          startsAt: now,
+          status: 'ACTIVE',
+          userId: user.id,
+        });
       });
 
       imported++;

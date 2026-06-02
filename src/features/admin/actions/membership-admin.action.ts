@@ -8,6 +8,16 @@ import { localizeHref, SUPPORTED_LOCALES } from '@/components/layout/navigation'
 import { db } from '@/db/client';
 import { memberships } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
+import {
+  setUserMembershipTier,
+  syncPrimaryMembershipAccess,
+} from '@/features/billing/lib/membership-access';
+import {
+  BUSINESS_PLAN_CODE,
+  FREE_PLAN_CODE,
+  type MembershipTierCode,
+  VIP_PLAN_CODE,
+} from '@/features/billing/lib/plan-codes';
 import { createAuditLog } from '@/lib/audit';
 import { isUndefinedTableError,MIGRATION_REQUIRED_MESSAGE } from '@/lib/db-guard';
 
@@ -21,9 +31,18 @@ const createSchema = z.object({
   endsAt: z.coerce.date().nullable().optional(),
 });
 
-function revalidateMembershipPages() {
+function isMembershipTierCode(value: string): value is MembershipTierCode {
+  return value === FREE_PLAN_CODE || value === VIP_PLAN_CODE || value === BUSINESS_PLAN_CODE;
+}
+
+function revalidateMembershipPages(userId?: string) {
   for (const locale of SUPPORTED_LOCALES) {
     revalidatePath(localizeHref(locale, '/admin/memberships'));
+    revalidatePath(localizeHref(locale, '/admin/users'));
+    revalidatePath(localizeHref(locale, '/m/dashboard'));
+    if (userId) {
+      revalidatePath(localizeHref(locale, `/admin/users/${userId}`));
+    }
   }
 }
 
@@ -65,7 +84,11 @@ export async function createMembershipAction(rawInput: unknown): Promise<AdminAc
     payload: { userId: input.userId, planCode: input.planCode, status: input.status },
   });
 
-  revalidateMembershipPages();
+  if (input.status === 'ACTIVE' && isMembershipTierCode(input.planCode)) {
+    await setUserMembershipTier(input.userId, input.planCode, input.startsAt ?? new Date());
+  }
+
+  revalidateMembershipPages(input.userId);
   return { ok: true, data: { membershipId: created.id } };
 }
 
@@ -88,7 +111,7 @@ export async function updateMembershipAction(rawInput: unknown): Promise<AdminAc
 
   const input = parsed.data;
 
-  let updated: { id: string } | undefined;
+  let updated: { id: string; userId: string } | undefined;
   try {
     [updated] = await db
       .update(memberships)
@@ -100,7 +123,7 @@ export async function updateMembershipAction(rawInput: unknown): Promise<AdminAc
         updatedAt: new Date(),
       })
       .where(eq(memberships.id, input.membershipId))
-      .returning({ id: memberships.id });
+      .returning({ id: memberships.id, userId: memberships.userId });
   } catch (error) {
     if (isUndefinedTableError(error, 'memberships')) {
       return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
@@ -118,7 +141,20 @@ export async function updateMembershipAction(rawInput: unknown): Promise<AdminAc
     payload: { planCode: input.planCode, status: input.status },
   });
 
-  revalidateMembershipPages();
+  if (isMembershipTierCode(input.planCode)) {
+    if (input.status === 'ACTIVE') {
+      await setUserMembershipTier(updated.userId, input.planCode, input.startsAt ?? new Date());
+    } else if (input.planCode === VIP_PLAN_CODE) {
+      await syncPrimaryMembershipAccess({
+        expiresAt: input.endsAt ?? null,
+        status: input.status === 'CANCELED' || input.status === 'PAST_DUE' ? input.status : 'EXPIRED',
+        tier: VIP_PLAN_CODE,
+        userId: updated.userId,
+      });
+    }
+  }
+
+  revalidateMembershipPages(updated.userId);
   return { ok: true, data: { membershipId: updated.id } };
 }
 
@@ -137,13 +173,13 @@ export async function softDeleteMembershipAction(rawInput: unknown): Promise<Adm
 
   const { membershipId } = parsed.data;
 
-  let updated: { id: string } | undefined;
+  let updated: { id: string; planCode: string; userId: string } | undefined;
   try {
     [updated] = await db
       .update(memberships)
       .set({ deletedAt: new Date(), status: 'INACTIVE', updatedAt: new Date() })
       .where(eq(memberships.id, membershipId))
-      .returning({ id: memberships.id });
+      .returning({ id: memberships.id, planCode: memberships.planCode, userId: memberships.userId });
   } catch (error) {
     if (isUndefinedTableError(error, 'memberships')) {
       return { ok: false, code: 'conflict', error: MIGRATION_REQUIRED_MESSAGE };
@@ -160,6 +196,15 @@ export async function softDeleteMembershipAction(rawInput: unknown): Promise<Adm
     entityType: 'membership',
   });
 
-  revalidateMembershipPages();
+  if (updated.planCode === VIP_PLAN_CODE) {
+    await syncPrimaryMembershipAccess({
+      expiresAt: null,
+      status: 'INACTIVE',
+      tier: VIP_PLAN_CODE,
+      userId: updated.userId,
+    });
+  }
+
+  revalidateMembershipPages(updated.userId);
   return { ok: true, data: { membershipId: updated.id } };
 }

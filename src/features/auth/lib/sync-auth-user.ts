@@ -4,6 +4,7 @@ import { and, eq, isNull, or } from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import { auditLogs, profiles, users } from '@/db/schema';
+import { ensureFreeMembershipWhenNoActiveVip } from '@/features/billing/lib/membership-access';
 
 import type { AuthIdentity } from './auth-identity';
 
@@ -62,6 +63,7 @@ export async function syncAuthUser(identity: AuthIdentity, displayName?: string)
     const isNew = upsertedBySupabaseId.createdAt.getTime() >= now.getTime() - 1000;
 
     await db.insert(profiles).values({ userId: upsertedBySupabaseId.id }).onConflictDoNothing();
+    await ensureFreeMembershipWhenNoActiveVip(upsertedBySupabaseId.id, now);
 
     if (isNew) {
       await db.insert(auditLogs).values({
@@ -102,6 +104,7 @@ export async function syncAuthUser(identity: AuthIdentity, displayName?: string)
 
   if (upsertedByPhone) {
     await db.insert(profiles).values({ userId: upsertedByPhone.id }).onConflictDoNothing();
+    await ensureFreeMembershipWhenNoActiveVip(upsertedByPhone.id, now);
 
     return { isNew: false, user: upsertedByPhone };
   }

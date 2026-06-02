@@ -17,7 +17,7 @@ import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { AdminDetailTabNav, type AdminDetailTabItem } from '@/features/admin/components/admin-detail-tab-nav';
+import { type AdminDetailTabItem,AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
 import { AdminPanel, AdminStatusBadge } from '@/features/admin/components/admin-ui';
 import { UserContactForm } from '@/features/admin/components/user-contact-form';
 import { UserDangerZone } from '@/features/admin/components/user-danger-zone';
@@ -99,6 +99,7 @@ interface UserAccountTabsProps {
   card: CardData | null;
   cities: SelectOption[];
   countries: SelectOption[];
+  effectiveMembershipTier: string | null;
   fallbackInitials: string;
   headerStats: {
     approvedIntroductions: number;
@@ -151,6 +152,7 @@ export function UserAccountTabs({
   card,
   cities,
   countries,
+  effectiveMembershipTier,
   fallbackInitials,
   headerStats,
   introductions,
@@ -262,9 +264,7 @@ export function UserAccountTabs({
               title="Access Control"
             >
               <UserRoleForm
-                currentMembershipTier={
-                  memberships.find((m) => m.status === 'ACTIVE')?.planCode ?? null
-                }
+                currentMembershipTier={effectiveMembershipTier}
                 currentRole={user.role}
                 currentStatus={user.status}
                 userId={user.id}
@@ -290,7 +290,11 @@ export function UserAccountTabs({
         ) : null}
 
         {activeTab === 'billing' ? (
-          <BillingSection memberships={memberships} subscriptions={subscriptions} />
+          <BillingSection
+            effectiveMembershipTier={effectiveMembershipTier}
+            memberships={memberships}
+            subscriptions={subscriptions}
+          />
         ) : null}
 
         {activeTab === 'danger' ? (
@@ -461,17 +465,17 @@ function IntroductionsSection({ introductions }: { introductions: IntroductionDa
 }
 
 function BillingSection({
+  effectiveMembershipTier,
   memberships,
   subscriptions,
 }: {
+  effectiveMembershipTier: string | null;
   memberships: MembershipData[];
   subscriptions: SubscriptionData[];
 }) {
-  const activeTier = memberships.find((m) => m.status === 'ACTIVE')?.planCode;
-
   return (
     <div className="space-y-6">
-      {activeTier === 'VIP' ? (
+      {effectiveMembershipTier === 'VIP' ? (
         <p className="text-sm text-ds-text-muted">
           VIP member — recurring subscription billing is tracked below.
         </p>
