@@ -136,7 +136,7 @@ export default async function RoleDetailPage({ params }: RoleDetailPageProps) {
     email: assignment.user.email,
     id: assignment.user.id,
     isDeleted: assignment.user.deletedAt !== null,
-    name: assignment.user.displayName ?? assignment.user.phone,
+    name: assignment.user.displayName?.trim() || 'Not set',
     phone: assignment.user.phone,
     status: assignment.user.status,
     userHref: localizeHref(locale, `/admin/users/${assignment.user.id}`),

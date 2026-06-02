@@ -17,12 +17,16 @@ import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { type AdminDetailTabItem,AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
+import type { Resource } from '@/db/schema/permission';
+import { type AdminDetailTabItem, AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
 import { AdminPanel, AdminStatusBadge } from '@/features/admin/components/admin-ui';
 import { UserContactForm } from '@/features/admin/components/user-contact-form';
 import { UserDangerZone } from '@/features/admin/components/user-danger-zone';
 import { UserPersonalInfoForm } from '@/features/admin/components/user-personal-info-form';
 import { UserRoleForm } from '@/features/admin/components/user-role-form';
+import type { PermissionSummaryRow } from '@/features/admin/lib/access-display';
+import { formatPlatformRole } from '@/features/admin/lib/access-display';
+import { UserPermissionOverrideEditor } from '@/features/roles/components/user-permission-override-editor';
 import { UserRoleAssignment } from '@/features/roles/components/user-role-assignment';
 
 type TabKey =
@@ -47,6 +51,10 @@ interface CardData {
   memberType: string;
   number: string;
   status: string;
+}
+
+interface CardHistoryData extends CardData {
+  updatedAt: string;
 }
 
 interface IntroductionData {
@@ -83,20 +91,34 @@ interface RoleAssignmentData {
     roleId: string;
     roleName: string;
     roleSlug: string;
+    description: string | null;
     isSystem: boolean;
+    permissions: PermissionSummaryRow[];
   }[];
   availableRoles: {
     id: string;
     name: string;
     slug: string;
+    description: string | null;
     isSystem: boolean;
+    permissions: PermissionSummaryRow[];
   }[];
+  basePermissions: PermissionSummaryRow[];
+  currentOverrides: {
+    resource: Resource;
+    denyView: boolean;
+    denyCreate: boolean;
+    denyEdit: boolean;
+    denyDelete: boolean;
+  }[];
+  effectivePermissions: PermissionSummaryRow[];
 }
 
 interface UserAccountTabsProps {
   backHref: string;
   backLabel: string;
   card: CardData | null;
+  cardHistory: CardHistoryData[];
   cities: SelectOption[];
   countries: SelectOption[];
   effectiveMembershipTier: string | null;
@@ -139,7 +161,7 @@ const tabs: AdminDetailTabItem<TabKey>[] = [
   { icon: UserRound, key: 'personal', label: 'Personal Info' },
   { icon: Phone, key: 'contact', label: 'Contact' },
   { icon: CreditCard, key: 'card', label: 'Club Card' },
-  { icon: ShieldCheck, key: 'access', label: 'Access Control' },
+  { icon: ShieldCheck, key: 'access', label: 'Access & Membership' },
   { icon: Handshake, key: 'introductions', label: 'Introductions' },
   { icon: Receipt, key: 'billing', label: 'Billing' },
   { icon: ClipboardList, key: 'activity', label: 'Activity' },
@@ -150,6 +172,7 @@ export function UserAccountTabs({
   backHref,
   backLabel,
   card,
+  cardHistory,
   cities,
   countries,
   effectiveMembershipTier,
@@ -175,7 +198,7 @@ export function UserAccountTabs({
     }
   }
 
-  const resolvedName = user.displayName ?? 'No display name';
+  const resolvedName = user.displayName?.trim() || 'Not set';
 
   return (
     <div className="flex flex-col gap-8">
@@ -200,10 +223,19 @@ export function UserAccountTabs({
               {user.email ? (
                 <p className="truncate text-xs text-ds-text-muted">{user.email}</p>
               ) : null}
-              <p className="mt-1 text-[10px] uppercase tracking-widest text-ds-text-faint">
-                {user.role} · {membershipLabel} · {user.status}
-                {user.deletedAt ? ' · deleted' : ''}
-              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                <AdminStatusBadge tone={user.status === 'ACTIVE' ? 'info' : undefined}>
+                  {user.status}
+                </AdminStatusBadge>
+                <AdminStatusBadge>{membershipLabel}</AdminStatusBadge>
+                <AdminStatusBadge tone="info">{formatPlatformRole(user.role)}</AdminStatusBadge>
+                {roleAssignmentData?.currentRoles.map((role) => (
+                  <AdminStatusBadge key={role.roleId} tone="info">
+                    {role.roleName}
+                  </AdminStatusBadge>
+                ))}
+                {user.deletedAt ? <AdminStatusBadge tone="danger">Deleted</AdminStatusBadge> : null}
+              </div>
             </div>
           </div>
 
@@ -255,13 +287,13 @@ export function UserAccountTabs({
           </AdminPanel>
         ) : null}
 
-        {activeTab === 'card' ? <CardSection card={card} /> : null}
+        {activeTab === 'card' ? <CardSection card={card} history={cardHistory} /> : null}
 
         {activeTab === 'access' ? (
           <>
             <AdminPanel
-              description="Manage role, membership, and account status"
-              title="Access Control"
+              description="Manage account state, billing tier, and base platform access."
+              title="Access & Membership"
             >
               <UserRoleForm
                 currentMembershipTier={effectiveMembershipTier}
@@ -271,16 +303,33 @@ export function UserAccountTabs({
               />
             </AdminPanel>
             {roleAssignmentData ? (
-              <AdminPanel
-                description="Assign RBAC roles to this user"
-                title="Role-Based Access Control"
-              >
-                <UserRoleAssignment
-                  userId={user.id}
-                  currentRoles={roleAssignmentData.currentRoles}
-                  availableRoles={roleAssignmentData.availableRoles}
-                />
-              </AdminPanel>
+              <>
+                <AdminPanel
+                  description="Assign one or more RBAC roles and review the effective admin permissions."
+                  title="RBAC Roles"
+                >
+                  <UserRoleAssignment
+                    userId={user.id}
+                    currentRoles={roleAssignmentData.currentRoles}
+                    availableRoles={roleAssignmentData.availableRoles}
+                  />
+                </AdminPanel>
+                <AdminPanel
+                  description="Use deny-overrides to restrict specific actions even when an RBAC role grants them."
+                  title="Personal Restrictions"
+                >
+                  <UserPermissionOverrideEditor
+                    overrides={roleAssignmentData.currentOverrides}
+                    userId={user.id}
+                  />
+                </AdminPanel>
+                <AdminPanel
+                  description="Compare role-based grants with the final permissions after personal restrictions."
+                  title="Effective Permissions"
+                >
+                  <EffectivePermissionSection roleAssignmentData={roleAssignmentData} />
+                </AdminPanel>
+              </>
             ) : null}
           </>
         ) : null}
@@ -386,7 +435,7 @@ function ActivitySection({
   );
 }
 
-function CardSection({ card }: { card: CardData | null }) {
+function CardSection({ card, history }: { card: CardData | null; history: CardHistoryData[] }) {
   if (!card) {
     return (
       <AdminPanel description="Club membership card details" title="Club Card">
@@ -396,35 +445,131 @@ function CardSection({ card }: { card: CardData | null }) {
   }
 
   return (
-    <AdminPanel description="Club membership card details" title="Club Card">
-      <dl className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Card number</dt>
-          <dd className="mt-1 font-mono text-sm text-ds-text">{card.number}</dd>
+    <div className="space-y-6">
+      <AdminPanel description="Club membership card details" title="Current Club Card">
+        <dl className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Card number</dt>
+            <dd className="mt-1 font-mono text-sm text-ds-text">{card.number}</dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Member type</dt>
+            <dd className="mt-1">
+              <AdminStatusBadge>{card.memberType}</AdminStatusBadge>
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Status</dt>
+            <dd className="mt-1">
+              <AdminStatusBadge>{card.status}</AdminStatusBadge>
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Issued</dt>
+            <dd className="mt-1 text-sm text-ds-text">{card.createdAt}</dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Expires</dt>
+            <dd className="mt-1 text-sm text-ds-text">{card.expiresAt ?? 'No expiry'}</dd>
+          </div>
+        </dl>
+      </AdminPanel>
+
+      <AdminPanel description="Archived and reissued cards remain visible for staff history." title="Card History">
+        <div className="space-y-3">
+          {history.map((entry) => (
+            <div className="rounded-md border border-ds-border bg-ds-bg/40 px-3 py-3" key={entry.id}>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-mono text-xs text-ds-text">{entry.number}</span>
+                <AdminStatusBadge>{entry.memberType}</AdminStatusBadge>
+                <AdminStatusBadge tone={entry.status === 'ACTIVE' ? 'info' : undefined}>
+                  {entry.status}
+                </AdminStatusBadge>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ds-text-muted">
+                <span>Issued: {entry.createdAt}</span>
+                <span>Updated: {entry.updatedAt}</span>
+                <span>Expires: {entry.expiresAt ?? 'No expiry'}</span>
+              </div>
+            </div>
+          ))}
         </div>
-        <div>
-          <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Member type</dt>
-          <dd className="mt-1">
-            <AdminStatusBadge>{card.memberType}</AdminStatusBadge>
-          </dd>
-        </div>
-        <div>
-          <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Status</dt>
-          <dd className="mt-1">
-            <AdminStatusBadge>{card.status}</AdminStatusBadge>
-          </dd>
-        </div>
-        <div>
-          <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Issued</dt>
-          <dd className="mt-1 text-sm text-ds-text">{card.createdAt}</dd>
-        </div>
-        <div>
-          <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Expires</dt>
-          <dd className="mt-1 text-sm text-ds-text">{card.expiresAt ?? 'No expiry'}</dd>
-        </div>
-      </dl>
-    </AdminPanel>
+      </AdminPanel>
+    </div>
   );
+}
+
+function EffectivePermissionSection({
+  roleAssignmentData,
+}: {
+  roleAssignmentData: RoleAssignmentData;
+}) {
+  const effective = roleAssignmentData.effectivePermissions.filter(
+    (permission) => permission.canView || permission.canCreate || permission.canEdit || permission.canDelete,
+  );
+  const overrides = roleAssignmentData.currentOverrides.filter(
+    (override) => override.denyView || override.denyCreate || override.denyEdit || override.denyDelete,
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-foreground">Final access</p>
+        {effective.length === 0 ? (
+          <p className="text-sm text-ds-text-muted">No effective admin permissions.</p>
+        ) : (
+          effective.map((permission) => (
+            <div
+              className="flex items-center justify-between gap-3 rounded-md border border-ds-border bg-ds-bg/40 px-3 py-2 text-sm"
+              key={permission.resource}
+            >
+              <span className="font-medium text-ds-text">{permission.resource}</span>
+              <span className="text-right text-xs text-ds-text-muted">{summarizePermissionRow(permission)}</span>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-foreground">Restricted by personal override</p>
+        {overrides.length === 0 ? (
+          <p className="text-sm text-ds-text-muted">No personal restrictions.</p>
+        ) : (
+          overrides.map((override) => (
+            <div
+              className="flex items-center justify-between gap-3 rounded-md border border-ds-border bg-ds-bg/40 px-3 py-2 text-sm"
+              key={override.resource}
+            >
+              <span className="font-medium text-ds-text">{override.resource}</span>
+              <span className="text-right text-xs text-ds-text-muted">{summarizeOverrideRow(override)}</span>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function summarizePermissionRow(permission: PermissionSummaryRow) {
+  const actions = [
+    permission.canView ? 'view' : null,
+    permission.canCreate ? 'create' : null,
+    permission.canEdit ? 'edit' : null,
+    permission.canDelete ? 'delete' : null,
+  ].filter(Boolean);
+
+  return actions.length > 0 ? actions.join(' / ') : 'none';
+}
+
+function summarizeOverrideRow(override: RoleAssignmentData['currentOverrides'][number]) {
+  const actions = [
+    override.denyView ? 'view' : null,
+    override.denyCreate ? 'create' : null,
+    override.denyEdit ? 'edit' : null,
+    override.denyDelete ? 'delete' : null,
+  ].filter(Boolean);
+
+  return actions.length > 0 ? actions.map((action) => `deny ${action}`).join(' / ') : 'none';
 }
 
 function IntroductionsSection({ introductions }: { introductions: IntroductionData[] }) {

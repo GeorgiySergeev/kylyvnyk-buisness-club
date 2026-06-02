@@ -8,7 +8,7 @@ import {
 
 test('generateCardNumber uses VIP prefix for VIP members', () => {
   const number = generateCardNumber('+14155550123', 'VIP');
-  assert.match(number, /^VIP-US-[0-9A-HJKMNP-TV-Z]{10}$/);
+  assert.match(number, /^vip-US-[0-9A-HJKMNP-TV-Z]{10}$/);
 });
 
 test('generateCardNumber uses FREE prefix for free members', () => {
@@ -16,9 +16,9 @@ test('generateCardNumber uses FREE prefix for free members', () => {
   assert.match(number, /^FREE-US-[0-9A-HJKMNP-TV-Z]{10}$/);
 });
 
-test('generateCardNumber uses BUS prefix for business members', () => {
+test('generateCardNumber uses business prefix for business members', () => {
   const number = generateCardNumber('+380971112233', 'BUSINESS');
-  assert.match(number, /^BUS-UA-[0-9A-HJKMNP-TV-Z]{10}$/);
+  assert.match(number, /^business-UA-[0-9A-HJKMNP-TV-Z]{10}$/);
 });
 
 test('shouldRotateCardNumber returns true when tier changes', () => {

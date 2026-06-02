@@ -14,6 +14,7 @@ import { profiles } from './profile';
 import { roles } from './role';
 import { stripeSubscriptions } from './stripe';
 import { users } from './user';
+import { userPermissionOverrides } from './user-permission-override';
 import { userRoles } from './user-role';
 
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -27,8 +28,10 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   stripeSubscriptions: many(stripeSubscriptions),
   introductions: many(introductions, { relationName: 'requester' }),
   auditLogs: many(auditLogs),
-  roleAssignments: many(userRoles),
+  roleAssignments: many(userRoles, { relationName: 'userRoleAssignments' }),
+  permissionOverrides: many(userPermissionOverrides, { relationName: 'userPermissionOverrides' }),
   assignedRoles: many(userRoles, { relationName: 'assignedBy' }),
+  assignedPermissionOverrides: many(userPermissionOverrides, { relationName: 'assignedByPermissionOverride' }),
 }));
 
 export const profilesRelations = relations(profiles, ({ one }) => ({
@@ -142,7 +145,7 @@ export const catalogItemsRelations = relations(catalogItems, ({ one }) => ({
 
 export const rolesRelations = relations(roles, ({ many }) => ({
   permissions: many(permissions),
-  userAssignments: many(userRoles),
+  userAssignments: many(userRoles, { relationName: 'userRoleAssignments' }),
 }));
 
 export const permissionsRelations = relations(permissions, ({ one }) => ({
@@ -156,6 +159,7 @@ export const userRolesRelations = relations(userRoles, ({ one }) => ({
   user: one(users, {
     fields: [userRoles.userId],
     references: [users.id],
+    relationName: 'userRoleAssignments',
   }),
   role: one(roles, {
     fields: [userRoles.roleId],
@@ -165,5 +169,18 @@ export const userRolesRelations = relations(userRoles, ({ one }) => ({
     fields: [userRoles.assignedById],
     references: [users.id],
     relationName: 'assignedBy',
+  }),
+}));
+
+export const userPermissionOverridesRelations = relations(userPermissionOverrides, ({ one }) => ({
+  user: one(users, {
+    fields: [userPermissionOverrides.userId],
+    references: [users.id],
+    relationName: 'userPermissionOverrides',
+  }),
+  assignedBy: one(users, {
+    fields: [userPermissionOverrides.assignedById],
+    references: [users.id],
+    relationName: 'assignedByPermissionOverride',
   }),
 }));

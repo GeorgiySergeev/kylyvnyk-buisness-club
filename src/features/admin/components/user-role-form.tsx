@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
+import { MEMBERSHIP_OPTIONS, PLATFORM_ROLE_OPTIONS } from '@/features/admin/lib/access-display';
 import { cn } from '@/lib/utils';
 
 import {
@@ -22,22 +23,8 @@ interface UserRoleFormProps {
   userId: string;
 }
 
-const ROLE_OPTIONS = [
-  { value: 'GUEST', label: 'Guest' },
-  { value: 'MEMBER', label: 'Member' },
-  { value: 'MANAGER', label: 'Manager' },
-  { value: 'ADMIN', label: 'Admin' },
-  { value: 'OWNER', label: 'Owner' },
-] as const;
-
-const MEMBERSHIP_OPTIONS = [
-  { value: 'FREE', label: 'Free' },
-  { value: 'VIP', label: 'VIP' },
-  { value: 'BUSINESS', label: 'Business' },
-] as const;
-
 const MEMBERSHIP_TIERS = new Set(MEMBERSHIP_OPTIONS.map((option) => option.value));
-const ROLE_VALUES = new Set(ROLE_OPTIONS.map((option) => option.value));
+const ROLE_VALUES = new Set(PLATFORM_ROLE_OPTIONS.map((option) => option.value));
 
 const STATUS_OPTIONS = [
   { color: 'emerald' as const, label: 'Active', value: 'ACTIVE' },
@@ -90,7 +77,7 @@ export function UserRoleForm({
     setStatus(currentStatus ?? '');
   }, [currentStatus]);
 
-  const selectedRole = ROLE_VALUES.has(role as (typeof ROLE_OPTIONS)[number]['value'])
+  const selectedRole = ROLE_VALUES.has(role as (typeof PLATFORM_ROLE_OPTIONS)[number]['value'])
     ? role
     : undefined;
   const selectedMembershipTier =
@@ -168,11 +155,13 @@ export function UserRoleForm({
 
       <div className="space-y-3">
         <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-foreground">Role</h3>
-          <p className="text-xs text-muted-foreground">Platform access level for this user</p>
+          <h3 className="text-sm font-semibold text-foreground">Platform Role</h3>
+          <p className="text-xs text-muted-foreground">
+            Base admin/member access state. Membership tiers are managed separately.
+          </p>
         </div>
         <ToggleGroup
-          aria-label="User role"
+          aria-label="Platform role"
           className={cn(pending && 'pointer-events-none opacity-60')}
           onValueChange={(value) => {
             void changeRole(value);
@@ -180,7 +169,7 @@ export function UserRoleForm({
           type="single"
           value={selectedRole}
         >
-          {ROLE_OPTIONS.map(({ label, value }) => (
+          {PLATFORM_ROLE_OPTIONS.map(({ label, value }) => (
             <ToggleGroupItem aria-label={label} key={value} value={value}>
               {label}
             </ToggleGroupItem>

@@ -18,6 +18,7 @@ import { AdminNotificationsMenu } from './admin-notifications-menu';
 const BREADCRUMB_MAP: Record<string, AdminNavKey> = {
   '/admin': 'navDashboard',
   '/admin/users': 'navUsers',
+  '/admin/access': 'navAccess',
   '/admin/businesses': 'navBusinesses',
   '/admin/categories': 'navCategories',
   '/admin/cards': 'navCards',

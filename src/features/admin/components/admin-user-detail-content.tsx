@@ -17,9 +17,12 @@ import {
   stripeSubscriptions,
   users,
 } from '@/db/schema';
+import type { Resource } from '@/db/schema/permission';
 import { UserAccountTabs } from '@/features/admin/components/user-account-tabs';
+import { getCurrentUser } from '@/features/auth/lib/current-user';
 import { resolveEffectiveMembership } from '@/features/billing/lib/membership-resolver';
 import { getInitials } from '@/features/profile/components/dashboard-profile-shared';
+import { getUserEffectivePermissions, isSuperAdmin } from '@/lib/auth/permissions';
 import { getT } from '@/lib/i18n/t-server';
 
 interface AdminUserDetailContentProps {
@@ -98,6 +101,7 @@ export async function AdminUserDetailContent({ locale, userId }: AdminUserDetail
     memberType: string;
     number: string;
     status: string;
+    updatedAt: Date;
   };
 
   async function safeQuery<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
@@ -179,6 +183,7 @@ export async function AdminUserDetailContent({ locale, userId }: AdminUserDetail
             status: true,
             updatedAt: true,
           },
+          orderBy: [desc(clubCards.createdAt)],
           where: eq(clubCards.userId, userId),
         }),
       [],
@@ -218,21 +223,37 @@ export async function AdminUserDetailContent({ locale, userId }: AdminUserDetail
     ),
   ]);
 
-  const userAssignedRoles = await db.query.userRoles.findMany({
-    where: (table, { eq: _eq }) => _eq(table.userId, userId),
-    with: { role: true },
-  });
+  const viewer = await getCurrentUser();
+  const viewerIsSuperAdmin = viewer ? await isSuperAdmin(viewer.id) : false;
 
-  const allActiveRoles = await db.query.roles.findMany({
-    where: (table, { isNull: _isNull }) => _isNull(table.deletedAt),
-  });
+  const [userAssignedRoles, allActiveRoles, permissionAccess] = viewerIsSuperAdmin
+    ? await Promise.all([
+        db.query.userRoles.findMany({
+          where: (table, { eq: _eq }) => _eq(table.userId, userId),
+          with: { role: { with: { permissions: true } } },
+        }),
+        db.query.roles.findMany({
+          where: (table, { isNull: _isNull }) => _isNull(table.deletedAt),
+          with: { permissions: true },
+        }),
+        getUserEffectivePermissions(userId),
+      ])
+    : [[], [], null];
 
   const currentRoleData = userAssignedRoles.map((ur) => ({
     id: ur.id,
+    description: ur.role.description,
     roleId: ur.roleId,
     roleName: ur.role.name,
     roleSlug: ur.role.slug,
     isSystem: ur.role.isSystem,
+    permissions: ur.role.permissions.map((permission) => ({
+      canCreate: permission.canCreate,
+      canDelete: permission.canDelete,
+      canEdit: permission.canEdit,
+      canView: permission.canView,
+      resource: permission.resource as Resource,
+    })),
   }));
 
   const activeBusinesses = userBusinesses.filter((b) => b.status === 'PUBLISHED').length;
@@ -243,11 +264,34 @@ export async function AdminUserDetailContent({ locale, userId }: AdminUserDetail
     year: 'numeric',
   });
 
-  const activeCard = userCards[0] ?? null;
+  const activeCard = userCards.find((card) => card.status === 'ACTIVE') ?? null;
   const primaryMembership = resolveEffectiveMembership(userMemberships);
 
   const fmt = (d: Date) =>
     d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+
+  const roleAssignmentData = permissionAccess
+    ? {
+        currentRoles: currentRoleData,
+        availableRoles: allActiveRoles.map((r) => ({
+          id: r.id,
+          description: r.description,
+          name: r.name,
+          slug: r.slug,
+          isSystem: r.isSystem,
+          permissions: r.permissions.map((permission) => ({
+            canCreate: permission.canCreate,
+            canDelete: permission.canDelete,
+            canEdit: permission.canEdit,
+            canView: permission.canView,
+            resource: permission.resource as Resource,
+          })),
+        })),
+        currentOverrides: permissionAccess.overrides,
+        effectivePermissions: permissionAccess.effectivePermissions,
+        basePermissions: permissionAccess.basePermissions,
+      }
+    : undefined;
 
   return (
     <UserAccountTabs
@@ -265,6 +309,15 @@ export async function AdminUserDetailContent({ locale, userId }: AdminUserDetail
             }
           : null
       }
+      cardHistory={userCards.map((card) => ({
+        createdAt: fmt(card.createdAt),
+        expiresAt: card.expiresAt ? fmt(card.expiresAt) : null,
+        id: card.id,
+        memberType: card.memberType,
+        number: card.number,
+        status: card.status,
+        updatedAt: fmt(card.updatedAt),
+      }))}
       cities={allCities.map((c) => ({ id: c.id, name: c.name }))}
       countries={allCountries.map((c) => ({ id: c.id, name: c.name }))}
       fallbackInitials={getInitials(user.displayName ?? user.phone)}
@@ -326,15 +379,7 @@ export async function AdminUserDetailContent({ locale, userId }: AdminUserDetail
         role: user.role,
         status: user.status,
       }}
-      roleAssignmentData={{
-        currentRoles: currentRoleData,
-        availableRoles: allActiveRoles.map((r) => ({
-          id: r.id,
-          name: r.name,
-          slug: r.slug,
-          isSystem: r.isSystem,
-        })),
-      }}
+      roleAssignmentData={roleAssignmentData}
     />
   );
 }

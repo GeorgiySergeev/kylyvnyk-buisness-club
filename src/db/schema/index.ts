@@ -17,4 +17,5 @@ export * from "./profile";
 export * from "./role";
 export * from "./stripe";
 export * from "./user";
+export * from "./user-permission-override";
 export * from "./user-role";

@@ -1,6 +1,7 @@
 export const ADMIN_NAV_ITEMS = [
   { key: 'navDashboard' as const, href: '/admin' },
   { key: 'navUsers' as const, href: '/admin/users' },
+  { key: 'navAccess' as const, href: '/admin/access' },
   { key: 'navBusinesses' as const, href: '/admin/businesses' },
   { key: 'navIntroductions' as const, href: '/admin/introductions' },
   { key: 'navCards' as const, href: '/admin/cards' },

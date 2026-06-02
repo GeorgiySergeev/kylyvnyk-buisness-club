@@ -308,38 +308,39 @@ export function MembershipPossibilitiesPanel({
         </div>
       )}
 
-      <div className="flex items-center justify-center gap-3">
-        <span
-          className={cn(
-            'text-sm font-medium',
-            billingPeriod === 'monthly' ? 'text-white' : 'text-fg/45',
-          )}
-        >
-          {labels.billingMonthly}
-        </span>
-        <button
-          aria-checked={billingPeriod === 'yearly'}
+      <div className="flex justify-center">
+        <div
           aria-label={`${labels.billingMonthly} / ${labels.billingYearly}`}
-          className="relative inline-flex h-7 w-12 shrink-0 rounded-full border border-border/50 bg-white/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-          onClick={() => setBillingPeriod((current) => (current === 'monthly' ? 'yearly' : 'monthly'))}
-          role="switch"
-          type="button"
+          className="inline-flex h-6 items-center justify-center rounded-full border border-border/40 bg-white/[0.04] p-px"
+          role="group"
         >
-          <span
+          <button
+            aria-pressed={billingPeriod === 'monthly'}
             className={cn(
-              'absolute top-0.5 size-6 rounded-full bg-primary transition-transform',
-              billingPeriod === 'yearly' ? 'translate-x-5' : 'translate-x-0.5',
+              'flex h-5 w-[62px] items-center justify-center rounded-full px-2.5 text-[11px] font-medium leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+              billingPeriod === 'monthly'
+                ? 'bg-primary text-primary-foreground'
+                : 'text-fg/50 hover:text-fg/70',
             )}
-          />
-        </button>
-        <span
-          className={cn(
-            'text-sm font-medium',
-            billingPeriod === 'yearly' ? 'text-white' : 'text-fg/45',
-          )}
-        >
-          {labels.billingYearly}
-        </span>
+            onClick={() => setBillingPeriod('monthly')}
+            type="button"
+          >
+            {labels.billingMonthly}
+          </button>
+          <button
+            aria-pressed={billingPeriod === 'yearly'}
+            className={cn(
+              'flex h-5 w-[62px] items-center justify-center rounded-full px-2.5 text-[11px] font-medium leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+              billingPeriod === 'yearly'
+                ? 'bg-primary text-primary-foreground'
+                : 'text-fg/50 hover:text-fg/70',
+            )}
+            onClick={() => setBillingPeriod('yearly')}
+            type="button"
+          >
+            {labels.billingYearly}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-4 xl:gap-6">

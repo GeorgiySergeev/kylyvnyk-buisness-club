@@ -5,9 +5,14 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { db } from '@/db/client';
 import { clubCards, memberships } from '@/db/schema';
 import type { CardMemberType } from '@/db/schema/enums/card-status';
-import { rotateCardNumberForUser } from '@/features/auth/lib/card';
+import {
+  archiveCurrentCardAndIssueReplacement,
+  ensureCardForUser,
+  getLatestActiveCardForUser,
+} from '@/features/auth/lib/card';
 import { shouldRotateCardNumber } from '@/features/auth/lib/card-number';
 import {
+  BUSINESS_PLAN_CODE,
   FREE_PLAN_CODE,
   type MembershipTierCode,
   VIP_PLAN_CODE,
@@ -95,21 +100,36 @@ export async function deactivateFreeMembership(userId: string, status: Membershi
     );
 }
 
-export async function syncClubCardAccess(userId: string, memberType: CardMemberType, expiresAt: Date | null) {
-  const card = await db.query.clubCards.findFirst({
-    where: eq(clubCards.userId, userId),
-  });
-
-  if (!card) {
-    return;
+function mapTierToCardMemberType(tier: MembershipTierCode): CardMemberType {
+  if (tier === BUSINESS_PLAN_CODE) {
+    return 'BUSINESS';
   }
 
+  if (tier === VIP_PLAN_CODE) {
+    return 'VIP';
+  }
+
+  return 'FREE';
+}
+
+export async function syncClubCardAccess(
+  userId: string,
+  memberType: CardMemberType,
+  expiresAt: Date | null,
+  actorUserId?: string | null,
+) {
+  const card =
+    (await getLatestActiveCardForUser(userId)) ??
+    (await ensureCardForUser({ expiresAt, memberType, userId }));
+
   if (shouldRotateCardNumber(card.memberType, memberType)) {
-    await rotateCardNumberForUser({
-      cardId: card.id,
-      memberType,
+    await archiveCurrentCardAndIssueReplacement({
+      actorUserId,
+      expiresAt,
+      nextMemberType: memberType,
       userId,
     });
+    return;
   }
 
   await db
@@ -123,6 +143,7 @@ export async function syncClubCardAccess(userId: string, memberType: CardMemberT
 }
 
 export async function syncPrimaryMembershipAccess(input: {
+  actorUserId?: string | null;
   expiresAt: Date | null;
   status: MembershipAccessStatus;
   tier: MembershipTierCode;
@@ -130,22 +151,39 @@ export async function syncPrimaryMembershipAccess(input: {
 }) {
   if (input.tier === VIP_PLAN_CODE && input.status === 'ACTIVE') {
     await deactivateFreeMembership(input.userId);
-    await syncClubCardAccess(input.userId, 'VIP', input.expiresAt);
+    await syncClubCardAccess(input.userId, 'VIP', input.expiresAt, input.actorUserId);
+    return;
+  }
+
+  if (input.tier === BUSINESS_PLAN_CODE && input.status === 'ACTIVE') {
+    await deactivateFreeMembership(input.userId);
+    await syncClubCardAccess(input.userId, 'BUSINESS', input.expiresAt, input.actorUserId);
     return;
   }
 
   if (input.tier === VIP_PLAN_CODE) {
     await ensureFreeMembership(input.userId);
-    await syncClubCardAccess(input.userId, 'FREE', null);
+    await syncClubCardAccess(input.userId, 'FREE', null, input.actorUserId);
+    return;
+  }
+
+  if (input.tier === BUSINESS_PLAN_CODE) {
+    await ensureFreeMembership(input.userId);
+    await syncClubCardAccess(input.userId, 'FREE', null, input.actorUserId);
     return;
   }
 
   if (input.tier === FREE_PLAN_CODE && input.status === 'ACTIVE') {
-    await syncClubCardAccess(input.userId, 'FREE', null);
+    await syncClubCardAccess(input.userId, 'FREE', null, input.actorUserId);
   }
 }
 
-export async function setUserMembershipTier(userId: string, tier: MembershipTierCode, startsAt = new Date()) {
+export async function setUserMembershipTier(
+  userId: string,
+  tier: MembershipTierCode,
+  startsAt = new Date(),
+  actorUserId?: string | null,
+) {
   const existing = await db.query.memberships.findFirst({
     where: and(
       eq(memberships.userId, userId),
@@ -199,11 +237,5 @@ export async function setUserMembershipTier(userId: string, tier: MembershipTier
     await ensureFreeMembership(userId, startsAt);
   }
 
-  if (tier === VIP_PLAN_CODE) {
-    await syncClubCardAccess(userId, 'VIP', null);
-  }
-
-  if (tier === FREE_PLAN_CODE) {
-    await syncClubCardAccess(userId, 'FREE', null);
-  }
+  await syncClubCardAccess(userId, mapTierToCardMemberType(tier), null, actorUserId);
 }

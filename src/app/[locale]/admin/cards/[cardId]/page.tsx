@@ -58,7 +58,7 @@ export default async function AdminCardDetailPage({ params }: AdminCardDetailPag
         id: card.id,
         memberType: card.memberType as 'FREE' | 'BUSINESS' | 'VIP',
         number: card.number,
-        status: card.status as 'ACTIVE' | 'INACTIVE' | 'EXPIRED',
+        status: card.status as 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'ARCHIVED',
         updatedAt: card.updatedAt.toLocaleString(),
       }}
       controlsTitle={t('cardControls')}

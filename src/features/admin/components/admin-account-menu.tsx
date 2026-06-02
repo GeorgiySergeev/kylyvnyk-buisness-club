@@ -7,7 +7,6 @@ import { useTransition } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
-import { signOutAction } from '@/features/auth/actions/phone-auth.action';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -17,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { signOutAction } from '@/features/auth/actions/phone-auth.action';
 
 export interface AdminAccountMenuLabels {
   accountMenuLabel: string;
@@ -76,7 +76,7 @@ export function AdminAccountMenu({ className, locale, labels }: AdminAccountMenu
         </DropdownMenuItem>
 
         <DropdownMenuItem asChild>
-          <Link href={localizeHref(locale, '/m/profile')}>
+          <Link href={localizeHref(locale, '/admin/profile')}>
             <User className="size-4" />
             {labels.goToProfile}
           </Link>
