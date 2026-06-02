@@ -12,6 +12,7 @@ export interface NavigationSession {
   userId?: string;
   displayName?: string;
   avatarUrl?: string;
+  email?: string;
 }
 
 const GUEST_SESSION: NavigationSession = {
@@ -37,6 +38,7 @@ export const getNavigationSession = cache(async (): Promise<NavigationSession> =
   return {
     avatarUrl: user.profile?.avatarUrl ?? undefined,
     displayName: user.displayName ?? undefined,
+    email: user.email ?? undefined,
     role: toSessionRole(user.role),
     userId: user.id,
   };

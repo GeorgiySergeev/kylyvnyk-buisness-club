@@ -59,7 +59,14 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   const supportedLocale = locale as SupportedLocale;
   const session = await getNavigationSession();
+  const tAuth = getT('auth', supportedLocale);
+  const tDashboard = getT('dashboard', supportedLocale);
+  const tNav = getT('nav', supportedLocale);
   const navItems = translateNavItems(supportedLocale, filterNavByRole(PRIMARY_NAV, session.role));
+  const subscriptionStatus =
+    session.role === 'ADMIN' || session.role === 'OWNER'
+      ? tNav('admin')
+      : tDashboard('memberTierFree');
 
   return (
     <AppShell
@@ -68,6 +75,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       navItems={navItems}
       isAuthenticated={session.role !== 'guest'}
       displayName={session.displayName}
+      email={session.email}
       avatarUrl={session.avatarUrl}
       guestAuth={{
         signIn: translateAuthAction(supportedLocale, GUEST_AUTH.signIn),
@@ -75,6 +83,11 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       }}
       memberAuth={{
         signOut: translateAuthAction(supportedLocale, MEMBER_AUTH.signOut),
+      }}
+      profileMenu={{
+        linksTitle: tAuth('profileMenuLinksTitle'),
+        subscriptionTitle: tAuth('profileMenuSubscriptionTitle'),
+        subscriptionStatus,
       }}
     >
       {children}

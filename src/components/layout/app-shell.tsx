@@ -14,6 +14,7 @@ interface AppShellProps {
   navItems: NavItem[];
   isAuthenticated: boolean;
   displayName?: string;
+  email?: string;
   avatarUrl?: string;
   guestAuth: {
     signIn: AuthAction;
@@ -21,6 +22,11 @@ interface AppShellProps {
   };
   memberAuth: {
     signOut: AuthAction;
+  };
+  profileMenu: {
+    linksTitle: string;
+    subscriptionTitle: string;
+    subscriptionStatus: string;
   };
 }
 
@@ -31,9 +37,11 @@ export async function AppShell({
   navItems,
   isAuthenticated,
   displayName,
+  email,
   avatarUrl,
   guestAuth,
   memberAuth,
+  profileMenu,
 }: AppShellProps) {
   return (
     <div className="flex min-h-dvh flex-col bg-ds-bg text-ds-text">
@@ -43,9 +51,11 @@ export async function AppShell({
           navItems={navItems}
           isAuthenticated={isAuthenticated}
           displayName={displayName}
+          email={email}
           avatarUrl={avatarUrl}
           guestAuth={guestAuth}
           memberAuth={memberAuth}
+          profileMenu={profileMenu}
         />
       </PublicChromeGate>
       <main id="main-content" className="flex flex-1 flex-col">

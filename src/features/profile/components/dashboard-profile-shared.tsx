@@ -13,8 +13,10 @@ export interface DashboardProfileLabels {
   city: string;
   country: string;
   displayName: string;
+  displayNameHint: string;
   editProfile: string;
   email: string;
+  emailHint: string;
   notSet: string;
   optional: string;
   phone: string;
@@ -27,6 +29,10 @@ export interface DashboardProfileLabels {
   profileTitle: string;
   saveProfile: string;
   uploadAvatar: string;
+  userId: string;
+  userIdCopied: string;
+  userIdCopy: string;
+  userIdHint: string;
 }
 
 export interface DashboardProfileData {
@@ -39,6 +45,7 @@ export interface DashboardProfileData {
   displayName: string | null;
   email: string | null;
   phone: string;
+  userId: string;
 }
 
 export const fieldSelectClass =

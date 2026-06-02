@@ -10,6 +10,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
@@ -19,6 +21,7 @@ import { LocaleSwitcher } from './locale-switcher';
 interface HomeHeaderProps {
   avatarUrl?: string;
   displayName?: string;
+  email?: string;
   guestAuth: {
     joinNow: AuthAction;
     signIn: AuthAction;
@@ -29,6 +32,11 @@ interface HomeHeaderProps {
     signOut: AuthAction;
   };
   navItems: NavItem[];
+  profileMenu: {
+    linksTitle: string;
+    subscriptionTitle: string;
+    subscriptionStatus: string;
+  };
 }
 
 function getInitials(value?: string) {
@@ -43,11 +51,13 @@ const navLinkClass =
 export function HomeHeader({
   avatarUrl,
   displayName,
+  email,
   guestAuth,
   homeHref,
   isAuthenticated,
   memberAuth,
   navItems,
+  profileMenu,
 }: HomeHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -116,20 +126,83 @@ export function HomeHeader({
 
             <div className="hidden items-center gap-3 md:flex">
               {isAuthenticated ? (
-                <>
-                  <Avatar className="size-9 rounded-ds-radius-md border border-ds-border">
-                    <AvatarImage alt="" src={avatarUrl} />
-                    <AvatarFallback className="rounded-ds-radius-md bg-transparent text-ds-text-xs font-semibold text-ds-text-muted">
-                      {getInitials(displayName)}
-                    </AvatarFallback>
-                  </Avatar>
-                  {/* <Link
-                    className="inline-flex min-h-11 items-center px-ds-space-2 text-ds-text-sm text-ds-text-muted transition-ds-transition-fast hover:text-ds-text focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
-                    href={memberAuth.signOut.href}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label={displayName ?? getInitials(displayName)}
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-ds-radius-md focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
+                    >
+                      <Avatar className="size-9 rounded-ds-radius-md border border-ds-border">
+                        <AvatarImage alt="" src={avatarUrl} />
+                        <AvatarFallback className="rounded-ds-radius-md bg-transparent text-ds-text-xs font-semibold text-ds-text-muted">
+                          {getInitials(displayName)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="mt-2 w-72 rounded-ds-radius-md border border-ds-border bg-ds-bg/95 p-0 shadow-none backdrop-blur-md"
                   >
-                    {memberAuth.signOut.label}
-                  </Link> */}
-                </>
+                    <DropdownMenuLabel className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="size-8 rounded-ds-radius-md border border-ds-border">
+                          <AvatarImage alt="" src={avatarUrl} />
+                          <AvatarFallback className="rounded-ds-radius-md bg-transparent text-ds-text-xs font-semibold text-ds-text-muted">
+                            {getInitials(displayName)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <p className="truncate text-ds-text-sm font-semibold text-ds-text">
+                            {displayName ?? getInitials(displayName)}
+                          </p>
+                          <p className="truncate text-ds-text-xs font-normal text-ds-text-muted">
+                            {email ?? ''}
+                          </p>
+                        </div>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <div className="px-2 py-2">
+                      <p className="px-2 pb-1 text-ds-text-xs text-ds-text-faint">{profileMenu.linksTitle}</p>
+                      {isHome ? null : (
+                        <DropdownMenuItem className={cn(navLinkClass, 'w-full cursor-pointer')} onSelect={() => router.push(homeHref)}>
+                          Home
+                        </DropdownMenuItem>
+                      )}
+                      {navItems.map((item) => (
+                        <DropdownMenuItem
+                          key={item.href}
+                          className={cn(
+                            navLinkClass,
+                            'w-full cursor-pointer',
+                            isActive(item.href, item.exact)
+                              ? 'font-medium text-ds-text'
+                              : 'text-ds-text-muted hover:text-ds-text',
+                          )}
+                          onSelect={() => router.push(item.href)}
+                        >
+                          {item.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </div>
+                    <DropdownMenuSeparator />
+                    <div className="px-4 py-3">
+                      <p className="text-ds-text-xs text-ds-text-faint">{profileMenu.subscriptionTitle}</p>
+                      <p className="mt-1 text-ds-text-sm text-ds-text">{profileMenu.subscriptionStatus}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <div className="px-2 py-2">
+                      <DropdownMenuItem
+                        className="w-full cursor-pointer rounded-ds-radius-md px-2.5 py-2 text-ds-text-sm text-ds-text-muted outline-none transition-ds-transition-fast hover:text-ds-text focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
+                        onSelect={() => router.push(memberAuth.signOut.href)}
+                      >
+                        {memberAuth.signOut.label}
+                      </DropdownMenuItem>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Link
                   className="inline-flex min-h-11 items-center px-ds-space-2 text-ds-text-sm font-medium text-ds-text transition-ds-transition-fast hover:text-ds-text-muted focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
@@ -140,7 +213,62 @@ export function HomeHeader({
               )}
             </div>
 
-            <div className="md:hidden">
+            <div className="flex items-center gap-2 md:hidden">
+              {isAuthenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label={displayName ?? getInitials(displayName)}
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-ds-radius-md focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
+                    >
+                      <Avatar className="size-9 rounded-ds-radius-md border border-ds-border">
+                        <AvatarImage alt="" src={avatarUrl} />
+                        <AvatarFallback className="rounded-ds-radius-md bg-transparent text-ds-text-xs font-semibold text-ds-text-muted">
+                          {getInitials(displayName)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="mt-2 w-72 rounded-ds-radius-md border border-ds-border bg-ds-bg/95 p-0 shadow-none backdrop-blur-md"
+                  >
+                    <DropdownMenuLabel className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="size-8 rounded-ds-radius-md border border-ds-border">
+                          <AvatarImage alt="" src={avatarUrl} />
+                          <AvatarFallback className="rounded-ds-radius-md bg-transparent text-ds-text-xs font-semibold text-ds-text-muted">
+                            {getInitials(displayName)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <p className="truncate text-ds-text-sm font-semibold text-ds-text">
+                            {displayName ?? getInitials(displayName)}
+                          </p>
+                          <p className="truncate text-ds-text-xs font-normal text-ds-text-muted">
+                            {email ?? ''}
+                          </p>
+                        </div>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <div className="px-4 py-3">
+                      <p className="text-ds-text-xs text-ds-text-faint">{profileMenu.subscriptionTitle}</p>
+                      <p className="mt-1 text-ds-text-sm text-ds-text">{profileMenu.subscriptionStatus}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <div className="px-2 py-2">
+                      <DropdownMenuItem
+                        className="w-full cursor-pointer rounded-ds-radius-md px-2.5 py-2 text-ds-text-sm text-ds-text-muted outline-none transition-ds-transition-fast hover:text-ds-text focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
+                        onSelect={() => router.push(memberAuth.signOut.href)}
+                      >
+                        {memberAuth.signOut.label}
+                      </DropdownMenuItem>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : null}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
@@ -190,27 +318,7 @@ export function HomeHeader({
                     ))}
                   </div>
                   <div className="my-3 border-t border-ds-border" />
-                  {isAuthenticated ? (
-                    <div className="flex items-center justify-between gap-2 px-1">
-                      <div className="flex min-w-0 items-center gap-2">
-                        <Avatar className="size-8 rounded-ds-radius-md border border-ds-border">
-                          <AvatarImage alt="" src={avatarUrl} />
-                          <AvatarFallback className="rounded-ds-radius-md bg-transparent text-ds-text-xs font-semibold text-ds-text-muted">
-                            {getInitials(displayName)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="max-w-[120px] truncate text-ds-text-xs font-medium text-ds-text-muted">
-                          {displayName || 'Member'}
-                        </span>
-                      </div>
-                      <DropdownMenuItem
-                        className="rounded-ds-radius-md px-2.5 py-1.5 text-ds-text-xs font-medium text-ds-text-muted outline-none transition-ds-transition-fast hover:text-ds-text focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none cursor-pointer"
-                        onSelect={() => router.push(memberAuth.signOut.href)}
-                      >
-                        {memberAuth.signOut.label}
-                      </DropdownMenuItem>
-                    </div>
-                  ) : (
+                  {isAuthenticated ? null : (
                     <DropdownMenuItem
                       className={cn(navLinkClass, 'w-full cursor-pointer text-ds-text-muted hover:text-ds-text')}
                       onSelect={() => router.push(guestAuth.signIn.href)}

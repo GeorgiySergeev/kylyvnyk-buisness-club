@@ -38,6 +38,13 @@ function getMemberTypePrefix(memberType: CardMemberType): string {
   return memberType === 'BUSINESS' ? 'BUS' : memberType;
 }
 
+export function shouldRotateCardNumber(
+  currentMemberType: CardMemberType,
+  nextMemberType: CardMemberType,
+) {
+  return currentMemberType !== nextMemberType;
+}
+
 export function deriveCountryCodeFromPhone(phone: string): string {
   const digits = phone.replace(/^\+/, '');
 

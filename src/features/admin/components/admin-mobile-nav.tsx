@@ -9,9 +9,11 @@ import { useState } from 'react';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import type { AdminNotification } from '@/features/admin/lib/admin-notifications.shared';
 
 import { AdminAccountMenu } from './admin-account-menu';
 import { type AdminNavKey, type AdminNavLabels } from './admin-nav';
+import { AdminNotificationsMenu } from './admin-notifications-menu';
 
 const BREADCRUMB_MAP: Record<string, AdminNavKey> = {
   '/admin': 'navDashboard',
@@ -35,15 +37,22 @@ interface AdminMobileNavProps {
     accountMenuLabel: string;
     adminRole: string;
     adminSearchPlaceholder: string;
+    adminSearchTypeBusiness: string;
+    adminSearchTypeIntroduction: string;
     goToAdminDashboard: string;
     goToMemberDashboard: string;
     goToProfile: string;
+    notifications: string;
+    notificationsEmpty: string;
+    notificationsNeedsReview: string;
+    notificationsTitle: string;
     signOut: string;
     title: string;
   };
+  notifications: AdminNotification[];
 }
 
-export function AdminMobileNav({ locale, labels }: AdminMobileNavProps) {
+export function AdminMobileNav({ locale, labels, notifications }: AdminMobileNavProps) {
   const [showSearch, setShowSearch] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -71,6 +80,7 @@ export function AdminMobileNav({ locale, labels }: AdminMobileNavProps) {
             <Search className="size-5" />
           </button>
 
+          <AdminNotificationsMenu labels={labels} notifications={notifications} />
           <AdminAccountMenu labels={labels} locale={locale} />
         </div>
       </header>

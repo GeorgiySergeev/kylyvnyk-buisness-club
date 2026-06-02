@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, Loader2, Save } from 'lucide-react';
+import { Camera, Check, Copy, Loader2, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   type ChangeEvent,
@@ -25,9 +25,9 @@ import { updateMemberProfileAction } from '../actions/update-member-profile.acti
 import {
   type DashboardProfileData,
   type DashboardProfileLabels,
-  type SelectOption,
   fieldSelectClass,
   getInitials,
+  type SelectOption,
 } from './dashboard-profile-shared';
 
 export interface DashboardProfileSettingsFormProps extends DashboardProfileData {
@@ -49,12 +49,14 @@ export function DashboardProfileSettingsForm({
   labels,
   locale,
   phone,
+  userId,
 }: DashboardProfileSettingsFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isUserIdCopied, setIsUserIdCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const formId = useId();
@@ -144,6 +146,16 @@ export function DashboardProfileSettingsForm({
     });
   }
 
+  async function handleCopyUserId() {
+    try {
+      await navigator.clipboard.writeText(userId);
+      setIsUserIdCopied(true);
+      window.setTimeout(() => setIsUserIdCopied(false), 1800);
+    } catch {
+      setIsUserIdCopied(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       {errorMessage ? (
@@ -229,6 +241,7 @@ export function DashboardProfileSettingsForm({
               id={`${formId}-displayName`}
               name="displayName"
             />
+            <p className="text-xs leading-5 text-fg/50">{labels.displayNameHint}</p>
           </div>
 
           <div className="space-y-2 sm:col-span-2">
@@ -242,6 +255,7 @@ export function DashboardProfileSettingsForm({
               id={`${formId}-email`}
               name="email"
             />
+            <p className="text-xs leading-5 text-fg/50">{labels.emailHint}</p>
           </div>
 
           <div className="space-y-2 sm:col-span-2">
@@ -253,6 +267,33 @@ export function DashboardProfileSettingsForm({
               value={phone}
             />
             <p className="text-xs leading-5 text-fg/50">{labels.phoneReadOnly}</p>
+          </div>
+
+          <div className="space-y-2 sm:col-span-2">
+            <Label>{labels.userId}</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                readOnly
+                aria-readonly="true"
+                className="min-h-11 rounded-md border-border/50 bg-white/2 font-mono text-xs"
+                value={userId}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-11 shrink-0 rounded-md border-border/50 bg-white/2 px-3 text-xs text-white hover:bg-white/5"
+                onClick={handleCopyUserId}
+                disabled={pending}
+              >
+                {isUserIdCopied ? (
+                  <Check aria-hidden="true" className="mr-2 size-4" />
+                ) : (
+                  <Copy aria-hidden="true" className="mr-2 size-4" />
+                )}
+                {isUserIdCopied ? labels.userIdCopied : labels.userIdCopy}
+              </Button>
+            </div>
+            <p className="text-xs leading-5 text-fg/50">{labels.userIdHint}</p>
           </div>
 
           <div className="space-y-2">
