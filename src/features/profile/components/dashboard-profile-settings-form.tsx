@@ -25,9 +25,9 @@ import { updateMemberProfileAction } from '../actions/update-member-profile.acti
 import {
   type DashboardProfileData,
   type DashboardProfileLabels,
-  type SelectOption,
   fieldSelectClass,
   getInitials,
+  type SelectOption,
 } from './dashboard-profile-shared';
 
 export interface DashboardProfileSettingsFormProps extends DashboardProfileData {
@@ -49,6 +49,7 @@ export function DashboardProfileSettingsForm({
   labels,
   locale,
   phone,
+  userId,
 }: DashboardProfileSettingsFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -229,6 +230,7 @@ export function DashboardProfileSettingsForm({
               id={`${formId}-displayName`}
               name="displayName"
             />
+            <p className="text-xs leading-5 text-fg/50">{labels.displayNameHint}</p>
           </div>
 
           <div className="space-y-2 sm:col-span-2">
@@ -242,6 +244,7 @@ export function DashboardProfileSettingsForm({
               id={`${formId}-email`}
               name="email"
             />
+            <p className="text-xs leading-5 text-fg/50">{labels.emailHint}</p>
           </div>
 
           <div className="space-y-2 sm:col-span-2">
@@ -253,6 +256,17 @@ export function DashboardProfileSettingsForm({
               value={phone}
             />
             <p className="text-xs leading-5 text-fg/50">{labels.phoneReadOnly}</p>
+          </div>
+
+          <div className="space-y-2 sm:col-span-2">
+            <Label>{labels.userId}</Label>
+            <Input
+              readOnly
+              aria-readonly="true"
+              className="min-h-11 rounded-md border-border/50 bg-white/2 font-mono text-xs"
+              value={userId}
+            />
+            <p className="text-xs leading-5 text-fg/50">{labels.userIdHint}</p>
           </div>
 
           <div className="space-y-2">
