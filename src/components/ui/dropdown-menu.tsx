@@ -1,5 +1,6 @@
 "use client"
 
+import { cva, type VariantProps } from "class-variance-authority"
 import { CheckIcon, ChevronRightIcon } from "lucide-react"
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
 import * as React from "react"
@@ -58,6 +59,25 @@ function DropdownMenuGroup({
   )
 }
 
+const dropdownMenuItemVariants = cva(
+  "group/dropdown-menu-item relative flex cursor-default items-center gap-1.5 rounded-ds-radius-md px-1.5 py-1 text-ds-text-sm outline-hidden select-none focus:bg-ds-surface-hover focus:text-ds-text data-inset:pl-7 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  {
+    variants: {
+      variant: {
+        default:
+          "not-data-[variant=destructive]:focus:**:text-ds-text",
+        destructive:
+          "text-ds-error data-[variant=destructive]:focus:bg-ds-error/10 data-[variant=destructive]:focus:text-ds-error dark:data-[variant=destructive]:focus:bg-ds-error/20 data-[variant=destructive]:*:[svg]:text-ds-error",
+        ghost:
+          "cursor-pointer bg-transparent text-ds-text hover:bg-ds-surface-2 focus:bg-ds-surface-hover focus:text-ds-text",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
+
 function DropdownMenuItem({
   className,
   inset,
@@ -65,17 +85,14 @@ function DropdownMenuItem({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & {
   inset?: boolean
-  variant?: "default" | "destructive"
+  variant?: VariantProps<typeof dropdownMenuItemVariants>["variant"]
 }) {
   return (
     <DropdownMenuPrimitive.Item
       data-slot="dropdown-menu-item"
       data-inset={inset}
       data-variant={variant}
-      className={cn(
-        "group/dropdown-menu-item relative flex cursor-default items-center gap-1.5 rounded-ds-radius-md px-1.5 py-1 text-ds-text-sm outline-hidden select-none focus:bg-ds-surface-hover focus:text-ds-text not-data-[variant=destructive]:focus:**:text-ds-text data-inset:pl-7 data-[variant=destructive]:text-ds-error data-[variant=destructive]:focus:bg-ds-error/10 data-[variant=destructive]:focus:text-ds-error dark:data-[variant=destructive]:focus:bg-ds-error/20 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-ds-error",
-        className
-      )}
+      className={cn(dropdownMenuItemVariants({ variant }), className)}
       {...props}
     />
   )
@@ -256,6 +273,7 @@ export {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  dropdownMenuItemVariants,
   DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuRadioGroup,

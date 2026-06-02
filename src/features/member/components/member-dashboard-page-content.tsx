@@ -182,6 +182,8 @@ export async function MemberDashboardPageContent({
     saveProfile: t('saveProfile'),
     uploadAvatar: t('uploadAvatar'),
     userId: t('userId'),
+    userIdCopied: t('userIdCopied'),
+    userIdCopy: t('userIdCopy'),
     userIdHint: t('userIdHint'),
   };
 

@@ -30,6 +30,8 @@ export interface DashboardProfileLabels {
   saveProfile: string;
   uploadAvatar: string;
   userId: string;
+  userIdCopied: string;
+  userIdCopy: string;
   userIdHint: string;
 }
 

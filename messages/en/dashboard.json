@@ -151,6 +151,8 @@
   "displayNameHint": "Please enter your full name, or a display name you are comfortable with.",
   "emailHint": "Your primary email will be used for account-related notifications.",
   "userId": "User ID",
+  "userIdCopy": "Copy",
+  "userIdCopied": "Copied",
   "userIdHint": "This is your user ID within Kylyvnyk Business Club.",
   "tabSubscription": "Subscription",
   "subscriptionStatusTitle": "Subscription overview",
