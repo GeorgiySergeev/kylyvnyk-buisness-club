@@ -1,14 +1,19 @@
 'use client';
 
-import { Bell, ChevronRight, CircleDot, Moon } from 'lucide-react';
+import { ChevronRight, CircleDot, Moon } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
+import type { AdminNotification } from '@/features/admin/lib/admin-notifications.shared';
 
 import { AdminAccountMenu, type AdminAccountMenuLabels } from './admin-account-menu';
 import { AdminGlobalSearch, type AdminGlobalSearchLabels } from './admin-global-search';
 import type { AdminNavKey, AdminNavLabels } from './admin-nav';
+import {
+  AdminNotificationsMenu,
+  type AdminNotificationsMenuLabels,
+} from './admin-notifications-menu';
 
 const BREADCRUMB_MAP: Record<string, AdminNavKey> = {
   '/admin': 'navDashboard',
@@ -24,11 +29,11 @@ const BREADCRUMB_MAP: Record<string, AdminNavKey> = {
 export interface AdminShellLabels
   extends AdminNavLabels,
     AdminAccountMenuLabels,
-    AdminGlobalSearchLabels {
+    AdminGlobalSearchLabels,
+    AdminNotificationsMenuLabels {
   adminBrand: string;
   adminSearchPlaceholder: string;
   backOffice: string;
-  notifications: string;
   operational: string;
   theme: string;
   title: string;
@@ -37,9 +42,10 @@ export interface AdminShellLabels
 interface AdminHeaderProps {
   labels: AdminShellLabels;
   locale: SupportedLocale;
+  notifications: AdminNotification[];
 }
 
-export function AdminHeader({ labels, locale }: AdminHeaderProps) {
+export function AdminHeader({ labels, locale, notifications }: AdminHeaderProps) {
   const pathname = usePathname();
 
   const parts = pathname.split('/').filter(Boolean);
@@ -72,11 +78,7 @@ export function AdminHeader({ labels, locale }: AdminHeaderProps) {
           <Moon className="size-4" />
           <span className="sr-only">{labels.theme}</span>
         </Button>
-        <Button variant="ghost" size="icon" className="relative size-9 text-ds-text">
-          <Bell className="size-4" />
-          <span className="absolute right-2 top-2 size-1.5 rounded-full bg-red-500" />
-          <span className="sr-only">{labels.notifications}</span>
-        </Button>
+        <AdminNotificationsMenu labels={labels} notifications={notifications} />
         <AdminAccountMenu labels={labels} locale={locale} />
       </div>
     </header>

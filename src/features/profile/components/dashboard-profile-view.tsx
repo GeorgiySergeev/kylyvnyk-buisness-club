@@ -21,6 +21,7 @@ export function DashboardProfileView({
   email,
   labels,
   phone,
+  userId,
 }: DashboardProfileViewProps) {
   const resolvedDisplayName = displayName ?? labels.notSet;
 
@@ -30,6 +31,7 @@ export function DashboardProfileView({
         <ProfileField label={labels.displayName} value={resolvedDisplayName} />
         <ProfileField label={labels.email} value={email ?? labels.notSet} />
         <ProfileField label={labels.phone} mono value={phone} />
+        <ProfileField label={labels.userId} mono value={userId} />
         <ProfileField label={labels.country} value={countryName ?? labels.notSet} />
         <ProfileField label={labels.city} value={cityName ?? labels.notSet} />
       </div>

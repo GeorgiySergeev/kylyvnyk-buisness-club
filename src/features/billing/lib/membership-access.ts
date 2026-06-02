@@ -5,6 +5,8 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { db } from '@/db/client';
 import { clubCards, memberships } from '@/db/schema';
 import type { CardMemberType } from '@/db/schema/enums/card-status';
+import { rotateCardNumberForUser } from '@/features/auth/lib/card';
+import { shouldRotateCardNumber } from '@/features/auth/lib/card-number';
 import {
   FREE_PLAN_CODE,
   type MembershipTierCode,
@@ -100,6 +102,14 @@ export async function syncClubCardAccess(userId: string, memberType: CardMemberT
 
   if (!card) {
     return;
+  }
+
+  if (shouldRotateCardNumber(card.memberType, memberType)) {
+    await rotateCardNumberForUser({
+      cardId: card.id,
+      memberType,
+      userId,
+    });
   }
 
   await db

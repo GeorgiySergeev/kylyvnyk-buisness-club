@@ -6,6 +6,7 @@ import { localizeHref } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import { businesses, cities, clubCards, countries, introductions, memberships } from '@/db/schema';
 import { guardOnboarded } from '@/features/auth/lib/role-guards';
+import { getMemberBillingSnapshot } from '@/features/billing/lib/member-billing';
 import { MemberDashboardSkeleton } from '@/features/member/components/member-dashboard-skeleton';
 import { isMemberDashboardTab } from '@/features/member/lib/member-dashboard-tab';
 import { getInitials } from '@/features/profile/components/dashboard-profile-shared';
@@ -134,6 +135,15 @@ export async function MemberDashboardPageContent({
     ]);
 
   const isVip = isActiveVipMembership(vipMembership);
+  const billingSnapshot =
+    isVip && vipSubscription?.stripeCustomerId
+      ? await getMemberBillingSnapshot({
+          currentPeriodEnd: vipSubscription.currentPeriodEnd,
+          locale,
+          stripeCustomerId: vipSubscription.stripeCustomerId,
+          stripeSubscriptionId: vipSubscription.stripeSubscriptionId,
+        })
+      : null;
 
   const introductionBusinesses = publishedBusinesses.map((item) => ({
     category: item.category?.name ?? null,
@@ -155,8 +165,10 @@ export async function MemberDashboardPageContent({
     city: t('city'),
     country: t('country'),
     displayName: t('displayName'),
+    displayNameHint: t('displayNameHint'),
     editProfile: t('editProfile'),
     email: t('email'),
+    emailHint: t('emailHint'),
     notSet: t('notSet'),
     optional: t('optional'),
     phone: t('phone'),
@@ -169,6 +181,10 @@ export async function MemberDashboardPageContent({
     profileTitle: t('profileTitle'),
     saveProfile: t('saveProfile'),
     uploadAvatar: t('uploadAvatar'),
+    userId: t('userId'),
+    userIdCopied: t('userIdCopied'),
+    userIdCopy: t('userIdCopy'),
+    userIdHint: t('userIdHint'),
   };
 
   const labels = {
@@ -220,6 +236,7 @@ export async function MemberDashboardPageContent({
     tabFeatures: t('tabFeatures'),
     tabIntroduction: t('tabIntroduction'),
     tabProfile: t('tabProfile'),
+    tabSubscription: t('tabSubscription'),
     tabSettings: t('tabSettings'),
     upgradeVipCta: t('upgradeVipCta'),
     upgradeVipDescription: t('upgradeVipDescription'),
@@ -320,6 +337,45 @@ export async function MemberDashboardPageContent({
     upgradeVipDescription: t('upgradeVipDescription'),
   };
 
+  const subscriptionLabels = {
+    addCard: t('subscriptionAddCard'),
+    addCardDescription: t('subscriptionAddCardDescription'),
+    addCardError: t('subscriptionAddCardError'),
+    addCardPending: t('subscriptionAddCardPending'),
+    addCardSubmit: t('subscriptionAddCardSubmit'),
+    autoPayDescription: t('subscriptionAutoPayDescription'),
+    autoPayOff: t('subscriptionAutoPayOff'),
+    autoPayOn: t('subscriptionAutoPayOn'),
+    autoPayTitle: t('subscriptionAutoPayTitle'),
+    billingPortalDescription: t('subscriptionBillingPortalDescription'),
+    billingPortalError: t('billingPortalError'),
+    billingPortalPending: t('settingsBillingPortalPending'),
+    billingPortalTitle: t('settingsBillingPortal'),
+    cancelVipCta: t('cancelVipCta'),
+    cancelVipDescription: t('cancelVipDescription'),
+    cancelVipError: t('cancelVipError'),
+    cancelVipPending: t('cancelVipPending'),
+    cancelVipScheduled: t('cancelVipScheduled'),
+    cancelVipTitle: t('cancelVipTitle'),
+    currentPaymentMethod: t('subscriptionCurrentPaymentMethod'),
+    noPaymentMethods: t('subscriptionNoPaymentMethods'),
+    noSubscriptionData: t('subscriptionNoData'),
+    noTransactions: t('subscriptionNoTransactions'),
+    paymentMethodsDescription: t('subscriptionPaymentMethodsDescription'),
+    paymentMethodsTitle: t('subscriptionPaymentMethodsTitle'),
+    periodEnd: t('subscriptionPeriodEnd'),
+    saveDefaultCard: t('subscriptionSaveDefaultCard'),
+    saveDefaultCardPending: t('subscriptionSaveDefaultCardPending'),
+    selectDefaultCard: t('subscriptionSelectDefaultCard'),
+    status: t('status'),
+    subscriptionStatusDescription: t('subscriptionStatusDescription'),
+    subscriptionStatusTitle: t('subscriptionStatusTitle'),
+    transactionsDescription: t('subscriptionTransactionsDescription'),
+    transactionsUnavailable: t('subscriptionTransactionsUnavailable'),
+    transactionsTitle: t('subscriptionTransactionsTitle'),
+    viewInvoice: t('subscriptionViewInvoice'),
+  };
+
   return (
     <MemberDashboardTabs
       fallbackInitials={getInitials(user.displayName)}
@@ -373,8 +429,11 @@ export async function MemberDashboardPageContent({
         displayName: user.displayName,
         email: user.email,
         phone: user.phone,
+        userId: user.id,
       }}
+      billingSnapshot={billingSnapshot}
       profileLabels={profileLabels}
+      subscriptionLabels={subscriptionLabels}
       showWelcomeModal={showWelcomeModal}
       verifyUrl={verifyUrl}
       vipSubscription={

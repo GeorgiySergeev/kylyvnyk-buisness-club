@@ -1,21 +1,6 @@
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from 'lucide-react';
-
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -37,12 +22,19 @@ import {
 } from '@/features/admin/components/admin-ui';
 import { UserRowActions } from '@/features/admin/components/user-row-actions';
 import { UsersFilters } from '@/features/admin/components/users-filters';
+import {
+  UsersListPagination,
+} from '@/features/admin/components/users-list-pagination';
 import { UsersPageActions } from '@/features/admin/components/users-page-actions';
 import {
   fetchAdminUsers,
   filterAdminUsers,
   formatAdminUserMembership,
 } from '@/features/admin/lib/users-list';
+import {
+  parseUsersPageNumber,
+  parseUsersPageSize,
+} from '@/features/admin/lib/users-list-pagination';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -52,13 +44,13 @@ interface AdminUsersPageProps {
     locale: SupportedLocale;
   }>;
   searchParams: Promise<{
-    q?: string;
+    page?: string;
+    pageSize?: string;
     plan?: string;
+    q?: string;
     status?: string;
   }>;
 }
-
-const PAGE_SIZE = 10;
 
 function formatDate(d: Date): string {
   const day = d.getDate().toString().padStart(2, '0');
@@ -73,7 +65,7 @@ function avatarUrl(name: string): string {
 
 export default async function AdminUsersPage({ params, searchParams }: AdminUsersPageProps) {
   const { locale } = await params;
-  const { q, plan, status } = await searchParams;
+  const { page: pageParam, pageSize: pageSizeParam, plan, q, status } = await searchParams;
 
   const t = getT('admin', locale);
 
@@ -93,11 +85,15 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
   const filteredCount = filtered.length;
   const activeCount = allUsers.filter((u) => u.status === 'ACTIVE').length;
 
-  const page = 1; // TODO: add page param
-  const totalPages = Math.ceil(filteredCount / PAGE_SIZE);
-  const pageUsers = filtered.slice(0, PAGE_SIZE);
-  const startRow = 1;
-  const endRow = Math.min(PAGE_SIZE, filteredCount);
+  const pageSize = parseUsersPageSize(pageSizeParam);
+  const requestedPage = parseUsersPageNumber(pageParam);
+  const totalPages = Math.max(1, Math.ceil(filteredCount / pageSize));
+  const page = Math.min(requestedPage, totalPages);
+  const pageStart = (page - 1) * pageSize;
+  const pageUsers = filtered.slice(pageStart, pageStart + pageSize);
+  const startRow = filteredCount === 0 ? 0 : pageStart + 1;
+  const endRow = Math.min(pageStart + pageSize, filteredCount);
+  const usersBasePath = localizeHref(locale, '/admin/users');
 
   return (
     <div className="flex flex-col gap-6">
@@ -252,83 +248,25 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
         </>
       )}
 
-      {filteredCount > PAGE_SIZE ? (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-muted-foreground">
-            {t('showingRows')
-              .replace('{start}', String(startRow))
-              .replace('{end}', String(endRow))
-              .replace('{count}', filteredCount.toLocaleString())}
-          </p>
-          <div className="flex items-center gap-3 sm:gap-6">
-            {/* Mobile simple pagination */}
-            <div className="flex items-center gap-2 sm:hidden">
-              <Button variant="outline" size="sm" className="h-8" disabled>
-                Prev
-              </Button>
-              <span className="text-sm text-muted-foreground">Page {page} / {totalPages}</span>
-              <Button variant="outline" size="sm" className="h-8">
-                Next
-              </Button>
-            </div>
-
-            {/* Desktop complex pagination */}
-            <div className="hidden sm:flex items-center gap-2">
-              <Select defaultValue="10">
-                <SelectTrigger className="h-8 w-16 border-0 bg-card text-foreground">
-                  <SelectValue placeholder="10" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="hidden sm:flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8 border-0 bg-card text-foreground"
-                disabled
-              >
-                <ChevronsLeft className="size-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8 border-0 bg-card text-foreground"
-                disabled
-              >
-                <ChevronLeft className="size-4" />
-              </Button>
-              {Array.from({ length: Math.min(totalPages, 4) }, (_, i) => i + 1).map((p) => (
-                <Button
-                  key={p}
-                  size="icon"
-                  className={`size-8 ${p === page ? 'bg-foreground text-background hover:bg-foreground/90' : 'border-0 bg-card text-foreground'}`}
-                  variant={p === page ? 'default' : 'outline'}
-                >
-                  {p}
-                </Button>
-              ))}
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8 border-0 bg-card text-foreground"
-              >
-                <ChevronRight className="size-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8 border-0 bg-card text-foreground"
-              >
-                <ChevronsRight className="size-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+      {totalPages > 1 ? (
+        <UsersListPagination
+          basePath={usersBasePath}
+          endRow={endRow}
+          filteredCount={filteredCount}
+          labels={{
+            paginationNext: t('paginationNext'),
+            paginationPrev: t('paginationPrev'),
+            rowsPerPage: t('rowsPerPage'),
+            showingRows: t('showingRows'),
+          }}
+          page={page}
+          pageSize={pageSize}
+          planFilter={planFilter}
+          searchTerm={searchTerm}
+          startRow={startRow}
+          statusFilter={statusFilter}
+          totalPages={totalPages}
+        />
       ) : null}
     </div>
   );

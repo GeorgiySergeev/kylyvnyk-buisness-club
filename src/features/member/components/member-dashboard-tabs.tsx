@@ -33,8 +33,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { BillingPortalButton } from '@/features/billing/components/billing-portal-button';
-import { CancelVipButton } from '@/features/billing/components/cancel-vip-button';
+import {
+  MemberSubscriptionTab,
+  type MemberSubscriptionTabLabels,
+} from '@/features/billing/components/member-subscription-tab';
+import type { MemberBillingSnapshot } from '@/features/billing/lib/member-billing';
 import type { IntroductionBusinessOption } from '@/features/introductions/components/introduction-form';
 import {
   DashboardIntroductionTab,
@@ -91,8 +94,10 @@ interface MemberDashboardTabsProps {
   membershipStatusDescription: string | null;
   notSetLabel: string;
   possibilitiesLabels: MembershipPossibilitiesLabels;
+  billingSnapshot: MemberBillingSnapshot | null;
   profile: DashboardProfileData;
   profileLabels: DashboardProfileLabels;
+  subscriptionLabels: MemberSubscriptionTabLabels;
   showWelcomeModal?: boolean;
   verifyUrl: string;
   vipSubscription: {
@@ -150,6 +155,7 @@ export interface MemberDashboardLabels {
   tabFeatures: string;
   tabIntroduction: string;
   tabProfile: string;
+  tabSubscription: string;
   tabSettings: string;
   upgradeVipCta: string;
   upgradeVipDescription: string;
@@ -167,12 +173,13 @@ const tabs: Array<{
   key: MemberDashboardTab;
   labelKey: keyof Pick<
     MemberDashboardLabels,
-    'tabFeatures' | 'tabIntroduction' | 'tabProfile' | 'tabSettings'
+    'tabFeatures' | 'tabIntroduction' | 'tabProfile' | 'tabSettings' | 'tabSubscription'
   >;
 }> = [
   { icon: UserRound, key: 'profile', labelKey: 'tabProfile' },
   { icon: Sparkles, key: 'features', labelKey: 'tabFeatures' },
   { icon: Handshake, key: 'introduction', labelKey: 'tabIntroduction' },
+  { icon: CreditCard, key: 'subscription', labelKey: 'tabSubscription' },
   { icon: Settings, key: 'settings', labelKey: 'tabSettings' },
 ];
 
@@ -184,6 +191,8 @@ function resolveActiveTabDescription(tab: MemberDashboardTab, labels: MemberDash
       return labels.featuresDescription;
     case 'introduction':
       return labels.introductionsDescription;
+    case 'subscription':
+      return labels.subscriptionDescription;
     case 'settings':
       return labels.settingsDescription;
   }
@@ -197,6 +206,8 @@ function resolveActiveTabTitle(tab: MemberDashboardTab, labels: MemberDashboardL
       return labels.featuresTitle;
     case 'introduction':
       return labels.introductionsTitle;
+    case 'subscription':
+      return labels.subscriptionTitle;
     case 'settings':
       return labels.settingsTitle;
   }
@@ -221,8 +232,10 @@ export function MemberDashboardTabs({
   membershipStatusDescription,
   notSetLabel,
   possibilitiesLabels,
+  billingSnapshot,
   profile,
   profileLabels,
+  subscriptionLabels,
   showWelcomeModal = false,
   verifyUrl,
   vipSubscription,
@@ -262,13 +275,6 @@ export function MemberDashboardTabs({
 
   const resolvedName = profile.displayName ?? notSetLabel;
   const resolvedContact = profile.email ?? profile.phone;
-  const subscriptionPeriodEndLabel = vipSubscription?.currentPeriodEnd
-    ? `${labels.subscriptionPeriodEnd}: ${new Intl.DateTimeFormat(locale, {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      }).format(vipSubscription.currentPeriodEnd)}`
-    : null;
 
   return (
     <div className="flex flex-col gap-8">
@@ -469,40 +475,7 @@ export function MemberDashboardTabs({
                 </DashboardTabPanel>
 
                 <DashboardTabPanel embedded title={labels.settingsTitle}>
-                  {isVip && vipSubscription ? (
-                    <CancelVipButton
-                      cancelAtPeriodEnd={vipSubscription.cancelAtPeriodEnd}
-                      labels={{
-                        cta: labels.cancelVipCta,
-                        description: labels.cancelVipDescription,
-                        error: labels.cancelVipError,
-                        pending: labels.cancelVipPending,
-                        scheduled: labels.cancelVipScheduled,
-                        title: labels.cancelVipTitle,
-                      }}
-                      locale={locale}
-                      periodEndLabel={subscriptionPeriodEndLabel}
-                    />
-                  ) : null}
-
                   <div className="divide-y divide-border/50">
-                    {isVip && hasBillingPortal ? (
-                      <DashboardSettingsRow
-                        description={labels.subscriptionDescription}
-                        title={labels.settingsBillingPortal}
-                        action={
-                          <BillingPortalButton
-                            errorLabel={labels.billingPortalError}
-                            labels={{
-                              cta: labels.settingsBillingPortal,
-                              pending: labels.billingPortalPending,
-                            }}
-                            locale={locale}
-                          />
-                        }
-                      />
-                    ) : null}
-
                     <DashboardSettingsRow
                       description={labels.settingsNotificationsComingSoon}
                       title={labels.settingsNotificationsTitle}
@@ -536,6 +509,17 @@ export function MemberDashboardTabs({
                   </div>
                 </DashboardTabPanel>
               </>
+            ) : null}
+
+            {activeTab === 'subscription' ? (
+              <MemberSubscriptionTab
+                hasBillingPortal={hasBillingPortal}
+                isVip={isVip}
+                labels={subscriptionLabels}
+                locale={locale}
+                snapshot={billingSnapshot}
+                vipSubscription={vipSubscription}
+              />
             ) : null}
           </div>
         </div>

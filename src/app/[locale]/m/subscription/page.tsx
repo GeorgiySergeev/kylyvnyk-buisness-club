@@ -5,10 +5,9 @@ import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 
 /**
- * /m/subscription — canonical redirect to /m/dashboard?tab=features
+ * /m/subscription — canonical redirect to /m/dashboard?tab=subscription
  *
- * Subscription management (VIP upgrade / cancel, billing portal) lives inside
- * the "features" tab of the member dashboard (MembershipPossibilitiesPanel).
+ * Subscription management lives inside the "subscription" tab of the member dashboard.
  * This page satisfies the routes-map entry for `/m/subscription` while keeping
  * the single-route, role-gated tab architecture defined in SPEC.md.
  *
@@ -23,5 +22,5 @@ interface SubscriptionPageProps {
 
 export default async function MemberSubscriptionPage({ params }: SubscriptionPageProps) {
   const { locale } = await params;
-  redirect(localizeHref(locale, '/m/dashboard?tab=features'));
+  redirect(localizeHref(locale, '/m/dashboard?tab=subscription'));
 }

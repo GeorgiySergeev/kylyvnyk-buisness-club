@@ -55,7 +55,7 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Chec
       <section className="border-y border-border/50 px-6 py-10 sm:px-8">
         <Link
           className="inline-flex min-h-11 items-center rounded-md border border-primary/40 bg-primary px-5 text-sm font-semibold text-primary-foreground"
-          href={localizeHref(locale, '/m/dashboard?tab=features')}
+          href={localizeHref(locale, '/m/dashboard?tab=subscription')}
         >
           {t('checkoutReturnDashboard')}
         </Link>
