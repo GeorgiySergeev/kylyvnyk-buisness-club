@@ -1,16 +1,18 @@
-import 'server-only';
-
 import { and, eq, isNull } from 'drizzle-orm';
+import 'server-only';
 import type Stripe from 'stripe';
 
 import { db } from '@/db/client';
 import { auditLogs, memberships, stripeSubscriptions } from '@/db/schema';
-import {
-  syncPrimaryMembershipAccess,
-} from '@/features/billing/lib/membership-access';
+import { syncPrimaryMembershipAccess } from '@/features/billing/lib/membership-access';
 import { hasMembershipTransitionChanged } from '@/features/billing/lib/membership-resolver';
-import { BUSINESS_PLAN_CODE, type MembershipPlanCode, VIP_PLAN_CODE } from '@/features/billing/lib/plan-codes';
+import {
+  BUSINESS_PLAN_CODE,
+  type MembershipPlanCode,
+  VIP_PLAN_CODE,
+} from '@/features/billing/lib/plan-codes';
 import { env } from '@/lib/env';
+import { log } from '@/lib/log';
 import { stripe } from '@/lib/stripe/config';
 import {
   getSubscriptionPeriodEnd,
@@ -191,7 +193,7 @@ export async function applySubscriptionState(input: {
     stripeCustomerId:
       typeof input.subscription.customer === 'string'
         ? input.subscription.customer
-        : input.subscription.customer?.id ?? null,
+        : (input.subscription.customer?.id ?? null),
     stripePriceId: priceId,
     stripeSubscriptionId: input.subscription.id,
     userId: input.userId,
@@ -327,4 +329,68 @@ export async function handleSubscriptionUpdated(
     subscription,
     userId,
   });
+}
+
+/**
+ * Handles `customer.subscription.created` — identical to the updated handler
+ * because `applySubscriptionState` is fully generic and idempotent.
+ */
+export const handleSubscriptionCreated = handleSubscriptionUpdated;
+
+/**
+ * Handles `invoice.payment_failed` — retrieves the underlying subscription
+ * from Stripe and syncs membership state so the user transitions to
+ * PAST_DUE promptly instead of waiting for a delayed subscription.updated
+ * event.
+ */
+export async function handleInvoicePaymentFailed(
+  invoice: Stripe.Invoice,
+  stripeEventId: string,
+  vipPriceId: string,
+  businessPriceId: string,
+) {
+  const subscriptionRef = invoice.subscription;
+
+  if (!subscriptionRef) {
+    log.warn('stripe.webhook.invoice_payment_failed.no_subscription', {
+      invoiceId: invoice.id,
+    });
+    return;
+  }
+
+  const subscriptionId = typeof subscriptionRef === 'string' ? subscriptionRef : subscriptionRef.id;
+
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+  const userId =
+    subscription.metadata?.kclub_user_id ??
+    (await resolveUserIdFromStripeSubscription(subscription.id));
+
+  if (!userId) {
+    log.warn('stripe.webhook.invoice_payment_failed.no_user', {
+      invoiceId: invoice.id,
+      subscriptionId,
+    });
+    return;
+  }
+
+  await applySubscriptionState({
+    planCode: resolvePlanCodeFromMetadata(
+      subscription.metadata,
+      subscription.items.data[0]?.price.id ?? null,
+      vipPriceId,
+      businessPriceId,
+    ),
+    stripeEventId,
+    subscription,
+    userId,
+  });
+}
+
+async function resolveUserIdFromStripeSubscription(stripeSubscriptionId: string): Promise<string> {
+  const existing = await db.query.stripeSubscriptions.findFirst({
+    where: eq(stripeSubscriptions.stripeSubscriptionId, stripeSubscriptionId),
+  });
+
+  return existing?.userId ?? '';
 }

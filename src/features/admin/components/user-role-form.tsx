@@ -7,24 +7,18 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
-import { MEMBERSHIP_OPTIONS, PLATFORM_ROLE_OPTIONS } from '@/features/admin/lib/access-display';
+import { MEMBERSHIP_OPTIONS } from '@/features/admin/lib/access-display';
 import { cn } from '@/lib/utils';
 
-import {
-  updateUserMembershipAction,
-  updateUserRoleAction,
-  updateUserStatusAction,
-} from '../actions/user-admin.action';
+import { updateUserMembershipAction, updateUserStatusAction } from '../actions/user-admin.action';
 
 interface UserRoleFormProps {
   currentMembershipTier?: string | null;
-  currentRole: string;
   currentStatus?: string;
   userId: string;
 }
 
 const MEMBERSHIP_TIERS = new Set(MEMBERSHIP_OPTIONS.map((option) => option.value));
-const ROLE_VALUES = new Set(PLATFORM_ROLE_OPTIONS.map((option) => option.value));
 
 const STATUS_OPTIONS = [
   { color: 'emerald' as const, label: 'Active', value: 'ACTIVE' },
@@ -47,27 +41,21 @@ const statusColorMap = {
   },
 } as const;
 
-type LoadingSection = 'membership' | 'role' | 'status';
+type LoadingSection = 'membership' | 'status';
 
 export function UserRoleForm({
   currentMembershipTier,
-  currentRole,
   currentStatus,
   userId,
 }: UserRoleFormProps) {
   const params = useParams<{ locale?: string }>();
   const locale = (params?.locale ?? 'en') as 'en' | 'ru' | 'uk';
   const { pending, refresh, run } = useAdminMutation();
-  const [role, setRole] = useState(currentRole);
   const [membershipTier, setMembershipTier] = useState(currentMembershipTier ?? '');
   const [status, setStatus] = useState(currentStatus ?? '');
   const [loadingSection, setLoadingSection] = useState<LoadingSection | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [savedSection, setSavedSection] = useState<LoadingSection | null>(null);
-
-  useEffect(() => {
-    setRole(currentRole);
-  }, [currentRole]);
 
   useEffect(() => {
     setMembershipTier(currentMembershipTier ?? '');
@@ -77,30 +65,11 @@ export function UserRoleForm({
     setStatus(currentStatus ?? '');
   }, [currentStatus]);
 
-  const selectedRole = ROLE_VALUES.has(role as (typeof PLATFORM_ROLE_OPTIONS)[number]['value'])
-    ? role
-    : undefined;
   const selectedMembershipTier =
     membershipTier &&
     MEMBERSHIP_TIERS.has(membershipTier as (typeof MEMBERSHIP_OPTIONS)[number]['value'])
       ? membershipTier
       : undefined;
-
-  async function changeRole(value: string) {
-    if (!value || value === selectedRole) return;
-    setError(null);
-    setSavedSection(null);
-    setLoadingSection('role');
-    const result = await run(() => updateUserRoleAction({ role: value, userId }, locale));
-    setLoadingSection(null);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-    setRole(value);
-    setSavedSection('role');
-    refresh();
-  }
 
   async function changeMembership(value: string) {
     if (!value || value === selectedMembershipTier) return;
@@ -152,36 +121,6 @@ export function UserRoleForm({
           Updated successfully.
         </p>
       ) : null}
-
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-foreground">Platform Role</h3>
-          <p className="text-xs text-muted-foreground">
-            Base admin/member access state. Membership tiers are managed separately.
-          </p>
-        </div>
-        <ToggleGroup
-          aria-label="Platform role"
-          className={cn(pending && 'pointer-events-none opacity-60')}
-          onValueChange={(value) => {
-            void changeRole(value);
-          }}
-          type="single"
-          value={selectedRole}
-        >
-          {PLATFORM_ROLE_OPTIONS.map(({ label, value }) => (
-            <ToggleGroupItem aria-label={label} key={value} value={value}>
-              {label}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-        {loadingSection === 'role' ? (
-          <div className="flex items-center gap-1.5">
-            <Loader2 className="size-3 animate-spin text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Updating role...</span>
-          </div>
-        ) : null}
-      </div>
 
       <div className="space-y-3">
         <div className="space-y-1">

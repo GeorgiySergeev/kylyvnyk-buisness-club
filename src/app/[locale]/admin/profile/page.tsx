@@ -16,7 +16,7 @@ import {
   AdminPanel,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
-import { formatPlatformRole, summarizePermissionRows } from '@/features/admin/lib/access-display';
+import { summarizePermissionRows } from '@/features/admin/lib/access-display';
 import { guardAdmin } from '@/features/auth/lib/role-guards';
 import { DashboardProfileSettingsForm } from '@/features/profile/components/dashboard-profile-settings-form';
 import { RoleForm } from '@/features/roles/components/role-form';
@@ -177,7 +177,7 @@ export default async function AdminProfilePage({ params, searchParams }: AdminPr
           </div>
         }
         description={userIsSuperAdmin ? 'Personal admin settings, staff access control, and role construction.' : adminT('adminProfileDescription')}
-        eyebrow={userIsSuperAdmin ? adminT('adminRole') : formatPlatformRole(user.role)}
+        eyebrow={userIsSuperAdmin ? adminT('adminRole') : undefined}
         title={userIsSuperAdmin ? 'Super Admin Control Center' : adminT('adminProfileTitle')}
       />
 
@@ -236,7 +236,6 @@ export default async function AdminProfilePage({ params, searchParams }: AdminPr
                     { label: adminT('name'), value: user.displayName?.trim() || 'Not set' },
                     { label: adminT('phone'), value: user.phone },
                     { label: adminT('email'), value: user.email ?? adminT('notDefined') },
-                    { label: adminT('role'), value: formatPlatformRole(user.role) },
                     { label: adminT('accountStatus'), value: <AdminStatusBadge>{user.status}</AdminStatusBadge> },
                     {
                       label: adminT('adminProfileCompleteness'),
@@ -351,7 +350,6 @@ export default async function AdminProfilePage({ params, searchParams }: AdminPr
                       <p className="truncate text-xs text-ds-text-muted">{staffUser.phone}</p>
                       {staffUser.email ? <p className="truncate text-xs text-ds-text-muted">{staffUser.email}</p> : null}
                       <div className="mt-2 flex flex-wrap gap-1.5">
-                        <AdminStatusBadge tone="info">{formatPlatformRole(staffUser.role)}</AdminStatusBadge>
                         <AdminStatusBadge>{staffUser.status}</AdminStatusBadge>
                         {staffUser.roles.length === 0 ? (
                           <AdminStatusBadge>RBAC: none</AdminStatusBadge>

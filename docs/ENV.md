@@ -175,6 +175,18 @@ server · required · — · Stripe Dashboard → Settings → Billing → Custo
 Portal → your configuration · owner: billing owner · rotates: when portal
 copy/flow changes · breaks: Customer Portal session creation fails.
 
+#### `CRON_SECRET`
+
+server · optional · — · Vercel Dashboard → Project → Settings → Environment
+Variables · owner: platform owner · rotates: on suspected leak · breaks:
+daily Stripe reconciliation cron (`/api/cron/stripe-reconcile`) rejects all
+requests with 401 when set; when unset the endpoint runs without auth
+(acceptable only in development/preview).
+
+Set to a random string (e.g. `openssl rand -hex 32`). Vercel injects it
+as `Bearer <CRON_SECRET>` in the `Authorization` header on every cron
+invocation.
+
 ---
 
 ### Rate limiting — Upstash (ADR-008)
