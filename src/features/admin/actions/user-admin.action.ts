@@ -112,7 +112,7 @@ export async function updateUserMembershipAction(
     return { error: 'Invalid input.', ok: false };
   }
 
-  await setUserMembershipTier(parsed.data.userId, parsed.data.membershipTier);
+  await setUserMembershipTier(parsed.data.userId, parsed.data.membershipTier, new Date(), admin.data.id);
 
   await createAuditLog({
     action: 'ADMIN_USER_MEMBERSHIP_UPDATED',

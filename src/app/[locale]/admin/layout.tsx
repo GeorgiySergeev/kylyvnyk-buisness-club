@@ -47,7 +47,7 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
   }, {} as AdminNavLabels);
 
   const visibleKeys: AdminNavKey[] = ADMIN_NAV_ITEMS.filter((item) => {
-    if (item.href === '/admin/roles') {
+    if (item.href === '/admin/access' || item.href === '/admin/roles') {
       return userIsSuperAdmin;
     }
     return true;

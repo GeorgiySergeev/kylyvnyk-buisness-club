@@ -98,7 +98,7 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
     );
   }
 
-  const statuses = ['ALL', 'ACTIVE', 'INACTIVE', 'EXPIRED'] as const;
+  const statuses = ['ALL', 'ACTIVE', 'INACTIVE', 'EXPIRED', 'ARCHIVED'] as const;
 
   return (
     <div className="space-y-5">
@@ -145,7 +145,7 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
               <AdminMobileCard
                 key={card.id}
                 title={<span className="font-mono font-bold">{card.number}</span>}
-                subtitle={card.user.displayName ?? card.user.phone}
+                subtitle={card.user.displayName?.trim() || 'Not set'}
                 badge={
                   <div className="flex gap-1">
                     <AdminStatusBadge>{card.memberType}</AdminStatusBadge>
@@ -186,7 +186,7 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
                   {filtered.map((card) => (
                     <TableRow key={card.id}>
                       <TableCell className="font-mono text-sm font-medium">{card.number}</TableCell>
-                      <TableCell>{card.user.displayName ?? card.user.phone}</TableCell>
+                      <TableCell>{card.user.displayName?.trim() || 'Not set'}</TableCell>
                       <TableCell>
                         <AdminStatusBadge>{card.memberType}</AdminStatusBadge>
                       </TableCell>

@@ -25,7 +25,7 @@ interface CardDetailTabsProps {
     id: string;
     memberType: 'FREE' | 'BUSINESS' | 'VIP';
     number: string;
-    status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED';
+    status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'ARCHIVED';
     updatedAt: string;
   };
   controlsTitle: string;
@@ -65,7 +65,7 @@ export function CardDetailTabs({
         backHref={backHref}
         backLabel={backLabel}
         meta={`${card.status} · ${card.memberType}`}
-        subtitle={member.displayName ?? member.phone}
+        subtitle={member.displayName?.trim() || 'Not set'}
         title={card.number}
         titleClassName="truncate font-mono text-sm font-medium text-ds-text"
       >
@@ -94,7 +94,7 @@ export function CardDetailTabs({
                   label: labels.status,
                   value: <AdminStatusBadge>{card.status}</AdminStatusBadge>,
                 },
-                { label: labels.memberName, value: member.displayName ?? 'N/A' },
+                { label: labels.memberName, value: member.displayName?.trim() || 'Not set' },
                 { label: labels.phone, value: member.phone },
                 { label: labels.email, value: member.email ?? 'N/A' },
                 {

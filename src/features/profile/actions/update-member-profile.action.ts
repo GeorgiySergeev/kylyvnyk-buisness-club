@@ -30,6 +30,7 @@ type AppError = {
 type Result<T> = { data: T; ok: true } | { error: AppError; ok: false };
 
 function revalidateMemberProfilePaths(locale: SupportedLocale) {
+  revalidatePath(localizeHref(locale, '/admin/profile'));
   revalidatePath(localizeHref(locale, '/m/dashboard'));
   SUPPORTED_LOCALES.forEach((item) => {
     revalidatePath(`/${item}`, 'layout');

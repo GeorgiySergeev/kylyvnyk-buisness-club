@@ -6,10 +6,13 @@ import { z } from 'zod';
 
 import { localizeHref, SUPPORTED_LOCALES } from '@/components/layout/navigation';
 import { db } from '@/db/client';
-import { permissions, roles, userRoles } from '@/db/schema';
+import { permissions, roles, userPermissionOverrides, userRoles } from '@/db/schema';
 import { RESOURCES } from '@/db/schema/permission';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { createAuditLog } from '@/lib/audit';
+import { isSuperAdmin } from '@/lib/auth/permissions';
+
+import { canRevokeRoleAssignment } from './lib/rbac-policy';
 
 const roleCreateSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
@@ -50,16 +53,48 @@ const revokeRoleSchema = z.object({
   roleId: z.string().uuid(),
 });
 
-function revalidateAll() {
+const userPermissionOverrideSchema = z.object({
+  userId: z.string().uuid(),
+  overrides: z.array(
+    z.object({
+      resource: z.enum(RESOURCES),
+      denyView: z.boolean(),
+      denyCreate: z.boolean(),
+      denyEdit: z.boolean(),
+      denyDelete: z.boolean(),
+    }),
+  ),
+});
+
+function revalidateAll(userId?: string) {
   for (const locale of SUPPORTED_LOCALES) {
     revalidatePath(localizeHref(locale, '/admin/roles'));
     revalidatePath(localizeHref(locale, '/admin/users'));
+    revalidatePath(localizeHref(locale, '/admin/profile'));
+    revalidatePath(localizeHref(locale, '/admin/access'));
+    if (userId) {
+      revalidatePath(localizeHref(locale, `/admin/users/${userId}`));
+    }
   }
 }
 
+async function requireSuperAdminAction() {
+  const admin = await getCurrentUserWithRole(['ADMIN', 'OWNER']);
+  if (!admin.ok) {
+    return { ok: false as const, error: 'Unauthorized.' };
+  }
+
+  const superAdmin = await isSuperAdmin(admin.data.id);
+  if (!superAdmin) {
+    return { ok: false as const, error: 'Super Admin access required.' };
+  }
+
+  return { ok: true as const, user: admin.data };
+}
+
 export async function createRoleAction(rawInput: unknown) {
-  const admin = await getCurrentUserWithRole('ADMIN');
-  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: 'Unauthorized.' };
+  const admin = await requireSuperAdminAction();
+  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: admin.error };
 
   const parsed = roleCreateSchema.safeParse(rawInput);
   if (!parsed.success) {
@@ -97,7 +132,7 @@ export async function createRoleAction(rawInput: unknown) {
 
   await createAuditLog({
     action: 'ROLE_CREATED',
-    actorUserId: admin.data.id,
+    actorUserId: admin.user.id,
     entityId: role.id,
     entityType: 'role',
     payload: { name: role.name, slug: role.slug },
@@ -108,8 +143,8 @@ export async function createRoleAction(rawInput: unknown) {
 }
 
 export async function updateRoleAction(rawInput: unknown) {
-  const admin = await getCurrentUserWithRole('ADMIN');
-  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: 'Unauthorized.' };
+  const admin = await requireSuperAdminAction();
+  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: admin.error };
 
   const parsed = roleUpdateSchema.safeParse(rawInput);
   if (!parsed.success) {
@@ -132,7 +167,7 @@ export async function updateRoleAction(rawInput: unknown) {
 
   await createAuditLog({
     action: 'ROLE_UPDATED',
-    actorUserId: admin.data.id,
+    actorUserId: admin.user.id,
     entityId: role.id,
     entityType: 'role',
     payload: { name: input.name },
@@ -143,8 +178,8 @@ export async function updateRoleAction(rawInput: unknown) {
 }
 
 export async function deleteRoleAction(rawInput: unknown) {
-  const admin = await getCurrentUserWithRole('ADMIN');
-  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: 'Unauthorized.' };
+  const admin = await requireSuperAdminAction();
+  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: admin.error };
 
   const parsed = z.object({ id: z.string().uuid() }).safeParse(rawInput);
   if (!parsed.success) {
@@ -177,7 +212,7 @@ export async function deleteRoleAction(rawInput: unknown) {
 
   await createAuditLog({
     action: 'ROLE_DELETED',
-    actorUserId: admin.data.id,
+    actorUserId: admin.user.id,
     entityId: id,
     entityType: 'role',
     payload: { name: role.name, slug: role.slug },
@@ -188,8 +223,8 @@ export async function deleteRoleAction(rawInput: unknown) {
 }
 
 export async function updatePermissionsAction(rawInput: unknown) {
-  const admin = await getCurrentUserWithRole('ADMIN');
-  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: 'Unauthorized.' };
+  const admin = await requireSuperAdminAction();
+  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: admin.error };
 
   const parsed = permissionUpdateSchema.safeParse(rawInput);
   if (!parsed.success) {
@@ -223,7 +258,7 @@ export async function updatePermissionsAction(rawInput: unknown) {
 
   await createAuditLog({
     action: 'PERMISSIONS_UPDATED',
-    actorUserId: admin.data.id,
+    actorUserId: admin.user.id,
     entityId: input.roleId,
     entityType: 'role',
     payload: { permissionCount: input.permissions.length },
@@ -234,8 +269,8 @@ export async function updatePermissionsAction(rawInput: unknown) {
 }
 
 export async function assignRoleAction(rawInput: unknown) {
-  const admin = await getCurrentUserWithRole('ADMIN');
-  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: 'Unauthorized.' };
+  const admin = await requireSuperAdminAction();
+  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: admin.error };
 
   const parsed = assignRoleSchema.safeParse(rawInput);
   if (!parsed.success) {
@@ -258,11 +293,11 @@ export async function assignRoleAction(rawInput: unknown) {
     return { ok: false as const, code: 'conflict' as const, error: 'User already has this role.' };
   }
 
-  await db.insert(userRoles).values({ userId, roleId, assignedById: admin.data.id });
+  await db.insert(userRoles).values({ userId, roleId, assignedById: admin.user.id });
 
   await createAuditLog({
     action: 'ROLE_ASSIGNED',
-    actorUserId: admin.data.id,
+    actorUserId: admin.user.id,
     entityId: userId,
     entityType: 'user',
     payload: { roleId, roleName: role.name },
@@ -273,8 +308,8 @@ export async function assignRoleAction(rawInput: unknown) {
 }
 
 export async function revokeRoleAction(rawInput: unknown) {
-  const admin = await getCurrentUserWithRole('ADMIN');
-  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: 'Unauthorized.' };
+  const admin = await requireSuperAdminAction();
+  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: admin.error };
 
   const parsed = revokeRoleSchema.safeParse(rawInput);
   if (!parsed.success) {
@@ -282,6 +317,26 @@ export async function revokeRoleAction(rawInput: unknown) {
   }
 
   const { userId, roleId } = parsed.data;
+
+  const role = await db.query.roles.findFirst({
+    where: (table, { eq: _eq }) => _eq(table.id, roleId),
+  });
+
+  if (!role) {
+    return { ok: false as const, code: 'not_found' as const, error: 'Role not found.' };
+  }
+
+  if (role.slug === 'super_admin') {
+    const assignmentCount = await db.$count(userRoles, eq(userRoles.roleId, roleId));
+    const decision = canRevokeRoleAssignment({
+      isSuperAdminRole: true,
+      remainingSuperAdminAssignments: assignmentCount - 1,
+    });
+
+    if (!decision.ok) {
+      return { ok: false as const, code: 'forbidden' as const, error: decision.reason };
+    }
+  }
 
   const deleted = await db
     .delete(userRoles)
@@ -294,7 +349,7 @@ export async function revokeRoleAction(rawInput: unknown) {
 
   await createAuditLog({
     action: 'ROLE_REVOKED',
-    actorUserId: admin.data.id,
+    actorUserId: admin.user.id,
     entityId: userId,
     entityType: 'user',
     payload: { roleId },
@@ -302,4 +357,69 @@ export async function revokeRoleAction(rawInput: unknown) {
 
   revalidateAll();
   return { ok: true as const, data: { userId, roleId } };
+}
+
+export async function updateUserPermissionOverridesAction(rawInput: unknown) {
+  const admin = await requireSuperAdminAction();
+  if (!admin.ok) return { ok: false as const, code: 'unauthorized' as const, error: admin.error };
+
+  const parsed = userPermissionOverrideSchema.safeParse(rawInput);
+  if (!parsed.success) {
+    return { ok: false as const, code: 'validation' as const, error: parsed.error.issues.map((i) => i.message).join('; ') };
+  }
+
+  const { userId, overrides } = parsed.data;
+
+  await db.transaction(async (tx) => {
+    for (const override of overrides) {
+      const hasAnyRestriction =
+        override.denyView || override.denyCreate || override.denyEdit || override.denyDelete;
+
+      if (!hasAnyRestriction) {
+        await tx
+          .delete(userPermissionOverrides)
+          .where(
+            and(
+              eq(userPermissionOverrides.userId, userId),
+              eq(userPermissionOverrides.resource, override.resource),
+            ),
+          );
+        continue;
+      }
+
+      await tx
+        .insert(userPermissionOverrides)
+        .values({
+          userId,
+          assignedById: admin.user.id,
+          resource: override.resource,
+          denyView: override.denyView,
+          denyCreate: override.denyCreate,
+          denyEdit: override.denyEdit,
+          denyDelete: override.denyDelete,
+        })
+        .onConflictDoUpdate({
+          target: [userPermissionOverrides.userId, userPermissionOverrides.resource],
+          set: {
+            assignedById: admin.user.id,
+            denyView: override.denyView,
+            denyCreate: override.denyCreate,
+            denyEdit: override.denyEdit,
+            denyDelete: override.denyDelete,
+            updatedAt: new Date(),
+          },
+        });
+    }
+  });
+
+  await createAuditLog({
+    action: 'USER_PERMISSION_OVERRIDES_UPDATED',
+    actorUserId: admin.user.id,
+    entityId: userId,
+    entityType: 'user',
+    payload: { overrideCount: overrides.length },
+  });
+
+  revalidateAll(userId);
+  return { ok: true as const, data: { userId } };
 }

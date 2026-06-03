@@ -11,6 +11,7 @@ import {
   MessageSquare,
   ReceiptText,
   Shield,
+  ShieldCheck,
   Tags,
   Users,
 } from 'lucide-react';
@@ -27,6 +28,7 @@ import { ADMIN_NAV_ITEMS, type AdminNavKey, type AdminNavLabels } from './admin-
 const ADMIN_NAV_ICONS: Record<AdminNavKey, LucideIcon> = {
   navDashboard: LayoutDashboard,
   navUsers: Users,
+  navAccess: ShieldCheck,
   navBusinesses: Building2,
   navIntroductions: MessageSquare,
   navCards: CreditCard,

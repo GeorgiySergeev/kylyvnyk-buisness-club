@@ -1,7 +1,9 @@
 'use client';
 
-import * as Sentry from '@sentry/nextjs';
 import { useEffect } from 'react';
+
+import * as Sentry from '@sentry/nextjs';
+import Error from 'next/error';
 
 import { ErrorFallback } from '@/components/error/error-fallback';
 import { getErrorMessages } from '@/lib/i18n/error-messages';

@@ -49,7 +49,7 @@ test('public card dto keeps the same key set for missing cards', () => {
 test('card numbers use member type, country, and high-entropy Crockford base32 suffix', () => {
   const number = generateCardNumber('+1 555 000 0001', 'BUSINESS');
 
-  assert.match(number, /^BUS-US-[0-9A-HJKMNP-TV-Z]{10}$/);
+  assert.match(number, /^business-US-[0-9A-HJKMNP-TV-Z]{10}$/);
 });
 
 test('card number country derivation falls back to INT for unknown phone prefixes', () => {

@@ -13,7 +13,7 @@ interface CardUpdateFormProps {
   currentDiscountLabel: string | null;
   currentExpiresAt: string | null;
   currentMemberType: 'FREE' | 'BUSINESS' | 'VIP';
-  currentStatus: 'ACTIVE' | 'INACTIVE' | 'EXPIRED';
+  currentStatus: 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'ARCHIVED';
 }
 
 export function CardUpdateForm({
@@ -81,6 +81,7 @@ export function CardUpdateForm({
         <option value="ACTIVE">ACTIVE</option>
         <option value="INACTIVE">INACTIVE</option>
         <option value="EXPIRED">EXPIRED</option>
+        <option value="ARCHIVED">ARCHIVED</option>
       </select>
       <Input defaultValue={currentExpiresAt ?? ''} name="expiresAt" type="datetime-local" />
       <Input defaultValue={currentDiscountLabel ?? ''} name="discountLabel" placeholder="Discount label" />
