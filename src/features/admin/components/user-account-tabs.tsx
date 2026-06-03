@@ -25,7 +25,6 @@ import { UserDangerZone } from '@/features/admin/components/user-danger-zone';
 import { UserPersonalInfoForm } from '@/features/admin/components/user-personal-info-form';
 import { UserRoleForm } from '@/features/admin/components/user-role-form';
 import type { PermissionSummaryRow } from '@/features/admin/lib/access-display';
-import { formatPlatformRole } from '@/features/admin/lib/access-display';
 import { UserPermissionOverrideEditor } from '@/features/roles/components/user-permission-override-editor';
 import { UserRoleAssignment } from '@/features/roles/components/user-role-assignment';
 
@@ -190,6 +189,7 @@ export function UserAccountTabs({
 }: UserAccountTabsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('personal');
   const [activityPage, setActivityPage] = useState(1);
+  const isMemberAccount = user.role === 'MEMBER';
 
   function handleTabChange(tab: TabKey) {
     setActiveTab(tab);
@@ -228,7 +228,6 @@ export function UserAccountTabs({
                   {user.status}
                 </AdminStatusBadge>
                 <AdminStatusBadge>{membershipLabel}</AdminStatusBadge>
-                <AdminStatusBadge tone="info">{formatPlatformRole(user.role)}</AdminStatusBadge>
                 {roleAssignmentData?.currentRoles.map((role) => (
                   <AdminStatusBadge key={role.roleId} tone="info">
                     {role.roleName}
@@ -292,17 +291,16 @@ export function UserAccountTabs({
         {activeTab === 'access' ? (
           <>
             <AdminPanel
-              description="Manage account state, billing tier, and base platform access."
+              description="Manage account state and membership. RBAC roles are configured separately below."
               title="Access & Membership"
             >
               <UserRoleForm
                 currentMembershipTier={effectiveMembershipTier}
-                currentRole={user.role}
                 currentStatus={user.status}
                 userId={user.id}
               />
             </AdminPanel>
-            {roleAssignmentData ? (
+            {roleAssignmentData && !isMemberAccount ? (
               <>
                 <AdminPanel
                   description="Assign one or more RBAC roles and review the effective admin permissions."

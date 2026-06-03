@@ -21,10 +21,13 @@ Last refreshed: 2026-05-28.
 - Admin shell with guarded access and MFA decision tests.
 - Admin operational tables for users, businesses, cards, introductions,
   memberships, catalog, references, audit, payment links, and subscriptions.
+- Stripe billing: webhook handler with signature verification and
+  idempotent event claim, membership lifecycle state machine, checkout
+  and portal session creation, cancel VIP flow, subscription management
+  UI, daily reconciliation cron, and 48 unit tests across 5 test files.
 
 ## Deferred Surfaces
 
-- Billing remains deferred for this release. See `docs/BILLING-FLOWS.md`.
 - Production e2e/browser automation remains manual until Playwright is wired
   into CI with stable test accounts and environment secrets.
 
@@ -33,8 +36,6 @@ Last refreshed: 2026-05-28.
 - `pnpm verify` must be green on the release branch.
 - GitHub Actions must have the required secrets for build-time DB and platform
   env vars before CI can be considered authoritative.
-- Billing must not be described as release-ready until the webhook slice lands
-  or remains explicitly deferred.
 
 ## Smoke Evidence Command
 

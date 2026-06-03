@@ -1,13 +1,14 @@
-import 'server-only';
-
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import 'server-only';
 import type Stripe from 'stripe';
 
 import { db } from '@/db/client';
 import { stripeEvents } from '@/db/schema';
 import {
   handleCheckoutSessionCompleted,
+  handleInvoicePaymentFailed,
+  handleSubscriptionCreated,
   handleSubscriptionUpdated,
 } from '@/features/billing/lib/membership-lifecycle';
 import { env } from '@/lib/env';
@@ -57,10 +58,26 @@ export async function POST(request: Request) {
           env.STRIPE_PRICE_BUSINESS_ANNUAL,
         );
         break;
+      case 'customer.subscription.created':
+        await handleSubscriptionCreated(
+          event.data.object as Stripe.Subscription,
+          event.id,
+          env.STRIPE_PRICE_VIP_ANNUAL,
+          env.STRIPE_PRICE_BUSINESS_ANNUAL,
+        );
+        break;
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted':
         await handleSubscriptionUpdated(
           event.data.object as Stripe.Subscription,
+          event.id,
+          env.STRIPE_PRICE_VIP_ANNUAL,
+          env.STRIPE_PRICE_BUSINESS_ANNUAL,
+        );
+        break;
+      case 'invoice.payment_failed':
+        await handleInvoicePaymentFailed(
+          event.data.object as Stripe.Invoice,
           event.id,
           env.STRIPE_PRICE_VIP_ANNUAL,
           env.STRIPE_PRICE_BUSINESS_ANNUAL,
