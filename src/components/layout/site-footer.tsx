@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import { getT } from '@/lib/i18n/t-server';
 
-import { type SupportedLocale, localizeHref } from './navigation';
+import { localizeHref,type SupportedLocale } from './navigation';
 
 const PLATFORM_LINKS = [
   {
@@ -181,7 +181,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
             className="mt-10 space-y-6 border-t border-ds-border pt-10 sm:mt-12 sm:pt-12"
             suppressHydrationWarning
           >
-            <p className="text-center text-[11px] text-ds-text-faint sm:text-ds-text-xs sm:text-left">
+            <p className="text-center text-[11px] text-ds-text-muted sm:text-ds-text-xs sm:text-left">
               &copy; {year} {tFooter('brand')}. {tFooter('allRightsReserved')}
             </p>
           </div>

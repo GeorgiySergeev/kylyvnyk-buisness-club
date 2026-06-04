@@ -94,7 +94,7 @@ export function StripeLinksCrud({
         <Input name="paymentLinkUrl" placeholder={labels.paymentLinkUrl} required />
         <Button disabled={pending || disabled} type="submit" className="h-10">{pending ? <Loader2 className="size-4 animate-spin" /> : labels.create}</Button>
       </form>
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
+      {error ? <p className="text-sm text-ds-error">{error}</p> : null}
 
       {rows.map((row) => (
         <form

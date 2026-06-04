@@ -13,8 +13,8 @@ import { db } from '@/db/client';
 import { categories, countries } from '@/db/schema';
 import { getPublishedBusinesses } from '@/features/directory/lib/get-published-businesses';
 import type { PublicBusinessDto } from '@/features/directory/lib/public-business-dto';
-import { getT } from '@/lib/i18n/t-server';
 import { resolveCountryFlagSvg } from '@/lib/flags/resolve-country-flag-svg';
+import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
 

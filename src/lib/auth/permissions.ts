@@ -8,8 +8,8 @@ import { permissions } from '@/db/schema';
 import type { PermissionAction, Resource } from '@/db/schema/permission';
 import {
   applyPermissionOverrides,
-  mergePermissions,
   type MergedPermission,
+  mergePermissions,
   type PermissionOverrideSummary,
 } from '@/lib/auth/permission-override-helpers';
 

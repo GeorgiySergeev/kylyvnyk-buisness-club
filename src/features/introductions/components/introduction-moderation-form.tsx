@@ -144,7 +144,7 @@ export function IntroductionModerationForm({
       </Button>
 
       {message ? (
-        <p className={`text-xs ${isError ? 'text-destructive' : 'text-emerald-600'}`} role="status">
+        <p className={`text-ds-text-xs ${isError ? 'text-ds-error' : 'text-ds-success'}`} role="status">
           {message}
         </p>
       ) : null}

@@ -92,7 +92,7 @@ export function MembershipsCrud({
         <Input name="endsAt" type="datetime-local" />
         <Button disabled={pending || disabled} type="submit">{pending ? <Loader2 className="size-4 animate-spin" /> : labels.create}</Button>
       </form>
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
+      {error ? <p className="text-sm text-ds-error">{error}</p> : null}
       {rows.map((row) => (
         <form key={row.id} action={(fd) => update(row.id, fd)} className="grid gap-2 rounded-md border border-border/70 bg-card/50 p-3 md:grid-cols-3 lg:grid-cols-[1fr_140px_140px_140px_140px_auto_auto]">
           <Input defaultValue={row.userId} disabled />

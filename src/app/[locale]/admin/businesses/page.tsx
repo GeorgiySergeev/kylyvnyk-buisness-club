@@ -1,5 +1,5 @@
-import { Download, Plus } from 'lucide-react';
 import { desc } from 'drizzle-orm';
+import { Download, Plus } from 'lucide-react';
 import Link from 'next/link';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
@@ -15,6 +15,10 @@ import {
 import { db } from '@/db/client';
 import { businesses } from '@/db/schema';
 import {
+  AdminTableActionsCell,
+  AdminTableActionsHead,
+} from '@/features/admin/components/admin-table-actions';
+import {
   AdminDataTableShell,
   AdminEmptyState,
   AdminFiltersBar,
@@ -23,13 +27,9 @@ import {
   AdminSearchInput,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
-import {
-  AdminTableActionsCell,
-  AdminTableActionsHead,
-} from '@/features/admin/components/admin-table-actions';
-import { BusinessesImportDialog } from '@/features/admin/components/businesses-import-dialog';
 import { BusinessFeatureToggle } from '@/features/admin/components/business-feature-toggle';
 import { BusinessRowActions } from '@/features/admin/components/business-row-actions';
+import { BusinessesImportDialog } from '@/features/admin/components/businesses-import-dialog';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';

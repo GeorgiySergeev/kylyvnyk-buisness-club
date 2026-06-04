@@ -124,14 +124,7 @@ export function DashboardIntroductionsBlock({
   );
 }
 
-export function DashboardEmptyState({ description, title }: { description: string; title: string }) {
-  return (
-    <div className="rounded-ds-radius-md border border-ds-border bg-ds-surface px-ds-space-5 py-ds-space-5">
-      <h3 className="text-ds-text-sm font-semibold text-ds-text">{title}</h3>
-      <p className="mt-2 text-ds-text-sm leading-relaxed text-ds-text-muted">{description}</p>
-    </div>
-  );
-}
+
 
 interface DashboardProfileHeroProps {
   avatarUrl: string | null;

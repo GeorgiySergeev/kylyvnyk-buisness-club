@@ -1,5 +1,7 @@
 'use client';
 
+// BLOCK: Dev-only route menu — quick navigation helper for developers.
+// DEV: This component is strictly for development. DO NOT SHIP TO PRODUCTION.
 import { Bug, X } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';

@@ -1,5 +1,7 @@
 "use client";
 
+// BLOCK: Sentry example page — used to test Sentry integration and SDK connectivity.
+// DEV: Diagnostic/testing page. DO NOT LEAVE THIS ROUTE ENABLED IN PRODUCTION unless intentionally kept behind a guard.
 import * as Sentry from "@sentry/nextjs";
 import Head from "next/head";
 import { useEffect, useState } from "react";
@@ -52,7 +54,7 @@ export default function Page() {
           Click the button below, and view the sample error on the Sentry{" "}
           <a
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
             href="https://neowebsphera.sentry.io/issues/?project=4511500396593232"
           >
             Issues Page
@@ -60,7 +62,7 @@ export default function Page() {
           . For more details about setting up Sentry,{" "}
           <a
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
             href="https://docs.sentry.io/platforms/javascript/guides/nextjs/"
           >
             read our docs

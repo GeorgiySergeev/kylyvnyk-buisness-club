@@ -67,7 +67,7 @@ export function BusinessStatusForm({ businessId, currentStatus }: BusinessStatus
         </div>
       ) : null}
       {saved ? (
-        <p className="text-sm text-emerald-600" role="status">
+        <p className="text-sm text-ds-success" role="status">
           Status updated successfully.
         </p>
       ) : null}

@@ -1,8 +1,8 @@
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { Badge } from '@/components/ui/badge';
 import {
-  IntroductionForm,
   type IntroductionBusinessOption,
+  IntroductionForm,
 } from '@/features/introductions/components/introduction-form';
 
 export interface IntroductionFormLabels {

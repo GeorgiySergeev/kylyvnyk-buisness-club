@@ -1,13 +1,12 @@
 // src/app/sitemap.ts
-import type { MetadataRoute } from 'next';
-
 import { and, asc, isNull } from 'drizzle-orm';
 import { eq } from 'drizzle-orm';
+import type { MetadataRoute } from 'next';
 
+import { SUPPORTED_LOCALES } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import { businesses } from '@/db/schema';
 import { env } from '@/lib/env';
-import { SUPPORTED_LOCALES } from '@/components/layout/navigation';
 
 /**
  * Next.js 15 Metadata Route — generated /sitemap.xml

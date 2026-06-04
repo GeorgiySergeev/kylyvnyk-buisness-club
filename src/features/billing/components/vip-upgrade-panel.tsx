@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';

@@ -7,8 +7,8 @@ import { getAuthIdentity, isAuthDevPhoneBypassEnabled } from '@/features/auth/li
 import { createCardForUser } from '@/features/auth/lib/card';
 import { findExistingUserByIdentity, findExistingUserByPhone } from '@/features/auth/lib/current-user';
 import { DEV_PHONE_AUTH_COOKIE, encodeDevPhoneAuthCookie } from '@/features/auth/lib/dev-auth';
-import { getAuthIntentError, type AuthIntent } from '@/features/auth/lib/phone-auth-intent';
 import { phoneOtpRequestSchema, phoneOtpVerifySchema } from '@/features/auth/lib/phone';
+import { type AuthIntent,getAuthIntentError } from '@/features/auth/lib/phone-auth-intent';
 import { resolvePostAuthRedirect } from '@/features/auth/lib/resolve-post-auth-redirect';
 import { syncAuthUser } from '@/features/auth/lib/sync-auth-user';
 import { verifyTurnstileToken } from '@/lib/captcha/turnstile';

@@ -45,7 +45,7 @@ export default async function AdminStripeLinksPage({ params }: AdminStripeLinksP
       <AdminPageHeader description={t('stripeLinksDescription')} title={t('stripeLinksTitle')} />
       <AdminPanel description={t('stripeLinksPanelDescription')} title={t('stripeLinksPanelTitle')}>
         {migrationRequired ? (
-          <p className="text-sm text-amber-300">{MIGRATION_REQUIRED_MESSAGE}</p>
+          <p className="text-sm text-ds-warning">{MIGRATION_REQUIRED_MESSAGE}</p>
         ) : null}
         <StripeLinksCrud
           disabled={migrationRequired}

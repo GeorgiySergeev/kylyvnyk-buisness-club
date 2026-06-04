@@ -4,7 +4,7 @@ import { Building2, Settings2, SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
 
 import { AdminDetailPageHeader } from '@/features/admin/components/admin-detail-page-header';
-import { AdminDetailTabNav, type AdminDetailTabItem } from '@/features/admin/components/admin-detail-tab-nav';
+import { type AdminDetailTabItem,AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
 import {
   AdminDescriptionList,
   AdminPanel,

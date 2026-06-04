@@ -35,7 +35,7 @@ export function AdminDetailPageHeader({
         <p className={titleClassName ?? 'truncate text-sm font-medium text-ds-text'}>{title}</p>
         {subtitle ? <p className="truncate text-xs text-ds-text-muted">{subtitle}</p> : null}
         {meta ? (
-          <p className="mt-1 text-[10px] uppercase tracking-widest text-ds-text-faint">{meta}</p>
+          <p className="mt-1 text-[10px] uppercase tracking-widest text-ds-text-muted">{meta}</p>
         ) : null}
       </div>
 

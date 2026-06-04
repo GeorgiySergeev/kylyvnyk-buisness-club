@@ -10,8 +10,8 @@ import { localizeHref } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import type { UserRole } from '@/db/schema/enums/user-role';
 
-import { getAuthIdentity } from './auth-identity';
 import type { AuthIdentity } from './auth-identity';
+import { getAuthIdentity } from './auth-identity';
 
 export type AuthUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
 export type PublicUser = Pick<AuthUser, 'displayName' | 'id' | 'role' | 'status'>;

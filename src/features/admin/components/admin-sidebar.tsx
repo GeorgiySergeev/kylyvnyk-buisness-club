@@ -72,7 +72,7 @@ export function AdminSidebarInner({ locale, labels, visibleKeys }: AdminSidebarI
         </div>
       </div>
 
-      <div className="px-4 pb-2 text-ds-text-xs uppercase tracking-[0.08em] font-medium text-ds-text-faint">
+      <div className="px-4 pb-2 text-ds-text-xs uppercase tracking-[0.08em] font-medium text-ds-text-muted">
         {labels.navigation}
       </div>
       <nav className="flex flex-col gap-1 px-3">

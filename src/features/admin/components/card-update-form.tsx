@@ -1,7 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { type FormEvent,useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -89,11 +89,11 @@ export function CardUpdateForm({
         {pending ? <Loader2 className="size-4 animate-spin" /> : 'Update card'}
       </Button>
       {saved ? (
-        <p className="text-sm text-emerald-600 md:col-span-4" role="status">
+        <p className="text-sm text-ds-success md:col-span-4" role="status">
           Card updated successfully.
         </p>
       ) : null}
-      {error ? <p className="text-sm text-red-400 md:col-span-4">{error}</p> : null}
+      {error ? <p className="text-sm text-ds-error md:col-span-4">{error}</p> : null}
     </form>
   );
 }

@@ -8,7 +8,6 @@ import { useMemo, useState, useTransition } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import {
-  DashboardEmptyState,
   DashboardSettingsRow,
   DashboardTabPanel,
 } from '@/components/member/dashboard-ui';
@@ -20,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { EmptyState } from '@/components/ui/empty-state';
 import { BillingPortalButton } from '@/features/billing/components/billing-portal-button';
 import { CancelVipButton } from '@/features/billing/components/cancel-vip-button';
 import type { MemberBillingSnapshot } from '@/features/billing/lib/member-billing';
@@ -276,7 +276,7 @@ export function MemberSubscriptionTab({
         description={labels.subscriptionStatusDescription}
         title={labels.subscriptionStatusTitle}
       >
-        <DashboardEmptyState
+        <EmptyState
           description={labels.noSubscriptionData}
           title={labels.subscriptionStatusTitle}
         />
@@ -413,24 +413,14 @@ export function MemberSubscriptionTab({
           </div>
         ) : (
           <div className="space-y-4">
-            <DashboardEmptyState
+            <EmptyState
               description={labels.noPaymentMethods}
               title={labels.paymentMethodsTitle}
+              action={{
+                label: labels.addCard,
+                onClick: openAddCardDialog,
+              }}
             />
-            <Button
-              type="button"
-              variant="outline"
-              className="min-h-11 rounded-ds-radius-md border-ds-border bg-transparent text-ds-text hover:bg-ds-surface-hover"
-              disabled={setupPending || stripePromise === null}
-              onClick={openAddCardDialog}
-            >
-              {setupPending ? (
-                <Loader2 aria-hidden="true" className="mr-2 size-4 animate-spin" />
-              ) : (
-                <CreditCard aria-hidden="true" className="mr-2 size-4" />
-              )}
-              {labels.addCard}
-            </Button>
           </div>
         )}
       </DashboardTabPanel>
@@ -474,9 +464,10 @@ export function MemberSubscriptionTab({
             ))}
           </div>
         ) : (
-          <DashboardEmptyState
+          <EmptyState
             description={labels.noTransactions}
             title={labels.transactionsTitle}
+            icon={<ReceiptText className="size-6" />}
           />
         )}
       </DashboardTabPanel>

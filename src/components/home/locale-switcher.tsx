@@ -31,7 +31,7 @@ export function LocaleSwitcher() {
 
   return (
     <div
-      className="flex min-h-11 items-center gap-1 rounded-ds-radius-md px-ds-space-1 text-ds-text-sm font-medium text-ds-text-faint"
+      className="flex min-h-11 items-center gap-1 rounded-ds-radius-md px-ds-space-1 text-ds-text-sm font-medium text-ds-text-muted"
       aria-label="Language"
     >
       <Globe className="size-4 text-ds-text-faint" strokeWidth={1.5} />

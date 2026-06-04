@@ -447,27 +447,27 @@ function CardSection({ card, history }: { card: CardData | null; history: CardHi
       <AdminPanel description="Club membership card details" title="Current Club Card">
         <dl className="grid gap-4 sm:grid-cols-2">
           <div>
-            <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Card number</dt>
+            <dt className="text-xs uppercase tracking-widest text-ds-text-muted">Card number</dt>
             <dd className="mt-1 font-mono text-sm text-ds-text">{card.number}</dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Member type</dt>
+            <dt className="text-xs uppercase tracking-widest text-ds-text-muted">Member type</dt>
             <dd className="mt-1">
               <AdminStatusBadge>{card.memberType}</AdminStatusBadge>
             </dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Status</dt>
+            <dt className="text-xs uppercase tracking-widest text-ds-text-muted">Status</dt>
             <dd className="mt-1">
               <AdminStatusBadge>{card.status}</AdminStatusBadge>
             </dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Issued</dt>
+            <dt className="text-xs uppercase tracking-widest text-ds-text-muted">Issued</dt>
             <dd className="mt-1 text-sm text-ds-text">{card.createdAt}</dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-widest text-ds-text-faint">Expires</dt>
+            <dt className="text-xs uppercase tracking-widest text-ds-text-muted">Expires</dt>
             <dd className="mt-1 text-sm text-ds-text">{card.expiresAt ?? 'No expiry'}</dd>
           </div>
         </dl>
@@ -597,7 +597,7 @@ function IntroductionsSection({ introductions }: { introductions: IntroductionDa
                     <p className="mt-2 text-xs leading-relaxed text-ds-text-muted">{intro.message}</p>
                   ) : null}
                 </div>
-                <span className="shrink-0 text-xs text-ds-text-faint">{intro.createdAt}</span>
+                <span className="shrink-0 text-xs text-ds-text-muted">{intro.createdAt}</span>
               </div>
             </div>
           ))}

@@ -48,7 +48,7 @@ export default async function AdminCatalogPage({ params }: AdminCatalogPageProps
       <AdminPageHeader description={t('catalogDescription')} title={t('navCatalog')} />
       <AdminPanel description={t('catalogPanelDescription')} title={t('catalogPanelTitle')}>
         {migrationRequired ? (
-          <p className="text-sm text-amber-300">{MIGRATION_REQUIRED_MESSAGE}</p>
+          <p className="text-sm text-ds-warning">{MIGRATION_REQUIRED_MESSAGE}</p>
         ) : null}
         <CatalogCrud
           disabled={migrationRequired}

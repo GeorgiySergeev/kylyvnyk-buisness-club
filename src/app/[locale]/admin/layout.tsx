@@ -85,7 +85,10 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
 
   return (
     <div className={["admin flex h-dvh overflow-hidden bg-background text-foreground", geistSans.variable, geistMono.variable].join(' ')}>
-      <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
+      <aside
+        aria-label="Admin navigation"
+        className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-sidebar lg:flex"
+      >
         <AdminSidebarInner
           locale={supportedLocale}
           labels={{ ...shellLabels, navigation: t('navigation') }}

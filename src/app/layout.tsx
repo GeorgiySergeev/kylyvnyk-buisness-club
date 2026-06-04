@@ -1,14 +1,15 @@
-import type { ReactNode } from 'react';
+// BLOCK: Root layout — global HTML wrapper (fonts, metadata, skip link, body). This file defines the top-level <html> and <body> for the app. Do NOT place dev-only UI here.
+import './globals.css';
 
 import type { Metadata, Viewport } from 'next';
 import { JetBrains_Mono, Oxanium, Playfair_Display } from 'next/font/google';
+import type { ReactNode } from 'react';
 
+import { NetworkStatusToast } from '@/components/ui/network-status-toast';
 import { getT } from '@/lib/i18n/t-server';
 import { cn } from '@/lib/utils';
 
-import './globals.css';
-
-const oxanium = Oxanium({ subsets: ['latin'], variable: '--font-sans' });
+const oxanium = Oxanium({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 
 const playfairDisplay = Playfair_Display({
   variable: '--font-display',
@@ -36,6 +37,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   themeColor: '#0a0a0b',
   width: 'device-width',
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -58,11 +60,12 @@ export default function RootLayout({
       <body suppressHydrationWarning className="overflow-x-hidden min-h-dvh">
         <a
           href="#main-content"
-          className="sr-only fixed left-4 top-4 z-[100] rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground focus:not-sr-only focus:outline-2 focus:outline-offset-2 focus:outline-ring"
+          className="kc-skip-link"
         >
           {tA11y('skipToContent')}
         </a>
         {children}
+        <NetworkStatusToast />
       </body>
     </html>
   );

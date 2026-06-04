@@ -1,3 +1,4 @@
+// BLOCK: Locale-aware layout — builds AppShell, navigation and locale params for pages under /[locale]. Keep locale logic here; avoid embedding dev-only elements.
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 

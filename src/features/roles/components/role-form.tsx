@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { type FormEvent,useState } from 'react';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
@@ -72,7 +72,7 @@ export function RoleForm({ locale, role }: RoleFormProps) {
 
       {saved ? (
         <div
-          className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-600"
+          className="rounded-ds-radius-md border border-ds-success/30 bg-ds-success-subtle px-3 py-2 text-ds-text-sm text-ds-success"
           role="status"
         >
           Role updated successfully.

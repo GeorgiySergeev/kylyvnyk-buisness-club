@@ -1,9 +1,10 @@
 'use client';
 
-import Link from 'next/link';
+import { Building2 } from 'lucide-react';
 
-import { DashboardEmptyState, DashboardQuickLink } from '@/components/member/dashboard-ui';
+import { DashboardQuickLink } from '@/components/member/dashboard-ui';
 import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface BusinessStatusPanelProps {
   actionHref?: string;
@@ -29,15 +30,16 @@ export function BusinessStatusPanel({
   if (!status) {
     return (
       <div className="space-y-4">
-        <DashboardEmptyState description={description} title={title} />
-        {actionHref && actionLabel ? (
-          <Link
-            className="inline-flex min-h-11 items-center rounded-md border border-primary/40 bg-primary px-4 text-sm font-semibold text-primary-foreground"
-            href={actionHref}
-          >
-            {actionLabel}
-          </Link>
-        ) : null}
+        <EmptyState
+          icon={<Building2 className="size-6" />}
+          description={description}
+          title={title}
+          action={
+            actionHref && actionLabel
+              ? { href: actionHref, label: actionLabel }
+              : undefined
+          }
+        />
       </div>
     );
   }

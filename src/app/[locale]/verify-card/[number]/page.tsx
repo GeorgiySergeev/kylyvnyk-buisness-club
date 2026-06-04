@@ -45,7 +45,7 @@ function getClientIp(headersList: Headers): string {
 
 function getStatusClassName(status: PublicCardStatus): string {
   if (status === 'ACTIVE') {
-    return 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200';
+    return 'border-ds-success/40 bg-ds-success-subtle text-ds-success';
   }
 
   if (status === 'NOT_FOUND') {

@@ -74,7 +74,7 @@ export default async function AdminSubscriptionsPage({ params }: AdminSubscripti
         title={t('subscriptionsPanelTitle')}
       >
         {migrationRequired ? (
-          <p className="text-sm text-amber-300">{MIGRATION_REQUIRED_MESSAGE}</p>
+          <p className="text-sm text-ds-warning">{MIGRATION_REQUIRED_MESSAGE}</p>
         ) : null}
         {rows.length === 0 ? (
           <AdminEmptyState

@@ -52,9 +52,9 @@ export function BusinessFeatureToggle({
       className={cn(
         'h-8 min-w-16 rounded-md px-2 text-[11px] font-semibold uppercase tracking-[0.08em]',
         isPressed
-          ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/15'
+          ? 'border-ds-success/35 bg-ds-success-subtle text-ds-success hover:bg-ds-success-subtle'
           : 'border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10',
-        error && 'border-red-500/40 text-red-300',
+        error && 'border-ds-error/40 text-ds-error',
       )}
       disabled={pending}
       onClick={toggle}

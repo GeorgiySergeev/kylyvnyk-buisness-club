@@ -13,8 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { deleteRoleAction } from '@/features/roles/actions';
 import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
+import { deleteRoleAction } from '@/features/roles/actions';
 
 import { AdminRowActions, type RowAction } from './admin-row-actions';
 

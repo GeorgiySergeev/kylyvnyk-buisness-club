@@ -2,7 +2,7 @@
 
 import { Loader2, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useRef, useState, useTransition, type ChangeEvent, type DragEvent } from 'react';
+import { type ChangeEvent, type DragEvent,useRef, useState, useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 
 import { importBusinessesAction, type ImportBusinessesResult } from '../actions/business-admin.action';
-import { parseCsv, type CsvParseResult } from '../lib/csv-parse';
+import { type CsvParseResult,parseCsv } from '../lib/csv-parse';
 
 type Step = 'idle' | 'preview' | 'importing' | 'results';
 
@@ -272,7 +272,7 @@ export function BusinessesImportDialog({ labels }: BusinessesImportDialogProps) 
               className={`rounded-md border px-4 py-3 text-sm ${
                 importResult.errors.length === 0
                   ? 'border-green-500/30 bg-green-50 text-green-800'
-                  : 'border-amber-500/30 bg-amber-50 text-amber-800'
+                  : 'border-ds-warning/30 bg-ds-warning-subtle text-ds-warning'
               }`}
               role="status"
             >
