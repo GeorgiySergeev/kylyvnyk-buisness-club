@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, statSync } from 'node:fs';
+import { readFileSync, statSync, readdirSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { argv, cwd, env, exit } from 'node:process';
 import { execFileSync } from 'node:child_process';
@@ -52,14 +52,52 @@ function toPosix(path) {
   return path.split(sep).join('/');
 }
 
+function getFilesRecursive(dir) {
+  const results = [];
+  let list;
+  try {
+    list = readdirSync(dir);
+  } catch (err) {
+    return results;
+  }
+  for (const file of list) {
+    const filePath = join(dir, file);
+    let stat;
+    try {
+      stat = statSync(filePath);
+    } catch (err) {
+      continue;
+    }
+    if (stat && stat.isDirectory()) {
+      results.push(...getFilesRecursive(filePath));
+    } else {
+      results.push(filePath);
+    }
+  }
+  return results;
+}
+
 function listFiles() {
-  const args = ['--files', ...SCAN_ROOTS];
-  return execFileSync('rg', args, { cwd: ROOT, encoding: 'utf8' })
-    .split(/\r?\n/)
-    .filter(Boolean)
-    .map(toPosix)
-    .filter((path) => !DOC_ALLOWLIST.has(path))
-    .filter((path) => /\.(ts|tsx|js|jsx|json|md|mdx|css|html)$/.test(path));
+  try {
+    const args = ['--files', ...SCAN_ROOTS];
+    return execFileSync('rg', args, { cwd: ROOT, encoding: 'utf8' })
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map(toPosix)
+      .filter((path) => !DOC_ALLOWLIST.has(path))
+      .filter((path) => /\.(ts|tsx|js|jsx|json|md|mdx|css|html)$/.test(path));
+  } catch (e) {
+    const allFiles = [];
+    for (const root of SCAN_ROOTS) {
+      const fullRoot = join(ROOT, root);
+      allFiles.push(...getFilesRecursive(fullRoot));
+    }
+    return allFiles
+      .map((p) => relative(ROOT, p))
+      .map(toPosix)
+      .filter((path) => !DOC_ALLOWLIST.has(path))
+      .filter((path) => /\.(ts|tsx|js|jsx|json|md|mdx|css|html)$/.test(path));
+  }
 }
 
 function formatHit(path, lineNumber, line) {

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { DevRouteMenu } from '@/components/dev/dev-route-menu';
 import { HomeHeader } from '@/components/home/home-header';
 import type { AuthAction, NavItem, SupportedLocale } from '@/components/layout/navigation';
+import { PageTransition } from '@/components/layout/page-transition';
 
 import { PublicChromeGate } from './public-chrome-gate';
 import { SiteFooter } from './site-footer';
@@ -59,7 +60,9 @@ export async function AppShell({
         />
       </PublicChromeGate>
       <main id="main-content" className="flex flex-1 flex-col">
-        {children}
+        <PageTransition>
+          {children}
+        </PageTransition>
       </main>
       <PublicChromeGate locale={locale}>
         <DevRouteMenu locale={locale} />

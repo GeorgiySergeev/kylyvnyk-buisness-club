@@ -1,7 +1,7 @@
 import 'server-only';
 
-import { cn } from '@/lib/utils';
 import { resolveCountryFlagSvg } from '@/lib/flags/resolve-country-flag-svg';
+import { cn } from '@/lib/utils';
 
 export interface CountryFlagProps {
   className?: string;

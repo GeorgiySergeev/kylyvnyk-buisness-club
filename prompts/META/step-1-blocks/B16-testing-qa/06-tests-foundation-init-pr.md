@@ -1,5 +1,13 @@
 # 06-tests-foundation-init-pr.md
 
+> **Status:** Revision required before execution.
+> **Strategy source:** `docs/TESTING.md`.
+> Implement only Phase 1 of that strategy first. Do not replace the existing
+> `tsx --test` suite, enforce repository-wide 80% coverage, permanently bypass
+> unhandled MSW requests, or treat a dev-bypass cookie as role-aware E2E auth.
+> This prompt remains as historical implementation detail until it is rewritten
+> into the phased migration defined by `docs/TESTING.md`.
+
 ## Title
 
 Testing foundation — Vitest + MSW + Playwright (single init PR)

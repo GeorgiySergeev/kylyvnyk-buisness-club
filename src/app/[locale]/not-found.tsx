@@ -1,4 +1,4 @@
-import { headers } from 'next/headers';
+import { FileX2 } from 'lucide-react';
 import Link from 'next/link';
 
 import {
@@ -9,34 +9,60 @@ import {
 import { Button } from '@/components/ui/button';
 import { getT } from '@/lib/i18n/t-server';
 
-function resolveLocale(value: string | null): SupportedLocale {
-  if (value === 'ru' || value === 'uk' || value === 'en') {
-    return value;
-  }
-
-  return DEFAULT_LOCALE;
+interface LocaleNotFoundProps {
+  params?: Promise<{
+    locale?: string;
+  }>;
 }
 
-export default async function LocaleNotFound() {
-  const requestHeaders = await headers();
-  const locale = resolveLocale(requestHeaders.get('x-locale'));
+export default async function LocaleNotFound({ params }: LocaleNotFoundProps) {
+  let locale: SupportedLocale = DEFAULT_LOCALE;
+
+  if (params) {
+    try {
+      const resolvedParams = await params;
+      if (resolvedParams?.locale === 'ru' || resolvedParams?.locale === 'uk' || resolvedParams?.locale === 'en') {
+        locale = resolvedParams.locale;
+      }
+    } catch {
+      // Fallback to DEFAULT_LOCALE
+    }
+  }
+
   const t = getT('error', locale);
 
   return (
     <main
       id="main-content"
-      className="mx-auto flex min-h-[50vh] max-w-lg flex-col items-center justify-center gap-6 px-4 py-16 text-center"
+      className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center gap-8 px-4 py-16 text-center"
     >
-      <div className="space-y-3">
-        <h1 className="font-sans text-2xl font-bold tracking-tight text-white sm:text-3xl">
-          {t('notFoundTitle')}
-        </h1>
-        <p className="text-sm leading-relaxed text-fg/60 sm:text-base">{t('notFoundDescription')}</p>
+      {/* Icon */}
+      <div className="flex size-16 items-center justify-center rounded-full border border-ds-border bg-ds-surface-hover">
+        <FileX2 aria-hidden="true" className="size-7 text-ds-text-muted" strokeWidth={1.5} />
       </div>
 
-      <Button asChild variant="outline">
-        <Link href={localizeHref(locale, '/')}>{t('notFoundBackHome')}</Link>
-      </Button>
+      <div className="space-y-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ds-text-faint">
+          404
+        </p>
+        <h1 className="font-sans text-2xl font-bold tracking-tight text-ds-text sm:text-3xl">
+          {t('notFoundTitle')}
+        </h1>
+        <p className="text-ds-text-sm leading-relaxed text-ds-text-muted sm:text-ds-text-base">
+          {t('notFoundDescription')}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <Button asChild>
+          <Link href={localizeHref(locale, '/')}>{t('notFoundBackHome')}</Link>
+        </Button>
+        <Button asChild variant="outline">
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="javascript:history.back()">{t('goBack')}</a>
+        </Button>
+      </div>
     </main>
   );
 }
+

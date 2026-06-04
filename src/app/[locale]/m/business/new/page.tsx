@@ -8,8 +8,8 @@ import { db } from '@/db/client';
 import { categories, cities, countries } from '@/db/schema';
 import { AuthPageHeader } from '@/features/auth/components/auth-page-header';
 import { guardOnboarded } from '@/features/auth/lib/role-guards';
-import { SubmitBusinessForm } from '@/features/business/components/submit-business-form';
 import { userHasActiveVipMembership } from '@/features/billing/lib/membership-lifecycle';
+import { SubmitBusinessForm } from '@/features/business/components/submit-business-form';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';

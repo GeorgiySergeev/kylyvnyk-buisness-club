@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ export interface ErrorFallbackProps {
   backHomeHref: string;
   backHomeLabel: string;
   description: string;
+  errorCode?: string;
   onRetry?: () => void;
   retryLabel?: string;
   title: string;
@@ -17,6 +19,7 @@ export function ErrorFallback({
   backHomeHref,
   backHomeLabel,
   description,
+  errorCode,
   onRetry,
   retryLabel,
   title,
@@ -24,11 +27,25 @@ export function ErrorFallback({
   return (
     <main
       id="main-content"
-      className="mx-auto flex min-h-[50vh] max-w-lg flex-col items-center justify-center gap-6 px-4 py-16 text-center"
+      className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center gap-8 px-4 py-16 text-center"
     >
+      {/* Icon */}
+      <div className="flex size-16 items-center justify-center rounded-full border border-ds-error/30 bg-ds-error/10">
+        <AlertTriangle aria-hidden="true" className="size-7 text-ds-error" strokeWidth={1.5} />
+      </div>
+
       <div className="space-y-3">
-        <h1 className="font-sans text-2xl font-bold tracking-tight text-white sm:text-3xl">{title}</h1>
-        <p className="text-sm leading-relaxed text-fg/60 sm:text-base">{description}</p>
+        {errorCode && (
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ds-text-faint">
+            Error {errorCode}
+          </p>
+        )}
+        <h1 className="font-sans text-2xl font-bold tracking-tight text-ds-text sm:text-3xl">
+          {title}
+        </h1>
+        <p className="text-ds-text-sm leading-relaxed text-ds-text-muted sm:text-ds-text-base">
+          {description}
+        </p>
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-3">
@@ -44,3 +61,4 @@ export function ErrorFallback({
     </main>
   );
 }
+

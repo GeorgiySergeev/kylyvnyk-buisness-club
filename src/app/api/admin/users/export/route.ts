@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 
-import { decideAdminApiResult } from '@/features/auth/lib/admin-access';
-import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
-import { hasVerifiedMfaInSession } from '@/features/auth/lib/mfa';
 import {
   fetchAdminUsers,
   filterAdminUsers,
   usersToCsv,
 } from '@/features/admin/lib/users-list';
+import { decideAdminApiResult } from '@/features/auth/lib/admin-access';
+import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
+import { hasVerifiedMfaInSession } from '@/features/auth/lib/mfa';
 import { createAuditLog } from '@/lib/audit';
 
 export async function GET(request: Request) {

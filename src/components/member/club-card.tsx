@@ -1,6 +1,15 @@
 'use client';
 
-import { QRCodeSVG } from 'qrcode.react';
+// BLOCK: Club card (membership card) — renders the digital membership card and QR code. Contains client-only dynamic import for QR generation.
+import dynamic from 'next/dynamic';
+
+const QRCodeSVG = dynamic(
+  () => import('qrcode.react').then((mod) => mod.QRCodeSVG),
+  {
+    loading: () => <div className="size-16 animate-pulse rounded bg-ds-surface-hover" />,
+    ssr: false,
+  },
+);
 
 import { Badge } from '@/components/ui/badge';
 
@@ -24,10 +33,10 @@ export function ClubCard({ cardNumber, discountLabel, memberName, memberType, st
           <span className="font-sans text-ds-text-sm font-semibold uppercase tracking-[0.18em] text-ds-text">
             KYLYVNYK
           </span>
-          <Badge className="uppercase tracking-[0.14em] text-ds-text-faint" variant="outline">
+          <Badge className="uppercase tracking-[0.14em] text-ds-text-muted" variant="outline">
             {memberType}
           </Badge>
-          <Badge className="uppercase tracking-[0.14em] text-ds-text-faint" variant="outline">
+          <Badge className="uppercase tracking-[0.14em] text-ds-text-muted" variant="outline">
             {status}
           </Badge>
         </div>
@@ -44,7 +53,7 @@ export function ClubCard({ cardNumber, discountLabel, memberName, memberType, st
 
         <div className="flex items-end justify-between gap-4">
           <div className="space-y-0.5">
-            <p className="text-ds-text-xs uppercase tracking-[0.14em] text-ds-text-faint">Member since</p>
+            <p className="text-ds-text-xs uppercase tracking-[0.14em] text-ds-text-muted">Member since</p>
             <p className="text-ds-text-xs text-ds-text-muted">{new Date().getFullYear()}</p>
           </div>
           <div className="rounded-ds-radius-md border border-ds-border bg-white p-1.5">

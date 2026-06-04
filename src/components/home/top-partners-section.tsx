@@ -1,9 +1,10 @@
 // src/components/home/top-partners-section.tsx
+// BLOCK: Top partners section — home page block that renders partner cards and slider.
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 import { TopPartnersSlider } from '@/components/home/top-partners-slider';
-import { type SupportedLocale, localizeHref } from '@/components/layout/navigation';
+import { localizeHref,type SupportedLocale } from '@/components/layout/navigation';
 import type { PremiumPartnerCardViewModel } from '@/components/partners/premium-partner-card';
 import { resolveCountryFlagSvg } from '@/lib/flags/resolve-country-flag-svg';
 

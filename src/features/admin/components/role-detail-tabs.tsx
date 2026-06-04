@@ -15,8 +15,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import type { roles as rolesTable } from '@/db/schema';
+import type { Resource } from '@/db/schema/permission';
 import { AdminDetailPageHeader } from '@/features/admin/components/admin-detail-page-header';
-import { AdminDetailTabNav, type AdminDetailTabItem } from '@/features/admin/components/admin-detail-tab-nav';
+import { type AdminDetailTabItem,AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
 import {
   AdminTableActionsCell,
   AdminTableActionsHead,
@@ -29,11 +31,9 @@ import {
   AdminPanel,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
+import { getInitials } from '@/features/profile/components/dashboard-profile-shared';
 import { RoleForm } from '@/features/roles/components/role-form';
 import { RolePermissionEditor } from '@/features/roles/components/role-permission-editor';
-import type { roles as rolesTable } from '@/db/schema';
-import type { Resource } from '@/db/schema/permission';
-import { getInitials } from '@/features/profile/components/dashboard-profile-shared';
 
 type Role = typeof rolesTable.$inferSelect;
 

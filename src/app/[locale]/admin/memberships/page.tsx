@@ -49,7 +49,7 @@ export default async function AdminMembershipsPage({ params }: AdminMembershipsP
       <AdminPageHeader description={t('membershipsDescription')} title={t('navMemberships')} />
       <AdminPanel description={t('membershipsPanelDescription')} title={t('membershipsPanelTitle')}>
         {migrationRequired ? (
-          <p className="text-sm text-amber-300">{MIGRATION_REQUIRED_MESSAGE}</p>
+          <p className="text-sm text-ds-warning">{MIGRATION_REQUIRED_MESSAGE}</p>
         ) : null}
         <MembershipsCrud
           disabled={migrationRequired}

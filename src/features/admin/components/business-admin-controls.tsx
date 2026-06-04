@@ -97,11 +97,11 @@ export function BusinessAdminControls({
         </p>
       ) : null}
       {saved ? (
-        <p className="text-sm text-emerald-600" role="status">
+        <p className="text-sm text-ds-success" role="status">
           Updated successfully.
         </p>
       ) : null}
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
+      {error ? <p className="text-sm text-ds-error">{error}</p> : null}
     </div>
   );
 }

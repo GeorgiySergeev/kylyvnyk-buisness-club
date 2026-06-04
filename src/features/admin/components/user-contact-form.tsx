@@ -106,7 +106,7 @@ export function UserContactForm({
       ) : null}
 
       {saved ? (
-        <p className="text-sm text-emerald-600" role="status">
+        <p className="text-sm text-ds-success" role="status">
           Saved successfully.
         </p>
       ) : null}

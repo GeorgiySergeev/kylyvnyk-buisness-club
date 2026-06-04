@@ -5,5 +5,10 @@
   "backHome": "На головну",
   "notFoundTitle": "Сторінку не знайдено",
   "notFoundDescription": "Сторінка, яку ви шукаєте, не існує або була переміщена.",
-  "notFoundBackHome": "На головну"
+  "notFoundBackHome": "На головну",
+  "goBack": "Назад",
+  "offlineTitle": "Ви поза мережею",
+  "offlineDescription": "Перевірте підключення. Деякі функції можуть бути недоступні.",
+  "onlineTitle": "З'єднання відновлено",
+  "onlineDescription": "Ви знову в мережі."
 }

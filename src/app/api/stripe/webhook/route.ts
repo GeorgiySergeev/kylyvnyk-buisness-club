@@ -1,6 +1,7 @@
+import 'server-only';
+
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import 'server-only';
 import type Stripe from 'stripe';
 
 import { db } from '@/db/client';

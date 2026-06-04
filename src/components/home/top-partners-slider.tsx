@@ -71,8 +71,11 @@ export function TopPartnersSlider({
   const scrollToIndex = useCallback(
     (index: number) => {
       const boundedIndex = ((index % slideCount) + slideCount) % slideCount;
+      const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       slideRefs.current[boundedIndex]?.scrollIntoView({
-        behavior: 'smooth',
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
         block: 'nearest',
         inline: 'start',
       });

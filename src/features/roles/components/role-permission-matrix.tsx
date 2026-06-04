@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 
-import type { Resource } from '@/db/schema/permission';
-import { RESOURCES } from '@/db/schema/permission';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import {
@@ -14,6 +12,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import type { Resource } from '@/db/schema/permission';
+import { RESOURCES } from '@/db/schema/permission';
 
 interface PermissionRow {
   resource: Resource;

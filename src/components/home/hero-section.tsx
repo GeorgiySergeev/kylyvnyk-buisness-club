@@ -1,4 +1,5 @@
 // src/components/home/hero-section.tsx
+// BLOCK: Hero section — site top hero with CTAs and tier info. Visible on home page.
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 

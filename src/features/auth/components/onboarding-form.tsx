@@ -126,6 +126,7 @@ export function OnboardingForm({
           </label>
           <Input
             id="displayName"
+            autoComplete="name"
             aria-describedby={errors.displayName ? 'displayName-error' : undefined}
             aria-invalid={Boolean(errors.displayName)}
             disabled={pending}

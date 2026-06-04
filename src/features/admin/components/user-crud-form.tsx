@@ -105,7 +105,7 @@ export function UserCrudForm({ current }: UserCrudFormProps) {
         </Button>
       </div>
 
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
+      {error ? <p className="text-sm text-ds-error">{error}</p> : null}
     </div>
   );
 }

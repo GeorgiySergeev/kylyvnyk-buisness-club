@@ -1,3 +1,4 @@
+// BLOCK: Placeholder page component — used for feature placeholders and scaffolding. Replace with real content before shipping.
 import Link from 'next/link';
 
 import type { SupportedLocale } from '@/components/layout/navigation';

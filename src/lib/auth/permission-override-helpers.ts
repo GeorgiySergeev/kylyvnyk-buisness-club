@@ -1,5 +1,5 @@
-import { RESOURCES } from '@/db/schema/permission';
 import type { Resource } from '@/db/schema/permission';
+import { RESOURCES } from '@/db/schema/permission';
 
 export interface MergedPermission {
   resource: Resource;

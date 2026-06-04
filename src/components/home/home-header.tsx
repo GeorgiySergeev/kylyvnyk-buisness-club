@@ -69,17 +69,17 @@ export function HomeHeader({
   return (
     <header className="sticky top-0 z-40 border-b border-ds-border bg-ds-bg/90 backdrop-blur-md">
       <div className="kc-container">
-        <div className="grid min-h-14 grid-cols-[1fr_auto_1fr] items-center py-2">
+        <div className="grid min-h-14 grid-cols-[1fr_auto_1fr]  py-2">
           <Link
             className="group flex min-h-11 items-center gap-3 rounded-ds-radius-md px-1 focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
             href={homeHref}
           >
             <div className="flex flex-col leading-none">
-              <span className="font-sans text-ds-text-sm font-semibold tracking-[0.18em] text-ds-text">
-                KYLYVNYK
+              <span className="font-sans text-ds-text-sm font-semibold tracking-[0.18em] text-ds-text text-[#d4a97d]">
+                KYLYVNYK CLUB
               </span>
-              <span className="mt-1 text-ds-text-xs uppercase tracking-[0.2em] text-ds-text-faint">
-                Business Club
+              <span className="mt-1 text-ds-text-xs uppercase tracking-[0.2em] text-[rgb(212,169,125)]">
+                Discovering new
               </span>
             </div>
           </Link>
@@ -165,9 +165,14 @@ export function HomeHeader({
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <div className="px-2 py-2">
-                      <p className="px-2 pb-1 text-ds-text-xs text-ds-text-faint">{profileMenu.linksTitle}</p>
+                      <p className="px-2 pb-1 text-ds-text-xs text-ds-text-faint">
+                        {profileMenu.linksTitle}
+                      </p>
                       {isHome ? null : (
-                        <DropdownMenuItem className={cn(navLinkClass, 'w-full cursor-pointer')} onSelect={() => router.push(homeHref)}>
+                        <DropdownMenuItem
+                          className={cn(navLinkClass, 'w-full cursor-pointer')}
+                          onSelect={() => router.push(homeHref)}
+                        >
                           Home
                         </DropdownMenuItem>
                       )}
@@ -189,8 +194,12 @@ export function HomeHeader({
                     </div>
                     <DropdownMenuSeparator />
                     <div className="px-4 py-3">
-                      <p className="text-ds-text-xs text-ds-text-faint">{profileMenu.subscriptionTitle}</p>
-                      <p className="mt-1 text-ds-text-sm text-ds-text">{profileMenu.subscriptionStatus}</p>
+                      <p className="text-ds-text-xs text-ds-text-faint">
+                        {profileMenu.subscriptionTitle}
+                      </p>
+                      <p className="mt-1 text-ds-text-sm text-ds-text">
+                        {profileMenu.subscriptionStatus}
+                      </p>
                     </div>
                     <DropdownMenuSeparator />
                     <div className="px-2 py-2">
@@ -254,8 +263,12 @@ export function HomeHeader({
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <div className="px-4 py-3">
-                      <p className="text-ds-text-xs text-ds-text-faint">{profileMenu.subscriptionTitle}</p>
-                      <p className="mt-1 text-ds-text-sm text-ds-text">{profileMenu.subscriptionStatus}</p>
+                      <p className="text-ds-text-xs text-ds-text-faint">
+                        {profileMenu.subscriptionTitle}
+                      </p>
+                      <p className="mt-1 text-ds-text-sm text-ds-text">
+                        {profileMenu.subscriptionStatus}
+                      </p>
                     </div>
                     <DropdownMenuSeparator />
                     <div className="px-2 py-2">
@@ -320,7 +333,10 @@ export function HomeHeader({
                   <div className="my-3 border-t border-ds-border" />
                   {isAuthenticated ? null : (
                     <DropdownMenuItem
-                      className={cn(navLinkClass, 'w-full cursor-pointer text-ds-text-muted hover:text-ds-text')}
+                      className={cn(
+                        navLinkClass,
+                        'w-full cursor-pointer text-ds-text-muted hover:text-ds-text',
+                      )}
                       onSelect={() => router.push(guestAuth.signIn.href)}
                     >
                       {guestAuth.signIn.label}

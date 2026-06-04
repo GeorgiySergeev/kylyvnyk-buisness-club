@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { asc, and, eq, isNull } from 'drizzle-orm';
+import { and, asc, eq, isNull } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 
 import { db } from '@/db/client';

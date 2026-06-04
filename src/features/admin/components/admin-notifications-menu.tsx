@@ -62,7 +62,7 @@ export function AdminNotificationsMenu({
         >
           <Bell className="size-4" />
           {state.showIndicator ? (
-            <span className="absolute right-2 top-2 size-1.5 rounded-full bg-red-500" />
+            <span className="absolute right-2 top-2 size-1.5 rounded-full bg-ds-error" />
           ) : null}
           <span className="sr-only">{labels.notifications}</span>
         </Button>

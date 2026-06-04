@@ -1,7 +1,9 @@
+// BLOCK: Premium partner card — partner listing card used in partner sections. Review content for PII before making public.
 import { ArrowRight, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
+import { ResponsiveImage } from '@/components/ui/responsive-image';
 import { cn } from '@/lib/utils';
 export interface PremiumPartnerCardViewModel {
   category: string;
@@ -36,12 +38,12 @@ export function PremiumPartnerCard({ labels, partner }: PremiumPartnerCardProps)
   return (
     <article className="group relative flex h-full flex-col overflow-hidden bg-transparent text-ds-text">
       <div className="relative h-44 shrink-0 overflow-hidden border border-ds-border bg-black">
-        {/* Partner images may come from arbitrary approved records, so keep this as a plain img. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <ResponsiveImage
           alt=""
-          className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-          referrerPolicy="no-referrer"
+          className="group-hover:scale-105"
+          containerClassName="absolute inset-0 size-full"
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
           src={imageSrc}
         />
 
@@ -50,7 +52,7 @@ export function PremiumPartnerCard({ labels, partner }: PremiumPartnerCardProps)
         <div className="absolute left-3 top-3 flex flex-wrap gap-2">
           {partner.isTopPartner ? (
             <Badge
-              className="border-ds-border bg-black/70 uppercase tracking-[0.14em] text-ds-text-faint backdrop-blur-sm"
+              className="border-ds-border bg-black/70 uppercase tracking-[0.14em] text-ds-text-muted backdrop-blur-sm"
               variant="outline"
             >
               {labels.verifiedLabel}
@@ -58,7 +60,7 @@ export function PremiumPartnerCard({ labels, partner }: PremiumPartnerCardProps)
           ) : null}
           {partner.isRecommended ? (
             <Badge
-              className="border-ds-border bg-black/70 uppercase tracking-[0.14em] text-ds-text-faint backdrop-blur-sm"
+              className="border-ds-border bg-black/70 uppercase tracking-[0.14em] text-ds-text-muted backdrop-blur-sm"
               variant="outline"
             >
               {labels.verifiedLabel}
@@ -93,7 +95,7 @@ export function PremiumPartnerCard({ labels, partner }: PremiumPartnerCardProps)
 
       <div className="flex min-h-0 flex-1 flex-col justify-start pt-5">
         <div className="min-h-0">
-          <div className="flex items-center gap-2 text-ds-text-xs uppercase tracking-[0.14em] text-ds-text-faint">
+          <div className="flex items-center gap-2 text-ds-text-xs uppercase tracking-[0.14em] text-ds-text-muted">
             <MapPin aria-hidden="true" className="size-3.5 text-ds-text-faint" strokeWidth={1.5} />
             <span className="truncate">{partner.location}</span>
           </div>

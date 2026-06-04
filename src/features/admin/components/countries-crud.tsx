@@ -101,7 +101,7 @@ export function CountriesCrud({ rows, labels }: CountriesCrudProps) {
         </Button>
       </form>
 
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
+      {error ? <p className="text-sm text-ds-error">{error}</p> : null}
 
       {rows.map((row) => (
         <form

@@ -8,48 +8,6 @@
 @source not '../../adapt.html';
 @source not '../../adapt-2.html';
 
-@plugin "daisyui" {
-  themes: false;
-  logs: false;
-}
-
-@plugin "daisyui/theme" {
-  name: 'kclub';
-  default: true;
-  prefersdark: true;
-  color-scheme: dark;
-
-  --color-base-100: #0a0a0a;
-  --color-base-200: #111111;
-  --color-base-300: #1a1a1a;
-  --color-base-content: #ededed;
-  --color-primary: #d4af37;
-  --color-primary-content: #0a0a0a;
-  --color-secondary: #1a1a1a;
-  --color-secondary-content: #ededed;
-  --color-accent: #3b82f6;
-  --color-accent-content: #ffffff;
-  --color-neutral: #111111;
-  --color-neutral-content: #ededed;
-  --color-info: #3b82f6;
-  --color-info-content: #ffffff;
-  --color-success: #22c55e;
-  --color-success-content: #0a0a0a;
-  --color-warning: #f59e0b;
-  --color-warning-content: #0a0a0a;
-  --color-error: #ef4444;
-  --color-error-content: #ededed;
-
-  --radius-selector: 0.25rem;
-  --radius-field: 0.25rem;
-  --radius-box: 0.375rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1px;
-  --depth: 0;
-  --noise: 0;
-}
-
 /* =====================================================================
    DESIGN TOKEN SYSTEM (Phase 1 — REDESIGN.md)
    Single source of truth for all visual tokens.
@@ -72,7 +30,7 @@
   --ds-text-inverse: #0a0a0a;
 
   /* === ACCENT (Vercel-style blue — primary CTA, links, active states) === */
-  --ds-accent: #3b82f6;
+  --ds-accent: oklch(78.9% 0.154 211.53);
   --ds-accent-hover: #60a5fa;
   --ds-accent-subtle: rgba(59, 130, 246, 0.1);
 
@@ -92,11 +50,16 @@
   --ds-info-subtle: rgba(59, 130, 246, 0.1);
 
   /* === TYPE SCALE (compact — max --text-xl for dashboards) === */
+  --ds-display-1: clamp(3rem, 5vw + 1rem, 5rem);
+  --ds-display-2: clamp(2.5rem, 4vw + 1rem, 4rem);
+  --ds-display-3: clamp(2rem, 3vw + 1rem, 3rem);
+
   --ds-text-xs: 0.75rem;
   --ds-text-sm: 0.875rem;
   --ds-text-base: 1rem;
   --ds-text-lg: 1.125rem;
   --ds-text-xl: 1.25rem;
+  --ds-text-2xl: 1.5rem;
 
   /* === SPACING (4px base unit) === */
   --ds-space-1: 0.25rem;
@@ -121,11 +84,14 @@
   --ds-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
   --ds-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
   --ds-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --ds-shadow-focus: 0 0 0 2px var(--ds-bg), 0 0 0 4px var(--ds-accent);
 
   /* === TRANSITIONS === */
   --ds-transition-fast: 100ms cubic-bezier(0.16, 1, 0.3, 1);
   --ds-transition-base: 150ms cubic-bezier(0.16, 1, 0.3, 1);
   --ds-transition-slow: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --ds-transition-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ds-transition-entrance: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* === LAYOUT === */
   --kc-header-h: 3.5rem;
@@ -162,14 +128,6 @@
   --success: var(--ds-success);
   --accent-hover: var(--ds-brand-hover);
 
-  /* Legacy fintech tokens — bridged for backward compat */
-  --fintech-gold: var(--ds-brand);
-  --fintech-soft-gold: #c9a84c;
-  --fintech-bg: var(--ds-surface-2);
-  --fintech-black: var(--ds-bg);
-  --fintech-charcoal: var(--ds-border-strong);
-  --fintech-glow: rgba(212, 175, 55, 0.2);
-
   /* Charts */
   --chart-1: var(--ds-text-muted);
   --chart-2: var(--ds-text-faint);
@@ -197,6 +155,7 @@
 @theme inline {
   /* Breakpoints */
   --breakpoint-xs: 30rem;
+  --breakpoint-2xl: 90rem;
 
   /* --- shadcn bridge tokens (backward compat) --- */
   --color-background: var(--background);
@@ -262,11 +221,6 @@
   --color-danger: var(--destructive);
   --color-success: var(--success);
   --color-accent-hover: var(--accent-hover);
-  --color-fintech-gold: var(--fintech-gold);
-  --color-fintech-soft-gold: var(--fintech-soft-gold);
-  --color-fintech-bg: var(--fintech-bg);
-  --color-fintech-black: var(--fintech-black);
-  --color-fintech-charcoal: var(--fintech-charcoal);
 
   /* --- Fonts --- */
   --font-sans: var(--font-sans);
@@ -316,6 +270,25 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
+  /* --- Mapped Display/Text Sizes --- */
+  --text-ds-text-xs: var(--ds-text-xs);
+  --text-ds-text-sm: var(--ds-text-sm);
+  --text-ds-text-base: var(--ds-text-base);
+  --text-ds-text-lg: var(--ds-text-lg);
+  --text-ds-text-xl: var(--ds-text-xl);
+  --text-ds-text-2xl: var(--ds-text-2xl);
+  --text-ds-display-1: var(--ds-display-1);
+  --text-ds-display-1--line-height: 1.1;
+  --text-ds-display-2: var(--ds-display-2);
+  --text-ds-display-2--line-height: 1.1;
+  --text-ds-display-3: var(--ds-display-3);
+  --text-ds-display-3--line-height: 1.1;
+
+  /* --- Mapped Shadows and Transitions --- */
+  --shadow-ds-shadow-focus: var(--ds-shadow-focus);
+  --ease-ds-spring: var(--ds-transition-spring);
+  --ease-ds-entrance: var(--ds-transition-entrance);
 }
 
 /* =====================================================================
@@ -354,6 +327,7 @@ body {
 
 html {
   color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -372,7 +346,7 @@ body {
 }
 
 a {
-  color: inherit;
+  color: #d4a97d;
   text-decoration: none;
 }
 
@@ -487,6 +461,37 @@ a {
   }
 }
 
+@keyframes skipLinkEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastEntrance {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 24px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 @keyframes goldPulse {
   0%,
   100% {
@@ -494,6 +499,23 @@ a {
   }
   50% {
     box-shadow: 0 0 28px rgba(212, 175, 55, 0.38);
+  }
+}
+
+/* =====================================================================
+   PREFERS-REDUCED-MOTION
+   Disable all animations & transitions for users who prefer reduced motion.
+   Individual components may override where instant state-change is needed.
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -533,10 +555,10 @@ a {
   --ds-radius-xl: 0.5rem;
 
   /* Geist shadows */
-  --ds-shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.02);
-  --ds-shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.03);
-  --ds-shadow-lg: 0 8px 24px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.04);
-  --ds-shadow-inset: inset 0 1px 0 rgba(255,255,255,0.03);
+  --ds-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.02);
+  --ds-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  --ds-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --ds-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 
   /* Geist transitions */
   --ds-transition-fast: 100ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -646,4 +668,33 @@ a {
   html {
     @apply font-sans;
   }
+
+  /* Skip-to-content link — visible with animated entrance on focus */
+  .kc-skip-link {
+    @apply sr-only fixed left-4 top-4 z-[100];
+    @apply rounded-md bg-ds-accent px-4 py-2;
+    @apply text-ds-text-sm font-semibold text-white;
+    @apply transition-all duration-200;
+  }
+  .kc-skip-link:focus {
+    @apply not-sr-only;
+    animation: skipLinkEntrance 200ms var(--ds-transition-entrance) both;
+  }
+}
+
+/* =====================================================================
+   UTILITIES
+   ===================================================================== */
+
+@utility kc-safe-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+@utility kc-safe-inline {
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+@utility kc-contain-layout {
+  contain: layout style paint;
 }

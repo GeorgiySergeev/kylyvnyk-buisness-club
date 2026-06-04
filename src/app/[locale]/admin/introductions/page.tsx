@@ -14,6 +14,10 @@ import {
 import { db } from '@/db/client';
 import { introductions } from '@/db/schema';
 import {
+  AdminTableActionsCell,
+  AdminTableActionsHead,
+} from '@/features/admin/components/admin-table-actions';
+import {
   AdminDataTableShell,
   AdminEmptyState,
   AdminFiltersBar,
@@ -22,10 +26,6 @@ import {
   AdminSearchInput,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
-import {
-  AdminTableActionsCell,
-  AdminTableActionsHead,
-} from '@/features/admin/components/admin-table-actions';
 import { IntroductionRowActions } from '@/features/admin/components/introduction-row-actions';
 import { getT } from '@/lib/i18n/t-server';
 

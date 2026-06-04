@@ -134,7 +134,7 @@ export function UserDangerZone({ deletedAt, userId, usersListHref }: UserDangerZ
       </div>
 
       {message ? (
-        <p className="text-ds-text-sm text-emerald-600" role="status">
+        <p className="text-ds-text-sm text-ds-success" role="status">
           {message}
         </p>
       ) : null}

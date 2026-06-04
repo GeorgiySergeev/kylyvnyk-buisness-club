@@ -18,10 +18,6 @@ import {
   AdminTableActionsCell,
   AdminTableActionsHead,
 } from '@/features/admin/components/admin-table-actions';
-import { CategoryAdminProvider } from '@/features/admin/components/category-admin-provider';
-import { CategoryMobileActions } from '@/features/admin/components/category-mobile-actions';
-import { CategoryRowActions } from '@/features/admin/components/category-row-actions';
-import { CategoriesPageActions } from '@/features/admin/components/categories-page-actions';
 import {
   AdminDataTableShell,
   AdminEmptyState,
@@ -30,13 +26,17 @@ import {
   AdminPageHeader,
   AdminSearchInput,
 } from '@/features/admin/components/admin-ui';
+import { CategoriesPageActions } from '@/features/admin/components/categories-page-actions';
+import { CategoryAdminProvider } from '@/features/admin/components/category-admin-provider';
+import { CategoryMobileActions } from '@/features/admin/components/category-mobile-actions';
+import { CategoryRowActions } from '@/features/admin/components/category-row-actions';
 import {
-  buildCategoryDisplayRows,
   type AdminCategoryRow,
+  buildCategoryDisplayRows,
   type CategoryScopeFilter,
 } from '@/features/admin/lib/categories-list';
-import { cn } from '@/lib/utils';
 import { getT } from '@/lib/i18n/t-server';
+import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 

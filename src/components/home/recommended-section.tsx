@@ -1,4 +1,5 @@
 // src/components/home/recommended-section.tsx
+// BLOCK: Recommended partners section — renders recommended partner cards on the home page.
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 

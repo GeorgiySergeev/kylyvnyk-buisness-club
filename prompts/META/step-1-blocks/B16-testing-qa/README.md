@@ -8,6 +8,9 @@ Testing & QA — strategy and scope
 
 Define a pragmatic testing scope for MVP that protects critical flows with minimal maintenance cost.
 
+The canonical long-term strategy, coverage matrix, migration policy, CI tiers,
+and Definition of Done for new features live in `docs/TESTING.md`.
+
 ## Scope
 
 - Unit: schema/validators, pure utils, server actions’ edge cases.

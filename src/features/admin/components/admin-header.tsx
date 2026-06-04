@@ -73,7 +73,7 @@ export function AdminHeader({ labels, locale, notifications }: AdminHeaderProps)
 
       <div className="flex shrink-0 items-center gap-1 sm:gap-2">
         <div className="hidden items-center gap-1.5 text-ds-text-xs text-ds-text-muted xl:flex">
-          <CircleDot className="size-3 fill-emerald-400 text-emerald-400" />
+          <CircleDot className="size-3 fill-ds-success text-ds-success" />
           <span>{labels.operational}</span>
         </div>
         <Button variant="ghost" size="icon" className="size-9 text-ds-text">

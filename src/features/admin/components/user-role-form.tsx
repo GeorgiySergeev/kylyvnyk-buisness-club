@@ -21,23 +21,23 @@ interface UserRoleFormProps {
 const MEMBERSHIP_TIERS = new Set(MEMBERSHIP_OPTIONS.map((option) => option.value));
 
 const STATUS_OPTIONS = [
-  { color: 'emerald' as const, label: 'Active', value: 'ACTIVE' },
-  { color: 'amber' as const, label: 'Inactive', value: 'INACTIVE' },
-  { color: 'red' as const, label: 'Banned', value: 'BANNED' },
+  { color: 'active' as const, label: 'Active', value: 'ACTIVE' },
+  { color: 'inactive' as const, label: 'Inactive', value: 'INACTIVE' },
+  { color: 'banned' as const, label: 'Banned', value: 'BANNED' },
 ] as const;
 
 const statusColorMap = {
-  amber: {
-    active: 'border-amber-500/40 bg-amber-500/10 text-amber-300 shadow-amber-500/10',
-    idle: 'border-border/80 text-muted-foreground hover:border-amber-500/30 hover:text-amber-300',
+  active: {
+    active: 'border-ds-success/40 bg-ds-success-subtle text-ds-success shadow-ds-success/10',
+    idle: 'border-ds-border text-ds-text-muted hover:border-ds-success/30 hover:text-ds-success',
   },
-  emerald: {
-    active: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300 shadow-emerald-500/10',
-    idle: 'border-border/80 text-muted-foreground hover:border-emerald-500/30 hover:text-emerald-300',
+  inactive: {
+    active: 'border-ds-warning/40 bg-ds-warning-subtle text-ds-warning shadow-ds-warning/10',
+    idle: 'border-ds-border text-ds-text-muted hover:border-ds-warning/30 hover:text-ds-warning',
   },
-  red: {
-    active: 'border-red-500/40 bg-red-500/10 text-red-300 shadow-red-500/10',
-    idle: 'border-border/80 text-muted-foreground hover:border-red-500/30 hover:text-red-300',
+  banned: {
+    active: 'border-ds-error/40 bg-ds-error-subtle text-ds-error shadow-ds-error/10',
+    idle: 'border-ds-border text-ds-text-muted hover:border-ds-error/30 hover:text-ds-error',
   },
 } as const;
 
@@ -117,7 +117,7 @@ export function UserRoleForm({
       ) : null}
 
       {savedSection ? (
-        <p className="text-sm text-emerald-600" role="status">
+        <p className="text-sm text-ds-success" role="status">
           Updated successfully.
         </p>
       ) : null}
