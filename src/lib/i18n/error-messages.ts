@@ -16,11 +16,16 @@ export function getErrorMessages(locale: SupportedLocale) {
   return ERROR_MESSAGES[locale] ?? ERROR_MESSAGES.en;
 }
 
-export function resolveLocaleFromPathname(pathname: string): SupportedLocale {
-  const match = /^\/(en|ru|uk)(?:\/|$)/.exec(pathname);
+export function resolveLocaleFromPathname(pathname?: string | null): SupportedLocale {
+  // If pathname is not provided (e.g., during build or in non-browser contexts),
+  // default to English to avoid runtime crashes.
+  if (!pathname || typeof pathname !== 'string') return 'en';
 
-  if (match?.[1] === 'ru' || match?.[1] === 'uk') {
-    return match[1];
+  const match = /^\/(en|ru|uk)(?:\/|$)/.exec(pathname);
+  const locale = match?.[1];
+
+  if (locale === 'ru' || locale === 'uk') {
+    return locale;
   }
 
   return 'en';
