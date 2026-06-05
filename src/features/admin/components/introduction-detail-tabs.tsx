@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { AdminDetailPageHeader } from '@/features/admin/components/admin-detail-page-header';
-import { type AdminDetailTabItem,AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
+import { type AdminDetailTabItem, AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
 import {
   AdminDescriptionList,
   AdminPanel,
@@ -73,7 +73,7 @@ export function IntroductionDetailTabs({
     { icon: SlidersHorizontal, key: 'moderation', label: tabLabels.moderation },
   ];
 
-  const meta = [introduction.status, introduction.createdAt].filter(Boolean).join(' · ');
+  const meta = [introduction.status, introduction.createdAt].filter(Boolean).join(' / ');
 
   return (
     <div className="flex flex-col gap-8">
@@ -81,7 +81,7 @@ export function IntroductionDetailTabs({
         backHref={backHref}
         backLabel={backLabel}
         meta={meta}
-        subtitle={targetBusiness?.name ?? 'N/A'}
+        subtitle={targetBusiness?.name ?? labels.emptyValue}
         title={introduction.clientName}
       >
         <AdminDetailTabNav
@@ -111,12 +111,12 @@ export function IntroductionDetailTabs({
                       {targetBusiness.name}
                     </Link>
                   ) : (
-                    'N/A'
+                    labels.emptyValue
                   ),
                 },
                 {
                   label: labels.location,
-                  value: targetBusiness?.location ?? 'N/A',
+                  value: targetBusiness?.location ?? labels.emptyValue,
                 },
                 {
                   label: labels.requester,
@@ -126,14 +126,14 @@ export function IntroductionDetailTabs({
                         className="text-ds-text underline underline-offset-2 hover:text-ds-text-muted"
                         href={requester.href}
                       >
-                        {requester.displayName ?? 'N/A'}
+                        {requester.displayName ?? labels.emptyValue}
                       </Link>
                       <span className="ml-1 font-mono text-xs text-ds-text-muted">
                         {requester.phone}
                       </span>
                     </span>
                   ) : (
-                    'N/A'
+                    labels.emptyValue
                   ),
                 },
                 { label: labels.client, value: introduction.clientName },
@@ -143,10 +143,10 @@ export function IntroductionDetailTabs({
                     <span className="font-mono text-xs">{introduction.clientContact}</span>
                   ),
                 },
-                { label: labels.message, value: introduction.message ?? 'N/A' },
+                { label: labels.message, value: introduction.message ?? labels.emptyValue },
                 {
                   label: labels.adminNote,
-                  value: introduction.adminNote ?? 'N/A',
+                  value: introduction.adminNote ?? labels.emptyValue,
                 },
                 { label: labels.created, value: introduction.createdAt },
                 { label: labels.updated, value: introduction.updatedAt },

@@ -240,15 +240,15 @@ export function MemberDashboardTabs({
   verifyUrl,
   vipSubscription,
 }: MemberDashboardTabsProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<MemberDashboardTab>(() =>
-    resolveTabFromUrl(searchParams.get('tab'), initialTab),
+    resolveTabFromUrl(searchParams?.get('tab') ?? null, initialTab),
   );
   const [welcomeOpen, setWelcomeOpen] = useState(showWelcomeModal);
 
   useEffect(() => {
-    setActiveTab(resolveTabFromUrl(searchParams.get('tab'), initialTab));
+    setActiveTab(resolveTabFromUrl(searchParams?.get('tab') ?? null, initialTab));
   }, [searchParams, initialTab]);
 
   useEffect(() => {
@@ -261,7 +261,7 @@ export function MemberDashboardTabs({
       return;
     }
 
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
     params.delete('welcome');
     const query = params.toString();
     const url = query ? `${pathname}?${query}` : pathname;

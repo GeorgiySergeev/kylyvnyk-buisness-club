@@ -1,4 +1,5 @@
 import { desc } from 'drizzle-orm';
+import { CheckCircle2, Clock, RefreshCcw } from 'lucide-react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import {
@@ -12,13 +13,15 @@ import {
 import { db } from '@/db/client';
 import { stripeSubscriptions } from '@/db/schema';
 import {
+  AdminDataTableShell,
   AdminEmptyState,
+  AdminMetricCard,
   AdminMobileCard,
   AdminPageHeader,
   AdminPanel,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
-import { isUndefinedTableError,MIGRATION_REQUIRED_MESSAGE } from '@/lib/db-guard';
+import { isUndefinedTableError, MIGRATION_REQUIRED_MESSAGE } from '@/lib/db-guard';
 import { getT } from '@/lib/i18n/t-server';
 
 interface AdminSubscriptionsPageProps {
@@ -67,8 +70,33 @@ export default async function AdminSubscriptionsPage({ params }: AdminSubscripti
     <div className="space-y-5">
       <AdminPageHeader
         description={t('subscriptionsDescription')}
+        eyebrow={t('navMemberships')}
         title={t('subscriptionsTitle')}
       />
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <AdminMetricCard
+          icon={<RefreshCcw className="size-4" />}
+          label={t('subscriptionsMetricTotal')}
+          meta={t('liveDatabaseSnapshot')}
+          value={rows.length}
+        />
+        <AdminMetricCard
+          icon={<CheckCircle2 className="size-4" />}
+          label={t('subscriptionsMetricActive')}
+          meta={t('liveDatabaseSnapshot')}
+          tone="success"
+          value={rows.filter((row) => row.status === 'active' || row.status === 'ACTIVE').length}
+        />
+        <AdminMetricCard
+          icon={<Clock className="size-4" />}
+          label={t('subscriptionsMetricCanceling')}
+          meta={t('liveDatabaseSnapshot')}
+          tone="warning"
+          value={rows.filter((row) => row.cancelAtPeriodEnd).length}
+        />
+      </div>
+
       <AdminPanel
         description={t('subscriptionsPanelDescription')}
         title={t('subscriptionsPanelTitle')}
@@ -91,14 +119,14 @@ export default async function AdminSubscriptionsPage({ params }: AdminSubscripti
                   title={<span className="font-mono text-xs">{row.stripeSubscriptionId}</span>}
                   badge={<AdminStatusBadge>{row.status}</AdminStatusBadge>}
                   rows={[
-                    { label: 'User ID', value: <span className="font-mono text-xs">{row.userId ?? 'N/A'}</span> },
+                    { label: t('userId'), value: <span className="font-mono text-xs">{row.userId ?? t('notDefined')}</span> },
                     {
-                      label: 'Period End',
-                      value: row.currentPeriodEnd ? row.currentPeriodEnd.toLocaleString() : 'N/A',
+                      label: t('currentPeriodEnd'),
+                      value: row.currentPeriodEnd ? row.currentPeriodEnd.toLocaleString() : t('notDefined'),
                     },
-                    { label: 'Cancel at end', value: row.cancelAtPeriodEnd ? 'true' : 'false' },
+                    { label: t('cancelAtPeriodEnd'), value: row.cancelAtPeriodEnd ? t('booleanTrue') : t('booleanFalse') },
                     {
-                      label: 'Created',
+                      label: t('created'),
                       value: row.createdAt.toLocaleString(),
                     },
                   ]}
@@ -107,31 +135,35 @@ export default async function AdminSubscriptionsPage({ params }: AdminSubscripti
             </div>
 
             {/* Desktop table view */}
-            <div className="hidden md:block overflow-hidden rounded-md border border-border/80 bg-card/95">
+            <div className="hidden md:block">
+              <AdminDataTableShell>
               <Table>
                 <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead>Stripe ID</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>User ID</TableHead>
-                    <TableHead>Current Period End</TableHead>
-                    <TableHead>Cancel at period end</TableHead>
+                  <TableRow className="border-0 bg-ds-surface-2/70 hover:bg-ds-surface-2/70">
+                    <TableHead className="text-ds-text-muted">{t('stripeId')}</TableHead>
+                    <TableHead className="text-ds-text-muted">{t('status')}</TableHead>
+                    <TableHead className="text-ds-text-muted">{t('userId')}</TableHead>
+                    <TableHead className="text-ds-text-muted">{t('currentPeriodEnd')}</TableHead>
+                    <TableHead className="text-ds-text-muted">{t('cancelAtPeriodEnd')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {rows.map((row) => (
-                    <TableRow key={row.id}>
+                    <TableRow className="border-ds-border" key={row.id}>
                       <TableCell className="font-mono text-xs">{row.stripeSubscriptionId}</TableCell>
-                      <TableCell>{row.status}</TableCell>
-                      <TableCell className="font-mono text-xs">{row.userId ?? 'N/A'}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {row.currentPeriodEnd ? row.currentPeriodEnd.toLocaleString() : 'N/A'}
+                      <TableCell><AdminStatusBadge>{row.status}</AdminStatusBadge></TableCell>
+                      <TableCell className="font-mono text-xs text-ds-text-muted">{row.userId ?? t('notDefined')}</TableCell>
+                      <TableCell className="text-xs text-ds-text-muted">
+                        {row.currentPeriodEnd ? row.currentPeriodEnd.toLocaleString() : t('notDefined')}
                       </TableCell>
-                      <TableCell>{row.cancelAtPeriodEnd ? 'true' : 'false'}</TableCell>
+                      <TableCell className="text-ds-text-muted">
+                        {row.cancelAtPeriodEnd ? t('booleanTrue') : t('booleanFalse')}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
+              </AdminDataTableShell>
             </div>
           </>
         )}

@@ -90,10 +90,12 @@ export default async function AdminBusinessDetailPage({ params }: AdminBusinessD
         created: t('created'),
         description: t('description'),
         email: t('email'),
+        emptyValue: t('emptyValue'),
         owner: t('owner'),
         phone: t('phone'),
         slug: t('slug'),
         status: t('status'),
+        updated: t('updated'),
         website: t('website'),
       }}
       tabLabels={{

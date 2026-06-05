@@ -303,7 +303,7 @@ function AccessBar({ label, total, value }: { label: string; total: number; valu
         <span className="font-medium text-ds-text">{value}</span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-ds-surface-2">
-        <div className="h-full rounded-full bg-cyan-400" style={{ width: `${percent}%` }} />
+        <div className="h-full rounded-full bg-ds-accent" style={{ width: `${percent}%` }} />
       </div>
     </div>
   );
@@ -343,7 +343,7 @@ function PermissionGlyphs({
     <div className="flex gap-1 text-ds-text-muted" aria-label={resource}>
       {flags.map((flag, index) =>
         flag ? (
-          <Check className="size-3.5 text-cyan-400" key={index} />
+          <Check className="size-3.5 text-ds-accent" key={index} />
         ) : (
           <Minus className="size-3.5" key={index} />
         ),

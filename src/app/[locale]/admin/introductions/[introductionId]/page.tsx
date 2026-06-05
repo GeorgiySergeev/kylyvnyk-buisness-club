@@ -84,6 +84,7 @@ export default async function AdminIntroductionDetailPage({
         client: t('client'),
         clientContact: t('clientContact'),
         created: t('created'),
+        emptyValue: t('emptyValue'),
         location: t('location'),
         message: t('message'),
         requester: t('requester'),

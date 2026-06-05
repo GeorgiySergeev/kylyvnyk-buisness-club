@@ -13,6 +13,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -127,6 +128,13 @@ interface UserAccountTabsProps {
     cardNumber?: string;
     publishedBusinesses: number;
   };
+  heroLabels: {
+    businesses: string;
+    card: string;
+    introductions: string;
+    joined: string;
+    notIssued: string;
+  };
   introductions: IntroductionData[];
   joinedDate: string;
   membershipLabel: string;
@@ -177,6 +185,7 @@ export function UserAccountTabs({
   effectiveMembershipTier,
   fallbackInitials,
   headerStats,
+  heroLabels,
   introductions,
   joinedDate,
   membershipLabel,
@@ -201,8 +210,8 @@ export function UserAccountTabs({
   const resolvedName = user.displayName?.trim() || 'Not set';
 
   return (
-    <div className="flex flex-col gap-8">
-      <header className="space-y-6">
+    <div className="flex flex-col gap-6">
+      <header className="space-y-4">
         <Link
           className="inline-flex min-h-11 items-center gap-1.5 text-sm text-ds-text-muted transition-colors hover:text-ds-text focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
           href={backHref}
@@ -211,15 +220,17 @@ export function UserAccountTabs({
           {backLabel}
         </Link>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex min-w-0 items-center gap-3">
-            <Avatar className="size-11 shrink-0 bg-ds-surface-2">
+        <div className="relative overflow-hidden rounded-ds-radius-xl border border-ds-border bg-ds-surface p-5">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-ds-accent-subtle/70 to-transparent" />
+          <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-center gap-4">
+            <Avatar className="size-20 shrink-0 border border-ds-border bg-ds-surface-2 shadow-ds-shadow-sm">
               {profile?.avatarUrl ? <AvatarImage alt="" src={profile.avatarUrl} /> : null}
-              <AvatarFallback className="text-sm text-ds-text-muted">{fallbackInitials}</AvatarFallback>
+              <AvatarFallback className="text-xl text-ds-text-muted">{fallbackInitials}</AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-ds-text">{resolvedName}</p>
-              <p className="truncate text-xs text-ds-text-muted">{user.phone}</p>
+              <p className="truncate text-2xl font-semibold tracking-tight text-ds-text">{resolvedName}</p>
+              <p className="mt-1 truncate text-sm text-ds-text-muted">{user.phone}</p>
               {user.email ? (
                 <p className="truncate text-xs text-ds-text-muted">{user.email}</p>
               ) : null}
@@ -238,13 +249,28 @@ export function UserAccountTabs({
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ds-text-muted">
-            <span>
-              {headerStats.publishedBusinesses} businesses · {headerStats.approvedIntroductions}{' '}
-              introductions
-            </span>
-            {headerStats.cardNumber ? <span>Card #{headerStats.cardNumber}</span> : null}
-            <span>Joined {joinedDate}</span>
+          <div className="grid gap-2 sm:grid-cols-2 lg:min-w-[28rem]">
+            <UserHeroStat
+              icon={<ClipboardList className="size-4" />}
+              label={heroLabels.businesses}
+              value={headerStats.publishedBusinesses}
+            />
+            <UserHeroStat
+              icon={<Handshake className="size-4" />}
+              label={heroLabels.introductions}
+              value={headerStats.approvedIntroductions}
+            />
+            <UserHeroStat
+              icon={<CreditCard className="size-4" />}
+              label={heroLabels.card}
+              value={headerStats.cardNumber ? `#${headerStats.cardNumber}` : heroLabels.notIssued}
+            />
+            <UserHeroStat
+              icon={<UserRound className="size-4" />}
+              label={heroLabels.joined}
+              value={joinedDate}
+            />
+          </div>
           </div>
         </div>
 
@@ -364,6 +390,18 @@ export function UserAccountTabs({
           </AdminPanel>
         ) : null}
       </section>
+    </div>
+  );
+}
+
+function UserHeroStat({ icon, label, value }: { icon: ReactNode; label: string; value: ReactNode }) {
+  return (
+    <div className="rounded-ds-radius-md border border-ds-border bg-ds-bg/60 px-3 py-2.5">
+      <div className="flex items-center gap-2 text-ds-text-xs font-medium uppercase tracking-[0.18em] text-ds-text-muted">
+        {icon}
+        {label}
+      </div>
+      <p className="mt-1 truncate text-ds-text-sm font-semibold text-ds-text">{value}</p>
     </div>
   );
 }

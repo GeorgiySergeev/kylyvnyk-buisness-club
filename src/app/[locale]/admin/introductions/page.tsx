@@ -1,4 +1,5 @@
 import { and, desc, eq } from 'drizzle-orm';
+import { CheckCircle2, Filter, MessageSquare, Timer } from 'lucide-react';
 import Link from 'next/link';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
@@ -21,6 +22,7 @@ import {
   AdminDataTableShell,
   AdminEmptyState,
   AdminFiltersBar,
+  AdminMetricCard,
   AdminMobileCard,
   AdminPageHeader,
   AdminSearchInput,
@@ -133,6 +135,10 @@ export default async function AdminIntroductionsPage({
       row.clientName.toLowerCase().includes(lowerSearch)
     );
   });
+  const pendingCount = rows.filter((row) =>
+    ['SUBMITTED', 'UNDER_REVIEW'].includes(row.status),
+  ).length;
+  const approvedCount = rows.filter((row) => row.status === 'APPROVED').length;
 
   return (
     <div className="space-y-5">
@@ -140,6 +146,32 @@ export default async function AdminIntroductionsPage({
         description={t('introductionsDescriptionAdmin')}
         title={t('introductionsTitle')}
       />
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <AdminMetricCard
+          icon={<MessageSquare className="size-4" />}
+          label={t('introductionsMetricTotal')}
+          value={rows.length}
+        />
+        <AdminMetricCard
+          icon={<Timer className="size-4" />}
+          label={t('introductionsMetricPending')}
+          tone="warning"
+          value={pendingCount}
+        />
+        <AdminMetricCard
+          icon={<CheckCircle2 className="size-4" />}
+          label={t('introductionsMetricApproved')}
+          tone="success"
+          value={approvedCount}
+        />
+      </div>
+
+      <div className="flex items-center gap-2 text-ds-text-sm font-medium text-ds-text">
+        <Filter aria-hidden="true" className="size-4 text-ds-text-muted" />
+        {t('introductionsQueue')}
+        <span className="text-ds-text-muted">({filteredRows.length.toLocaleString()})</span>
+      </div>
 
       <AdminFiltersBar>
         <form className="flex w-full gap-2 sm:max-w-md" method="GET">

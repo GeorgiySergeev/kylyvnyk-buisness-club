@@ -1,5 +1,5 @@
 import { count, desc } from 'drizzle-orm';
-import { ShieldPlus } from 'lucide-react';
+import { KeyRound, ShieldCheck, ShieldPlus, UsersRound } from 'lucide-react';
 import Link from 'next/link';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
@@ -22,8 +22,10 @@ import {
 import {
   AdminDataTableShell,
   AdminEmptyState,
+  AdminMetricCard,
   AdminMobileCard,
   AdminPageHeader,
+  AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
 import { RoleRowActions } from '@/features/admin/components/role-row-actions';
 import { guardSuperAdmin } from '@/features/auth/lib/permission-guards';
@@ -56,15 +58,16 @@ export default async function AdminRolesPage({ params }: RolesPageProps) {
 
   const userCountByRole = new Map(userCountRows.map((r) => [r.roleId, r.count]));
   const canCreate = canCreateResource(userPerms.permissions, 'roles');
+  const assignedUsersCount = userCountRows.reduce((total, row) => total + row.count, 0);
+  const systemRolesCount = allRoles.filter((role) => role.isSystem).length;
+  const customRolesCount = allRoles.length - systemRolesCount;
 
   return (
     <div className="flex flex-col gap-6">
       <AdminPageHeader
-        title={t('rolesTitle')}
-        description={t('rolesDescription')}
         actions={
           canCreate ? (
-            <Button size="sm" className="h-9 gap-2 bg-foreground text-background hover:bg-foreground/90" asChild>
+            <Button asChild className="h-9 gap-2" size="sm">
               <Link href={localizeHref(locale, '/admin/roles/new')}>
                 <ShieldPlus className="size-4" />
                 <span className="hidden sm:inline">{t('createRole')}</span>
@@ -72,12 +75,54 @@ export default async function AdminRolesPage({ params }: RolesPageProps) {
             </Button>
           ) : null
         }
+        description={t('rolesDescription')}
+        eyebrow={t('navAccess')}
+        title={t('rolesTitle')}
       />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <AdminMetricCard
+          icon={<ShieldCheck className="size-4" />}
+          label={t('rolesMetricTotal')}
+          meta={t('liveDatabaseSnapshot')}
+          value={allRoles.length}
+        />
+        <AdminMetricCard
+          icon={<UsersRound className="size-4" />}
+          label={t('rolesMetricAssigned')}
+          meta={t('liveDatabaseSnapshot')}
+          tone={assignedUsersCount > 0 ? 'success' : undefined}
+          value={assignedUsersCount}
+        />
+        <AdminMetricCard
+          icon={<KeyRound className="size-4" />}
+          label={t('rolesMetricSystem')}
+          meta={t('liveDatabaseSnapshot')}
+          tone="info"
+          value={systemRolesCount}
+        />
+        <AdminMetricCard
+          icon={<ShieldPlus className="size-4" />}
+          label={t('rolesMetricCustom')}
+          meta={t('liveDatabaseSnapshot')}
+          value={customRolesCount}
+        />
+      </div>
 
       {allRoles.length === 0 ? (
         <AdminEmptyState title={t('noRoles')} />
       ) : (
         <>
+          <div className="flex flex-col gap-1 rounded-ds-radius-md border border-ds-border bg-ds-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-ds-text-sm font-semibold text-ds-text">{t('rolesDirectory')}</p>
+              <p className="text-ds-text-xs text-ds-text-muted">{t('rolesDescription')}</p>
+            </div>
+            <AdminStatusBadge tone="info">
+              {allRoles.length} {t('rolesTitle')}
+            </AdminStatusBadge>
+          </div>
+
           <div className="space-y-3 md:hidden">
             {allRoles.map((role) => (
               <AdminMobileCard
@@ -86,16 +131,16 @@ export default async function AdminRolesPage({ params }: RolesPageProps) {
                   <span className="flex items-center gap-2">
                     {role.name}
                     {role.isSystem && (
-                      <Badge variant="outline" className="text-[10px]">
-                        system
+                      <Badge className="text-[10px]" variant="outline">
+                        {t('roleSystemLabel')}
                       </Badge>
                     )}
                   </span>
                 }
-                subtitle={`${userCountByRole.get(role.id) ?? 0} users`}
+                subtitle={`${userCountByRole.get(role.id) ?? 0} ${t('users')}`}
                 rows={[
                   { label: t('roleSlug'), value: role.slug },
-                  { label: t('roleDescription'), value: role.description ?? '—' },
+                  { label: t('roleDescription'), value: role.description ?? t('roleNoDescription') },
                 ]}
                 href={localizeHref(locale, `/admin/roles/${role.id}`)}
               />
@@ -106,40 +151,40 @@ export default async function AdminRolesPage({ params }: RolesPageProps) {
             <AdminDataTableShell>
               <Table>
                 <TableHeader>
-                  <TableRow className="border-0 bg-card">
-                    <TableHead className="text-muted-foreground">{t('roleName')}</TableHead>
-                    <TableHead className="text-muted-foreground">{t('roleSlug')}</TableHead>
-                    <TableHead className="text-muted-foreground">{t('roleDescription')}</TableHead>
-                    <TableHead className="text-muted-foreground">{t('isSystem')}</TableHead>
-                    <TableHead className="text-right text-muted-foreground">{t('users')}</TableHead>
+                  <TableRow className="border-0 bg-ds-surface-2/70 hover:bg-ds-surface-2/70">
+                    <TableHead className="text-ds-text-muted">{t('roleName')}</TableHead>
+                    <TableHead className="text-ds-text-muted">{t('roleSlug')}</TableHead>
+                    <TableHead className="text-ds-text-muted">{t('roleDescription')}</TableHead>
+                    <TableHead className="text-ds-text-muted">{t('isSystem')}</TableHead>
+                    <TableHead className="text-right text-ds-text-muted">{t('users')}</TableHead>
                     <AdminTableActionsHead label={t('actions')} />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {allRoles.map((role) => (
-                    <TableRow key={role.id} className="border-border">
+                    <TableRow className="border-ds-border" key={role.id}>
                       <TableCell>
                         <Link
+                          className="font-medium text-ds-text hover:text-ds-accent"
                           href={localizeHref(locale, `/admin/roles/${role.id}`)}
-                          className="font-medium text-foreground hover:underline"
                         >
                           {role.name}
                         </Link>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{role.slug}</TableCell>
-                      <TableCell className="max-w-xs truncate text-muted-foreground">
-                        {role.description ?? '—'}
+                      <TableCell className="text-ds-text-muted">{role.slug}</TableCell>
+                      <TableCell className="max-w-xs truncate text-ds-text-muted">
+                        {role.description ?? t('roleNoDescription')}
                       </TableCell>
                       <TableCell>
                         {role.isSystem ? (
-                          <Badge variant="outline" className="text-[10px]">
-                            system
+                          <Badge className="text-[10px]" variant="outline">
+                            {t('roleSystemLabel')}
                           </Badge>
                         ) : (
-                          <span className="text-muted-foreground">—</span>
+                          <span className="text-ds-text-muted">{t('notDefined')}</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
+                      <TableCell className="text-right text-ds-text-muted">
                         {userCountByRole.get(role.id) ?? 0}
                       </TableCell>
                       <AdminTableActionsCell>

@@ -1,11 +1,12 @@
 import { desc, isNull } from 'drizzle-orm';
+import { Archive, BookOpen, CheckCircle2 } from 'lucide-react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import { catalogItems } from '@/db/schema';
-import { AdminPageHeader, AdminPanel } from '@/features/admin/components/admin-ui';
+import { AdminMetricCard, AdminPageHeader, AdminPanel } from '@/features/admin/components/admin-ui';
 import { CatalogCrud } from '@/features/admin/components/catalog-crud';
-import { isUndefinedTableError,MIGRATION_REQUIRED_MESSAGE } from '@/lib/db-guard';
+import { isUndefinedTableError, MIGRATION_REQUIRED_MESSAGE } from '@/lib/db-guard';
 import { getT } from '@/lib/i18n/t-server';
 
 export const dynamic = 'force-dynamic';
@@ -45,7 +46,34 @@ export default async function AdminCatalogPage({ params }: AdminCatalogPageProps
 
   return (
     <div className="space-y-5">
-      <AdminPageHeader description={t('catalogDescription')} title={t('navCatalog')} />
+      <AdminPageHeader
+        description={t('catalogDescription')}
+        eyebrow={t('navBusinesses')}
+        title={t('navCatalog')}
+      />
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <AdminMetricCard
+          icon={<BookOpen className="size-4" />}
+          label={t('catalogMetricTotal')}
+          meta={t('liveDatabaseSnapshot')}
+          value={rows.length}
+        />
+        <AdminMetricCard
+          icon={<CheckCircle2 className="size-4" />}
+          label={t('catalogMetricActive')}
+          meta={t('liveDatabaseSnapshot')}
+          tone="success"
+          value={rows.filter((row) => row.status === 'ACTIVE' || row.status === 'PUBLISHED').length}
+        />
+        <AdminMetricCard
+          icon={<Archive className="size-4" />}
+          label={t('catalogMetricArchived')}
+          meta={t('liveDatabaseSnapshot')}
+          value={rows.filter((row) => row.status === 'ARCHIVED').length}
+        />
+      </div>
+
       <AdminPanel description={t('catalogPanelDescription')} title={t('catalogPanelTitle')}>
         {migrationRequired ? (
           <p className="text-sm text-ds-warning">{MIGRATION_REQUIRED_MESSAGE}</p>

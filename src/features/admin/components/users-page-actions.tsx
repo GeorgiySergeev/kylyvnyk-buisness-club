@@ -54,7 +54,7 @@ export function UsersPageActions({
       </Button>
       <Button
         size="sm"
-        className="h-9 gap-2 bg-black text-white hover:bg-black/90"
+        className="h-9 gap-2"
         asChild
       >
         <Link href={localizeHref(locale, '/admin/users/new')}>

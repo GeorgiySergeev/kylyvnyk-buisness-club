@@ -17,7 +17,7 @@ const LOCALE_LABELS = {
 } as const;
 
 export function LocaleSwitcher() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const [, localeSegment] = pathname.split('/');
   const currentLocale = isSupportedLocale(localeSegment) ? localeSegment : DEFAULT_LOCALE;
 

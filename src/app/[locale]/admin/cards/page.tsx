@@ -1,5 +1,5 @@
 import { desc } from 'drizzle-orm';
-import { Eye } from 'lucide-react';
+import { CreditCard, Eye, Filter, ShieldCheck, Timer } from 'lucide-react';
 import Link from 'next/link';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
@@ -23,6 +23,7 @@ import {
   AdminDataTableShell,
   AdminEmptyState,
   AdminFiltersBar,
+  AdminMetricCard,
   AdminMobileCard,
   AdminPageHeader,
   AdminSearchInput,
@@ -99,17 +100,50 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
   }
 
   const statuses = ['ALL', 'ACTIVE', 'INACTIVE', 'EXPIRED', 'ARCHIVED'] as const;
+  const activeCount = allCards.filter((card) => card.status === 'ACTIVE').length;
+  const vipCount = allCards.filter((card) => card.memberType === 'VIP').length;
+  const expiringCount = allCards.filter((card) => {
+    if (!card.expiresAt) return false;
+    const daysUntilExpiry = (card.expiresAt.getTime() - Date.now()) / (24 * 60 * 60 * 1000);
+    return daysUntilExpiry >= 0 && daysUntilExpiry <= 30;
+  }).length;
 
   return (
     <div className="space-y-5">
       <AdminPageHeader description={t('cardsDescription')} title={t('cardsTitle')} />
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <AdminMetricCard
+          icon={<ShieldCheck className="size-4" />}
+          label={t('cardsMetricActive')}
+          tone="success"
+          value={activeCount}
+        />
+        <AdminMetricCard
+          icon={<CreditCard className="size-4" />}
+          label={t('cardsMetricVip')}
+          value={vipCount}
+        />
+        <AdminMetricCard
+          icon={<Timer className="size-4" />}
+          label={t('cardsMetricExpiring')}
+          tone="warning"
+          value={expiringCount}
+        />
+      </div>
+
+      <div className="flex items-center gap-2 text-ds-text-sm font-medium text-ds-text">
+        <Filter aria-hidden="true" className="size-4 text-ds-text-muted" />
+        {t('cardsDirectory')}
+        <span className="text-ds-text-muted">({filtered.length.toLocaleString()})</span>
+      </div>
 
       <AdminFiltersBar>
         <form className="flex w-full gap-2 sm:max-w-md" method="GET">
           <AdminSearchInput name="q" placeholder={t('cardNumber')} value={searchTerm} />
           {statusFilter ? <input name="status" type="hidden" value={statusFilter} /> : null}
           <Button className="h-9 rounded-md" size="sm" type="submit">
-            Search
+            {t('search')}
           </Button>
         </form>
         <div className="flex flex-wrap gap-1.5">

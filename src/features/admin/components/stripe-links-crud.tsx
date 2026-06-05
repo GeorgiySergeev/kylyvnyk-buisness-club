@@ -88,7 +88,7 @@ export function StripeLinksCrud({
 
   return (
     <div className="space-y-3">
-      <form action={create} className="grid gap-2 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-[1fr_160px_1fr_auto]">
+      <form action={create} className="grid gap-2 rounded-ds-radius-md border border-ds-border bg-ds-bg/50 p-3 md:grid-cols-[1fr_160px_1fr_auto]">
         <Input name="title" placeholder={labels.title} required />
         <Input name="code" placeholder={labels.code} required />
         <Input name="paymentLinkUrl" placeholder={labels.paymentLinkUrl} required />
@@ -100,12 +100,12 @@ export function StripeLinksCrud({
         <form
           key={row.id}
           action={(formData) => update(row.id, formData)}
-          className="grid gap-2 rounded-md border border-border/70 bg-card/50 p-3 md:grid-cols-[1fr_160px_1fr_100px_auto_auto]"
+          className="grid gap-2 rounded-ds-radius-md border border-ds-border bg-ds-surface-2/35 p-3 md:grid-cols-[1fr_160px_1fr_100px_auto_auto]"
         >
           <Input defaultValue={row.title} name="title" required />
           <Input defaultValue={row.code} name="code" required />
           <Input defaultValue={row.paymentLinkUrl} name="paymentLinkUrl" required />
-          <div className="flex items-center text-xs text-muted-foreground">{row.status}</div>
+          <div className="flex items-center text-xs text-ds-text-muted">{row.status}</div>
           <Button disabled={pending || disabled} type="submit" variant="outline">{labels.save}</Button>
           <Button disabled={pending || disabled} onClick={() => remove(row.id)} type="button" variant="destructive">{labels.disable}</Button>
         </form>

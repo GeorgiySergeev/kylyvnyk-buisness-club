@@ -22,11 +22,7 @@ export function resolveLocaleFromPathname(pathname?: string | null): SupportedLo
   if (!pathname || typeof pathname !== 'string') return 'en';
 
   const match = /^\/(en|ru|uk)(?:\/|$)/.exec(pathname);
-  const locale = match?.[1];
+  const locale = match?.[1] as SupportedLocale | undefined;
 
-  if (locale === 'ru' || locale === 'uk') {
-    return locale;
-  }
-
-  return 'en';
+  return locale ?? 'en';
 }

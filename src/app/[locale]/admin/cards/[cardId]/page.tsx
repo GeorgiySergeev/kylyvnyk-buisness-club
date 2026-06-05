@@ -68,10 +68,12 @@ export default async function AdminCardDetailPage({ params }: AdminCardDetailPag
         cardNumber: t('cardNumber'),
         created: t('created'),
         email: t('email'),
+        emptyValue: t('emptyValue'),
         memberName: t('memberName'),
         memberType: t('memberType'),
         phone: t('phone'),
         status: t('status'),
+        updated: t('updated'),
       }}
       member={{
         displayName: card.user.displayName,

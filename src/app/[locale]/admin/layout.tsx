@@ -106,8 +106,8 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
             notifications={notifications}
           />
         </div>
-        <main className="container mx-auto min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
-          {children}
+        <main className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
+          <div className="mx-auto w-full max-w-[1480px]">{children}</div>
         </main>
       </div>
     </div>

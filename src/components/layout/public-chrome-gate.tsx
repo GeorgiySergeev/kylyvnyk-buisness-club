@@ -11,7 +11,7 @@ interface PublicChromeGateProps {
 }
 
 export function PublicChromeGate({ children, locale }: PublicChromeGateProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const isAdminRoute = pathname === `/${locale}/admin` || pathname.startsWith(`/${locale}/admin/`);
 
   if (isAdminRoute) {

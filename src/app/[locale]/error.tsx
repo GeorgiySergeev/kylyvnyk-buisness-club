@@ -14,7 +14,7 @@ export interface LocaleErrorProps {
 }
 
 export default function LocaleError({ error, reset }: LocaleErrorProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const locale = resolveLocaleFromPathname(pathname);
   const messages = getErrorMessages(locale);
 

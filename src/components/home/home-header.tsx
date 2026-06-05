@@ -59,7 +59,7 @@ export function HomeHeader({
   navItems,
   profileMenu,
 }: HomeHeaderProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const router = useRouter();
   const isHome = pathname === homeHref;
 

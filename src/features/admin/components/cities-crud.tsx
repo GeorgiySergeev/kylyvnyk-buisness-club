@@ -82,7 +82,7 @@ export function CitiesCrud({ rows, labels }: CitiesCrudProps) {
 
   return (
     <div className="space-y-3">
-      <form action={create} className="grid gap-2 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-[1fr_120px_auto]">
+      <form action={create} className="grid gap-2 rounded-ds-radius-md border border-ds-border bg-ds-bg/50 p-3 md:grid-cols-[1fr_120px_auto]">
         <Input name="name" placeholder={labels.name} required />
         <Input min={1} name="countryId" placeholder={labels.countryId} type="number" required />
         <Button disabled={pending} type="submit" className="h-10">{pending ? <Loader2 className="size-4 animate-spin" /> : labels.create}</Button>
@@ -94,11 +94,11 @@ export function CitiesCrud({ rows, labels }: CitiesCrudProps) {
         <form
           key={row.id}
           action={(formData) => update(row.id, formData)}
-          className="grid gap-2 rounded-md border border-border/70 bg-card/50 p-3 md:grid-cols-[1fr_120px_1fr_auto_auto]"
+          className="grid gap-2 rounded-ds-radius-md border border-ds-border bg-ds-surface-2/35 p-3 md:grid-cols-[1fr_120px_1fr_auto_auto]"
         >
           <Input defaultValue={row.name} name="name" required />
           <Input defaultValue={row.countryId} min={1} name="countryId" type="number" required />
-          <div className="flex items-center text-xs text-muted-foreground">{row.countryName} ({row.countryIso2})</div>
+          <div className="flex items-center text-xs text-ds-text-muted">{row.countryName} ({row.countryIso2})</div>
           <Button disabled={pending} type="submit" variant="outline">{labels.save}</Button>
           <Button
             disabled={pending || row.linkedBusinesses > 0}

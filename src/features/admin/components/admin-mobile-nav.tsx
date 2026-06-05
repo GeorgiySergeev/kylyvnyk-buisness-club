@@ -55,7 +55,7 @@ interface AdminMobileNavProps {
 
 export function AdminMobileNav({ locale, labels, notifications }: AdminMobileNavProps) {
   const [showSearch, setShowSearch] = useState(false);
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const router = useRouter();
 
   const parts = pathname.split('/').filter(Boolean);
