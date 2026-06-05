@@ -4,7 +4,7 @@ import { Building2, Settings2, SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
 
 import { AdminDetailPageHeader } from '@/features/admin/components/admin-detail-page-header';
-import { type AdminDetailTabItem,AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
+import { type AdminDetailTabItem, AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
 import {
   AdminDescriptionList,
   AdminPanel,
@@ -81,7 +81,7 @@ export function BusinessDetailTabs({
     business.isRecommended ? 'recommended' : null,
   ]
     .filter(Boolean)
-    .join(' · ');
+    .join(' / ');
 
   return (
     <div className="flex flex-col gap-8">
@@ -107,15 +107,15 @@ export function BusinessDetailTabs({
               items={[
                 { label: labels.slug, value: <span className="font-mono text-xs">{business.slug}</span> },
                 { label: labels.status, value: <AdminStatusBadge>{business.status}</AdminStatusBadge> },
-                { label: labels.owner, value: business.ownerName ?? 'N/A' },
+                { label: labels.owner, value: business.ownerName ?? labels.emptyValue },
                 {
                   label: labels.phone,
-                  value: <span className="font-mono text-xs">{business.ownerPhone ?? 'N/A'}</span>,
+                  value: <span className="font-mono text-xs">{business.ownerPhone ?? labels.emptyValue}</span>,
                 },
-                { label: labels.email, value: business.ownerEmail ?? 'N/A' },
-                { label: labels.category, value: business.categoryName ?? 'N/A' },
-                { label: labels.country, value: business.countryName ?? 'N/A' },
-                { label: labels.city, value: business.cityName ?? 'N/A' },
+                { label: labels.email, value: business.ownerEmail ?? labels.emptyValue },
+                { label: labels.category, value: business.categoryName ?? labels.emptyValue },
+                { label: labels.country, value: business.countryName ?? labels.emptyValue },
+                { label: labels.city, value: business.cityName ?? labels.emptyValue },
                 {
                   label: labels.website,
                   value: business.website ? (
@@ -128,12 +128,12 @@ export function BusinessDetailTabs({
                       {business.website}
                     </a>
                   ) : (
-                    'N/A'
+                    labels.emptyValue
                   ),
                 },
-                { label: labels.description, value: business.description ?? 'N/A' },
+                { label: labels.description, value: business.description ?? labels.emptyValue },
                 { label: labels.created, value: business.createdAt },
-                { label: 'Updated', value: business.updatedAt },
+                { label: labels.updated, value: business.updatedAt },
               ]}
             />
           </AdminPanel>

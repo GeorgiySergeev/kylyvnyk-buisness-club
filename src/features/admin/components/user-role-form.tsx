@@ -109,7 +109,7 @@ export function UserRoleForm({
     <div className="space-y-8">
       {error ? (
         <p
-          className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          className="rounded-ds-radius-md border border-ds-error/30 bg-ds-error-subtle px-4 py-3 text-sm text-ds-error"
           role="alert"
         >
           {error}
@@ -124,8 +124,8 @@ export function UserRoleForm({
 
       <div className="space-y-3">
         <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-foreground">Membership</h3>
-          <p className="text-xs text-muted-foreground">
+          <h3 className="text-sm font-semibold text-ds-text">Membership</h3>
+          <p className="text-xs text-ds-text-muted">
             Membership tier determines billing plan and feature limits
           </p>
         </div>
@@ -146,8 +146,8 @@ export function UserRoleForm({
         </ToggleGroup>
         {loadingSection === 'membership' ? (
           <div className="flex items-center gap-1.5">
-            <Loader2 className="size-3 animate-spin text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Updating membership...</span>
+            <Loader2 className="size-3 animate-spin text-ds-text-muted" />
+            <span className="text-xs text-ds-text-muted">Updating membership...</span>
           </div>
         ) : null}
       </div>
@@ -155,8 +155,8 @@ export function UserRoleForm({
       {status ? (
         <div className="space-y-3">
           <div className="space-y-1">
-            <h3 className="text-sm font-semibold text-foreground">Account Status</h3>
-            <p className="text-xs text-muted-foreground">
+            <h3 className="text-sm font-semibold text-ds-text">Account Status</h3>
+            <p className="text-xs text-ds-text-muted">
               Controls whether the user can access the platform
             </p>
           </div>
@@ -191,8 +191,8 @@ export function UserRoleForm({
           </div>
           {loadingSection === 'status' ? (
             <div className="flex items-center gap-1.5">
-              <Loader2 className="size-3 animate-spin text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Updating status...</span>
+              <Loader2 className="size-3 animate-spin text-ds-text-muted" />
+              <span className="text-xs text-ds-text-muted">Updating status...</span>
             </div>
           ) : null}
         </div>

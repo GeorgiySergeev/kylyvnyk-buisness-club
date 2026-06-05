@@ -1,7 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { type FormEvent,useState } from 'react';
+import { type FormEvent, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,11 +61,11 @@ export function CardUpdateForm({
 
   return (
     <form
-      className="grid gap-3 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-4"
+      className="grid gap-3 rounded-ds-radius-lg border border-ds-border bg-ds-surface/80 p-4 shadow-sm md:grid-cols-4"
       onSubmit={onSubmit}
     >
       <select
-        className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+        className="h-10 rounded-ds-radius-md border border-ds-border bg-ds-bg px-3 text-sm text-ds-text shadow-sm outline-none transition-colors focus-visible:border-ds-ring focus-visible:ring-2 focus-visible:ring-ds-ring/25"
         defaultValue={currentMemberType}
         name="memberType"
       >
@@ -74,7 +74,7 @@ export function CardUpdateForm({
         <option value="VIP">VIP</option>
       </select>
       <select
-        className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+        className="h-10 rounded-ds-radius-md border border-ds-border bg-ds-bg px-3 text-sm text-ds-text shadow-sm outline-none transition-colors focus-visible:border-ds-ring focus-visible:ring-2 focus-visible:ring-ds-ring/25"
         defaultValue={currentStatus}
         name="status"
       >

@@ -4,7 +4,7 @@ import { CreditCard, Settings2 } from 'lucide-react';
 import { useState } from 'react';
 
 import { AdminDetailPageHeader } from '@/features/admin/components/admin-detail-page-header';
-import { type AdminDetailTabItem,AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
+import { type AdminDetailTabItem, AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
 import {
   AdminDescriptionList,
   AdminPanel,
@@ -64,7 +64,7 @@ export function CardDetailTabs({
       <AdminDetailPageHeader
         backHref={backHref}
         backLabel={backLabel}
-        meta={`${card.status} · ${card.memberType}`}
+        meta={`${card.status} / ${card.memberType}`}
         subtitle={member.displayName?.trim() || 'Not set'}
         title={card.number}
         titleClassName="truncate font-mono text-sm font-medium text-ds-text"
@@ -96,13 +96,13 @@ export function CardDetailTabs({
                 },
                 { label: labels.memberName, value: member.displayName?.trim() || 'Not set' },
                 { label: labels.phone, value: member.phone },
-                { label: labels.email, value: member.email ?? 'N/A' },
+                { label: labels.email, value: member.email ?? labels.emptyValue },
                 {
                   label: labels.cardExpiresAt,
-                  value: card.expiresAt ?? 'N/A',
+                  value: card.expiresAt ?? labels.emptyValue,
                 },
                 { label: labels.created, value: card.createdAt },
-                { label: 'Updated', value: card.updatedAt },
+                { label: labels.updated, value: card.updatedAt },
               ]}
             />
           </AdminPanel>

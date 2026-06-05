@@ -18,7 +18,7 @@ import {
 import type { roles as rolesTable } from '@/db/schema';
 import type { Resource } from '@/db/schema/permission';
 import { AdminDetailPageHeader } from '@/features/admin/components/admin-detail-page-header';
-import { type AdminDetailTabItem,AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
+import { type AdminDetailTabItem, AdminDetailTabNav } from '@/features/admin/components/admin-detail-tab-nav';
 import {
   AdminTableActionsCell,
   AdminTableActionsHead,
@@ -93,13 +93,18 @@ interface RoleDetailTabsProps {
     auditActor: string;
     edit: string;
     email: string;
+    emptyValue: string;
     name: string;
+    paginationNext: string;
+    paginationPageSummary: string;
+    paginationPrev: string;
     permissions: string;
     phone: string;
     roleActivityDescription: string;
     roleNoActivity: string;
     roleNoAssignedUsers: string;
     roleNoAssignedUsersDescription: string;
+    roleSystemLabel: string;
     roleTabActivity: string;
     roleTabUsers: string;
     roleUsersDescription: string;
@@ -134,7 +139,7 @@ export function RoleDetailTabs({
       <AdminDetailPageHeader
         backHref={backHref}
         backLabel={backLabel}
-        meta={role.isSystem ? 'system role' : undefined}
+        meta={role.isSystem ? tabLabels.roleSystemLabel : undefined}
         subtitle={role.slug}
         title={role.name}
       >
@@ -174,6 +179,7 @@ export function RoleDetailTabs({
             <RoleActivitySection
               actorLabel={tabLabels.auditActor}
               emptyTitle={tabLabels.roleNoActivity}
+              labels={tabLabels}
               logs={auditLogs}
               onPageChange={setActivityPage}
               page={activityPage}
@@ -207,19 +213,19 @@ function RoleAssignedUsersSection({
         <AdminDataTableShell>
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>{labels.name}</TableHead>
-                <TableHead>{labels.phone}</TableHead>
-                <TableHead>{labels.email}</TableHead>
-                <TableHead>{labels.accountStatus}</TableHead>
-                <TableHead>{labels.assignedAt}</TableHead>
-                <TableHead>{labels.assignedBy}</TableHead>
+              <TableRow className="border-0 bg-ds-surface-2/70 hover:bg-ds-surface-2/70">
+                <TableHead className="text-ds-text-muted">{labels.name}</TableHead>
+                <TableHead className="text-ds-text-muted">{labels.phone}</TableHead>
+                <TableHead className="text-ds-text-muted">{labels.email}</TableHead>
+                <TableHead className="text-ds-text-muted">{labels.accountStatus}</TableHead>
+                <TableHead className="text-ds-text-muted">{labels.assignedAt}</TableHead>
+                <TableHead className="text-ds-text-muted">{labels.assignedBy}</TableHead>
                 <AdminTableActionsHead label={labels.actions} />
               </TableRow>
             </TableHeader>
             <TableBody>
               {users.map((user) => (
-                <TableRow className={user.isDeleted ? 'opacity-60' : undefined} key={user.id}>
+                <TableRow className={user.isDeleted ? 'border-ds-border opacity-60' : 'border-ds-border'} key={user.id}>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Avatar className="size-8">
@@ -231,12 +237,12 @@ function RoleAssignedUsersSection({
                     </div>
                   </TableCell>
                   <TableCell className="text-ds-text-muted">{user.phone}</TableCell>
-                  <TableCell className="text-ds-text-muted">{user.email ?? '—'}</TableCell>
+                  <TableCell className="text-ds-text-muted">{user.email ?? labels.emptyValue}</TableCell>
                   <TableCell>
                     <AdminStatusBadge>{user.status}</AdminStatusBadge>
                   </TableCell>
                   <TableCell className="text-ds-text-muted">{user.assignedAt}</TableCell>
-                  <TableCell className="text-ds-text-muted">{user.assignedByName ?? '—'}</TableCell>
+                  <TableCell className="text-ds-text-muted">{user.assignedByName ?? labels.emptyValue}</TableCell>
                   <AdminTableActionsCell>
                     <AdminTableNavigateAction href={user.userHref} label={labels.view} />
                   </AdminTableActionsCell>
@@ -260,9 +266,9 @@ function RoleAssignedUsersSection({
             key={user.id}
             rows={[
               { label: labels.phone, value: user.phone },
-              { label: labels.email, value: user.email ?? '—' },
+              { label: labels.email, value: user.email ?? labels.emptyValue },
               { label: labels.assignedAt, value: user.assignedAt },
-              { label: labels.assignedBy, value: user.assignedByName ?? '—' },
+              { label: labels.assignedBy, value: user.assignedByName ?? labels.emptyValue },
             ]}
             subtitle={user.phone}
             title={user.name}
@@ -276,12 +282,14 @@ function RoleAssignedUsersSection({
 function RoleActivitySection({
   actorLabel,
   emptyTitle,
+  labels,
   logs,
   onPageChange,
   page,
 }: {
   actorLabel: string;
   emptyTitle: string;
+  labels: RoleDetailTabsProps['tabLabels'];
   logs: RoleAuditLogRow[];
   onPageChange: (page: number) => void;
   page: number;
@@ -309,8 +317,8 @@ function RoleActivitySection({
             </div>
             <p className="mt-1 text-xs text-ds-text-muted">
               {log.createdAt}
-              {log.actorName ? ` · ${actorLabel}: ${log.actorName}` : ''}
-              {log.ipAddress ? ` · ${log.ipAddress}` : ''}
+              {log.actorName ? ` / ${actorLabel}: ${log.actorName}` : ''}
+              {log.ipAddress ? ` / ${log.ipAddress}` : ''}
             </p>
           </div>
         ))}
@@ -319,7 +327,9 @@ function RoleActivitySection({
       {totalPages > 1 ? (
         <div className="flex items-center justify-between pt-2">
           <p className="text-xs text-ds-text-muted">
-            Page {currentPage} of {totalPages}
+            {labels.paginationPageSummary
+              .replace('{page}', String(currentPage))
+              .replace('{total}', String(totalPages))}
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -329,7 +339,7 @@ function RoleActivitySection({
               type="button"
               variant="outline"
             >
-              Prev
+              {labels.paginationPrev}
             </Button>
             <Button
               disabled={currentPage >= totalPages}
@@ -338,7 +348,7 @@ function RoleActivitySection({
               type="button"
               variant="outline"
             >
-              Next
+              {labels.paginationNext}
             </Button>
           </div>
         </div>

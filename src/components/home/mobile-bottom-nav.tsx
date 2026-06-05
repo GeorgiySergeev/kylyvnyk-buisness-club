@@ -21,7 +21,7 @@ interface MobileBottomNavProps {
 }
 
 export function MobileBottomNav({ locale, labels }: MobileBottomNavProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
 
   return (
     <nav

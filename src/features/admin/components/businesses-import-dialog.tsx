@@ -2,7 +2,7 @@
 
 import { Loader2, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { type ChangeEvent, type DragEvent,useRef, useState, useTransition } from 'react';
+import { type ChangeEvent, type DragEvent, useRef, useState, useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -15,13 +15,14 @@ import {
 } from '@/components/ui/dialog';
 
 import { importBusinessesAction, type ImportBusinessesResult } from '../actions/business-admin.action';
-import { type CsvParseResult,parseCsv } from '../lib/csv-parse';
+import { type CsvParseResult, parseCsv } from '../lib/csv-parse';
 
 type Step = 'idle' | 'preview' | 'importing' | 'results';
 
 export interface BusinessesImportLabels {
   cancel: string;
   close: string;
+  emptyValue: string;
   importBusinesses: string;
   importBusinessesTitle: string;
   importBusinessesDescription: string;
@@ -33,10 +34,14 @@ export interface BusinessesImportLabels {
   importSuccess: string;
   importPartialSuccess: string;
   importErrors: string;
+  importErrorColumn: string;
+  importMoreRows: string;
+  importRowNumber: string;
   importRowError: string;
   importInvalidFile: string;
   importTooManyRows: string;
   importEmpty: string;
+  name: string;
 }
 
 interface BusinessesImportDialogProps {
@@ -152,13 +157,13 @@ export function BusinessesImportDialog({ labels }: BusinessesImportDialogProps) 
         <Button
           size="sm"
           variant="outline"
-          className="h-9 gap-2 border-0 bg-card text-foreground"
+          className="h-9 gap-2 border-0 bg-ds-surface text-ds-text shadow-sm hover:bg-ds-surface-2"
         >
           <Upload aria-hidden="true" className="size-4" />
           <span className="hidden sm:inline">{labels.importBusinesses}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="border-ds-border bg-ds-surface sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{labels.importBusinessesTitle}</DialogTitle>
           <DialogDescription>{labels.importBusinessesDescription}</DialogDescription>
@@ -168,7 +173,7 @@ export function BusinessesImportDialog({ labels }: BusinessesImportDialogProps) 
           <div className="space-y-4">
             {fileError ? (
               <p
-                className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                className="rounded-md border border-ds-error/30 bg-ds-error-subtle px-4 py-3 text-sm text-ds-error"
                 role="alert"
               >
                 {fileError}
@@ -176,7 +181,7 @@ export function BusinessesImportDialog({ labels }: BusinessesImportDialogProps) 
             ) : null}
 
             <div
-              className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-border bg-card p-10 text-center transition-colors hover:border-muted-foreground/50"
+              className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-ds-radius-lg border-2 border-dashed border-ds-border bg-ds-bg/50 p-10 text-center transition-colors hover:border-ds-border-strong hover:bg-ds-surface-2/60"
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onClick={() => inputRef.current?.click()}
@@ -185,8 +190,8 @@ export function BusinessesImportDialog({ labels }: BusinessesImportDialogProps) 
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click(); }}
               aria-label={labels.importDropzone}
             >
-              <Upload aria-hidden="true" className="size-8 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">{labels.importDropzone}</span>
+              <Upload aria-hidden="true" className="size-8 text-ds-text-muted" />
+              <span className="text-sm text-ds-text-muted">{labels.importDropzone}</span>
             </div>
 
             <input
@@ -201,18 +206,18 @@ export function BusinessesImportDialog({ labels }: BusinessesImportDialogProps) 
 
         {step === 'preview' && parsedData ? (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-ds-text-muted">
               {labels.importSelectedRows.replace('{count}', parsedData.rows.length.toLocaleString())}
             </p>
 
-            <div className="max-h-60 overflow-auto rounded-md border border-border">
+            <div className="max-h-60 overflow-auto rounded-ds-radius-md border border-ds-border bg-ds-surface">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-card">
+                  <tr className="border-b border-ds-border bg-ds-surface-2/70">
                     {displayHeaders.map((h) => (
                       <th
                         key={h}
-                        className="px-3 py-2 text-left font-medium text-muted-foreground"
+                        className="px-3 py-2 text-left font-medium text-ds-text-muted"
                       >
                         {h}
                       </th>
@@ -223,11 +228,11 @@ export function BusinessesImportDialog({ labels }: BusinessesImportDialogProps) 
                   {previewRows.map((row, i) => (
                     <tr
                       key={i}
-                      className="border-b border-border last:border-b-0 hover:bg-card"
+                      className="border-b border-ds-border last:border-b-0 hover:bg-ds-surface-2/60"
                     >
                       {displayHeaders.map((h) => (
-                        <td key={h} className="px-3 py-2 text-foreground">
-                          {row[h] || '\u2014'}
+                        <td key={h} className="px-3 py-2 text-ds-text">
+                          {row[h] || labels.emptyValue}
                         </td>
                       ))}
                     </tr>
@@ -237,8 +242,11 @@ export function BusinessesImportDialog({ labels }: BusinessesImportDialogProps) 
             </div>
 
             {parsedData.rows.length > 10 ? (
-              <p className="text-xs text-muted-foreground">
-                +{parsedData.rows.length - 10} more rows
+              <p className="text-xs text-ds-text-muted">
+                {labels.importMoreRows.replace(
+                  '{count}',
+                  (parsedData.rows.length - 10).toLocaleString(),
+                )}
               </p>
             ) : null}
 
@@ -261,8 +269,8 @@ export function BusinessesImportDialog({ labels }: BusinessesImportDialogProps) 
 
         {step === 'importing' ? (
           <div className="flex flex-col items-center justify-center gap-4 py-8">
-            <Loader2 aria-hidden="true" className="size-8 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">{labels.importing}</p>
+            <Loader2 aria-hidden="true" className="size-8 animate-spin text-ds-text-muted" />
+            <p className="text-sm text-ds-text-muted">{labels.importing}</p>
           </div>
         ) : null}
 
@@ -271,7 +279,7 @@ export function BusinessesImportDialog({ labels }: BusinessesImportDialogProps) 
             <div
               className={`rounded-md border px-4 py-3 text-sm ${
                 importResult.errors.length === 0
-                  ? 'border-green-500/30 bg-green-50 text-green-800'
+                  ? 'border-ds-success/30 bg-ds-success-subtle text-ds-success'
                   : 'border-ds-warning/30 bg-ds-warning-subtle text-ds-warning'
               }`}
               role="status"
@@ -285,24 +293,30 @@ export function BusinessesImportDialog({ labels }: BusinessesImportDialogProps) 
 
             {importResult.errors.length > 0 ? (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-destructive">
+                <p className="text-sm font-medium text-ds-error">
                   {labels.importErrors} ({importResult.errors.length})
                 </p>
-                <div className="max-h-40 overflow-auto rounded-md border border-border">
+                <div className="max-h-40 overflow-auto rounded-ds-radius-md border border-ds-border bg-ds-surface">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-border bg-card">
-                        <th className="px-3 py-2 text-left font-medium text-muted-foreground">#</th>
-                        <th className="px-3 py-2 text-left font-medium text-muted-foreground">Name</th>
-                        <th className="px-3 py-2 text-left font-medium text-muted-foreground">Error</th>
+                      <tr className="border-b border-ds-border bg-ds-surface-2/70">
+                        <th className="px-3 py-2 text-left font-medium text-ds-text-muted">
+                          {labels.importRowNumber}
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium text-ds-text-muted">
+                          {labels.name}
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium text-ds-text-muted">
+                          {labels.importErrorColumn}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {importResult.errors.map((err) => (
-                        <tr key={err.row} className="border-b border-border last:border-b-0">
-                          <td className="px-3 py-2 text-foreground">{err.row}</td>
-                          <td className="px-3 py-2 text-foreground">{err.name}</td>
-                          <td className="px-3 py-2 text-destructive">{err.error}</td>
+                        <tr key={err.row} className="border-b border-ds-border last:border-b-0">
+                          <td className="px-3 py-2 text-ds-text">{err.row}</td>
+                          <td className="px-3 py-2 text-ds-text">{err.name}</td>
+                          <td className="px-3 py-2 text-ds-error">{err.error}</td>
                         </tr>
                       ))}
                     </tbody>

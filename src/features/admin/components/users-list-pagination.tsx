@@ -28,6 +28,8 @@ export interface UsersListPaginationProps {
   endRow: number;
   filteredCount: number;
   labels: {
+    firstPage: string;
+    lastPage: string;
     paginationNext: string;
     paginationPrev: string;
     rowsPerPage: string;
@@ -114,8 +116,8 @@ export function UsersListPagination({
   }
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-muted-foreground">{showingText}</p>
+    <div className="flex flex-col gap-4 rounded-ds-radius-md border border-ds-border bg-ds-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-ds-text-muted">{showingText}</p>
       <div className="flex items-center gap-3 sm:gap-6">
         <div className="flex items-center gap-2 sm:hidden">
           <Button asChild disabled={page <= 1} size="sm" variant="outline" className="h-8">
@@ -127,7 +129,7 @@ export function UsersListPagination({
               {labels.paginationPrev}
             </Link>
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-ds-text-muted">
             {page} / {totalPages}
           </span>
           <Button asChild disabled={page >= totalPages} size="sm" variant="outline" className="h-8">
@@ -144,7 +146,7 @@ export function UsersListPagination({
         <div className="hidden items-center gap-2 sm:flex">
           <span className="sr-only">{labels.rowsPerPage}</span>
           <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
-            <SelectTrigger className="h-8 w-16 border-0 bg-card text-foreground">
+            <SelectTrigger className="h-8 w-16 border-ds-border bg-ds-bg text-ds-text">
               <SelectValue placeholder={String(pageSize)} />
             </SelectTrigger>
             <SelectContent>
@@ -163,11 +165,11 @@ export function UsersListPagination({
             disabled={page <= 1}
             size="icon"
             variant="outline"
-            className="size-8 border-0 bg-card text-foreground"
+            className="size-8 border-ds-border bg-ds-bg text-ds-text"
           >
             <Link
               href={buildUsersHref(basePath, { ...filterParams, page: 1 })}
-              aria-label="First page"
+              aria-label={labels.firstPage}
             >
               <ChevronsLeft aria-hidden="true" className="size-4" />
             </Link>
@@ -177,7 +179,7 @@ export function UsersListPagination({
             disabled={page <= 1}
             size="icon"
             variant="outline"
-            className="size-8 border-0 bg-card text-foreground"
+            className="size-8 border-ds-border bg-ds-bg text-ds-text"
           >
             <Link
               href={buildUsersHref(basePath, { ...filterParams, page: page - 1 })}
@@ -195,8 +197,8 @@ export function UsersListPagination({
               className={cn(
                 'size-8',
                 pageNumber === page
-                  ? 'bg-foreground text-background hover:bg-foreground/90'
-                  : 'border-0 bg-card text-foreground',
+                  ? ''
+                  : 'border-ds-border bg-ds-bg text-ds-text',
               )}
             >
               <Link
@@ -212,7 +214,7 @@ export function UsersListPagination({
             disabled={page >= totalPages}
             size="icon"
             variant="outline"
-            className="size-8 border-0 bg-card text-foreground"
+            className="size-8 border-ds-border bg-ds-bg text-ds-text"
           >
             <Link
               href={buildUsersHref(basePath, { ...filterParams, page: page + 1 })}
@@ -226,9 +228,9 @@ export function UsersListPagination({
             disabled={page >= totalPages}
             size="icon"
             variant="outline"
-            className="size-8 border-0 bg-card text-foreground"
+            className="size-8 border-ds-border bg-ds-bg text-ds-text"
           >
-            <Link href={buildUsersHref(basePath, { ...filterParams, page: totalPages })} aria-label="Last page">
+            <Link href={buildUsersHref(basePath, { ...filterParams, page: totalPages })} aria-label={labels.lastPage}>
               <ChevronsRight aria-hidden="true" className="size-4" />
             </Link>
           </Button>

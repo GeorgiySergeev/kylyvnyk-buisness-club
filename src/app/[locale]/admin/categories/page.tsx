@@ -1,4 +1,5 @@
 import { asc, isNull } from 'drizzle-orm';
+import { FolderTree, Layers3, Link2 } from 'lucide-react';
 import Link from 'next/link';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
@@ -22,9 +23,11 @@ import {
   AdminDataTableShell,
   AdminEmptyState,
   AdminFiltersBar,
+  AdminMetricCard,
   AdminMobileCard,
   AdminPageHeader,
   AdminSearchInput,
+  AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
 import { CategoriesPageActions } from '@/features/admin/components/categories-page-actions';
 import { CategoryAdminProvider } from '@/features/admin/components/category-admin-provider';
@@ -152,10 +155,33 @@ export default async function AdminCategoriesPage({ params, searchParams }: Admi
     <CategoryAdminProvider allRows={allRows} labels={dialogLabels}>
       <div className="space-y-5">
         <AdminPageHeader
-          description={`${totalCount.toLocaleString()} categories · ${topLevelCount.toLocaleString()} top-level · ${linkedCount.toLocaleString()} in use`}
-          title={t('categoriesTitle')}
           actions={<CategoriesPageActions addCategoryLabel={t('addCategory')} />}
+          description={t('categoriesDescription')}
+          eyebrow={t('navCatalog')}
+          title={t('categoriesTitle')}
         />
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <AdminMetricCard
+            icon={<FolderTree className="size-4" />}
+            label={t('categoriesMetricTotal')}
+            meta={t('liveDatabaseSnapshot')}
+            value={totalCount}
+          />
+          <AdminMetricCard
+            icon={<Layers3 className="size-4" />}
+            label={t('categoriesMetricTopLevel')}
+            meta={t('liveDatabaseSnapshot')}
+            value={topLevelCount}
+          />
+          <AdminMetricCard
+            icon={<Link2 className="size-4" />}
+            label={t('categoriesMetricLinked')}
+            meta={t('liveDatabaseSnapshot')}
+            tone={linkedCount > 0 ? 'success' : undefined}
+            value={linkedCount}
+          />
+        </div>
 
         <AdminFiltersBar>
           <form className="flex w-full gap-2 sm:max-w-md" method="GET">
@@ -209,6 +235,16 @@ export default async function AdminCategoriesPage({ params, searchParams }: Admi
           <AdminEmptyState title={t('categoriesNoSearchResults')} />
         ) : (
           <>
+            <div className="flex flex-col gap-1 rounded-ds-radius-md border border-ds-border bg-ds-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-ds-text-sm font-semibold text-ds-text">{t('categoriesDirectory')}</p>
+                <p className="text-ds-text-xs text-ds-text-muted">{t('categoriesDescription')}</p>
+              </div>
+              <AdminStatusBadge tone="info">
+                {displayRows.length} {t('categoriesTitle')}
+              </AdminStatusBadge>
+            </div>
+
             <div className="space-y-3 md:hidden">
               {displayRows.map((row) => (
                 <AdminMobileCard
@@ -253,17 +289,17 @@ export default async function AdminCategoriesPage({ params, searchParams }: Admi
               <AdminDataTableShell>
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-0 bg-card hover:bg-transparent">
-                      <TableHead className="text-muted-foreground">{t('categoryName')}</TableHead>
-                      <TableHead className="text-muted-foreground">{t('slug')}</TableHead>
-                      <TableHead className="text-muted-foreground">{t('categoryParent')}</TableHead>
-                      <TableHead className="text-muted-foreground">{t('linkedBusinesses')}</TableHead>
+                    <TableRow className="border-0 bg-ds-surface-2/70 hover:bg-ds-surface-2/70">
+                      <TableHead className="text-ds-text-muted">{t('categoryName')}</TableHead>
+                      <TableHead className="text-ds-text-muted">{t('slug')}</TableHead>
+                      <TableHead className="text-ds-text-muted">{t('categoryParent')}</TableHead>
+                      <TableHead className="text-ds-text-muted">{t('linkedBusinesses')}</TableHead>
                       <AdminTableActionsHead label={t('actions')} />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {displayRows.map((row) => (
-                      <TableRow className="border-border" key={row.id}>
+                      <TableRow className="border-ds-border" key={row.id}>
                         <TableCell>
                           <div
                             className={cn(
@@ -276,23 +312,23 @@ export default async function AdminCategoriesPage({ params, searchParams }: Admi
                                 {row.icon}
                               </span>
                             ) : null}
-                            <span className="font-medium text-foreground">{row.name}</span>
+                            <span className="font-medium text-ds-text">{row.name}</span>
                             {row.childCategories > 0 ? (
-                              <Badge className="bg-muted text-muted-foreground" variant="secondary">
+                              <Badge className="bg-ds-surface-2 text-ds-text-muted" variant="secondary">
                                 {row.childCategories} {t('subcategories')}
                               </Badge>
                             ) : null}
                           </div>
                         </TableCell>
-                        <TableCell className="font-mono text-[11px] text-muted-foreground">
+                        <TableCell className="font-mono text-[11px] text-ds-text-muted">
                           {row.slug}
                         </TableCell>
-                        <TableCell className="text-muted-foreground">
+                        <TableCell className="text-ds-text-muted">
                           {row.parentId
                             ? (categoryNamesById.get(row.parentId) ?? t('emptyValue'))
                             : t('emptyValue')}
                         </TableCell>
-                        <TableCell className="text-muted-foreground">{row.linkedBusinesses}</TableCell>
+                        <TableCell className="text-ds-text-muted">{row.linkedBusinesses}</TableCell>
                         <AdminTableActionsCell>
                           <CategoryRowActions
                             actionsLabel={t('actions')}

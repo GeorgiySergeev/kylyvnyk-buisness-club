@@ -92,7 +92,7 @@ export function CountriesCrud({ rows, labels }: CountriesCrudProps) {
 
   return (
     <div className="space-y-3">
-      <form action={create} className="grid gap-2 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-[1fr_120px_120px_auto]">
+      <form action={create} className="grid gap-2 rounded-ds-radius-md border border-ds-border bg-ds-bg/50 p-3 md:grid-cols-[1fr_120px_120px_auto]">
         <Input name="name" placeholder={labels.name} required />
         <Input maxLength={2} minLength={2} name="iso2" placeholder={labels.iso2} required />
         <Input name="flagEmoji" placeholder={labels.flag} />
@@ -107,7 +107,7 @@ export function CountriesCrud({ rows, labels }: CountriesCrudProps) {
         <form
           key={row.id}
           action={(formData) => update(row.id, formData)}
-          className="grid gap-2 rounded-md border border-border/70 bg-card/50 p-3 md:grid-cols-[1fr_120px_120px_auto_auto]"
+          className="grid gap-2 rounded-ds-radius-md border border-ds-border bg-ds-surface-2/35 p-3 md:grid-cols-[1fr_120px_120px_auto_auto]"
         >
           <Input defaultValue={row.name} name="name" required />
           <Input defaultValue={row.iso2} maxLength={2} minLength={2} name="iso2" required />

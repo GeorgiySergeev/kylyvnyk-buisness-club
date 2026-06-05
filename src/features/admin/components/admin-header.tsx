@@ -48,7 +48,7 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ labels, locale, notifications }: AdminHeaderProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
 
   const parts = pathname.split('/').filter(Boolean);
   const adminPath = `/${parts.slice(1, 3).join('/')}`;

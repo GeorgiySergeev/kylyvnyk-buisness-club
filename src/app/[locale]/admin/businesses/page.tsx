@@ -1,5 +1,5 @@
 import { desc } from 'drizzle-orm';
-import { Download, Plus } from 'lucide-react';
+import { Building2, Download, Filter, Gauge, Plus, Star } from 'lucide-react';
 import Link from 'next/link';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
@@ -22,6 +22,7 @@ import {
   AdminDataTableShell,
   AdminEmptyState,
   AdminFiltersBar,
+  AdminMetricCard,
   AdminMobileCard,
   AdminPageHeader,
   AdminSearchInput,
@@ -108,6 +109,11 @@ export default async function AdminBusinessesPage({
   }
 
   const statuses = ['ALL', 'DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN'] as const;
+  const pendingCount = allBusinesses.filter((business) => business.status === 'PENDING').length;
+  const publishedCount = allBusinesses.filter((business) => business.status === 'PUBLISHED').length;
+  const featuredCount = allBusinesses.filter(
+    (business) => business.isRecommended || business.isTopPartner,
+  ).length;
 
   return (
     <div className="space-y-5">
@@ -120,6 +126,7 @@ export default async function AdminBusinessesPage({
               labels={{
                 cancel: t('cancel'),
                 close: t('close'),
+                emptyValue: t('emptyValue'),
                 importBusinesses: t('importBusinesses'),
                 importBusinessesTitle: t('importBusinessesTitle'),
                 importBusinessesDescription: t('importBusinessesDescription'),
@@ -131,10 +138,14 @@ export default async function AdminBusinessesPage({
                 importSuccess: t('importBusinessSuccess'),
                 importPartialSuccess: t('importPartialSuccess'),
                 importErrors: t('importErrors'),
+                importErrorColumn: t('importErrorColumn'),
+                importMoreRows: t('importMoreRows'),
+                importRowNumber: t('importRowNumber'),
                 importRowError: t('importRowError'),
                 importInvalidFile: t('importInvalidFile'),
                 importTooManyRows: t('importTooManyRows'),
                 importEmpty: t('importEmpty'),
+                name: t('name'),
               }}
             />
             <Button
@@ -150,7 +161,7 @@ export default async function AdminBusinessesPage({
             </Button>
             <Button
               size="sm"
-              className="h-9 gap-2 bg-black text-white hover:bg-black/90"
+              className="h-9 gap-2"
               asChild
             >
               <Link href={localizeHref(locale, '/admin/businesses/new')}>
@@ -162,12 +173,38 @@ export default async function AdminBusinessesPage({
         }
       />
 
+      <div className="grid gap-4 sm:grid-cols-3">
+        <AdminMetricCard
+          icon={<Building2 className="size-4" />}
+          label={t('businessesMetricPublished')}
+          tone="success"
+          value={publishedCount}
+        />
+        <AdminMetricCard
+          icon={<Gauge className="size-4" />}
+          label={t('businessesMetricPending')}
+          tone="warning"
+          value={pendingCount}
+        />
+        <AdminMetricCard
+          icon={<Star className="size-4" />}
+          label={t('businessesMetricFeatured')}
+          value={featuredCount}
+        />
+      </div>
+
+      <div className="flex items-center gap-2 text-ds-text-sm font-medium text-ds-text">
+        <Filter aria-hidden="true" className="size-4 text-ds-text-muted" />
+        {t('businessesDirectory')}
+        <span className="text-ds-text-muted">({filtered.length.toLocaleString()})</span>
+      </div>
+
       <AdminFiltersBar>
         <form className="flex w-full gap-2 sm:max-w-md" method="GET">
           <AdminSearchInput name="q" placeholder={t('businessName')} value={searchTerm} />
           {statusFilter ? <input name="status" type="hidden" value={statusFilter} /> : null}
           <Button className="h-9 rounded-md" size="sm" type="submit">
-            Search
+            {t('search')}
           </Button>
         </form>
 
@@ -243,8 +280,8 @@ export default async function AdminBusinessesPage({
                     <TableHead>{t('owner')}</TableHead>
                     <TableHead>{t('category')}</TableHead>
                     <TableHead>{t('status')}</TableHead>
-                    <TableHead>In top</TableHead>
-                    <TableHead>Recommended</TableHead>
+                    <TableHead>{t('businessesInTop')}</TableHead>
+                    <TableHead>{t('businessesRecommended')}</TableHead>
                     <TableHead>{t('created')}</TableHead>
                     <AdminTableActionsHead label={t('actions')} />
                   </TableRow>

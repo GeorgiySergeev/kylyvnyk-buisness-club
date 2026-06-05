@@ -1,3 +1,5 @@
+import { Activity, Filter, UserPlus, Users } from 'lucide-react';
+
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -16,6 +18,7 @@ import {
 import {
   AdminDataTableShell,
   AdminEmptyState,
+  AdminMetricCard,
   AdminMobileCard,
   AdminPageHeader,
   AdminStatusBadge,
@@ -84,6 +87,9 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
   const totalCount = allUsers.length;
   const filteredCount = filtered.length;
   const activeCount = allUsers.filter((u) => u.status === 'ACTIVE').length;
+  const newUsersCount = allUsers.filter(
+    (user) => user.createdAt.getTime() >= Date.now() - 30 * 24 * 60 * 60 * 1000,
+  ).length;
 
   const pageSize = parseUsersPageSize(pageSizeParam);
   const requestedPage = parseUsersPageNumber(pageParam);
@@ -107,13 +113,17 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
             importLabels={{
               cancel: t('cancel'),
               close: t('close'),
+              emptyValue: t('emptyValue'),
               importConfirm: t('importConfirm'),
               importDropzone: t('importDropzone'),
               importEmpty: t('importEmpty'),
+              importErrorColumn: t('importErrorColumn'),
               importErrors: t('importErrors'),
               importInvalidFile: t('importInvalidFile'),
+              importMoreRows: t('importMoreRows'),
               importPartialSuccess: t('importPartialSuccess'),
               importPreview: t('importPreview'),
+              importRowNumber: t('importRowNumber'),
               importRowError: t('importRowError'),
               importSelectedRows: t('importSelectedRows'),
               importSuccess: t('importSuccess'),
@@ -122,6 +132,7 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
               importUsersDescription: t('importUsersDescription'),
               importUsersTitle: t('importUsersTitle'),
               importing: t('importing'),
+              phone: t('phone'),
             }}
             locale={locale}
             planFilter={planFilter}
@@ -130,6 +141,31 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
           />
         }
       />
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <AdminMetricCard
+          icon={<Users className="size-4" />}
+          label={t('statUsers')}
+          value={totalCount}
+        />
+        <AdminMetricCard
+          icon={<Activity className="size-4" />}
+          label={t('usersMetricActive')}
+          tone="success"
+          value={activeCount}
+        />
+        <AdminMetricCard
+          icon={<UserPlus className="size-4" />}
+          label={t('usersMetricNew')}
+          value={newUsersCount}
+        />
+      </div>
+
+      <div className="flex items-center gap-2 text-ds-text-sm font-medium text-ds-text">
+        <Filter aria-hidden="true" className="size-4 text-ds-text-muted" />
+        {t('usersDirectory')}
+        <span className="text-ds-text-muted">({filteredCount.toLocaleString()})</span>
+      </div>
 
       <UsersFilters
         searchTerm={searchTerm}
@@ -254,6 +290,8 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
           endRow={endRow}
           filteredCount={filteredCount}
           labels={{
+            firstPage: t('paginationFirst'),
+            lastPage: t('paginationLast'),
             paginationNext: t('paginationNext'),
             paginationPrev: t('paginationPrev'),
             rowsPerPage: t('rowsPerPage'),

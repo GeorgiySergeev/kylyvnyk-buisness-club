@@ -1,11 +1,12 @@
 import { desc, isNull } from 'drizzle-orm';
+import { CheckCircle2, CreditCard, Link2 } from 'lucide-react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import { stripeLinks } from '@/db/schema';
-import { AdminEmptyState, AdminPageHeader, AdminPanel } from '@/features/admin/components/admin-ui';
+import { AdminEmptyState, AdminMetricCard, AdminPageHeader, AdminPanel } from '@/features/admin/components/admin-ui';
 import { StripeLinksCrud } from '@/features/admin/components/stripe-links-crud';
-import { isUndefinedTableError,MIGRATION_REQUIRED_MESSAGE } from '@/lib/db-guard';
+import { isUndefinedTableError, MIGRATION_REQUIRED_MESSAGE } from '@/lib/db-guard';
 import { getT } from '@/lib/i18n/t-server';
 
 interface AdminStripeLinksPageProps {
@@ -42,7 +43,34 @@ export default async function AdminStripeLinksPage({ params }: AdminStripeLinksP
 
   return (
     <div className="space-y-5">
-      <AdminPageHeader description={t('stripeLinksDescription')} title={t('stripeLinksTitle')} />
+      <AdminPageHeader
+        description={t('stripeLinksDescription')}
+        eyebrow={t('navSubscriptions')}
+        title={t('stripeLinksTitle')}
+      />
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <AdminMetricCard
+          icon={<CreditCard className="size-4" />}
+          label={t('stripeLinksMetricTotal')}
+          meta={t('liveDatabaseSnapshot')}
+          value={rows.length}
+        />
+        <AdminMetricCard
+          icon={<CheckCircle2 className="size-4" />}
+          label={t('stripeLinksMetricActive')}
+          meta={t('liveDatabaseSnapshot')}
+          tone="success"
+          value={rows.filter((row) => row.status === 'ACTIVE').length}
+        />
+        <AdminMetricCard
+          icon={<Link2 className="size-4" />}
+          label={t('stripeLinksMetricConfigured')}
+          meta={t('liveDatabaseSnapshot')}
+          value={rows.filter((row) => row.paymentLinkUrl).length}
+        />
+      </div>
+
       <AdminPanel description={t('stripeLinksPanelDescription')} title={t('stripeLinksPanelTitle')}>
         {migrationRequired ? (
           <p className="text-sm text-ds-warning">{MIGRATION_REQUIRED_MESSAGE}</p>

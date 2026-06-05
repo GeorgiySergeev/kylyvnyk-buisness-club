@@ -22,7 +22,7 @@ export function AdminDetailPageHeader({
   titleClassName,
 }: AdminDetailPageHeaderProps) {
   return (
-    <header className="space-y-6">
+    <header className="space-y-4">
       <Link
         className="inline-flex min-h-11 items-center gap-1.5 text-sm text-ds-text-muted transition-colors hover:text-ds-text focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
         href={backHref}
@@ -31,15 +31,20 @@ export function AdminDetailPageHeader({
         {backLabel}
       </Link>
 
-      <div className="min-w-0">
-        <p className={titleClassName ?? 'truncate text-sm font-medium text-ds-text'}>{title}</p>
-        {subtitle ? <p className="truncate text-xs text-ds-text-muted">{subtitle}</p> : null}
-        {meta ? (
-          <p className="mt-1 text-[10px] uppercase tracking-widest text-ds-text-muted">{meta}</p>
-        ) : null}
-      </div>
+      <div className="relative overflow-hidden rounded-ds-radius-xl border border-ds-border bg-ds-surface p-5">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-ds-accent-subtle/70 to-transparent" />
+        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0 space-y-1.5">
+            {meta ? (
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ds-accent/80">{meta}</p>
+            ) : null}
+            <p className={titleClassName ?? 'truncate text-2xl font-semibold tracking-tight text-ds-text'}>{title}</p>
+            {subtitle ? <p className="truncate text-sm text-ds-text-muted">{subtitle}</p> : null}
+          </div>
 
-      {children}
+          {children ? <div className="min-w-0 lg:max-w-[70%]">{children}</div> : null}
+        </div>
+      </div>
     </header>
   );
 }

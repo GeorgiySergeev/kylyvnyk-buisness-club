@@ -1,4 +1,5 @@
-import { ChevronRight, Search } from 'lucide-react';
+import { ArrowUpRight, ChevronRight, Search } from 'lucide-react';
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -39,14 +40,14 @@ export function AdminPageHeader({
   title: string;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div className="min-w-0 space-y-1">
+    <div className="flex flex-col gap-4 border-b border-ds-border pb-5 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0 space-y-1.5">
         {eyebrow ? (
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ds-accent/80">
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="truncate text-ds-text-2xl font-semibold tracking-tight text-ds-text">{title}</h1>
+        <h1 className="truncate text-2xl font-semibold text-ds-text">{title}</h1>
         {description ? (
           <p className="max-w-3xl text-ds-text-sm text-ds-text-muted">{description}</p>
         ) : null}
@@ -57,28 +58,40 @@ export function AdminPageHeader({
 }
 
 export function AdminMetricCard({
+  href,
   icon,
   label,
   meta,
   tone = 'default',
   value,
 }: {
+  href?: string;
   icon?: ReactNode;
   label: string;
   meta?: string;
   tone?: StatusTone;
   value: ReactNode;
 }) {
-  return (
-    <Card className="border-ds-border bg-ds-surface shadow-none">
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 p-4 pb-2">
-        <CardTitle className="text-ds-text-xs uppercase text-ds-text-muted">{label}</CardTitle>
-        {icon ? <div className="text-ds-text-muted">{icon}</div> : null}
+  const content = (
+    <Card className="h-full border-ds-border bg-ds-surface shadow-none transition-colors hover:border-ds-border-strong">
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 p-5 pb-3">
+        <div className="space-y-1">
+          <CardTitle className="text-ds-text-sm font-medium text-ds-text-muted">{label}</CardTitle>
+          {meta ? <p className="text-ds-text-xs text-ds-text-faint">{meta}</p> : null}
+        </div>
+        <div className="flex items-center gap-2">
+          {icon ? (
+            <div className="flex size-9 items-center justify-center rounded-ds-radius-md border border-ds-border bg-ds-bg text-ds-text-muted">
+              {icon}
+            </div>
+          ) : null}
+          {href ? <ArrowUpRight className="size-4 text-ds-text-faint" /> : null}
+        </div>
       </CardHeader>
-      <CardContent className="p-4 pt-0">
+      <CardContent className="p-5 pt-0">
         <div
           className={cn(
-            'text-ds-text-xl font-bold font-mono tracking-tight text-ds-text',
+            'font-mono text-3xl font-semibold text-ds-text',
             tone === 'success' && 'text-ds-success',
             tone === 'warning' && 'text-ds-warning',
             tone === 'danger' && 'text-ds-error',
@@ -86,10 +99,11 @@ export function AdminMetricCard({
         >
           {value}
         </div>
-        {meta ? <p className="mt-1 text-ds-text-xs text-ds-text-muted">{meta}</p> : null}
       </CardContent>
     </Card>
   );
+
+  return href ? <Link className="block h-full" href={href}>{content}</Link> : content;
 }
 
 export function AdminPanel({
@@ -106,12 +120,12 @@ export function AdminPanel({
   return (
     <Card className={cn('border-ds-border bg-ds-surface shadow-none', className)}>
       {title ? (
-        <CardHeader className="space-y-1 p-ds-space-4">
+        <CardHeader className="space-y-1 border-b border-ds-border p-5">
           <CardTitle className="text-ds-text-base font-semibold text-ds-text">{title}</CardTitle>
           {description ? <p className="text-ds-text-sm text-ds-text-muted">{description}</p> : null}
         </CardHeader>
       ) : null}
-      <CardContent className={cn('p-ds-space-4', title && 'pt-0')}>{children}</CardContent>
+      <CardContent className="p-5">{children}</CardContent>
     </Card>
   );
 }
@@ -126,7 +140,7 @@ export function AdminFiltersBar({
   return (
     <div
       className={cn(
-        'flex flex-col gap-3 rounded-ds-radius-md border border-ds-border bg-ds-surface p-ds-space-3 sm:flex-row sm:flex-wrap sm:items-center',
+        'flex flex-col gap-3 rounded-ds-radius-md border border-ds-border bg-ds-surface p-3 sm:flex-row sm:flex-wrap sm:items-center',
         className,
       )}
     >
@@ -160,7 +174,7 @@ export function AdminSearchInput({
 
 export function AdminDataTableShell({ children }: { children: ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-ds-radius-lg border border-ds-border bg-ds-surface shadow-ds-shadow-sm">{children}</div>
+    <div className="overflow-hidden rounded-ds-radius-md border border-ds-border bg-ds-surface">{children}</div>
   );
 }
 

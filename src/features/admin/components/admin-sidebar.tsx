@@ -55,7 +55,7 @@ interface AdminSidebarInnerProps {
 }
 
 export function AdminSidebarInner({ locale, labels, visibleKeys }: AdminSidebarInnerProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const items = visibleKeys
     ? ADMIN_NAV_ITEMS.filter((item) => visibleKeys.includes(item.key))
     : ADMIN_NAV_ITEMS;

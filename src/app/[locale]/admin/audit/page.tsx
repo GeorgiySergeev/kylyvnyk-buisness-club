@@ -1,3 +1,4 @@
+import { Activity, Database, Filter, UserRoundCheck } from 'lucide-react';
 import Link from 'next/link';
 
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
@@ -15,6 +16,7 @@ import {
   AdminDataTableShell,
   AdminEmptyState,
   AdminFiltersBar,
+  AdminMetricCard,
   AdminMobileCard,
   AdminPageHeader,
   AdminSearchInput,
@@ -104,6 +106,8 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
   const pageLogs = filtered.slice(pageStart, pageStart + PAGE_SIZE);
   const startRow = totalCount === 0 ? 0 : pageStart + 1;
   const endRow = Math.min(pageStart + PAGE_SIZE, totalCount);
+  const actorCount = new Set(allLogs.map((log) => log.actor?.id).filter(Boolean)).size;
+  const entityCount = new Set(allLogs.map((log) => log.entityType).filter(Boolean)).size;
 
   const createAuditHref = (nextPage?: number) => {
     const params = new URLSearchParams();
@@ -118,14 +122,46 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
 
   return (
     <div className="space-y-5">
-      <AdminPageHeader description={t('auditDescription')} title={t('auditTitle')} />
+      <AdminPageHeader
+        description={t('auditDescription')}
+        eyebrow={t('operational')}
+        title={t('auditTitle')}
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <AdminMetricCard
+          icon={<Activity className="size-4" />}
+          label={t('auditMetricTotal')}
+          meta={t('liveDatabaseSnapshot')}
+          value={allLogs.length}
+        />
+        <AdminMetricCard
+          icon={<Filter className="size-4" />}
+          label={t('auditMetricFiltered')}
+          meta={t('liveDatabaseSnapshot')}
+          tone={actionFilter || searchTerm ? 'info' : undefined}
+          value={totalCount}
+        />
+        <AdminMetricCard
+          icon={<UserRoundCheck className="size-4" />}
+          label={t('auditMetricActors')}
+          meta={t('liveDatabaseSnapshot')}
+          value={actorCount}
+        />
+        <AdminMetricCard
+          icon={<Database className="size-4" />}
+          label={t('auditMetricEntities')}
+          meta={t('liveDatabaseSnapshot')}
+          value={entityCount}
+        />
+      </div>
 
       <AdminFiltersBar>
         <form className="flex w-full gap-2 sm:max-w-md" method="GET">
           <AdminSearchInput name="q" placeholder={t('auditActionFilter')} value={searchTerm} />
           {actionFilter ? <input name="action" type="hidden" value={actionFilter} /> : null}
           <Button className="h-9 rounded-md" size="sm" type="submit">
-            Search
+            {t('search')}
           </Button>
         </form>
         <div className="flex flex-wrap gap-1.5">
@@ -135,7 +171,7 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
             size="sm"
             variant={!actionFilter ? 'default' : 'outline'}
           >
-            <Link href={localizeHref(locale, '/admin/audit')}>All</Link>
+            <Link href={localizeHref(locale, '/admin/audit')}>{t('auditAll')}</Link>
           </Button>
           {uniqueActions.map((item) => (
             <Button
@@ -226,17 +262,20 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted-foreground">
-              Showing {startRow}&ndash;{endRow} of {totalCount}
+              {t('auditShowingRows')
+                .replace('{start}', String(startRow))
+                .replace('{end}', String(endRow))
+                .replace('{count}', String(totalCount))}
             </p>
             <div className="flex items-center gap-2">
               <Button asChild disabled={pageNumber <= 1} size="sm" variant="outline">
-                <Link href={createAuditHref(pageNumber - 1)}>Prev</Link>
+                <Link href={createAuditHref(pageNumber - 1)}>{t('paginationPrev')}</Link>
               </Button>
               <span className="text-sm text-muted-foreground">
                 Page {pageNumber} / {totalPages}
               </span>
               <Button asChild disabled={pageNumber >= totalPages} size="sm" variant="outline">
-                <Link href={createAuditHref(pageNumber + 1)}>Next</Link>
+                <Link href={createAuditHref(pageNumber + 1)}>{t('paginationNext')}</Link>
               </Button>
             </div>
           </div>

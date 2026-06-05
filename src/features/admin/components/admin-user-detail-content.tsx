@@ -326,6 +326,13 @@ export async function AdminUserDetailContent({ locale, userId }: AdminUserDetail
         cardNumber: activeCard?.number,
         publishedBusinesses: activeBusinesses,
       }}
+      heroLabels={{
+        businesses: t('userProfileHeroBusinesses'),
+        card: t('userProfileHeroCard'),
+        introductions: t('userProfileHeroIntroductions'),
+        joined: t('joined'),
+        notIssued: t('userProfileHeroNotIssued'),
+      }}
       introductions={userIntroductions.map((intro) => ({
         businessName: intro.targetBusiness?.name ?? 'N/A',
         clientContact: intro.clientContact,

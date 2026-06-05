@@ -26,7 +26,7 @@ export function AdminDetailTabNav<T extends string>({
   return (
     <nav
       aria-label={ariaLabel}
-      className="flex gap-6 overflow-x-auto [-ms-overflow-style:none] scrollbar-none [&::-webkit-scrollbar]:hidden"
+      className="flex gap-1 overflow-x-auto rounded-ds-radius-md border border-ds-border bg-ds-surface p-1 [-ms-overflow-style:none] scrollbar-none [&::-webkit-scrollbar]:hidden"
     >
       {tabs.map((tab) => {
         const Icon = tab.icon;
@@ -36,8 +36,10 @@ export function AdminDetailTabNav<T extends string>({
           <button
             aria-current={isActive ? 'page' : undefined}
             className={cn(
-              'inline-flex min-h-11 shrink-0 items-center gap-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none',
-              isActive ? 'font-medium text-ds-text' : 'text-ds-text-muted hover:text-ds-text',
+              'inline-flex min-h-9 shrink-0 items-center gap-2 rounded-ds-radius-sm px-3 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none',
+              isActive
+                ? 'bg-ds-surface-2 font-medium text-ds-text'
+                : 'text-ds-text-muted hover:bg-ds-surface-2 hover:text-ds-text',
             )}
             key={tab.key}
             onClick={() => onChange(tab.key)}

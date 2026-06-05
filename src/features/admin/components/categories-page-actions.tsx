@@ -15,7 +15,7 @@ export function CategoriesPageActions({ addCategoryLabel }: CategoriesPageAction
 
   return (
     <Button
-      className="h-9 gap-2 bg-foreground text-background hover:bg-foreground/90"
+      className="h-9 gap-2"
       onClick={openCreate}
       size="sm"
       type="button"

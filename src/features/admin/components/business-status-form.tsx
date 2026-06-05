@@ -37,8 +37,8 @@ export function BusinessStatusForm({ businessId, currentStatus }: BusinessStatus
   const statuses = ['DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN', 'DECLINED'] as const;
 
   return (
-    <div className="space-y-3">
-      <Label>Status</Label>
+    <div className="space-y-4 rounded-ds-radius-lg border border-ds-border bg-ds-surface/80 p-4 shadow-sm">
+      <Label className="text-ds-text">Status</Label>
       <div className="flex flex-wrap gap-2">
         {statuses.map((status) => {
           const isDestructive = status === 'DECLINED';
@@ -61,7 +61,7 @@ export function BusinessStatusForm({ businessId, currentStatus }: BusinessStatus
       </div>
 
       {pending ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 text-sm text-ds-text-muted">
           <Loader2 className="h-4 w-4 animate-spin" />
           Saving...
         </div>
@@ -71,7 +71,7 @@ export function BusinessStatusForm({ businessId, currentStatus }: BusinessStatus
           Status updated successfully.
         </p>
       ) : null}
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {error ? <p className="text-sm text-ds-error">{error}</p> : null}
     </div>
   );
 }
