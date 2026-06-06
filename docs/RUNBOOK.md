@@ -49,6 +49,7 @@ check, build, typecheck, and the combined test suite.
 pnpm test              # required Vitest projects
 pnpm test:unit         # Vitest unit and contract projects
 pnpm test:integration  # Vitest integration project
+pnpm test:db           # optional migration test against TEST_DATABASE_URL
 pnpm test:component    # Vitest jsdom/RTL component project
 pnpm test:coverage     # Vitest coverage baseline
 pnpm test:e2e:smoke    # Playwright @smoke suite
@@ -56,6 +57,9 @@ pnpm test:e2e:smoke    # Playwright @smoke suite
 
 The legacy `node:test` runner has been retired. Add new tests to the Vitest
 unit, integration, contract, or component projects.
+
+`pnpm test:db` is opt-in and requires `TEST_DATABASE_URL` to point at a
+disposable database whose name contains `test`, `ci`, or `scratch`.
 
 ## Playwright Smoke
 

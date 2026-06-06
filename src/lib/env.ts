@@ -32,6 +32,7 @@ const envSchema = z.object({
   STRIPE_PRICE_VIP_ANNUAL: nonEmptyStringSchema,
   STRIPE_SECRET_KEY: nonEmptyStringSchema,
   STRIPE_WEBHOOK_SECRET: nonEmptyStringSchema,
+  TEST_DATABASE_URL: nonEmptyStringSchema.optional(),
   TURNSTILE_SECRET_KEY: nonEmptyStringSchema,
   UPSTASH_REDIS_REST_TOKEN: nonEmptyStringSchema,
   UPSTASH_REDIS_REST_URL: nonEmptyStringSchema,

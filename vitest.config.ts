@@ -53,6 +53,16 @@ export default defineConfig({
           name: 'integration',
           environment: 'node',
           include: ['tests/integration/**/*.test.ts'],
+          exclude: ['tests/integration/db/**/*.test.ts'],
+          setupFiles: ['tests/setup/setup-vitest.node.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'db',
+          environment: 'node',
+          include: ['tests/integration/db/**/*.test.ts'],
           setupFiles: ['tests/setup/setup-vitest.node.ts'],
         },
       },

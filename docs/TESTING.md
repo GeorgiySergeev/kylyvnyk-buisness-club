@@ -2,14 +2,16 @@
 
 Last refreshed: 2026-06-06.
 
-Current phase: Phase 06 legacy runner retirement is in progress. The active context trail is
+Current phase: Phase 07 DB path and route contracts is in progress. The active context trail is
 `docs/testing-context/phase-01-foundation.md` through
-`docs/testing-context/phase-06-legacy-runner-retired.md`.
+`docs/testing-context/phase-07-db-path-route-contracts.md`.
 
 Sprint 0 baseline:
 
 - `pnpm test` runs Vitest unit, integration, contract, and component projects.
 - There are no remaining legacy `node:test` files under `tests/`.
+- `pnpm test:db` provides an opt-in migration integration path through
+  `TEST_DATABASE_URL`.
 - The component project has a real RTL test path and is no longer scaffold-only.
 - Playwright smoke uses deterministic server startup and no longer reuses
   unrelated local servers.
