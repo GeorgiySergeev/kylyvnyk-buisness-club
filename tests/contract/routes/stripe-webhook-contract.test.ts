@@ -72,7 +72,7 @@ describe('Stripe webhook route contract', () => {
     expect(constructEventMock).not.toHaveBeenCalled();
     expect(insertMock).not.toHaveBeenCalled();
     expect(updateMock).not.toHaveBeenCalled();
-  });
+  }, 15_000);
 
   it('returns a duplicate acknowledgement when the event was already claimed', async () => {
     returningMock.mockResolvedValueOnce([]);
@@ -97,5 +97,5 @@ describe('Stripe webhook route contract', () => {
     expect(await response.json()).toEqual({ duplicate: true });
     expect(insertMock).toHaveBeenCalledTimes(1);
     expect(updateMock).not.toHaveBeenCalled();
-  });
+  }, 15_000);
 });

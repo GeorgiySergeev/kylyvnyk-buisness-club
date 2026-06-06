@@ -1,267 +1,149 @@
-# User Flows
+# User Flows and Product QA Map
 
-This document maps the main user flows from `docs/SPEC.md` to the current repository state.
+Last refreshed: 2026-06-06.
 
-Legend:
+This document maps the main `docs/SPEC.md` flows to the current repository
+state. It is a QA map, not a replacement for the SPEC.
 
-- `Implemented now` means the route or guard exists in `src/app` or `src/features`.
-- `Specified next` means the flow is defined in `SPEC` or supported by schema/data helpers, but the final UI or route is not yet fully implemented.
+## Current Route Coverage
 
-## Current route coverage
+| Area | Current status |
+| --- | --- |
+| Guest/public | Home, directory, directory detail, verify-card lookup, verify-card detail, and legal routes exist. |
+| Auth/onboarding | Phone-first Supabase Auth screens, sign-out, and onboarding route exist. |
+| Member | Dashboard, introduce, subscription, business submission, checkout result, and 2FA-required routes exist. |
+| Admin | Dashboard, profile, users, access/roles, businesses, catalog, cards, memberships, introductions, billing, references, and audit routes exist. |
+| System | Robots, sitemap, Stripe webhook, admin export APIs, and protected admin-session API exist. |
 
-### Implemented now
-
-- `/{locale}`
-- `/{locale}/sign-in`
-- `/{locale}/sign-up` -> redirects to sign-in
-- `/{locale}/sign-out`
-- `/{locale}/m/onboarding`
-- `/{locale}/m/dashboard`
-- `/{locale}/m/introduce`
-- `/{locale}/m/2fa-required`
-- `/{locale}/admin`
-- `/{locale}/admin/users`
-- `/{locale}/admin/businesses`
-- `/{locale}/admin/introductions`
-- `/{locale}/admin/cards`
-- `/{locale}/admin/categories`
-- `/{locale}/admin/countries`
-- `/{locale}/admin/stripe-links`
-- `/{locale}/admin/subscriptions`
-- `/{locale}/admin/audit`
-- `/{locale}/directory`
-- `/{locale}/directory/[slug]`
-- `/{locale}/verify-card`
-- `/{locale}/verify-card/[number]`
-- `/{locale}/legal/terms`
-- `/{locale}/legal/privacy`
-- `/{locale}/legal/cookie`
-- `/{locale}/legal/contact`
-- `/{locale}/legal/refund`
-- `/{locale}/legal/rules/club`
-- `/{locale}/legal/rules/partner`
-- `/{locale}/legal/rules/introduction`
-- `/{locale}/legal/disclaimer`
-
-### Specified next
-
-- Full billing workflow behind `/{locale}/admin/stripe-links` and `/{locale}/admin/subscriptions`
-- Full CRUD for operational taxonomies where required beyond the current read-only admin tables
-
-## 1. Guest acquisition flow
-
-Status: partially implemented now.
+## Guest Acquisition
 
 ```mermaid
 flowchart TD
-  A["Guest opens /{locale}"] --> B["Reads hero, stats, top partners, how it works"]
+  A["Guest opens /{locale}"] --> B["Public home"]
   B --> C{"Intent"}
-  C --> D["Get Card"]
-  C --> E["Become VIP Member"]
-  C --> F["Submit Business"]
-  C --> G["Browse Directory"]
-  C --> H["Verify Card"]
-
-  D --> I["/{locale}/sign-up"]
-  E --> I
-  I --> J["Redirect to /{locale}/sign-in"]
-  F --> G
-  G --> K["/{locale}/directory"]
-  H --> L["/{locale}/verify-card"]
+  C --> D["Sign in / sign up"]
+  C --> E["Browse directory"]
+  C --> F["Verify card"]
+  E --> G["/{locale}/directory"]
+  F --> H["/{locale}/verify-card or /{locale}/verify-card/[number]"]
 ```
 
-Notes:
+QA notes:
 
-- The three primary actions are already wired from the home page.
-- `Get Card` and `Become VIP Member` currently funnel into auth first.
-- `Submit Business` currently leads into discovery, not a dedicated business submission flow yet.
+- Public home and directory are in the Playwright smoke suite.
+- Directory DTO coverage exists at contract level.
+- Sprint 3 must decide final MVP behavior for the verify-card lookup page.
 
-## 2. Auth and onboarding flow
-
-Status: implemented now.
+## Auth and Onboarding
 
 ```mermaid
 flowchart TD
-  A["User opens /{locale}/sign-in"] --> B["Phone OTP form"]
+  A["Open /{locale}/sign-in"] --> B["Phone OTP form"]
   B --> C{"OTP verified?"}
   C -- "No" --> B
-  C -- "Yes" --> D["syncAuthUser()"]
-  D --> E{"New user?"}
-  E -- "Yes" --> F["Redirect to /{locale}/m/onboarding"]
-  E -- "No" --> G["Redirect to /{locale}/m/dashboard"]
-  F --> H["Complete profile: displayName, country, city, bio"]
-  H --> I["Profile row created"]
-  I --> G
+  C -- "Yes" --> D["sync app user"]
+  D --> E{"Profile exists?"}
+  E -- "No" --> F["/{locale}/m/onboarding"]
+  E -- "Yes" --> G["/{locale}/m/dashboard"]
 ```
 
-Notes:
+QA notes:
 
-- `/{locale}/sign-up` is intentionally a redirect into `/{locale}/sign-in`.
-- Auth creates or syncs the app user record.
-- Onboarding completion is determined by the existence of a profile row.
+- Intent separation, redirects, and phone auth helpers have test coverage.
+- Positive seeded browser workflows remain Sprint 3 work.
 
-## 3. Member dashboard flow
-
-Status: guard implemented now, final dashboard sections specified next.
+## Member Dashboard and Subscription
 
 ```mermaid
 flowchart TD
-  A["User requests /{locale}/m/dashboard"] --> B{"Authenticated?"}
-  B -- "No" --> C["Redirect to /{locale}/sign-in"]
-  B -- "Yes" --> D{"Onboarding complete?"}
-  D -- "No" --> E["Redirect to /{locale}/m/onboarding"]
-  D -- "Yes" --> F["Dashboard"]
-
-  F --> G{"Role / entitlement"}
-  G --> H["FREE: card, profile, directory, upgrade CTA"]
-  G --> I["VIP: FREE features + Business Introduction + subscription"]
-  G --> J["BUSINESS: profile + business status + introduction access"]
-  G --> K["ADMIN: admin entry guarded by MFA"]
-```
-
-Notes:
-
-- The route exists and is protected.
-- The page body is still a placeholder, but the role-based product model is already defined in `SPEC`.
-
-## 4. Business Introduction flow
-
-Status: access rules implemented now, full workflow specified next.
-
-```mermaid
-flowchart TD
-  A["User requests /{locale}/m/introduce"] --> B{"Authenticated?"}
+  A["Request /{locale}/m/dashboard"] --> B{"Authenticated?"}
   B -- "No" --> C["Redirect to sign-in"]
-  B -- "Yes" --> D{"BUSINESS or ADMIN?"}
-  D -- "No" --> E["Redirect to /{locale}/m/dashboard"]
-  D -- "Yes" --> F{"Onboarding complete?"}
-  F -- "No" --> G["Redirect to onboarding"]
-  F -- "Yes" --> H["Business Introduction page"]
-
-  H --> I["Submit introduction request"]
-  I --> J["Record created with status SUBMITTED"]
-  J --> K["Admin review"]
-  K --> L["APPROVED / REJECTED / next lifecycle status"]
+  B -- "Yes" --> D{"Onboarded?"}
+  D -- "No" --> E["Redirect to onboarding"]
+  D -- "Yes" --> F["Dashboard"]
+  F --> G["Card/profile/member sections"]
+  F --> H["/{locale}/m/subscription"]
 ```
 
-Notes:
+QA notes:
 
-- The route and guards already exist.
-- The `introductions` table already exists, so the workflow has a data model foundation.
-- `SPEC` says this flow is admin-mediated.
+- Dashboard and subscription routes exist.
+- Billing reconciliation and selected lifecycle logic have Vitest coverage.
+- Sprint 3 should add persona E2E for FREE, VIP, and BUSINESS states.
 
-## 5. Admin access and MFA flow
-
-Status: implemented now for root admin access and routed child admin surfaces.
+## Business Introduction
 
 ```mermaid
 flowchart TD
-  A["User requests /{locale}/admin"] --> B{"Authenticated?"}
-  B -- "No" --> C["Redirect to /{locale}/sign-in"]
-  B -- "Yes" --> D{"role = ADMIN?"}
-  D -- "No" --> E["Redirect to /{locale}/"]
-  D -- "Yes" --> F{"Verified MFA in active session?"}
-  F -- "No" --> G["Redirect to /{locale}/m/2fa-required"]
+  A["Member opens /{locale}/m/introduce"] --> B{"Eligible role?"}
+  B -- "No" --> C["Redirect or denied state"]
+  B -- "Yes" --> D["Submit Business Introduction"]
+  D --> E["Admin moderation"]
+  E --> F["Final status"]
+```
+
+QA notes:
+
+- Schema and moderation logic coverage exists in the legacy suite.
+- Sprint 1 should migrate this legacy coverage after auth/billing.
+- Sprint 3 should add positive browser coverage.
+
+## Business Directory and Submission
+
+```mermaid
+flowchart TD
+  A["Guest or member opens directory"] --> B["Published businesses"]
+  B --> C["Filter/search"]
+  C --> D["Business detail"]
+  E["Member submits business"] --> F["Moderation queue"]
+  F --> G["Admin publishes or rejects"]
+```
+
+QA notes:
+
+- Public DTO coverage exists.
+- Business submission schema coverage remains in legacy tests.
+- Admin moderation needs stronger browser-level regression coverage.
+
+## Admin Access and Operations
+
+```mermaid
+flowchart TD
+  A["Request /{locale}/admin"] --> B{"Authenticated?"}
+  B -- "No" --> C["Redirect to sign-in"]
+  B -- "Yes" --> D{"Admin role?"}
+  D -- "No" --> E["Redirect home"]
+  D -- "Yes" --> F{"MFA verified?"}
+  F -- "No" --> G["/{locale}/m/2fa-required"]
   F -- "Yes" --> H["Admin dashboard"]
 ```
 
-Companion protected-session contract:
+QA notes:
+
+- Middleware/admin access contracts are covered.
+- `/api/protected/admin-session` has contract tests.
+- Admin exports have contract coverage, but Sprint 1 should expand route-handler
+  assertions where coverage remains thin.
+
+## Verify Card
 
 ```mermaid
 flowchart TD
-  A["GET /api/protected/admin-session"] --> B{"Authenticated admin?"}
-  B -- "No auth" --> C["401 UNAUTHORIZED"]
-  B -- "Wrong role" --> D["403 FORBIDDEN"]
-  B -- "Admin without MFA" --> E["403 MFA_REQUIRED"]
-  B -- "Admin with MFA" --> F["200 ok: true"]
+  A["Open /{locale}/verify-card/[number]"] --> B["Load public DTO"]
+  B --> C["Render allowed fields only"]
+  C --> D["No index / no member-data OG reveal"]
 ```
 
-Notes:
+QA notes:
 
-- This is the cleanest fully enforced flow in the repo right now.
-- The child admin sections from `SPEC` are routed in `src/app`.
-- `categories` and `countries` are read-only/list-first operational tables.
-- `stripe-links` and `subscriptions` are route-complete shells; Stripe integration itself is intentionally not started in this branch.
+- Public DTO contract is covered.
+- `/{locale}/verify-card` exists as the lookup entry route, but final MVP lookup
+  behavior must be confirmed in Sprint 3.
 
-## 6. Public directory flow
+## Release QA Gaps
 
-Status: route and detail route implemented now, final list UI still moving beyond placeholder.
-
-```mermaid
-flowchart TD
-  A["Guest opens /{locale}/directory"] --> B["See published businesses"]
-  B --> C["Filter by country / category / search"]
-  C --> D["Open business detail"]
-  D --> E["See public business info"]
-  E --> F["Sign in for richer member-only context"]
-```
-
-Notes:
-
-- The route currently renders a placeholder page.
-- The data helper already restricts the list to `PUBLISHED` businesses.
-- The slug detail route exists in `src/app`.
-
-## 7. Verify card flow
-
-Status: lookup entry route and final number route implemented now.
-
-```mermaid
-flowchart TD
-  A["Guest opens /{locale}/verify-card"] --> B["Enter card number or arrive from QR"]
-  B --> C["/{locale}/verify-card/[number]"]
-  C --> D["Load public card DTO only"]
-  D --> E["Show number, memberName, memberType, status, expiresAt"]
-```
-
-Notes:
-
-- The lookup page exists and is marked `robots: noindex`.
-- The per-card public route described in `SPEC` is present in `src/app`.
-- The `club_cards` schema is already in place.
-
-## 8. Billing lifecycle flow
-
-Status: specified in `SPEC`, not yet fully implemented in routed UI.
-
-```mermaid
-flowchart TD
-  A["Authenticated member opens dashboard"] --> B["Clicks VIP upgrade CTA"]
-  B --> C["External Stripe Payment Link"]
-  C --> D["Stripe webhook updates app state"]
-  D --> E["Dashboard reflects VIP access"]
-  E --> F["Member can cancel from dashboard"]
-  F --> G["VIP remains active until period end"]
-```
-
-Notes:
-
-- The product contract is clear in `SPEC`.
-- The UI and route-level flow still need to be completed in the app.
-
-## 9. Role summary map
-
-```mermaid
-flowchart LR
-  A["Guest"] --> B["Sign in"]
-  B --> C["FREE"]
-  C --> D["Onboarding complete"]
-  D --> E["Dashboard access"]
-  E --> F["Upgrade to VIP"]
-  E --> G["Apply / manage business profile"]
-  F --> H["VIP"]
-  G --> I["BUSINESS"]
-  H --> J["Business Introduction access"]
-  I --> J
-  J --> K["Admin-mediated lifecycle"]
-  E --> L["If role = ADMIN"]
-  L --> M["MFA required"]
-  M --> N["Admin area"]
-```
-
-## 10. Repo reality summary
-
-- The authentication and access-control backbone is already present.
-- The onboarding flow is the most complete end-to-end user flow in the repo today.
-- The admin entry flow with MFA is also concretely implemented.
-- The directory, verify-card, dashboard, introduction, and admin content surfaces are still moving from placeholder or schema-backed state into full product pages.
+- Legacy `node:test` coverage still needs Vitest migration.
+- Persona-based positive E2E is not complete.
+- DB integration tests need an isolated Postgres/schema path.
+- Nightly accessibility, visual, regression, and performance suites remain
+  Sprint 2/Sprint 3 work.

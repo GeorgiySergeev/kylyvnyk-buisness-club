@@ -1080,3 +1080,5 @@ Show me OnboardingForm.tsx and complete-onboarding.action.ts
 B06 у нас уже частично настроен в B02 (`routing.ts`, middleware, `[locale]` папка). В B06 нужно только: добавить `not-found.tsx`, `error.tsx`, `loading.tsx` для каждого основного маршрута, и проверить что все существующие страницы правильно используют `useTranslations`.
 
 Скажите «готов к B06» или «готов к B08» — B06 можно проскочить быстро или объединить с B08.
+> ARCHIVED, 2026-06-06: historical sprint draft only. Do not execute literally.
+> Use `docs/RELEASE-ROADMAP.md` and `docs/LEGACY-CONTEXT.md` for current work.

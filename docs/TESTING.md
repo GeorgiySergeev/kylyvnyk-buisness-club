@@ -1,5 +1,21 @@
 # Testing Strategy
 
+Last refreshed: 2026-06-06.
+
+Current phase: Phase 06 legacy runner retirement is in progress. The active context trail is
+`docs/testing-context/phase-01-foundation.md` through
+`docs/testing-context/phase-06-legacy-runner-retired.md`.
+
+Sprint 0 baseline:
+
+- `pnpm test` runs Vitest unit, integration, contract, and component projects.
+- There are no remaining legacy `node:test` files under `tests/`.
+- The component project has a real RTL test path and is no longer scaffold-only.
+- Playwright smoke uses deterministic server startup and no longer reuses
+  unrelated local servers.
+- Repository-wide coverage remains baseline-only; do not add a global 80%
+  threshold before critical-domain ratchets are established.
+
 ## 1. Purpose
 
 This document defines the maintainable testing system for KCLUB-MVP. It protects
@@ -356,6 +372,7 @@ lost; smoke tests are stable in CI.
 ### Phase 2: P0 coverage and runner migration
 
 - Migrate all existing `node:test` tests to Vitest domain by domain.
+- Start the next migration slice with auth and billing.
 - Add missing P0 auth, access, verify-card, webhook, reconciliation, and export
   contract tests.
 - Add isolated DB integration infrastructure.
@@ -381,6 +398,24 @@ without duplicated low-value assertions.
 - Add performance budgets and production-like smoke.
 - Track flaky tests, runtime, and repeated escaped regressions.
 - Add tests to the nearest existing suite whenever a production issue escapes.
+
+### Current Sprint 0 documentation cleanup
+
+- `docs/RELEASE-ROADMAP.md` is the current release plan.
+- `docs/LEGACY-CONTEXT.md` identifies old prompts and sprint notes that are
+  historical only.
+- Old B16 bootstrap prompt text is no longer the test-system source of truth.
+
+### Current Sprint 1 migration slice
+
+- Auth and billing legacy tests have Vitest parity and no longer run through
+  `test:legacy`.
+- Business, directory, introductions, i18n, and profile were migrated after the
+  auth/billing slice.
+- `test:legacy` has been removed from `package.json`.
+- `test:auth` is a Vitest command for the auth/admin unit slice.
+- Remaining Sprint 1 work: add/expand P0 route contracts where coverage is thin
+  and introduce the DB integration path.
 
 ## 12. Quality Metrics
 

@@ -943,3 +943,5 @@ Show me globals.css and next.config.ts
 Там мы закоммитим все 9 таблиц из нашей упрощённой схемы, запустим первую миграцию против Supabase, и засеем тестовыми данными (countries, categories, test businesses). После B03 у нас есть данные — и тогда B09 (каталог) и B11 (дашборд) станут конкретными а не placeholder'ами.
 
 Скажите «готов к B03» когда Header виден и `pnpm build` зелёный.
+> ARCHIVED, 2026-06-06: historical sprint draft only. Do not execute literally.
+> Use `docs/RELEASE-ROADMAP.md` and `docs/LEGACY-CONTEXT.md` for current work.
