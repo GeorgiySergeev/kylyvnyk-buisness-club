@@ -45,7 +45,7 @@ export async function AppShell({
   profileMenu,
 }: AppShellProps) {
   return (
-    <div className="flex min-h-dvh flex-col bg-ds-bg text-ds-text">
+    <div className="flex min-h-dvh flex-col text-ds-text">
       <PublicChromeGate locale={locale}>
         <HomeHeader
           homeHref={homeHref}

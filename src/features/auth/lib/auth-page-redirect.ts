@@ -1,4 +1,4 @@
-import type { UserRole } from '@/db/schema/enums/user-role';
+import type { UserRole } from '../../../db/schema/enums/user-role';
 
 export type AuthenticatedAuthPageTarget =
   | '/admin'

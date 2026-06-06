@@ -1,5 +1,4 @@
 import { and, eq, sql } from 'drizzle-orm';
-import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
@@ -11,8 +10,13 @@ import { clubCards, users } from '@/db/schema';
 import {
   createPublicCardDto,
   type PublicCardDto,
-  type PublicCardStatus,
 } from '@/features/cards/lib/public-card-dto';
+import { VERIFY_CARD_METADATA } from '@/features/cards/lib/verify-card-metadata';
+import {
+  formatVerifyCardExpiresAt,
+  getVerifyCardClientIp,
+  getVerifyCardStatusClassName,
+} from '@/features/cards/lib/verify-card-view';
 import { getT } from '@/lib/i18n/t-server';
 import { checkVerifyCardRateLimit } from '@/lib/rate-limit/upstash';
 import { cn } from '@/lib/utils';
@@ -21,50 +25,13 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 export const revalidate = 0;
 
-export const metadata: Metadata = {
-  robots: {
-    follow: false,
-    index: false,
-  },
-};
+export const metadata = VERIFY_CARD_METADATA;
 
 interface VerifyCardNumberPageProps {
   params: Promise<{
     locale: SupportedLocale;
     number: string;
   }>;
-}
-
-function getClientIp(headersList: Headers): string {
-  return (
-    headersList.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    headersList.get('x-real-ip') ||
-    'unknown'
-  );
-}
-
-function getStatusClassName(status: PublicCardStatus): string {
-  if (status === 'ACTIVE') {
-    return 'border-ds-success/40 bg-ds-success-subtle text-ds-success';
-  }
-
-  if (status === 'NOT_FOUND') {
-    return 'border-muted bg-muted/30 text-muted-foreground';
-  }
-
-  return 'border-destructive/40 bg-destructive/10 text-destructive';
-}
-
-function formatExpiresAt(expiresAt: string | null, fallback: string): string {
-  if (!expiresAt) {
-    return fallback;
-  }
-
-  return new Intl.DateTimeFormat('en', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(expiresAt));
 }
 
 function VerifyCardView({ dto, locale }: { dto: PublicCardDto; locale: SupportedLocale }) {
@@ -81,7 +48,7 @@ function VerifyCardView({ dto, locale }: { dto: PublicCardDto; locale: Supported
                 KYLYVNYK CLUB
               </p>
               <Badge
-                className={cn('uppercase tracking-wider', getStatusClassName(dto.status))}
+                className={cn('uppercase tracking-wider', getVerifyCardStatusClassName(dto.status))}
                 variant="outline"
               >
                 {statusLabel}
@@ -124,7 +91,7 @@ function VerifyCardView({ dto, locale }: { dto: PublicCardDto; locale: Supported
                 {t('verifyExpiresAt')}
               </dt>
               <dd className="text-base font-medium text-foreground">
-                {formatExpiresAt(dto.expiresAt, t('verifyNoExpiration'))}
+                {formatVerifyCardExpiresAt(dto.expiresAt, t('verifyNoExpiration'))}
               </dd>
             </dl>
           </CardContent>
@@ -140,7 +107,7 @@ export default async function VerifyCardNumberPage({ params }: VerifyCardNumberP
   const t = getT('cards', locale);
   const headersList = await headers();
   const rateLimit = await checkVerifyCardRateLimit({
-    ip: getClientIp(headersList),
+    ip: getVerifyCardClientIp(headersList),
     number: decodedNumber,
   });
 

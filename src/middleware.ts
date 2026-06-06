@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { decodeDevPhoneAuthCookie, DEV_PHONE_AUTH_COOKIE } from '@/features/auth/lib/dev-auth';
+import { decodeDevPhoneAuthCookie, DEV_PHONE_AUTH_COOKIE } from './features/auth/lib/dev-auth';
 
 const PROTECTED_ROUTE_PATTERN = /^\/(en|ru|uk)\/(?:m|admin)(?:\/|$)/;
 const LOCALE_PATTERN = /^\/(en|ru|uk)(?:\/|$)/;

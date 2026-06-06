@@ -1,10 +1,7 @@
 import type Stripe from 'stripe';
 
-import {
-  type MembershipPlanCode,
-} from '@/features/billing/lib/plan-codes';
-
 import { resolvePlanCodeFromMetadata } from './membership-plan';
+import type { MembershipPlanCode } from './plan-codes';
 
 export type CheckoutReconciliationInput = {
   planCode: MembershipPlanCode;

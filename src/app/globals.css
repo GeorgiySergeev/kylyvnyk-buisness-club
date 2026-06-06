@@ -332,12 +332,26 @@ html {
 
 body {
   @apply text-fg font-sans antialiased;
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#main-content {
-  background: var(--ds-bg);
+/* Global dot-matrix background — fixed layer behind all page content */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--ds-bg);
+  background-image:
+    radial-gradient(circle at 25% 25%, var(--ds-surface-hover) 0.5px, transparent 1px),
+    radial-gradient(circle at 75% 75%, var(--ds-surface) 0.5px, transparent 1px);
+  background-size: 10px 10px;
+  image-rendering: pixelated;
 }
 
 * {
@@ -663,7 +677,7 @@ a {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
   html {
     @apply font-sans;

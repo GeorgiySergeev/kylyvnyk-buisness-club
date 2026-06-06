@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import { createAdminCsvDownloadResponse } from '@/features/admin/lib/export-response';
 import {
   fetchAdminUsers,
   filterAdminUsers,
@@ -44,7 +45,7 @@ export async function GET(request: Request) {
   const allUsers = await fetchAdminUsers();
   const filtered = filterAdminUsers(allUsers, filters);
   const csv = usersToCsv(filtered);
-  const exportedAt = new Date().toISOString().slice(0, 10);
+  const exportedAt = new Date();
 
   await createAuditLog({
     action: 'ADMIN_USERS_EXPORTED',
@@ -56,11 +57,5 @@ export async function GET(request: Request) {
     },
   });
 
-  return new NextResponse(csv, {
-    headers: {
-      'Cache-Control': 'no-store',
-      'Content-Disposition': `attachment; filename="users-export-${exportedAt}.csv"`,
-      'Content-Type': 'text/csv; charset=utf-8',
-    },
-  });
+  return createAdminCsvDownloadResponse(csv, 'users', exportedAt);
 }

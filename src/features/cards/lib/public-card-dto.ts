@@ -1,4 +1,4 @@
-import type { CardMemberType, CardStatus } from '@/db/schema/enums/card-status';
+import type { CardMemberType, CardStatus } from '../../../db/schema/enums/card-status';
 
 export type PublicCardStatus = CardStatus | 'NOT_FOUND';
 

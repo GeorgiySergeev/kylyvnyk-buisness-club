@@ -5,7 +5,7 @@ import { MobileBottomNav } from '@/components/home/mobile-bottom-nav';
 import { RecommendedSection } from '@/components/home/recommended-section';
 import { StatsSection } from '@/components/home/stats-section';
 import { type PartnerData, TopPartnersSection } from '@/components/home/top-partners-section';
-import { localizeHref, resolveLocale, type SupportedLocale } from '@/components/layout/navigation';
+import { type SupportedLocale, localizeHref, resolveLocale } from '@/components/layout/navigation';
 import { getPublishedBusinesses } from '@/features/directory/lib/get-published-businesses';
 import { getNavigationSession } from '@/lib/auth/navigation-session';
 import { getT } from '@/lib/i18n/t-server';
@@ -78,8 +78,8 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
   }
 
   return (
-    <>
-      <div className="mx-auto max-w-(--kc-max-w) space-y-6 border-0  px-4   xs:space-y-8   md:border md:border-border md:px-12  lg:space-y-12 container bg-zinc-950">
+    <div className="main-content">
+      <div className="mx-auto max-w-(--kc-max-w) space-y-6 border-0 px-4 xs:space-y-8 md:border md:border-border md:px-12 lg:space-y-12 container">
         <HeroSection
           locale={locale}
           isAuthenticated={isAuthenticated}
@@ -155,6 +155,6 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
       </div>
 
       <MobileBottomNav locale={locale} labels={bottomNavLabels} />
-    </>
+    </div>
   );
 }

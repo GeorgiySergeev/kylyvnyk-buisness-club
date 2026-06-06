@@ -1,14 +1,8 @@
-import type { Metadata } from 'next';
-
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { PlaceholderPage } from '@/components/layout/placeholder-page';
+import { VERIFY_CARD_METADATA } from '@/features/cards/lib/verify-card-metadata';
 
-export const metadata: Metadata = {
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
+export const metadata = VERIFY_CARD_METADATA;
 
 interface VerifyCardPageProps {
   params: Promise<{

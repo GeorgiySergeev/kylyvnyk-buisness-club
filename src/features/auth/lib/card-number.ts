@@ -1,4 +1,4 @@
-import type { CardMemberType } from '@/db/schema/enums/card-status';
+import type { CardMemberType } from '../../../db/schema/enums/card-status';
 
 const CROCKFORD_BASE32_ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 

@@ -4,7 +4,7 @@ import {
   BUSINESS_PLAN_CODE,
   type MembershipPlanCode,
   VIP_PLAN_CODE,
-} from '@/features/billing/lib/plan-codes';
+} from './plan-codes';
 
 export function resolvePlanCodeFromMetadata(
   metadata: Stripe.Metadata | null | undefined,

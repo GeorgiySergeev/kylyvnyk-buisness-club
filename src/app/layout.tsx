@@ -1,13 +1,14 @@
 // BLOCK: Root layout — global HTML wrapper (fonts, metadata, skip link, body). This file defines the top-level <html> and <body> for the app. Do NOT place dev-only UI here.
-import './globals.css';
+import type { ReactNode } from 'react';
 
 import type { Metadata, Viewport } from 'next';
 import { JetBrains_Mono, Oxanium, Playfair_Display } from 'next/font/google';
-import type { ReactNode } from 'react';
 
 import { NetworkStatusToast } from '@/components/ui/network-status-toast';
 import { getT } from '@/lib/i18n/t-server';
 import { cn } from '@/lib/utils';
+
+import './globals.css';
 
 const oxanium = Oxanium({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 
@@ -57,11 +58,8 @@ export default function RootLayout({
         oxanium.variable,
       )}
     >
-      <body suppressHydrationWarning className="overflow-x-hidden min-h-dvh">
-        <a
-          href="#main-content"
-          className="kc-skip-link"
-        >
+      <body suppressHydrationWarning>
+        <a href="#main-content" className="kc-skip-link">
           {tA11y('skipToContent')}
         </a>
         {children}
