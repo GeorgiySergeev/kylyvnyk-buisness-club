@@ -1,30 +1,15 @@
 import { NextResponse } from 'next/server';
 
 import { decideAdminApiResult } from '@/features/auth/lib/admin-access';
+import {
+  createAdminApiErrorBody,
+  createAdminSessionSuccessBody,
+} from '@/features/auth/lib/admin-api-contract';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { hasVerifiedMfaInSession } from '@/features/auth/lib/mfa';
 
-type ApiErrorCode = 'FORBIDDEN' | 'MFA_REQUIRED' | 'SUPER_ADMIN_REQUIRED' | 'UNAUTHORIZED';
-type ApiErrorResult = { error: { code: ApiErrorCode; message: string }; ok: false };
-type ApiSuccessResult = {
-  data: {
-    role: 'ADMIN';
-    userId: string;
-  };
-  ok: true;
-};
-
-function errorResponse(
-  code: ApiErrorCode,
-  message: string,
-  status: 401 | 403,
-) {
-  const body: ApiErrorResult = {
-    error: { code, message },
-    ok: false,
-  };
-
-  return NextResponse.json(body, { status });
+function errorResponse(code: 'FORBIDDEN' | 'MFA_REQUIRED' | 'SUPER_ADMIN_REQUIRED' | 'UNAUTHORIZED', message: string, status: 401 | 403) {
+  return NextResponse.json(createAdminApiErrorBody(code, message), { status });
 }
 
 export async function GET() {
@@ -51,13 +36,5 @@ export async function GET() {
     return errorResponse(decision.code, decision.message, decision.status);
   }
 
-  const body: ApiSuccessResult = {
-    data: {
-      role: 'ADMIN',
-      userId: userResult.data.id,
-    },
-    ok: true,
-  };
-
-  return NextResponse.json(body);
+  return NextResponse.json(createAdminSessionSuccessBody(userResult.data.id));
 }

@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import { getT } from '@/lib/i18n/t-server';
 
-import { localizeHref,type SupportedLocale } from './navigation';
+import { type SupportedLocale, localizeHref } from './navigation';
 
 const PLATFORM_LINKS = [
   {
@@ -56,7 +56,7 @@ export function SiteFooter({ locale }: SiteFooterProps) {
   return (
     <footer
       aria-label={tA11y('siteFooter')}
-      className="border-t border-ds-border bg-ds-bg"
+      className="relative border-t border-ds-border"
       suppressHydrationWarning
     >
       <div
@@ -65,15 +65,9 @@ export function SiteFooter({ locale }: SiteFooterProps) {
         suppressHydrationWarning
       />
 
-      <div
-        className="py-16 sm:py-20 md:py-24 kc-container"
-        suppressHydrationWarning
-      >
+      <div className="py-8 md:py-12 kc-container" suppressHydrationWarning>
         <div className="mx-auto " suppressHydrationWarning>
-          <div
-            className="mb-12 space-y-4 text-center sm:mb-16 md:mb-20"
-            suppressHydrationWarning
-          >
+          <div className="mb-12 space-y-4 text-center sm:mb-16 md:mb-20" suppressHydrationWarning>
             <span className="block text-[11px] font-normal uppercase tracking-[0.2em] text-ds-text-faint sm:text-ds-text-xs">
               {tFooter('brand')}
             </span>
@@ -135,7 +129,9 @@ export function SiteFooter({ locale }: SiteFooterProps) {
               aria-label={tFooter('legalHeading')}
               className="border-t border-ds-border px-6 py-8 sm:px-8 sm:py-10 md:border-t-0 md:border-l md:px-10"
             >
-              <h3 className="mb-4 text-ds-text-sm font-semibold text-ds-text">{tFooter('legalHeading')}</h3>
+              <h3 className="mb-4 text-ds-text-sm font-semibold text-ds-text">
+                {tFooter('legalHeading')}
+              </h3>
               <ul className="space-y-3">
                 {FOOTER_LINKS.map((link) => (
                   <li key={link.href}>
@@ -158,7 +154,9 @@ export function SiteFooter({ locale }: SiteFooterProps) {
               <h3 className="mb-4 text-ds-text-sm font-semibold text-ds-text">
                 {tFooter('newsletterHeading')}
               </h3>
-              <p className="mb-4 text-ds-text-sm leading-relaxed text-ds-text-muted">{tFooter('newsletterSub')}</p>
+              <p className="mb-4 text-ds-text-sm leading-relaxed text-ds-text-muted">
+                {tFooter('newsletterSub')}
+              </p>
               <div className="space-y-3" suppressHydrationWarning>
                 <input
                   className="h-11 w-full rounded-ds-radius-md border border-ds-border bg-transparent px-ds-space-4 text-ds-text-sm text-ds-text placeholder:text-ds-text-faint transition-ds-transition-fast focus-visible:border-ds-accent focus-visible:ring-[3px] focus-visible:ring-ds-accent-subtle focus-visible:outline-none"

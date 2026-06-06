@@ -3,7 +3,7 @@ import {
   FREE_PLAN_CODE,
   type MembershipTierCode,
   VIP_PLAN_CODE,
-} from '@/features/billing/lib/plan-codes';
+} from './plan-codes';
 
 export type MembershipAccessRow = {
   createdAt?: Date;
