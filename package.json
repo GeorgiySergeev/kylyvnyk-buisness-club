@@ -16,6 +16,7 @@
     "test:vitest": "pnpm test:unit && pnpm test:integration && pnpm test:component",
     "test:unit": "vitest run --config vitest.config.ts --project unit --project contract",
     "test:integration": "vitest run --config vitest.config.ts --project integration",
+    "test:db": "vitest run --config vitest.config.ts --project db",
     "test:component": "vitest run --config vitest.config.ts --project component",
     "test:watch": "vitest --config vitest.config.ts",
     "test:coverage": "vitest run --coverage --config vitest.config.ts --project unit --project integration --project contract --project component",

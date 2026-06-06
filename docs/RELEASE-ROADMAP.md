@@ -20,7 +20,7 @@ migration, browser workflow QA, and release-gate hardening.
 | Core app routes | Mostly implemented | Public, member, admin, billing, legal, sitemap, and robots routes exist. |
 | Auth stack | Supabase Auth | Old Clerk prompts and sprint docs are historical only. |
 | Billing | Stripe implemented | Webhook/idempotency and reconciliation have coverage, but more P0 contract tests remain. |
-| Testing | Phase 06 in progress | Legacy `node:test` runner is retired; remaining Sprint 1 work is DB integration and route-contract hardening. |
+| Testing | Phase 06+ in progress | Legacy `node:test` runner is retired; DB migration smoke is opt-in; route-contract hardening continues. |
 | CI | PR gates exist | Release gates, unit/integration, and E2E smoke run in CI. Nightly regression/a11y/visual/perf remain future work. |
 | Documentation | Mixed | Current docs and historical bootstrap docs coexist; Sprint 0 separates them. |
 

@@ -87,6 +87,16 @@ port **5432** · owner: DB owner · rotates: same as above · breaks:
 
 Used ONLY by `drizzle-kit`. The app never reads this at runtime.
 
+#### `TEST_DATABASE_URL`
+
+ci Â· optional Â· empty by default Â· disposable Postgres database only Â· owner:
+test owner Â· rotates: with test DB lifecycle Â· breaks: `pnpm test:db`.
+
+This URL is never used by the app. It is an opt-in pre-release/CI test target
+for applying committed SQL migrations in order. The database name must contain
+`test`, `ci`, or `scratch`; the test refuses any other database name. Do not
+point it at development, staging, preview, or production.
+
 ---
 
 ### Authentication — Supabase Auth (ADR-011)
