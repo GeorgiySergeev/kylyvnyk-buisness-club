@@ -1183,3 +1183,5 @@ pnpm typecheck
 Там мы подключим Clerk webhook (`/api/clerk/webhook`) который будет создавать `users` строку при регистрации, напишем onboarding страницу (`/en/m/onboarding`) с формой профиля, и настроим middleware редиректы так чтобы новый пользователь автоматически попадал на onboarding до первого входа в dashboard.
 
 Скажите «готов к B04» после того как `pnpm db:studio` показывает 9 таблиц с данными.
+> ARCHIVED, 2026-06-06: historical sprint draft only. Do not execute literally.
+> Use `docs/RELEASE-ROADMAP.md` and `docs/LEGACY-CONTEXT.md` for current work.

@@ -1,6 +1,6 @@
 # Release Status
 
-Last refreshed: 2026-05-28.
+Last refreshed: 2026-06-06.
 
 ## Baseline
 
@@ -9,7 +9,10 @@ Last refreshed: 2026-05-28.
   `pnpm build`, `pnpm typecheck`, and `pnpm test`.
 - Combined local gate: `pnpm verify`.
 - CI gate: `.github/workflows/ci.yml` runs the same release gate sequence on
-  `pull_request` and pushes to `main`.
+  `pull_request` and pushes to `main`, plus unit/integration coverage and
+  Playwright smoke.
+- Current release plan: `docs/RELEASE-ROADMAP.md`.
+- Historical context map: `docs/LEGACY-CONTEXT.md`.
 
 ## Release-Ready Surfaces
 
@@ -25,15 +28,24 @@ Last refreshed: 2026-05-28.
   idempotent event claim, membership lifecycle state machine, checkout
   and portal session creation, cancel VIP flow, subscription management
   UI, daily reconciliation cron, and 48 unit tests across 5 test files.
+- Testing foundation through Phase 04: legacy runner preserved, Vitest projects
+  active, component coverage started, route contracts added, and Playwright
+  smoke isolated from unrelated local servers.
+- System routes: `robots.txt` and `sitemap.xml` are implemented through Next
+  metadata routes.
 
 ## Deferred Surfaces
 
-- Production e2e/browser automation remains manual until Playwright is wired
-  into CI with stable test accounts and environment secrets.
+- Legacy `node:test` migration to Vitest is incomplete.
+- Positive persona-based browser workflows remain Sprint 3 work.
+- Isolated Postgres/schema integration tests remain Sprint 1/Sprint 2 work.
+- Nightly/pre-release regression, accessibility, visual, and performance lanes
+  remain release-hardening work.
 
 ## Release Blockers
 
 - `pnpm verify` must be green on the release branch.
+- `pnpm test:coverage` and `pnpm test:e2e:smoke` must be green before release.
 - GitHub Actions must have the required secrets for build-time DB and platform
   env vars before CI can be considered authoritative.
 

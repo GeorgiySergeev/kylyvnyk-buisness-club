@@ -727,3 +727,5 @@ Show me the plan first — what files will you create?
 Не накапливайте несколько шагов без коммита. Если агент поломал что-то на шаге 3, а вы уже начали шаг 5 — откат будет болезненным. `git commit` после каждого зелёного `pnpm verify` — это ваша сеть безопасности.
 
 Скажите «готов» когда запустится `pnpm dev` и покажет тёмную страницу — значит B01 пошёл как надо, и переходим к B02.
+> ARCHIVED, 2026-06-06: historical sprint draft only. Do not execute literally.
+> Use `docs/RELEASE-ROADMAP.md` and `docs/LEGACY-CONTEXT.md` for current work.

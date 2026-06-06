@@ -1,5 +1,10 @@
 # `docs/DESIGN.md`
 
+> Current-context guard, refreshed 2026-06-06: visual tokens and layout guidance
+> remain useful, but auth-specific references to Clerk are historical. Current
+> auth is Supabase Auth phone-first; use `docs/STACK-DECISION.md`,
+> `docs/SPEC.md`, and `docs/LEGACY-CONTEXT.md` when auth UI guidance conflicts.
+
 Куда класть: `docs/DESIGN.md` (папка `docs/` уже существует).
 
 ````md

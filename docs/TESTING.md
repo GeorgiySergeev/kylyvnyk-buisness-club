@@ -1,5 +1,22 @@
 # Testing Strategy
 
+Last refreshed: 2026-06-06.
+
+Current phase: Phase 04 P0 hardening is in progress. The active context trail is
+`docs/testing-context/phase-01-foundation.md` through
+`docs/testing-context/phase-04-p0-hardening.md`.
+
+Sprint 0 baseline:
+
+- `pnpm test` runs the legacy `tsx --test` suite plus Vitest unit,
+  integration, contract, and component projects.
+- There are 30 remaining legacy `node:test` files.
+- The component project has a real RTL test path and is no longer scaffold-only.
+- Playwright smoke uses deterministic server startup and no longer reuses
+  unrelated local servers.
+- Repository-wide coverage remains baseline-only; do not add a global 80%
+  threshold before critical-domain ratchets are established.
+
 ## 1. Purpose
 
 This document defines the maintainable testing system for KCLUB-MVP. It protects
@@ -356,6 +373,7 @@ lost; smoke tests are stable in CI.
 ### Phase 2: P0 coverage and runner migration
 
 - Migrate all existing `node:test` tests to Vitest domain by domain.
+- Start the next migration slice with auth and billing.
 - Add missing P0 auth, access, verify-card, webhook, reconciliation, and export
   contract tests.
 - Add isolated DB integration infrastructure.
@@ -381,6 +399,13 @@ without duplicated low-value assertions.
 - Add performance budgets and production-like smoke.
 - Track flaky tests, runtime, and repeated escaped regressions.
 - Add tests to the nearest existing suite whenever a production issue escapes.
+
+### Current Sprint 0 documentation cleanup
+
+- `docs/RELEASE-ROADMAP.md` is the current release plan.
+- `docs/LEGACY-CONTEXT.md` identifies old prompts and sprint notes that are
+  historical only.
+- Old B16 bootstrap prompt text is no longer the test-system source of truth.
 
 ## 12. Quality Metrics
 
