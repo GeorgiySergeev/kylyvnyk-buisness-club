@@ -46,8 +46,7 @@ check, build, typecheck, and the combined test suite.
 ## Test Commands
 
 ```bash
-pnpm test              # legacy tsx runner plus required Vitest projects
-pnpm test:legacy       # existing node:test files during migration
+pnpm test              # required Vitest projects
 pnpm test:unit         # Vitest unit and contract projects
 pnpm test:integration  # Vitest integration project
 pnpm test:component    # Vitest jsdom/RTL component project
@@ -55,8 +54,8 @@ pnpm test:coverage     # Vitest coverage baseline
 pnpm test:e2e:smoke    # Playwright @smoke suite
 ```
 
-The legacy runner remains intentional until all legacy `node:test` files have
-Vitest parity. Do not remove `test:legacy` in a documentation cleanup.
+The legacy `node:test` runner has been retired. Add new tests to the Vitest
+unit, integration, contract, or component projects.
 
 ## Playwright Smoke
 
@@ -108,7 +107,6 @@ Before the final release sprint, run the gate on Node 20.18.x with a clean
 
 ## Known Deferred Release Work
 
-- Legacy `node:test` migration to Vitest is not complete.
 - DB integration tests need an isolated Postgres/schema flow.
 - Nightly/pre-release regression, accessibility, visual, and performance suites
   are not fully wired.

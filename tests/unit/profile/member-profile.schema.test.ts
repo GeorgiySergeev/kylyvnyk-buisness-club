@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
 import {
   isAllowedAvatarMimeType,
   memberProfileFieldsSchema,
   parseMemberProfileFormData,
-} from '../../src/features/profile/schemas/member-profile.schema';
+} from '../../../src/features/profile/schemas/member-profile.schema';
 
 test('memberProfileFieldsSchema accepts valid profile fields', () => {
   const result = memberProfileFieldsSchema.safeParse({

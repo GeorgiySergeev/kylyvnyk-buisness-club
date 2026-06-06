@@ -36,8 +36,8 @@ Last refreshed: 2026-06-06.
 
 ## Deferred Surfaces
 
-- Legacy `node:test` migration to Vitest is incomplete; 10 legacy files remain
-  after the auth/billing migration slice.
+- Legacy `node:test` migration to Vitest is complete; DB integration
+  infrastructure still remains.
 - Positive persona-based browser workflows remain Sprint 3 work.
 - Isolated Postgres/schema integration tests remain Sprint 1/Sprint 2 work.
 - Nightly/pre-release regression, accessibility, visual, and performance lanes

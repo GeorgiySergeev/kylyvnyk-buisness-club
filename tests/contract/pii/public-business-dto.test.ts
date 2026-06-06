@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
 import {
   PUBLIC_BUSINESS_DTO_KEYS,
   createPublicBusinessDto,
-} from '../../src/features/directory/lib/public-business-dto';
+} from '../../../src/features/directory/lib/public-business-dto';
 
 test('public business dto exposes only public directory keys', () => {
   const source = {

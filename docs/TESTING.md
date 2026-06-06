@@ -2,16 +2,14 @@
 
 Last refreshed: 2026-06-06.
 
-Current phase: Phase 05 auth/billing Vitest parity is in progress. The active context trail is
+Current phase: Phase 06 legacy runner retirement is in progress. The active context trail is
 `docs/testing-context/phase-01-foundation.md` through
-`docs/testing-context/phase-05-auth-billing-vitest-parity.md`.
+`docs/testing-context/phase-06-legacy-runner-retired.md`.
 
 Sprint 0 baseline:
 
-- `pnpm test` runs the legacy `tsx --test` suite plus Vitest unit,
-  integration, contract, and component projects.
-- There are 10 remaining legacy `node:test` files after the auth/billing
-  migration slice.
+- `pnpm test` runs Vitest unit, integration, contract, and component projects.
+- There are no remaining legacy `node:test` files under `tests/`.
 - The component project has a real RTL test path and is no longer scaffold-only.
 - Playwright smoke uses deterministic server startup and no longer reuses
   unrelated local servers.
@@ -412,11 +410,12 @@ without duplicated low-value assertions.
 
 - Auth and billing legacy tests have Vitest parity and no longer run through
   `test:legacy`.
-- `test:legacy` now covers only business, directory, introductions, i18n, and
-  profile.
+- Business, directory, introductions, i18n, and profile were migrated after the
+  auth/billing slice.
+- `test:legacy` has been removed from `package.json`.
 - `test:auth` is a Vitest command for the auth/admin unit slice.
-- Remaining Sprint 1 work: migrate the final 10 legacy files, add/expand P0
-  route contracts where coverage is thin, and introduce the DB integration path.
+- Remaining Sprint 1 work: add/expand P0 route contracts where coverage is thin
+  and introduce the DB integration path.
 
 ## 12. Quality Metrics
 

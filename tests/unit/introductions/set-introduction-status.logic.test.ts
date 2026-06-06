@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
-import { createSetIntroductionStatusHandler } from '../../src/features/introductions/actions/set-introduction-status.logic';
+import { createSetIntroductionStatusHandler } from '../../../src/features/introductions/actions/set-introduction-status.logic';
 
 const validInput = {
   adminNote: 'Approved after partner verification.',

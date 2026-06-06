@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
-import { isMemberDashboardTab } from '../../src/features/member/lib/member-dashboard-tab';
+import { isMemberDashboardTab } from '../../../src/features/member/lib/member-dashboard-tab';
 
 test('isMemberDashboardTab accepts the subscription tab', () => {
   assert.equal(isMemberDashboardTab('subscription'), true);

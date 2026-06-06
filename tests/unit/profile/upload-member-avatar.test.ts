@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
-import { validateAvatarFile } from '../../src/features/profile/lib/avatar-file-validation';
-import { AVATAR_MAX_BYTES } from '../../src/features/profile/schemas/member-profile.schema';
+import { validateAvatarFile } from '../../../src/features/profile/lib/avatar-file-validation';
+import { AVATAR_MAX_BYTES } from '../../../src/features/profile/schemas/member-profile.schema';
 
 test('validateAvatarFile rejects files larger than 2 MB', () => {
   const file = new File([new Uint8Array(AVATAR_MAX_BYTES + 1)], 'big.png', {

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
+import { test } from 'vitest';
 
-import { introductionRequestSchema } from '../../src/features/introductions/schemas/introduction.schema';
+import { introductionRequestSchema } from '../../../src/features/introductions/schemas/introduction.schema';
 
 const validInput = {
   clientContact: '+380501112233',

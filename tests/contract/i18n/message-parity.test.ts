@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, it } from 'node:test';
+import { describe, it } from 'vitest';
 
 const LOCALES = ['ru', 'uk'] as const;
 const MESSAGES_DIR = join(process.cwd(), 'messages');

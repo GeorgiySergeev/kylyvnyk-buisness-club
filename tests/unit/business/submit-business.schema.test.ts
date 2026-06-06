@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
-import { submitBusinessSchema } from '../../src/features/business/schemas/submit-business.schema';
+import { submitBusinessSchema } from '../../../src/features/business/schemas/submit-business.schema';
 
 test('submitBusinessSchema requires core business fields', () => {
   const parsed = submitBusinessSchema.safeParse({
