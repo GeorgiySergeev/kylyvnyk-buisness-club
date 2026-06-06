@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
-import { deriveDefaultDisplayNameFromCardNumber } from '../../src/features/auth/lib/card-number';
+import { deriveDefaultDisplayNameFromCardNumber } from '../../../src/features/auth/lib/card-number';
 
 test('default display name uses card digits when present', () => {
   const value = deriveDefaultDisplayNameFromCardNumber('VIP-US-0123456789');

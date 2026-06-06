@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
 import {
   generateCardNumber,
   shouldRotateCardNumber,
-} from '../../src/features/auth/lib/card-number';
+} from '../../../src/features/auth/lib/card-number';
 
 test('generateCardNumber uses VIP prefix for VIP members', () => {
   const number = generateCardNumber('+14155550123', 'VIP');

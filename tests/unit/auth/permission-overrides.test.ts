@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
-import { applyPermissionOverrides } from '../../src/lib/auth/permission-override-helpers';
+import { applyPermissionOverrides } from '../../../src/lib/auth/permission-override-helpers';
 
 test('permission overrides remove only the denied actions from granted permissions', () => {
   const effective = applyPermissionOverrides(

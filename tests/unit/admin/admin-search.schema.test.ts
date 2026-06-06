@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
 import {
   adminSearchInputSchema,
   normalizeAdminSearchQuery,
-} from '../../src/features/admin/schemas/admin-search.schema';
+} from '../../../src/features/admin/schemas/admin-search.schema';
 
 test('admin global search ignores queries shorter than two characters', () => {
   assert.equal(normalizeAdminSearchQuery(''), null);

@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
-import { isMfaVerifiedFromAssuranceLevel } from '../../src/features/auth/lib/mfa-policy';
-import { mfaTotpVerifySchema } from '../../src/features/auth/schemas/mfa.schema';
+import { isMfaVerifiedFromAssuranceLevel } from '../../../src/features/auth/lib/mfa-policy';
+import { mfaTotpVerifySchema } from '../../../src/features/auth/schemas/mfa.schema';
 
 test('MFA assurance policy accepts aal2 sessions', () => {
   assert.equal(isMfaVerifiedFromAssuranceLevel({ currentLevel: 'aal2' }), true);

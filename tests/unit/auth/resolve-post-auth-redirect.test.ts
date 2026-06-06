@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
-import { isSafeReturnBackUrl } from '../../src/features/auth/lib/return-back-url';
+import { isSafeReturnBackUrl } from '../../../src/features/auth/lib/return-back-url';
 
 test('accepts protected member return paths', () => {
   assert.equal(isSafeReturnBackUrl('/en/m/dashboard'), true);

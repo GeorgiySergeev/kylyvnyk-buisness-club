@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
-import { onboardingSchema } from '../../src/features/auth/schemas/onboarding.schema';
+import { onboardingSchema } from '../../../src/features/auth/schemas/onboarding.schema';
 
 test('requires country during onboarding', () => {
   const parsed = onboardingSchema.safeParse({

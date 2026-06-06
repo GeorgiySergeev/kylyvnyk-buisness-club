@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
-import { getSubscriptionPeriodEnd } from '../../src/lib/stripe/subscription-period';
+import { getSubscriptionPeriodEnd } from '../../../src/lib/stripe/subscription-period';
 
 test('getSubscriptionPeriodEnd reads period end from subscription root', () => {
   const periodEnd = getSubscriptionPeriodEnd({

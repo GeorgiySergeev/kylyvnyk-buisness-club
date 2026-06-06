@@ -1,22 +1,22 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 import type Stripe from 'stripe';
 
-import { resolvePlanCodeFromMetadata } from '../../src/features/billing/lib/membership-plan';
+import { resolvePlanCodeFromMetadata } from '../../../src/features/billing/lib/membership-plan';
 import {
   hasMembershipTransitionChanged,
   resolveEffectiveMembership,
-} from '../../src/features/billing/lib/membership-resolver';
+} from '../../../src/features/billing/lib/membership-resolver';
 import {
   BUSINESS_PLAN_CODE,
   FREE_PLAN_CODE,
   VIP_PLAN_CODE,
-} from '../../src/features/billing/lib/plan-codes';
+} from '../../../src/features/billing/lib/plan-codes';
 import {
   getSubscriptionPeriodEnd,
   getSubscriptionPeriodStart,
   mapStripeSubscriptionStatus,
-} from '../../src/lib/stripe/subscription-period';
+} from '../../../src/lib/stripe/subscription-period';
 
 // ---------------------------------------------------------------------------
 // Tests for the pure-function logic that underpins the daily Stripe

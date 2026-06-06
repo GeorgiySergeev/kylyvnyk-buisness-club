@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
 import type Stripe from 'stripe';
 
@@ -7,7 +7,7 @@ import {
   mapBillingStatusLabel,
   mapInvoice,
   mapPaymentMethod,
-} from '../../src/features/billing/lib/member-billing-mappers';
+} from '../../../src/features/billing/lib/member-billing-mappers';
 
 const t = (key: string) => key;
 

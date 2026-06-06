@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
-import { PLATFORM_ROLE_OPTIONS } from '../../src/features/admin/lib/access-display';
-import { canRevokeRoleAssignment } from '../../src/features/roles/lib/rbac-policy';
+import { PLATFORM_ROLE_OPTIONS } from '../../../src/features/admin/lib/access-display';
+import { canRevokeRoleAssignment } from '../../../src/features/roles/lib/rbac-policy';
 
 test('platform role options do not include VIP membership', () => {
   assert.equal(

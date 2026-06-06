@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
 import {
   createPublicCardDto,
   PUBLIC_CARD_DTO_KEYS,
-} from '../../src/features/cards/lib/public-card-dto';
+} from '../../../src/features/cards/lib/public-card-dto';
 import {
   deriveCountryCodeFromPhone,
   generateCardNumber,
-} from '../../src/features/auth/lib/card-number';
+} from '../../../src/features/auth/lib/card-number';
 
 test('public card dto exposes only the allowed PII-safe keys for existing cards', () => {
   const dto = createPublicCardDto(

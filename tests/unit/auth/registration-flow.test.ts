@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
 import {
   createPublicCardDto,
   PUBLIC_CARD_DTO_KEYS,
-} from '../../src/features/cards/lib/public-card-dto';
-import { isSafeReturnBackUrl } from '../../src/features/auth/lib/return-back-url';
+} from '../../../src/features/cards/lib/public-card-dto';
+import { isSafeReturnBackUrl } from '../../../src/features/auth/lib/return-back-url';
 
 test('free registration flow exposes only onboarding gate before dashboard', () => {
   assert.equal(isSafeReturnBackUrl('/en/m/onboarding'), true);

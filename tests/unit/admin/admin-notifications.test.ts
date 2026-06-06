@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
-import { dropdownMenuItemVariants } from '../../src/components/ui/dropdown-menu';
-import { getAdminNotificationsMenuState } from '../../src/features/admin/components/admin-notifications-menu';
-import { buildAdminNotifications } from '../../src/features/admin/lib/admin-notifications.shared';
+import { dropdownMenuItemVariants } from '../../../src/components/ui/dropdown-menu';
+import { getAdminNotificationsMenuState } from '../../../src/features/admin/components/admin-notifications-menu';
+import { buildAdminNotifications } from '../../../src/features/admin/lib/admin-notifications.shared';
 
 test('buildAdminNotifications returns only mapped items sorted newest first with localized hrefs', () => {
   const notifications = buildAdminNotifications('en', {

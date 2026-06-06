@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
 import {
   decideAdminApiResult,
   decideAdminRouteAccess,
   decideMemberRouteAccess,
-} from '../../src/features/auth/lib/admin-access';
+} from '../../../src/features/auth/lib/admin-access';
 
 test('admin route decision: anonymous is redirected to sign-in', () => {
   const decision = decideAdminRouteAccess({

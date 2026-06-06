@@ -1,16 +1,16 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
 import type Stripe from 'stripe';
 
-import { resolveCheckoutReconciliationInput } from '../../src/features/billing/lib/checkout-reconciliation';
-import { resolvePlanCodeFromMetadata } from '../../src/features/billing/lib/membership-plan';
+import { resolveCheckoutReconciliationInput } from '../../../src/features/billing/lib/checkout-reconciliation';
+import { resolvePlanCodeFromMetadata } from '../../../src/features/billing/lib/membership-plan';
 import {
   hasMembershipTransitionChanged,
   resolveEffectiveMembership,
-} from '../../src/features/billing/lib/membership-resolver';
-import { BUSINESS_PLAN_CODE, FREE_PLAN_CODE, VIP_PLAN_CODE } from '../../src/features/billing/lib/plan-codes';
-import { mapStripeSubscriptionStatus } from '../../src/lib/stripe/subscription-period';
+} from '../../../src/features/billing/lib/membership-resolver';
+import { BUSINESS_PLAN_CODE, FREE_PLAN_CODE, VIP_PLAN_CODE } from '../../../src/features/billing/lib/plan-codes';
+import { mapStripeSubscriptionStatus } from '../../../src/lib/stripe/subscription-period';
 
 test('resolvePlanCodeFromMetadata prefers explicit membership type', () => {
   assert.equal(
