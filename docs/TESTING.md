@@ -2,9 +2,9 @@
 
 Last refreshed: 2026-06-06.
 
-Current phase: Phase 07 DB path and route contracts is in progress. The active context trail is
+Current phase: Phase 08 release gates, security, and observability is in progress. The active context trail is
 `docs/testing-context/phase-01-foundation.md` through
-`docs/testing-context/phase-07-db-path-route-contracts.md`.
+`docs/testing-context/phase-08-release-gates-security-observability.md`.
 
 Sprint 0 baseline:
 
@@ -15,6 +15,9 @@ Sprint 0 baseline:
 - The component project has a real RTL test path and is no longer scaffold-only.
 - Playwright smoke uses deterministic server startup and no longer reuses
   unrelated local servers.
+- Playwright has separate scripts for `@smoke`, `@regression`, `@a11y`, and
+  `@visual`; PRs run smoke, while scheduled/manual CI runs the broader release
+  suites.
 - Repository-wide coverage remains baseline-only; do not add a global 80%
   threshold before critical-domain ratchets are established.
 
@@ -280,14 +283,14 @@ Before deployment:
 
 ### Required scripts
 
-The migration keeps the legacy runner until all existing tests are moved:
+The legacy `node:test` runner has been retired. Current required scripts:
 
 ```text
-test:legacy        Existing tsx --test suite during migration
 test:unit          Vitest node project
 test:component     Vitest jsdom project
 test:integration   Vitest integration/contract projects
-test               Legacy + all required Vitest projects during migration
+test:db            Optional Vitest DB migration smoke through TEST_DATABASE_URL
+test               All required Vitest projects
 test:coverage      Vitest coverage collection and threshold checks
 test:e2e:smoke     Playwright @smoke on Chromium
 test:e2e:regression Playwright @regression
@@ -296,8 +299,9 @@ test:visual        Playwright @visual
 verify             Existing release gates + required test and smoke suites
 ```
 
-`test:legacy` is removed only after every existing `node:test` file has an
-equivalent Vitest test and both suites have passed together.
+`test:db`, `test:e2e:regression`, `test:a11y`, and `test:visual` are not part
+of the default `pnpm test` loop. They are scheduled/manual release suites until
+the seeded browser data and DB infrastructure are stable enough for every PR.
 
 ### Pull request jobs
 
@@ -313,9 +317,10 @@ after retry is treated as flaky work to fix, not silently accepted.
 
 ### Scheduled and release jobs
 
-- Nightly: regression, visual, accessibility, DB integration, performance smoke.
-- Pre-release/manual dispatch: external Stripe sandbox checks and full release
-  suite.
+- Nightly/manual CI: DB migration smoke, regression, visual smoke, and
+  accessibility smoke.
+- Still deferred: performance smoke, axe-based WCAG scans, true screenshot
+  baselines, and external Stripe sandbox checks.
 
 ## 10. Definition of Done for New Features
 

@@ -19,3 +19,25 @@ self-service TOTP setup and verification flow at `/{locale}/m/2fa-required`.
 
 Auth flows must allow the configured Supabase project origin for OTP/session
 requests. Keep existing Stripe, Turnstile, Sentry, and Plausible allowlists.
+
+## HTTP response headers
+
+The shared Next.js header contract currently sets:
+
+- `Content-Security-Policy`
+- `X-Frame-Options: DENY`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+- `Permissions-Policy` denying camera, microphone, and geolocation
+
+`pnpm test:e2e:regression` includes a public-route security-header check.
+
+## Observability PII
+
+Sentry events pass through `scrubSentryEvent`, which filters sensitive headers,
+removes user email/IP fields, and redacts emails in error messages. The contract
+is covered by `tests/contract/observability/sentry-scrubber.test.ts`.
+
+Plausible remains analytics-only and must not receive custom props containing
+PII such as user IDs, emails, phone numbers, card numbers, or IP addresses.
