@@ -7,13 +7,13 @@ state. It is a QA map, not a replacement for the SPEC.
 
 ## Current Route Coverage
 
-| Area | Current status |
-| --- | --- |
-| Guest/public | Home, directory, directory detail, verify-card lookup, verify-card detail, and legal routes exist. |
-| Auth/onboarding | Phone-first Supabase Auth screens, sign-out, and onboarding route exist. |
-| Member | Dashboard, introduce, subscription, business submission, checkout result, and 2FA-required routes exist. |
-| Admin | Dashboard, profile, users, access/roles, businesses, catalog, cards, memberships, introductions, billing, references, and audit routes exist. |
-| System | Robots, sitemap, Stripe webhook, admin export APIs, and protected admin-session API exist. |
+| Area            | Current status                                                                                                                                |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Guest/public    | Home, directory, directory detail, verify-card lookup, verify-card detail, and legal routes exist.                                            |
+| Auth/onboarding | Phone-first Supabase Auth screens, sign-out, and onboarding route exist.                                                                      |
+| Member          | Dashboard, introduce, subscription, business submission, checkout result, and 2FA-required routes exist.                                      |
+| Admin           | Dashboard, profile, users, access/roles, businesses, catalog, cards, memberships, introductions, billing, references, and audit routes exist. |
+| System          | Robots, sitemap, Stripe webhook, admin export APIs, and protected admin-session API exist.                                                    |
 
 ## Guest Acquisition
 
@@ -32,7 +32,8 @@ QA notes:
 
 - Public home and directory are in the Playwright smoke suite.
 - Directory DTO coverage exists at contract level.
-- Sprint 3 must decide final MVP behavior for the verify-card lookup page.
+- The verify-card lookup page is now an MVP entry route that accepts a card
+  number and redirects to `/verify-card/[number]`.
 
 ## Auth and Onboarding
 
@@ -69,7 +70,8 @@ QA notes:
 
 - Dashboard and subscription routes exist.
 - Billing reconciliation and selected lifecycle logic have Vitest coverage.
-- Sprint 3 should add persona E2E for FREE, VIP, and BUSINESS states.
+- Sprint 3 has started positive member E2E with sign-up, onboarding skip, and
+  dashboard load. VIP and BUSINESS state differences remain to cover.
 
 ## Business Introduction
 
@@ -137,8 +139,9 @@ flowchart TD
 QA notes:
 
 - Public DTO contract is covered.
-- `/{locale}/verify-card` exists as the lookup entry route, but final MVP lookup
-  behavior must be confirmed in Sprint 3.
+- `/{locale}/verify-card` is the lookup entry route. It does not query member
+  data directly; it redirects to `/{locale}/verify-card/[number]`, where the
+  existing PII-safe public DTO contract applies.
 
 ## Release QA Gaps
 
