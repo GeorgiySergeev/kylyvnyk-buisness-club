@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 const port = Number(process.env.PLAYWRIGHT_PORT ?? 3101);
 const baseURL = `http://127.0.0.1:${port}`;
+const nodeBin = process.execPath;
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -17,10 +18,13 @@ export default defineConfig({
     baseURL,
     trace: 'on-first-retry',
   },
-  webServer: {
-    command: `cross-env AUTH_DEV_PHONE_BYPASS_ENABLED=1 NODE_ENV=development PORT=${port} pnpm dev`,
-    url: baseURL,
-    timeout: 120_000,
-    reuseExistingServer: false,
-  },
+  webServer: process.env.PLAYWRIGHT_SKIP_WEB_SERVER
+    ? undefined
+    : {
+        command: `"${nodeBin}" "./scripts/playwright-dev-server.mjs" ${port}`,
+        url: baseURL,
+        timeout: 120_000,
+        reuseExistingServer: false,
+        gracefulShutdown: { signal: 'SIGTERM', timeout: 500 },
+      },
 });

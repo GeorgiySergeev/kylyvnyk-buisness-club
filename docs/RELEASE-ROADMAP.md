@@ -1,6 +1,6 @@
 # KCLUB MVP Release Roadmap
 
-Last refreshed: 2026-06-06.
+Last refreshed: 2026-06-07.
 
 ## Purpose
 
@@ -21,7 +21,7 @@ migration, browser workflow QA, and release-gate hardening.
 | Auth stack | Supabase Auth | Old Clerk prompts and sprint docs are historical only. |
 | Billing | Stripe implemented | Webhook/idempotency and reconciliation have coverage, but more P0 contract tests remain. |
 | Testing | Phase 06+ in progress | Legacy `node:test` runner is retired; DB migration smoke is opt-in; route-contract hardening continues. |
-| CI | PR gates exist | Release gates, unit/integration, and E2E smoke run in CI. Nightly regression/a11y/visual/perf remain future work. |
+| CI | PR + scheduled gates exist | Release gates, unit/integration, and E2E smoke run in PR CI. Scheduled/manual CI runs DB migration smoke, regression, a11y smoke, and visual smoke. Performance remains future work. |
 | Documentation | Mixed | Current docs and historical bootstrap docs coexist; Sprint 0 separates them. |
 
 ## Sprint 0: Context Hygiene
@@ -82,6 +82,9 @@ Acceptance criteria:
 - CI does not depend on stale local servers or undocumented secrets.
 - Known PII/security checks have an owner, a gate, or an explicit deferred item.
 - Release-gate commands are documented in `docs/RUNBOOK.md`.
+- Scheduled/manual release suites exist for DB smoke, regression, a11y smoke,
+  and visual smoke; performance and full axe/visual baselines are explicit
+  deferred items.
 
 ## Sprint 3: Product Workflow QA
 
@@ -133,6 +136,9 @@ pnpm typecheck
 pnpm test
 pnpm test:coverage
 pnpm test:e2e:smoke
+pnpm test:e2e:regression
+pnpm test:a11y
+pnpm test:visual
 pnpm verify
 ```
 

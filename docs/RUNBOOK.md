@@ -37,6 +37,9 @@ pnpm typecheck
 pnpm test
 pnpm test:coverage
 pnpm test:e2e:smoke
+pnpm test:e2e:regression
+pnpm test:a11y
+pnpm test:visual
 pnpm verify
 ```
 
@@ -53,6 +56,9 @@ pnpm test:db           # optional migration test against TEST_DATABASE_URL
 pnpm test:component    # Vitest jsdom/RTL component project
 pnpm test:coverage     # Vitest coverage baseline
 pnpm test:e2e:smoke    # Playwright @smoke suite
+pnpm test:e2e:regression # Playwright @regression suite
+pnpm test:a11y         # Playwright @a11y smoke suite
+pnpm test:visual       # Playwright @visual smoke suite
 ```
 
 The legacy `node:test` runner has been retired. Add new tests to the Vitest
@@ -72,6 +78,25 @@ pnpm test:e2e:smoke
 ```
 
 CI installs Chromium and uploads `playwright-report` as an artifact.
+
+## Nightly and Pre-Release Suites
+
+Scheduled/manual CI runs the broader release suites without slowing every PR:
+
+```bash
+pnpm test:db
+pnpm test:e2e:regression
+pnpm test:a11y
+pnpm test:visual
+```
+
+`pnpm test:db` skips unless `TEST_DATABASE_URL` is configured. The current
+`@a11y` and `@visual` suites are smoke-level gates; full axe scans and screenshot
+baselines remain deferred until those tools and review ownership are pinned.
+
+If a local sandbox already manages the Next server separately, run Playwright
+with `PLAYWRIGHT_SKIP_WEB_SERVER=1` and `PLAYWRIGHT_PORT=3101`. Normal local
+scripts and CI should let `playwright.config.ts` start the server.
 
 ## Database Commands
 
@@ -111,7 +136,8 @@ Before the final release sprint, run the gate on Node 20.18.x with a clean
 
 ## Known Deferred Release Work
 
-- DB integration tests need an isolated Postgres/schema flow.
-- Nightly/pre-release regression, accessibility, visual, and performance suites
+- `TEST_DATABASE_URL` needs a CI secret before nightly DB migration smoke can run
+  against real Postgres instead of skipping.
+- Axe-based accessibility, true visual snapshot baselines, and performance smoke
   are not fully wired.
 - Persona-based positive E2E coverage is still a Sprint 3 item.
