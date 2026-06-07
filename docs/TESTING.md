@@ -2,9 +2,9 @@
 
 Last refreshed: 2026-06-06.
 
-Current phase: Phase 08 release gates, security, and observability is in progress. The active context trail is
+Current phase: Phase 09 product workflow QA is in progress. The active context trail is
 `docs/testing-context/phase-01-foundation.md` through
-`docs/testing-context/phase-08-release-gates-security-observability.md`.
+`docs/testing-context/phase-09-product-workflow-qa.md`.
 
 Sprint 0 baseline:
 
@@ -18,6 +18,8 @@ Sprint 0 baseline:
 - Playwright has separate scripts for `@smoke`, `@regression`, `@a11y`, and
   `@visual`; PRs run smoke, while scheduled/manual CI runs the broader release
   suites.
+- Sprint 3 positive workflow QA has started with member sign-up/onboarding and
+  verify-card lookup `@regression` coverage.
 - Repository-wide coverage remains baseline-only; do not add a global 80%
   threshold before critical-domain ratchets are established.
 
@@ -45,18 +47,18 @@ behavior must have explicit scenario coverage even when line coverage is high.
 
 ## 3. Test Layers
 
-| Layer | Purpose | Runner | Default trigger |
-| --- | --- | --- | --- |
-| Static gates | Types, lint, vocabulary, env contract, build | Existing scripts | Every PR |
-| Unit | Pure rules, schemas, mappers, state transitions | Vitest `node` | Local and every PR |
-| Component | UI states, forms, keyboard and accessible behavior | Vitest `jsdom` + RTL | Local and every PR |
-| Integration | Route handlers, Server Actions, middleware, DB repositories, external-service adapters | Vitest `node` + MSW + isolated Postgres | Every PR where practical |
-| Contract/security | DTO key sets, authorization matrix, webhook/idempotency, PII rules | Vitest and Playwright | Every PR |
-| E2E smoke | Deployment viability and critical happy paths | Playwright Chromium | Every PR after build |
-| E2E regression | Full role and failure-path workflows | Playwright | Nightly and pre-release |
-| Visual/a11y | Layout regressions and WCAG checks on critical screens | Playwright screenshots + axe | Nightly and pre-release |
-| External integration | Stripe CLI/webhook and production-like provider checks | Provider sandbox tools | Pre-release/manual gated |
-| Performance smoke | Detect major latency or payload regressions | `oha` or equivalent | Nightly and pre-release |
+| Layer                | Purpose                                                                                | Runner                                  | Default trigger          |
+| -------------------- | -------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------ |
+| Static gates         | Types, lint, vocabulary, env contract, build                                           | Existing scripts                        | Every PR                 |
+| Unit                 | Pure rules, schemas, mappers, state transitions                                        | Vitest `node`                           | Local and every PR       |
+| Component            | UI states, forms, keyboard and accessible behavior                                     | Vitest `jsdom` + RTL                    | Local and every PR       |
+| Integration          | Route handlers, Server Actions, middleware, DB repositories, external-service adapters | Vitest `node` + MSW + isolated Postgres | Every PR where practical |
+| Contract/security    | DTO key sets, authorization matrix, webhook/idempotency, PII rules                     | Vitest and Playwright                   | Every PR                 |
+| E2E smoke            | Deployment viability and critical happy paths                                          | Playwright Chromium                     | Every PR after build     |
+| E2E regression       | Full role and failure-path workflows                                                   | Playwright                              | Nightly and pre-release  |
+| Visual/a11y          | Layout regressions and WCAG checks on critical screens                                 | Playwright screenshots + axe            | Nightly and pre-release  |
+| External integration | Stripe CLI/webhook and production-like provider checks                                 | Provider sandbox tools                  | Pre-release/manual gated |
+| Performance smoke    | Detect major latency or payload regressions                                            | `oha` or equivalent                     | Nightly and pre-release  |
 
 ### Test placement rule
 
@@ -193,13 +195,13 @@ After the baseline report is stable:
 
 Target thresholds:
 
-| Area | Lines/functions/statements | Branches |
-| --- | ---: | ---: |
-| Auth, RBAC, PII DTOs, billing lifecycle, webhook logic | 90% | 85% |
-| Schemas, pure domain helpers, mappers | 90% | 85% |
-| Server Actions and route-handler orchestration | 80% | 75% |
-| Components and presentation helpers | 70% | 60% |
-| Repository overall, after migration | 80% | 70% |
+| Area                                                   | Lines/functions/statements | Branches |
+| ------------------------------------------------------ | -------------------------: | -------: |
+| Auth, RBAC, PII DTOs, billing lifecycle, webhook logic |                        90% |      85% |
+| Schemas, pure domain helpers, mappers                  |                        90% |      85% |
+| Server Actions and route-handler orchestration         |                        80% |      75% |
+| Components and presentation helpers                    |                        70% |      60% |
+| Repository overall, after migration                    |                        80% |      70% |
 
 Generated files, type declarations, styles, assets, and pure re-export barrels
 may be excluded. Server modules and UI modules must not be excluded merely
@@ -209,35 +211,35 @@ because they are difficult to test.
 
 ### Priority P0: security, money, and public PII
 
-| Domain | Required coverage |
-| --- | --- |
-| Phone auth | Sign-in/sign-up intent separation, unknown/existing phone outcomes, OTP schemas, redirects, read-only session loading |
-| Access control | Public/member/VIP/BUS/ADMIN/SUPERADMIN matrix, admin 2FA gate, permission overrides, middleware locale and redirects |
-| Verify card | Allowed DTO key set only, invalid/not-found/rate-limited behavior, no member-data Open Graph reveal, `robots: noindex` |
-| Stripe webhook | Signature rejection, event idempotency, duplicate delivery, lifecycle transitions, unsupported event, handler failure and retry |
-| Checkout reconciliation | Valid/invalid session, membership synchronization, card-number rotation, revalidation behavior |
-| Public exports/routes | Authorization, typed output, no leaked DB-row fields, stable error shape |
+| Domain                  | Required coverage                                                                                                               |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Phone auth              | Sign-in/sign-up intent separation, unknown/existing phone outcomes, OTP schemas, redirects, read-only session loading           |
+| Access control          | Public/member/VIP/BUS/ADMIN/SUPERADMIN matrix, admin 2FA gate, permission overrides, middleware locale and redirects            |
+| Verify card             | Allowed DTO key set only, invalid/not-found/rate-limited behavior, no member-data Open Graph reveal, `robots: noindex`          |
+| Stripe webhook          | Signature rejection, event idempotency, duplicate delivery, lifecycle transitions, unsupported event, handler failure and retry |
+| Checkout reconciliation | Valid/invalid session, membership synchronization, card-number rotation, revalidation behavior                                  |
+| Public exports/routes   | Authorization, typed output, no leaked DB-row fields, stable error shape                                                        |
 
 ### Priority P1: core product workflows
 
-| Domain | Required coverage |
-| --- | --- |
-| Member dashboard | Tab routing and aliases, role-gated sections, loading/empty/error states |
-| Profile/card | Validation, read-only User ID, avatar upload failures, card status and tier presentation |
-| Subscription | Current plan, invoice history, payment method, cancellation state, auto-pay state, Stripe failure states |
-| Business profile | Create/validate/submit, moderation statuses, public DTO, top/recommended visibility, slug behavior |
-| Business Introductions | Eligibility, submit schema, status-transition matrix, admin moderation, audit events |
-| Admin | Admin self-profile route, roles/permissions, user/business management, queue-derived notifications, search, exports |
+| Domain                 | Required coverage                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Member dashboard       | Tab routing and aliases, role-gated sections, loading/empty/error states                                            |
+| Profile/card           | Validation, read-only User ID, avatar upload failures, card status and tier presentation                            |
+| Subscription           | Current plan, invoice history, payment method, cancellation state, auto-pay state, Stripe failure states            |
+| Business profile       | Create/validate/submit, moderation statuses, public DTO, top/recommended visibility, slug behavior                  |
+| Business Introductions | Eligibility, submit schema, status-transition matrix, admin moderation, audit events                                |
+| Admin                  | Admin self-profile route, roles/permissions, user/business management, queue-derived notifications, search, exports |
 
 ### Priority P2: broad regression and quality
 
-| Domain | Required coverage |
-| --- | --- |
-| Public pages | Route smoke, navigation, directory filters/detail, legal pages |
-| i18n | Exact message-key parity, locale routing, no hard-coded user-facing strings in changed UI |
-| Shared UI | Button/input/dialog/select states, keyboard behavior, focus-visible, 44px target expectations |
-| Error handling | Not-found, global error, network failure, retry and empty states |
-| Responsive/visual | Member dashboard, club card, directory, admin tables at representative desktop/mobile sizes |
+| Domain            | Required coverage                                                                             |
+| ----------------- | --------------------------------------------------------------------------------------------- |
+| Public pages      | Route smoke, navigation, directory filters/detail, legal pages                                |
+| i18n              | Exact message-key parity, locale routing, no hard-coded user-facing strings in changed UI     |
+| Shared UI         | Button/input/dialog/select states, keyboard behavior, focus-visible, 44px target expectations |
+| Error handling    | Not-found, global error, network failure, retry and empty states                              |
+| Responsive/visual | Member dashboard, club card, directory, admin tables at representative desktop/mobile sizes   |
 
 ## 8. Regression Suites
 
@@ -337,17 +339,17 @@ Every feature PR identifies its risk level and adds the corresponding tests.
 
 ### Required by feature type
 
-| Feature change | Minimum required tests |
-| --- | --- |
-| Pure helper/domain rule | Unit tests including branches and boundaries |
-| Zod schema/form | Schema unit tests + component validation/submit test |
-| Server Action | Auth failure, invalid input, business outcome, typed error, audit side effect |
-| Route Handler/public route | Method/auth/status cases + exact response/DTO key contract |
-| DB query/repository | Isolated Postgres integration + empty/result/constraint cases |
-| Protected page/role UI | Access-matrix integration + one browser smoke path |
-| External provider adapter | MSW success/failure/timeout + provider sandbox pre-release check |
-| Critical user workflow | Playwright happy path + highest-risk failure path |
-| Shared UI primitive | Component keyboard/focus/accessibility tests |
+| Feature change             | Minimum required tests                                                        |
+| -------------------------- | ----------------------------------------------------------------------------- |
+| Pure helper/domain rule    | Unit tests including branches and boundaries                                  |
+| Zod schema/form            | Schema unit tests + component validation/submit test                          |
+| Server Action              | Auth failure, invalid input, business outcome, typed error, audit side effect |
+| Route Handler/public route | Method/auth/status cases + exact response/DTO key contract                    |
+| DB query/repository        | Isolated Postgres integration + empty/result/constraint cases                 |
+| Protected page/role UI     | Access-matrix integration + one browser smoke path                            |
+| External provider adapter  | MSW success/failure/timeout + provider sandbox pre-release check              |
+| Critical user workflow     | Playwright happy path + highest-risk failure path                             |
+| Shared UI primitive        | Component keyboard/focus/accessibility tests                                  |
 
 The PR description lists added tests and maps them to acceptance criteria.
 

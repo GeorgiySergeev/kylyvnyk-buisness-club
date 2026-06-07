@@ -1,4 +1,13 @@
 {
+  "lookupDescription": "Enter the card number shown on a member's digital card or QR page. The result page shows only the public verification fields.",
+  "lookupEmptyError": "Enter a card number.",
+  "lookupEyebrow": "Card verification",
+  "lookupHelp": "Use the full card number, for example VIP-UA-000501.",
+  "lookupInputLabel": "Card number",
+  "lookupInputPlaceholder": "VIP-UA-000501",
+  "lookupInvalidError": "Use letters, numbers, and hyphens only.",
+  "lookupSubmit": "Verify card",
+  "lookupTitle": "Verify Club Card",
   "verifyBadgeNotFound": "Не удалось проверить",
   "verifyDescription": "Эта публичная страница подтверждает только статус карты и тип членства. Контакты, платежи и данные аккаунта здесь не показываются.",
   "verifyExpiresAt": "Действует до",

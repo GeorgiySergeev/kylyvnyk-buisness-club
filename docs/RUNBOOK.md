@@ -140,4 +140,6 @@ Before the final release sprint, run the gate on Node 20.18.x with a clean
   against real Postgres instead of skipping.
 - Axe-based accessibility, true visual snapshot baselines, and performance smoke
   are not fully wired.
-- Persona-based positive E2E coverage is still a Sprint 3 item.
+- Persona-based positive E2E coverage has started with member sign-up and
+  verify-card lookup. Admin, VIP/BUS, business submission, and Business
+  Introduction workflows remain Sprint 3 items.
