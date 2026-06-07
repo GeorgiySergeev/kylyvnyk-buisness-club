@@ -113,6 +113,9 @@ Acceptance criteria:
 
 Duration: 2-3 days.
 
+Status: Started. Sprint 4 owns the final command evidence, release report,
+known limitations, and rollback notes for a controlled beta.
+
 Goals:
 
 - Run the final release gate on Node 20.18.x with a clean `.next` state.
@@ -125,6 +128,8 @@ Acceptance criteria:
 
 - `pnpm verify` passes on the release branch.
 - `pnpm test:coverage` and `pnpm test:e2e:smoke` pass.
+- `docs/RELEASE-REPORT.md` captures final evidence, known limitations, and
+  rollback notes.
 - The MVP is ready for a controlled release/beta without hidden legacy context
   contradicting the current implementation.
 

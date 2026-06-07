@@ -128,7 +128,8 @@ New env vars require the same diff to update `.env.example` and `docs/ENV.md`.
 4. Run `pnpm test:e2e:smoke`.
 5. Confirm release blockers in `docs/RELEASE-ROADMAP.md` and
    `docs/RELEASE-STATUS.md`.
-6. Record the commands and outcomes in the release PR or release report.
+6. Record the commands and outcomes in `docs/RELEASE-REPORT.md` and in the
+   release PR.
 
 Before the final release sprint, run the gate on Node 20.18.x with a clean
 `.next` state. If typecheck behaves strangely after an interrupted build, remove
