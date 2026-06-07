@@ -1,12 +1,283 @@
 # Testing Strategy
 
-Last refreshed: 2026-06-06.
+Last refreshed: 2026-06-07.
 
-Current phase: Phase 09 product workflow QA is in progress. The active context trail is
-`docs/testing-context/phase-01-foundation.md` through
-`docs/testing-context/phase-09-product-workflow-qa.md`.
+Current phase: Phase 10 launch readiness is documented. The active context
+trail is `docs/testing-context/phase-01-foundation.md` through
+`docs/testing-context/phase-10-launch-readiness.md`.
 
-Sprint 0 baseline:
+## Quick Start
+
+Use Node 20.x and pnpm 9.x. The project declares the exact expectation in
+`.nvmrc`, `package.json`, and CI. Running on Node 22.x can still pass locally,
+but pnpm will print an engine warning; final release checks must run on Node
+20.18.x.
+
+For everyday work, start here:
+
+```bash
+pnpm test
+```
+
+Before opening or merging a PR, run:
+
+```bash
+pnpm verify
+pnpm test:coverage
+pnpm test:e2e:smoke
+```
+
+Before a release candidate or controlled beta, run:
+
+```bash
+pnpm verify
+pnpm test:coverage
+pnpm test:db
+pnpm test:e2e:smoke
+pnpm test:e2e:regression
+pnpm test:a11y
+pnpm test:visual
+```
+
+`pnpm test:db` is optional unless `TEST_DATABASE_URL` is configured. Without
+that variable it intentionally skips instead of touching an unsafe database.
+
+## Command Reference
+
+| Command                    | What it runs                                                                                       | When to run it                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `pnpm test`                | Required Vitest projects: unit, integration, contract, and component tests.                        | Default local check while developing. Run before every PR.                                      |
+| `pnpm test:unit`           | Vitest `unit` and `contract` projects in Node.                                                     | After changing pure helpers, auth/RBAC logic, billing logic, DTOs, schemas, or route contracts. |
+| `pnpm test:integration`    | Vitest `integration` project, excluding DB tests.                                                  | After changing middleware, route-handler orchestration, server actions, or integration helpers. |
+| `pnpm test:component`      | Vitest `component` project in jsdom with React Testing Library.                                    | After changing shared UI primitives, forms, client components, keyboard/focus behavior.         |
+| `pnpm test:db`             | Vitest DB migration smoke tests under `tests/integration/db`.                                      | Before release or after migration/repository changes, only with disposable `TEST_DATABASE_URL`. |
+| `pnpm test:watch`          | Vitest in watch mode.                                                                              | During focused local development when you want fast re-runs.                                    |
+| `pnpm test:coverage`       | Vitest coverage for unit, integration, contract, and component projects.                           | Before PR/release, and after changing critical domains.                                         |
+| `pnpm test:e2e:smoke`      | Playwright tests tagged `@smoke`.                                                                  | Before PR/release; checks that key public/protected routes work in a real browser.              |
+| `pnpm test:e2e:regression` | Playwright tests tagged `@regression`, forced to one worker.                                       | Before release and after changing user workflows.                                               |
+| `pnpm test:a11y`           | Playwright tests tagged `@a11y`.                                                                   | Before release or after changing layout/navigation/focus behavior.                              |
+| `pnpm test:visual`         | Playwright tests tagged `@visual`.                                                                 | Before release or after changing visible page layout.                                           |
+| `pnpm test:e2e`            | All Playwright tests under `tests/e2e`.                                                            | Manual broad browser run when you intentionally want every browser suite.                       |
+| `pnpm test:auth`           | Focused Vitest unit slice for auth and admin unit tests.                                           | Fast loop for auth, RBAC, admin access, and auth redirect changes.                              |
+| `pnpm verify`              | `lint`, forbidden vocabulary check, env contract check, build, typecheck, and required Vitest run. | Canonical release gate. Run before PR merge and before release.                                 |
+| `pnpm lint`                | Next lint.                                                                                         | Fast static check after changing code style/imports/components.                                 |
+| `pnpm typecheck`           | TypeScript `tsc --noEmit`.                                                                         | After TypeScript/API/schema changes, or if build/type errors appear.                            |
+| `pnpm build`               | Next production build.                                                                             | Before typecheck if `.next/types` may be stale; always covered by `pnpm verify`.                |
+| `pnpm vocab:check`         | Forbidden vocabulary scan.                                                                         | After changing code, copy, docs, prompts, comments, or commit-sensitive text.                   |
+| `pnpm env:check`           | Required environment-variable contract check.                                                      | After changing env usage, `.env.example`, or `docs/ENV.md`.                                     |
+| `pnpm smoke:routes`        | Scripted route smoke.                                                                              | Manual sanity check for route availability; browser smoke is still the PR gate.                 |
+
+## Which Command Should I Run?
+
+### I changed pure TypeScript logic
+
+Examples: auth helpers, billing state machines, DTO mappers, Zod schemas,
+permission checks.
+
+Run:
+
+```bash
+pnpm test:unit
+pnpm test:coverage
+```
+
+If the change is PR-ready, also run `pnpm verify`.
+
+### I changed a React component or form
+
+Examples: shared button/input behavior, member forms, admin form states,
+keyboard/focus behavior.
+
+Run:
+
+```bash
+pnpm test:component
+pnpm test
+```
+
+If layout or navigation changed, also run `pnpm test:a11y` and
+`pnpm test:visual`.
+
+### I changed middleware, route handlers, or server actions
+
+Examples: protected route redirects, public route DTOs, Stripe webhook handler,
+admin exports, server-side validation.
+
+Run:
+
+```bash
+pnpm test:integration
+pnpm test:unit
+pnpm test:e2e:smoke
+```
+
+For public routes, verify PII shape through contract tests. Public DTO tests
+belong in `tests/contract`.
+
+### I changed database schema, migrations, or repository code
+
+Run:
+
+```bash
+pnpm test:db
+pnpm test:integration
+pnpm verify
+```
+
+`pnpm test:db` must point at a disposable database through `TEST_DATABASE_URL`.
+The database name must include `test`, `ci`, or `scratch`; tests refuse unsafe
+database names.
+
+### I changed a user workflow
+
+Examples: sign-up, onboarding, dashboard, billing, verify-card lookup,
+admin/business moderation.
+
+Run:
+
+```bash
+pnpm test
+pnpm test:e2e:smoke
+pnpm test:e2e:regression
+```
+
+For release candidates, also run `pnpm test:a11y` and `pnpm test:visual`.
+
+### I only changed docs
+
+Usually no full suite is needed. Run a quick formatting or link sanity check if
+the touched document needs it. If the docs changed commands, release gates, env
+contracts, or test policy, run:
+
+```bash
+pnpm verify
+```
+
+## Test Types in This Repo
+
+### Unit tests
+
+Location: `tests/unit/**`
+
+Unit tests prove small pieces of business logic without a browser, network, or
+database. They should be fast and deterministic.
+
+Good examples:
+
+- Zod schema accepts valid input and rejects invalid input.
+- Billing lifecycle moves from one known state to another.
+- Auth redirect helper chooses the right target.
+- DTO mapper returns only allowed public keys.
+
+### Integration tests
+
+Location: `tests/integration/**`
+
+Integration tests prove that modules work together. They can test middleware,
+route-handler orchestration, server actions, or DB migration smoke. Normal
+integration tests do not need a real database; DB tests are isolated under
+`tests/integration/db`.
+
+### Contract tests
+
+Location: `tests/contract/**`
+
+Contract tests protect public and security-sensitive boundaries: exact response
+shape, PII-safe DTOs, route metadata, observability scrubbers, and admin export
+contracts. These tests are important even if line coverage is low.
+
+### Component tests
+
+Location: `tests/component/**`
+
+Component tests run in jsdom with React Testing Library. They should check
+behavior that users experience in the component: labels, clicks, validation,
+keyboard behavior, loading/error/success states, and focus behavior.
+
+### Browser tests
+
+Location: `tests/e2e/**`
+
+Browser tests run through Playwright. They start a deterministic local Next
+server on `PLAYWRIGHT_PORT` or port `3101` by default. The config does not reuse
+random existing local servers, so stale apps on port `3000` should not affect
+the suite.
+
+Tags decide which browser command runs a test:
+
+- `@smoke`: small PR-safe browser checks.
+- `@regression`: broader workflows for release/nightly runs.
+- `@security`: security-specific browser assertions, usually run through
+  regression.
+- `@a11y`: accessibility smoke.
+- `@visual`: visual smoke.
+
+## Reading Failures
+
+Start with the first failure, not the longest stack trace.
+
+- Vitest failures usually point to a specific helper, schema, DTO, or contract.
+  Fix the behavior or update the test only if the product contract truly
+  changed.
+- Component failures often mean a label, role, accessible name, or state changed.
+  Prefer queries that match what a user can perceive.
+- Playwright failures create traces/screenshots on failure in CI. Locally, rerun
+  the smallest tagged suite first, then run broader suites only after the small
+  one is green.
+- Coverage failures should be handled by testing changed behavior, not by adding
+  broad exclusions.
+- Engine warnings mean the local Node version does not match `20.x`. They are
+  warnings locally, but final release evidence must be collected on Node 20.18.x.
+
+## Troubleshooting
+
+### Playwright fails before opening a page
+
+Check whether the local dev server can start:
+
+```bash
+pnpm build
+pnpm test:e2e:smoke
+```
+
+Playwright uses `scripts/playwright-dev-server.mjs` and a dedicated port. If a
+custom port is needed:
+
+```bash
+$env:PLAYWRIGHT_PORT = "3102"
+pnpm test:e2e:smoke
+```
+
+### DB tests skip
+
+This is expected unless `TEST_DATABASE_URL` is set. To run DB smoke, point it at
+a disposable database only:
+
+```bash
+$env:TEST_DATABASE_URL = "postgres://..."
+pnpm test:db
+```
+
+Do not point tests at production, staging, or a shared developer database.
+
+### Typecheck fails after an interrupted build
+
+Next can leave stale generated types. Rebuild before typecheck:
+
+```bash
+pnpm build
+pnpm typecheck
+```
+
+If `.next` is corrupted, remove only the local `.next` directory and rebuild.
+
+### A test needs network
+
+Default answer: it probably should not. Unit, component, contract, and most
+integration tests should use deterministic fixtures or explicit MSW handlers.
+Only pre-release/manual provider checks should depend on live external services.
+
+## Current Baseline
 
 - `pnpm test` runs Vitest unit, integration, contract, and component projects.
 - There are no remaining legacy `node:test` files under `tests/`.
@@ -18,8 +289,8 @@ Sprint 0 baseline:
 - Playwright has separate scripts for `@smoke`, `@regression`, `@a11y`, and
   `@visual`; PRs run smoke, while scheduled/manual CI runs the broader release
   suites.
-- Sprint 3 positive workflow QA has started with member sign-up/onboarding and
-  verify-card lookup `@regression` coverage.
+- Positive workflow QA currently covers member sign-up/onboarding/dashboard and
+  verify-card lookup through `@regression`.
 - Repository-wide coverage remains baseline-only; do not add a global 80%
   threshold before critical-domain ratchets are established.
 
@@ -290,7 +561,7 @@ The legacy `node:test` runner has been retired. Current required scripts:
 ```text
 test:unit          Vitest node project
 test:component     Vitest jsdom project
-test:integration   Vitest integration/contract projects
+test:integration   Vitest integration project, excluding DB tests
 test:db            Optional Vitest DB migration smoke through TEST_DATABASE_URL
 test               All required Vitest projects
 test:coverage      Vitest coverage collection and threshold checks
@@ -298,7 +569,7 @@ test:e2e:smoke     Playwright @smoke on Chromium
 test:e2e:regression Playwright @regression
 test:a11y          Playwright @a11y
 test:visual        Playwright @visual
-verify             Existing release gates + required test and smoke suites
+verify             Lint, vocabulary, env, build, typecheck, and pnpm test
 ```
 
 `test:db`, `test:e2e:regression`, `test:a11y`, and `test:visual` are not part
