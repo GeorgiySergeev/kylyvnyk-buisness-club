@@ -1,10 +1,10 @@
 # Release Status
 
-Last refreshed: 2026-06-06.
+Last refreshed: 2026-06-07.
 
 ## Baseline
 
-- Branch: `main`.
+- Branch: release candidate branch.
 - Core local gates: `pnpm lint`, `pnpm vocab:check`, `pnpm env:check`,
   `pnpm build`, `pnpm typecheck`, and `pnpm test`.
 - Combined local gate: `pnpm verify`.
@@ -28,20 +28,26 @@ Last refreshed: 2026-06-06.
   idempotent event claim, membership lifecycle state machine, checkout
   and portal session creation, cancel VIP flow, subscription management
   UI, daily reconciliation cron, and 48 unit tests across 5 test files.
-- Testing foundation through Phase 04: legacy runner preserved, Vitest projects
-  active, component coverage started, route contracts added, and Playwright
-  smoke isolated from unrelated local servers.
+- Testing foundation through Phase 09: legacy runner retired, Vitest projects
+  active, component coverage started, route contracts added, Playwright smoke
+  isolated from unrelated local servers, scheduled/manual release suites wired,
+  and first positive product workflow regressions added.
 - System routes: `robots.txt` and `sitemap.xml` are implemented through Next
   metadata routes.
+- `/verify-card` is a real lookup entry that redirects to the PII-safe
+  `/verify-card/[number]` result route.
 
 ## Deferred Surfaces
 
-- Legacy `node:test` migration to Vitest is complete; DB integration
-  infrastructure still remains.
-- Positive persona-based browser workflows remain Sprint 3 work.
-- Isolated Postgres/schema integration tests remain Sprint 1/Sprint 2 work.
-- Nightly/pre-release regression, accessibility, visual, and performance lanes
-  remain release-hardening work.
+- `TEST_DATABASE_URL` needs a disposable CI database secret before nightly DB
+  migration smoke can exercise real Postgres instead of skipping.
+- Positive browser workflows exist for member sign-up/onboarding/dashboard and
+  verify-card lookup; admin, VIP/BUS, business submission/moderation,
+  subscription-state, and Business Introduction workflows remain deferred.
+- Axe-based accessibility, true visual snapshot baselines, and performance
+  smoke remain deferred.
+- Local final verification should be repeated on Node 20.18.0; this workstation
+  often runs Node 22.x and reports an engine warning.
 
 ## Release Blockers
 
@@ -49,6 +55,8 @@ Last refreshed: 2026-06-06.
 - `pnpm test:coverage` and `pnpm test:e2e:smoke` must be green before release.
 - GitHub Actions must have the required secrets for build-time DB and platform
   env vars before CI can be considered authoritative.
+- If releasing from this branch, record the final command evidence in
+  `docs/RELEASE-REPORT.md`.
 
 ## Smoke Evidence Command
 
