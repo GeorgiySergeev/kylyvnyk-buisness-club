@@ -7,6 +7,7 @@ import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref, SUPPORTED_LOCALES } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import { profiles, users } from '@/db/schema';
+import { getAuthIdentity } from '@/features/auth/lib/auth-identity';
 import { requireUser } from '@/features/auth/lib/current-user';
 import { createAuditLog } from '@/lib/audit';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -19,6 +20,7 @@ type AppErrorCode =
   | 'VALIDATION_ERROR'
   | 'SERVER_ERROR'
   | 'EMAIL_IN_USE'
+  | 'AVATAR_DEV_BYPASS'
   | 'AVATAR_ERROR';
 
 type AppError = {
@@ -73,6 +75,19 @@ export async function updateMemberProfileAction(
   let nextAvatarUrl: string | null | undefined;
 
   if (avatarFile instanceof File && avatarFile.size > 0) {
+    const identity = await getAuthIdentity();
+
+    if (identity?.devBypass) {
+      return {
+        error: {
+          code: 'AVATAR_DEV_BYPASS',
+          message:
+            'Photo upload requires SMS sign-in. Dev bypass cannot write to Supabase Storage.',
+        },
+        ok: false,
+      };
+    }
+
     if (!user.supabaseUserId) {
       return {
         error: {

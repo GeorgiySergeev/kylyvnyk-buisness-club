@@ -1,7 +1,7 @@
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 
-export type AdminNotificationEntityType = 'business' | 'introduction';
+export type AdminNotificationEntityType = 'business' | 'business_application' | 'introduction';
 
 export interface AdminNotification {
   entityId: string;
@@ -22,6 +22,14 @@ export interface PendingBusinessNotificationRow {
   status: string;
 }
 
+export interface PendingBusinessApplicationNotificationRow {
+  createdAt: Date;
+  id: string;
+  representativeName: string | null;
+  status: string;
+  title: string;
+}
+
 export interface PendingIntroductionNotificationRow {
   clientName: string;
   createdAt: Date;
@@ -32,6 +40,7 @@ export interface PendingIntroductionNotificationRow {
 }
 
 export interface AdminNotificationSourceRows {
+  applications?: PendingBusinessApplicationNotificationRow[];
   businesses: PendingBusinessNotificationRow[];
   introductions: PendingIntroductionNotificationRow[];
 }
@@ -55,6 +64,17 @@ export function buildAdminNotifications(
     title: business.name,
   }));
 
+  const applicationNotifications: AdminNotification[] = (rows.applications ?? []).map((application) => ({
+    entityId: application.id,
+    entityType: 'business_application',
+    href: localizeHref(locale, '/admin/businesses'),
+    id: `business-application:${application.id}`,
+    status: application.status,
+    subtitle: application.representativeName,
+    timestamp: application.createdAt.toISOString(),
+    title: application.title,
+  }));
+
   const introductionNotifications: AdminNotification[] = rows.introductions.map((introduction) => ({
     entityId: introduction.id,
     entityType: 'introduction',
@@ -66,7 +86,7 @@ export function buildAdminNotifications(
     title: introduction.clientName,
   }));
 
-  return [...businessNotifications, ...introductionNotifications].sort(
+  return [...applicationNotifications, ...businessNotifications, ...introductionNotifications].sort(
     (left, right) => toTimestampValue(right.timestamp) - toTimestampValue(left.timestamp),
   );
 }

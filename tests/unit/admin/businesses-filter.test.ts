@@ -18,7 +18,7 @@ const businesses: AdminBusinessListItem[] = [
     ownerName: 'Ada',
     phone: '+15550001',
     slug: 'ada-advisory',
-    status: 'APPROVED',
+    status: 'PUBLISHED',
     website: 'https://ada.example.com',
   },
   {
@@ -33,14 +33,14 @@ const businesses: AdminBusinessListItem[] = [
     ownerName: 'Grace',
     phone: '+15550002',
     slug: 'club-events',
-    status: 'PENDING',
+    status: 'UNDER_REVIEW',
     website: 'https://events.example.com',
   },
 ];
 
 describe('filterAdminBusinesses', () => {
   it('filters by status when provided', () => {
-    expect(filterAdminBusinesses(businesses, { status: 'APPROVED' })).toEqual([businesses[0]]);
+    expect(filterAdminBusinesses(businesses, { status: 'PUBLISHED' })).toEqual([businesses[0]]);
   });
 
   it('matches trimmed search by name and slug case-insensitively', () => {
@@ -49,9 +49,9 @@ describe('filterAdminBusinesses', () => {
   });
 
   it('combines status and search filters', () => {
-    expect(filterAdminBusinesses(businesses, { q: 'club', status: 'PENDING' })).toEqual([
+    expect(filterAdminBusinesses(businesses, { q: 'club', status: 'UNDER_REVIEW' })).toEqual([
       businesses[1],
     ]);
-    expect(filterAdminBusinesses(businesses, { q: 'club', status: 'APPROVED' })).toEqual([]);
+    expect(filterAdminBusinesses(businesses, { q: 'club', status: 'PUBLISHED' })).toEqual([]);
   });
 });

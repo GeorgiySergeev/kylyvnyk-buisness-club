@@ -1,11 +1,9 @@
 import { pgEnum } from "drizzle-orm/pg-core";
 
 export const businessStatusEnum = pgEnum("business_status", [
-  "DRAFT",
-  "PENDING",
+  "UNDER_REVIEW",
   "PUBLISHED",
   "HIDDEN",
-  "DECLINED",
 ]);
 
 export type BusinessStatus = (typeof businessStatusEnum.enumValues)[number];

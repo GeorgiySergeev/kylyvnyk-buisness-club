@@ -48,9 +48,13 @@ export function HeroSection({
     : localizeHref(locale, '/sign-up');
 
   const tiers = [
-    { description: tierMemberDesc, title: tierMemberTitle },
-    { badge: tierPopularBadge, description: tierVipDesc, title: tierVipTitle },
-    { description: tierPartnerDesc, title: tierPartnerTitle },
+    { description: tierMemberDesc, href: targetLink, title: tierMemberTitle },
+    { badge: tierPopularBadge, description: tierVipDesc, href: targetLink, title: tierVipTitle },
+    {
+      description: tierPartnerDesc,
+      href: localizeHref(locale, '/partner/register'),
+      title: tierPartnerTitle,
+    },
   ] as const;
 
   return (
@@ -110,7 +114,7 @@ export function HeroSection({
                   </div>
 
                   <Link
-                    href={targetLink}
+                    href={tier.href}
                     className="mt-auto inline-flex items-center gap-ds-space-2 text-ds-text-sm font-semibold text-ds-text transition-ds-transition-fast hover:text-ds-text-muted focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
                   >
                     {tierApplyCta}

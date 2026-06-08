@@ -95,6 +95,7 @@ interface MemberDashboardTabsProps {
   notSetLabel: string;
   possibilitiesLabels: MembershipPossibilitiesLabels;
   billingSnapshot: MemberBillingSnapshot | null;
+  avatarUploadDisabled?: boolean;
   profile: DashboardProfileData;
   profileLabels: DashboardProfileLabels;
   subscriptionLabels: MemberSubscriptionTabLabels;
@@ -232,6 +233,7 @@ export function MemberDashboardTabs({
   membershipStatusDescription,
   notSetLabel,
   possibilitiesLabels,
+  avatarUploadDisabled = false,
   billingSnapshot,
   profile,
   profileLabels,
@@ -466,6 +468,7 @@ export function MemberDashboardTabs({
                   title={labels.settingsTitle}
                 >
                   <DashboardProfileSettingsForm
+                    avatarUploadDisabled={avatarUploadDisabled}
                     cities={cities}
                     countries={countries}
                     labels={profileLabels}

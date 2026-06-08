@@ -14,6 +14,7 @@ import home from '../../../messages/en/home.json';
 import introductions from '../../../messages/en/introductions.json';
 import legal from '../../../messages/en/legal.json';
 import nav from '../../../messages/en/nav.json';
+import partnerRegistration from '../../../messages/en/partnerRegistration.json';
 import placeholders from '../../../messages/en/placeholders.json';
 import a11yRu from '../../../messages/ru/a11y.json';
 import adminRu from '../../../messages/ru/admin.json';
@@ -27,6 +28,7 @@ import homeRu from '../../../messages/ru/home.json';
 import introductionsRu from '../../../messages/ru/introductions.json';
 import legalRu from '../../../messages/ru/legal.json';
 import navRu from '../../../messages/ru/nav.json';
+import partnerRegistrationRu from '../../../messages/ru/partnerRegistration.json';
 import placeholdersRu from '../../../messages/ru/placeholders.json';
 import a11yUk from '../../../messages/uk/a11y.json';
 import adminUk from '../../../messages/uk/admin.json';
@@ -40,6 +42,7 @@ import homeUk from '../../../messages/uk/home.json';
 import introductionsUk from '../../../messages/uk/introductions.json';
 import legalUk from '../../../messages/uk/legal.json';
 import navUk from '../../../messages/uk/nav.json';
+import partnerRegistrationUk from '../../../messages/uk/partnerRegistration.json';
 import placeholdersUk from '../../../messages/uk/placeholders.json';
 
 const EN_MESSAGES = {
@@ -55,6 +58,7 @@ const EN_MESSAGES = {
   introductions,
   legal,
   nav,
+  partnerRegistration,
   placeholders,
 } as const;
 
@@ -73,6 +77,7 @@ const MESSAGES_BY_LOCALE = {
     introductions: introductionsRu,
     legal: legalRu,
     nav: navRu,
+    partnerRegistration: partnerRegistrationRu,
     placeholders: placeholdersRu,
   },
   uk: {
@@ -88,6 +93,7 @@ const MESSAGES_BY_LOCALE = {
     introductions: introductionsUk,
     legal: legalUk,
     nav: navUk,
+    partnerRegistration: partnerRegistrationUk,
     placeholders: placeholdersUk,
   },
 } as const;

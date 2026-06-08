@@ -1,14 +1,15 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
+import { and, eq, or } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
 import { localizeHref, SUPPORTED_LOCALES } from '@/components/layout/navigation';
 import { db } from '@/db/client';
-import { businesses } from '@/db/schema';
+import { businessApplications, businesses, cities, users } from '@/db/schema';
 import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { setUserMembershipTier } from '@/features/billing/lib/membership-access';
 import { BUSINESS_PLAN_CODE } from '@/features/billing/lib/plan-codes';
+import { generateUniqueBusinessSlug } from '@/features/business/lib/business-slug';
 import { createAuditLog } from '@/lib/audit';
 import { log } from '@/lib/log';
 
@@ -20,6 +21,7 @@ import {
   restoreBusinessSchema,
   softDeleteBusinessSchema,
   toggleBusinessFeatureSchema,
+  updateBusinessApplicationSchema,
 } from '../schemas/admin.schema';
 
 type ActionResult<T> = { data: T; ok: true } | { error: string; ok: false };
@@ -30,6 +32,161 @@ function revalidateBusinessesPages() {
     revalidatePath(localizeHref(locale, '/admin/businesses'));
     revalidatePath(localizeHref(locale, '/directory'));
   });
+}
+
+export async function approveBusinessApplicationAction(
+  rawInput: unknown,
+): Promise<AdminActionResult<{ applicationId: string; businessId: string }>> {
+  const admin = await getCurrentUserWithRole('ADMIN');
+  if (!admin.ok) return { ok: false, code: 'unauthorized', error: 'Unauthorized.' };
+
+  const parsed = updateBusinessApplicationSchema.safeParse(rawInput);
+  if (!parsed.success) return { ok: false, code: 'validation', error: 'Invalid input.' };
+
+  const application = await db.query.businessApplications.findFirst({
+    where: and(
+      eq(businessApplications.id, parsed.data.applicationId),
+      eq(businessApplications.status, 'UNDER_REVIEW'),
+    ),
+  });
+
+  if (!application) {
+    return { ok: false, code: 'not_found', error: 'Application not found.' };
+  }
+
+  const now = new Date();
+
+  const result = await db.transaction(async (tx) => {
+    let ownerId = application.userId;
+
+    if (!ownerId) {
+      const existingUser = await tx.query.users.findFirst({
+        columns: { id: true },
+        where: (table, { eq }) => or(eq(table.phone, application.phone), eq(table.email, application.email)),
+      });
+
+      if (existingUser) {
+        ownerId = existingUser.id;
+      } else {
+        const [createdUser] = await tx
+          .insert(users)
+          .values({
+            displayName: application.representativeName,
+            email: application.email,
+            phone: application.phone,
+            updatedAt: now,
+          })
+          .returning({ id: users.id });
+
+        if (!createdUser) {
+          throw new Error('Application owner insert returned no row.');
+        }
+
+        ownerId = createdUser.id;
+      }
+    }
+
+    const existingCity = await tx.query.cities.findFirst({
+      columns: { id: true },
+      where: (table, { and, eq }) =>
+        and(eq(table.countryId, application.countryId), eq(table.name, application.cityName)),
+    });
+
+    const cityId =
+      existingCity?.id ??
+      (
+        await tx
+          .insert(cities)
+          .values({
+            countryId: application.countryId,
+            name: application.cityName,
+          })
+          .returning({ id: cities.id })
+      )[0]?.id;
+
+    if (!cityId) {
+      throw new Error('Application city insert returned no row.');
+    }
+
+    const slug = await generateUniqueBusinessSlug(application.businessName);
+    const [business] = await tx
+      .insert(businesses)
+      .values({
+        categoryId: application.categoryId,
+        cityId,
+        countryId: application.countryId,
+        email: application.email,
+        name: application.businessName,
+        phone: application.phone,
+        slug,
+        status: 'PUBLISHED',
+        updatedAt: now,
+        userId: ownerId,
+        website: application.websiteOrSocial,
+      })
+      .returning({ id: businesses.id });
+
+    if (!business) {
+      throw new Error('Business insert returned no row.');
+    }
+
+    await tx
+      .update(businessApplications)
+      .set({ status: 'PUBLISHED', updatedAt: now, userId: ownerId })
+      .where(eq(businessApplications.id, application.id));
+
+    return { businessId: business.id, ownerId, slug };
+  });
+
+  await setUserMembershipTier(result.ownerId, BUSINESS_PLAN_CODE, now, admin.data.id);
+
+  await createAuditLog({
+    action: 'ADMIN_BUSINESS_APPLICATION_APPROVED',
+    actorUserId: admin.data.id,
+    entityId: parsed.data.applicationId,
+    entityType: 'business_application',
+    payload: {
+      businessId: result.businessId,
+      slug: result.slug,
+      status: 'PUBLISHED',
+    },
+  });
+
+  revalidateBusinessesPages();
+
+  return {
+    data: { applicationId: parsed.data.applicationId, businessId: result.businessId },
+    ok: true,
+  };
+}
+
+export async function hideBusinessApplicationAction(
+  rawInput: unknown,
+): Promise<AdminActionResult<{ applicationId: string }>> {
+  const admin = await getCurrentUserWithRole('ADMIN');
+  if (!admin.ok) return { ok: false, code: 'unauthorized', error: 'Unauthorized.' };
+
+  const parsed = updateBusinessApplicationSchema.safeParse(rawInput);
+  if (!parsed.success) return { ok: false, code: 'validation', error: 'Invalid input.' };
+
+  const [updated] = await db
+    .update(businessApplications)
+    .set({ status: 'HIDDEN', updatedAt: new Date() })
+    .where(eq(businessApplications.id, parsed.data.applicationId))
+    .returning({ id: businessApplications.id });
+
+  if (!updated) return { ok: false, code: 'not_found', error: 'Application not found.' };
+
+  await createAuditLog({
+    action: 'ADMIN_BUSINESS_APPLICATION_HIDDEN',
+    actorUserId: admin.data.id,
+    entityId: updated.id,
+    entityType: 'business_application',
+    payload: { status: 'HIDDEN' },
+  });
+
+  revalidateBusinessesPages();
+  return { ok: true, data: { applicationId: updated.id } };
 }
 
 export async function updateBusinessStatusAction(

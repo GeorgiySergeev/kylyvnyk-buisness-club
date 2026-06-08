@@ -10,6 +10,7 @@ import { getMemberBillingSnapshot } from '@/features/billing/lib/member-billing'
 import { MemberDashboardSkeleton } from '@/features/member/components/member-dashboard-skeleton';
 import { isMemberDashboardTab } from '@/features/member/lib/member-dashboard-tab';
 import { getInitials } from '@/features/profile/components/dashboard-profile-shared';
+import { isAvatarUploadDisabledByAuth } from '@/features/profile/lib/avatar-upload-auth';
 import {
   getCachedCities,
   getCachedCountries,
@@ -35,14 +36,12 @@ interface MemberDashboardPageContentProps {
 
 function formatBusinessStatus(status: string, t: ReturnType<typeof getT<'dashboard'>>) {
   switch (status) {
-    case 'PENDING':
+    case 'UNDER_REVIEW':
       return t('businessStatusPending');
     case 'PUBLISHED':
       return t('businessStatusPublished');
     case 'HIDDEN':
       return t('businessStatusHidden');
-    case 'DRAFT':
-      return t('businessStatusDraft');
     default:
       return status;
   }
@@ -86,8 +85,17 @@ export async function MemberDashboardPageContent({
   const t = getT('dashboard', locale);
   const tIntro = getT('introductions', locale);
 
-  const [card, allCountries, allCities, publishedBusinesses, introductionRecentRows, business, vipSubscription, vipMembership] =
-    await Promise.all([
+  const [
+    card,
+    allCountries,
+    allCities,
+    publishedBusinesses,
+    introductionRecentRows,
+    business,
+    vipSubscription,
+    vipMembership,
+    avatarUploadDisabled,
+  ] = await Promise.all([
       db.query.clubCards.findFirst({
         where: eq(clubCards.userId, user.id),
       }),
@@ -132,6 +140,7 @@ export async function MemberDashboardPageContent({
         ),
         orderBy: [desc(memberships.updatedAt)],
       }),
+      isAvatarUploadDisabledByAuth(),
     ]);
 
   const isVip = isActiveVipMembership(vipMembership);
@@ -173,6 +182,8 @@ export async function MemberDashboardPageContent({
     optional: t('optional'),
     phone: t('phone'),
     phoneReadOnly: t('phoneReadOnly'),
+    profileAvatarDevBypassError: t('profileAvatarDevBypassError'),
+    profileAvatarDevBypassHint: t('profileAvatarDevBypassHint'),
     profileAvatarError: t('profileAvatarError'),
     profileDescription: t('profileDescription'),
     profileEmailInUse: t('profileEmailInUse'),
@@ -432,6 +443,7 @@ export async function MemberDashboardPageContent({
         userId: user.id,
       }}
       billingSnapshot={billingSnapshot}
+      avatarUploadDisabled={avatarUploadDisabled}
       profileLabels={profileLabels}
       subscriptionLabels={subscriptionLabels}
       showWelcomeModal={showWelcomeModal}

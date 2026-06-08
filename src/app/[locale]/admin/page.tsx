@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { db } from '@/db/client';
-import { businesses, clubCards, introductions, users } from '@/db/schema';
+import { businessApplications, businesses, clubCards, introductions, users } from '@/db/schema';
 import {
   AdminMetricCard,
   AdminPageHeader,
@@ -31,13 +31,18 @@ export default async function AdminPage({ params }: AdminPageProps) {
     [userCount],
     [businessCount],
     [pendingBusinessCount],
+    [pendingApplicationCount],
     [activeCardCount],
     [pendingIntroductionCount],
     recentUsers,
   ] = await Promise.all([
     db.select({ value: count() }).from(users).where(isNull(users.deletedAt)),
     db.select({ value: count() }).from(businesses).where(isNull(businesses.deletedAt)),
-    db.select({ value: count() }).from(businesses).where(eq(businesses.status, 'PENDING')),
+    db.select({ value: count() }).from(businesses).where(eq(businesses.status, 'UNDER_REVIEW')),
+    db
+      .select({ value: count() })
+      .from(businessApplications)
+      .where(eq(businessApplications.status, 'UNDER_REVIEW')),
     db.select({ value: count() }).from(clubCards).where(eq(clubCards.status, 'ACTIVE')),
     db
       .select({ value: count() })
@@ -75,7 +80,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
       icon: <Gauge className="size-4" />,
       label: t('statPendingBusinesses'),
       tone: 'warning' as const,
-      value: pendingBusinessCount!.value,
+      value: pendingBusinessCount!.value + pendingApplicationCount!.value,
     },
     {
       href: localizeHref(locale, '/admin/cards'),

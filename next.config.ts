@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+      },
     ],
   },
   async headers() {
@@ -15,7 +19,7 @@ const nextConfig: NextConfig = {
       default-src 'self';
       script-src 'self' 'unsafe-eval' 'unsafe-inline' https://challenges.cloudflare.com https://js.stripe.com https://plausible.io;
       style-src 'self' 'unsafe-inline';
-      img-src 'self' blob: data: https://images.unsplash.com;
+      img-src 'self' blob: data: https://images.unsplash.com https://*.supabase.co;
       font-src 'self' data:;
       object-src 'none';
       base-uri 'self';

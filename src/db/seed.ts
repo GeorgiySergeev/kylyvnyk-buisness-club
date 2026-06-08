@@ -266,8 +266,8 @@ async function seed(): Promise<void> {
     'PUBLISHED',
     'PUBLISHED',
     'PUBLISHED',
-    'PENDING',
-    'DRAFT',
+    'UNDER_REVIEW',
+    'UNDER_REVIEW',
   ] as const;
 
   const topPartnerFlags = [true, true, true, false, false, false, false, false];

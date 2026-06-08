@@ -2,6 +2,8 @@ import 'server-only';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+import { log } from '@/lib/log';
+
 import { AvatarUploadError, validateAvatarFile } from './avatar-file-validation';
 
 const AVATARS_BUCKET = 'avatars';
@@ -20,6 +22,17 @@ export async function uploadMemberAvatar(
     );
   }
 
+  const {
+    data: { user: supabaseUser },
+  } = await supabase.auth.getUser();
+
+  if (!supabaseUser || supabaseUser.id !== supabaseUserId) {
+    throw new AvatarUploadError(
+      'MISSING_SUPABASE_USER',
+      'Supabase session does not match the linked account.',
+    );
+  }
+
   validateAvatarFile(file);
 
   const objectPath = `${supabaseUserId}/avatar`;
@@ -34,6 +47,12 @@ export async function uploadMemberAvatar(
     });
 
   if (uploadError) {
+    log.error('Avatar storage upload failed', {
+      bucket: AVATARS_BUCKET,
+      objectPath,
+      statusCode: uploadError.statusCode,
+      storageError: uploadError.message,
+    });
     throw new AvatarUploadError(
       'STORAGE_ERROR',
       uploadError.message || 'Avatar upload failed.',

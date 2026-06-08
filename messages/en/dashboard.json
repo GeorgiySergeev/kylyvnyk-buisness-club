@@ -29,6 +29,8 @@
   "profileFormError": "Could not save your profile. Please try again.",
   "profileEmailInUse": "Email already in use.",
   "profileAvatarError": "Photo upload failed. Check the file or try again.",
+  "profileAvatarDevBypassError": "Photo upload requires SMS sign-in. Dev bypass cannot write to Supabase Storage.",
+  "profileAvatarDevBypassHint": "Photo upload is disabled in dev bypass. Sign in with SMS OTP to upload an avatar.",
   "optional": "optional",
   "role": "Role",
   "status": "Status",

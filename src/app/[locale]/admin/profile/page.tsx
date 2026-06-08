@@ -7,7 +7,7 @@ import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
 import { db } from '@/db/client';
-import { auditLogs, businesses, introductions, memberships, roles, userPermissionOverrides, users } from '@/db/schema';
+import { auditLogs, businessApplications, businesses, introductions, memberships, roles, userPermissionOverrides, users } from '@/db/schema';
 import type { Resource } from '@/db/schema/permission';
 import {
   AdminDescriptionList,
@@ -19,6 +19,7 @@ import {
 import { summarizePermissionRows } from '@/features/admin/lib/access-display';
 import { guardAdmin } from '@/features/auth/lib/role-guards';
 import { DashboardProfileSettingsForm } from '@/features/profile/components/dashboard-profile-settings-form';
+import { isAvatarUploadDisabledByAuth } from '@/features/profile/lib/avatar-upload-auth';
 import { RoleForm } from '@/features/roles/components/role-form';
 import { getCurrentUserPermissions, getUserRolesWithPermissions, isSuperAdmin } from '@/lib/auth/permissions';
 import { getCachedCities, getCachedCountries } from '@/lib/db/reference-data';
@@ -66,8 +67,10 @@ export default async function AdminProfilePage({ params, searchParams }: AdminPr
     totalUsers,
     activeMemberships,
     pendingBusinesses,
+    pendingApplications,
     pendingIntroductions,
     userIsSuperAdmin,
+    avatarUploadDisabled,
   ] = await Promise.all([
     getCachedCountries(),
     getCachedCities(),
@@ -89,9 +92,14 @@ export default async function AdminProfilePage({ params, searchParams }: AdminPr
     }),
     db.select({ value: count() }).from(users).where(isNull(users.deletedAt)),
     db.$count(memberships, eq(memberships.status, 'ACTIVE')),
-    db.$count(businesses, and(isNull(businesses.deletedAt), eq(businesses.status, 'PENDING'))),
+    db.$count(businesses, and(isNull(businesses.deletedAt), eq(businesses.status, 'UNDER_REVIEW'))),
+    db.$count(
+      businessApplications,
+      and(isNull(businessApplications.deletedAt), eq(businessApplications.status, 'UNDER_REVIEW')),
+    ),
     db.$count(introductions, inArray(introductions.status, ['SUBMITTED', 'UNDER_REVIEW'])),
     isSuperAdmin(user.id),
+    isAvatarUploadDisabledByAuth(),
   ]);
 
   const activeTab: ProfileTab =
@@ -118,6 +126,8 @@ export default async function AdminProfilePage({ params, searchParams }: AdminPr
     optional: dashboardT('optional'),
     phone: dashboardT('phone'),
     phoneReadOnly: dashboardT('phoneReadOnly'),
+    profileAvatarDevBypassError: dashboardT('profileAvatarDevBypassError'),
+    profileAvatarDevBypassHint: dashboardT('profileAvatarDevBypassHint'),
     profileAvatarError: dashboardT('profileAvatarError'),
     profileDescription: dashboardT('profileDescription'),
     profileEmailInUse: dashboardT('profileEmailInUse'),
@@ -147,8 +157,8 @@ export default async function AdminProfilePage({ params, searchParams }: AdminPr
     {
       icon: <ClipboardList className="size-4" />,
       label: adminT('adminProfileMetricBusinesses'),
-      tone: pendingBusinesses > 0 ? ('warning' as const) : undefined,
-      value: pendingBusinesses,
+      tone: pendingBusinesses + pendingApplications > 0 ? ('warning' as const) : undefined,
+      value: pendingBusinesses + pendingApplications,
     },
     {
       icon: <Activity className="size-4" />,
@@ -212,6 +222,7 @@ export default async function AdminProfilePage({ params, searchParams }: AdminPr
               title={adminT('adminProfileSettingsTitle')}
             >
               <DashboardProfileSettingsForm
+                avatarUploadDisabled={avatarUploadDisabled}
                 avatarUrl={profile?.avatarUrl ?? null}
                 bio={profile?.bio ?? null}
                 cities={cities.map((city) => ({ id: city.id, label: city.name }))}
