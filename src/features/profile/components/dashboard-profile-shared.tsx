@@ -21,6 +21,8 @@ export interface DashboardProfileLabels {
   optional: string;
   phone: string;
   phoneReadOnly: string;
+  profileAvatarDevBypassError: string;
+  profileAvatarDevBypassHint: string;
   profileAvatarError: string;
   profileDescription: string;
   profileEmailInUse: string;

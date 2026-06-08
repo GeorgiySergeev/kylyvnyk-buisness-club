@@ -29,6 +29,8 @@
   "profileFormError": "Не вдалося зберегти профіль. Спробуйте ще раз.",
   "profileEmailInUse": "Цей email уже використовується.",
   "profileAvatarError": "Не вдалося завантажити фото. Перевірте файл або спробуйте ще раз.",
+  "profileAvatarDevBypassError": "Завантаження фото потребує входу через SMS. Dev bypass не може записувати в Supabase Storage.",
+  "profileAvatarDevBypassHint": "Завантаження фото вимкнено в dev bypass. Увійдіть через SMS OTP, щоб завантажити аватар.",
   "optional": "необов’язково",
   "role": "Роль",
   "status": "Статус",

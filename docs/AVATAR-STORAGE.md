@@ -11,6 +11,29 @@ saved in `profiles.avatar_url`.
    - **Public bucket**: enabled (public read for `<img src>`)
 2. Open the bucket → **Policies** (or SQL Editor) and apply the policies below.
 
+Or run this SQL in the Supabase SQL Editor to create the bucket, then apply the RLS
+policies in the next section:
+
+```sql
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('avatars', 'avatars', true)
+ON CONFLICT (id) DO NOTHING;
+```
+
+## Local development: dev phone bypass
+
+Avatar upload requires a **real Supabase Auth session** (SMS OTP verified). The local
+dev phone bypass (`AUTH_DEV_PHONE_BYPASS_ENABLED=1`) does not set Supabase cookies, so
+Storage RLS rejects writes even when the bucket exists.
+
+To test avatar upload locally:
+
+1. Create the `avatars` bucket and policies (above).
+2. Leave `AUTH_DEV_PHONE_BYPASS_ENABLED` empty in `.env.local`.
+3. Sign in with real SMS OTP on `/sign-in`.
+
+The profile form disables photo upload while dev bypass is active and shows a hint.
+
 ## Object path convention
 
 ```
@@ -86,6 +109,7 @@ See [`docs/ENV.md`](./ENV.md).
 
 | Symptom | Likely cause |
 | ------- | ------------ |
+| "Photo upload requires SMS sign-in" (dev) | Signed in via dev phone bypass — use real OTP instead |
 | Upload fails with storage policy error | Bucket missing, RLS not applied, or path segment ≠ `auth.uid()` |
 | `User has no linked Supabase account` in app | `users.supabase_user_id` is null — user must sign in via Supabase Auth |
 | Image 404 after upload | Bucket not public, or wrong public URL base |

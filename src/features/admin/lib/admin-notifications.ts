@@ -4,7 +4,7 @@ import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { type DB,db } from '@/db/client';
-import { businesses, introductions } from '@/db/schema';
+import { businessApplications, businesses, introductions } from '@/db/schema';
 
 import {
   type AdminNotification,
@@ -13,7 +13,18 @@ import {
 } from './admin-notifications.shared';
 
 export async function fetchAdminNotificationRows(database: DB = db): Promise<AdminNotificationSourceRows> {
-  const [pendingBusinesses, pendingIntroductions] = await Promise.all([
+  const [pendingApplications, pendingBusinesses, pendingIntroductions] = await Promise.all([
+    database.query.businessApplications.findMany({
+      columns: {
+        businessName: true,
+        createdAt: true,
+        id: true,
+        representativeName: true,
+        status: true,
+      },
+      orderBy: [desc(businessApplications.createdAt)],
+      where: and(eq(businessApplications.status, 'UNDER_REVIEW'), isNull(businessApplications.deletedAt)),
+    }),
     database.query.businesses.findMany({
       columns: {
         createdAt: true,
@@ -22,7 +33,7 @@ export async function fetchAdminNotificationRows(database: DB = db): Promise<Adm
         status: true,
       },
       orderBy: [desc(businesses.createdAt)],
-      where: and(eq(businesses.status, 'PENDING'), isNull(businesses.deletedAt)),
+      where: and(eq(businesses.status, 'UNDER_REVIEW'), isNull(businesses.deletedAt)),
       with: {
         user: {
           columns: {
@@ -56,6 +67,13 @@ export async function fetchAdminNotificationRows(database: DB = db): Promise<Adm
   ]);
 
   return {
+    applications: pendingApplications.map((application) => ({
+      createdAt: application.createdAt,
+      id: application.id,
+      representativeName: application.representativeName,
+      status: application.status,
+      title: application.businessName,
+    })),
     businesses: pendingBusinesses.map((business) => ({
       createdAt: business.createdAt,
       id: business.id,

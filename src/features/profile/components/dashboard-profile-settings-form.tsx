@@ -31,6 +31,7 @@ import {
 } from './dashboard-profile-shared';
 
 export interface DashboardProfileSettingsFormProps extends DashboardProfileData {
+  avatarUploadDisabled?: boolean;
   cities: SelectOption[];
   countries: SelectOption[];
   labels: DashboardProfileLabels;
@@ -38,6 +39,7 @@ export interface DashboardProfileSettingsFormProps extends DashboardProfileData 
 }
 
 export function DashboardProfileSettingsForm({
+  avatarUploadDisabled = false,
   avatarUrl,
   bio,
   cityId,
@@ -82,6 +84,10 @@ export function DashboardProfileSettingsForm({
   }
 
   function applyAvatarFile(file: File | undefined) {
+    if (avatarUploadDisabled) {
+      return;
+    }
+
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
@@ -99,7 +105,7 @@ export function DashboardProfileSettingsForm({
 
   function handleDragOver(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
-    if (!pending) {
+    if (!pending && !avatarUploadDisabled) {
       setIsDragging(true);
     }
   }
@@ -111,7 +117,7 @@ export function DashboardProfileSettingsForm({
   function handleDrop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
     setIsDragging(false);
-    if (pending) return;
+    if (pending || avatarUploadDisabled) return;
 
     const file = event.dataTransfer.files?.[0];
     if (file) {
@@ -131,6 +137,10 @@ export function DashboardProfileSettingsForm({
       if (!result.ok) {
         if (result.error.code === 'EMAIL_IN_USE') {
           setErrorMessage(labels.profileEmailInUse);
+          return;
+        }
+        if (result.error.code === 'AVATAR_DEV_BYPASS') {
+          setErrorMessage(labels.profileAvatarDevBypassError);
           return;
         }
         if (result.error.code === 'AVATAR_ERROR') {
@@ -182,7 +192,7 @@ export function DashboardProfileSettingsForm({
             <button
               type="button"
               className="relative mx-auto shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:mx-0"
-              disabled={pending}
+              disabled={pending || avatarUploadDisabled}
               onClick={() => fileInputRef.current?.click()}
               aria-label={labels.uploadAvatar}
             >
@@ -202,18 +212,20 @@ export function DashboardProfileSettingsForm({
                 type="button"
                 variant="outline"
                 className="min-h-11 rounded-md border-border/50 bg-transparent text-white hover:bg-white/5"
-                disabled={pending}
+                disabled={pending || avatarUploadDisabled}
                 onClick={() => fileInputRef.current?.click()}
               >
                 <Camera aria-hidden="true" className="mr-2 size-4" />
                 {labels.uploadAvatar}
               </Button>
-              <p className="text-xs leading-5 text-fg/50">{labels.avatarHint}</p>
+              <p className="text-xs leading-5 text-fg/50">
+                {avatarUploadDisabled ? labels.profileAvatarDevBypassHint : labels.avatarHint}
+              </p>
               <input
                 ref={fileInputRef}
                 accept="image/jpeg,image/png,image/webp"
                 className="sr-only"
-                disabled={pending}
+                disabled={pending || avatarUploadDisabled}
                 id={`${formId}-avatar`}
                 name="avatar"
                 type="file"

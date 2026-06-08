@@ -20,11 +20,11 @@ const statusToneClasses: Record<StatusTone, string> = {
 
 export function getAdminStatusTone(status: string): StatusTone {
   if (['ACTIVE', 'PUBLISHED', 'APPROVED', 'SUCCEEDED'].includes(status)) return 'success';
-  if (['PENDING', 'SUBMITTED', 'UNDER_REVIEW', 'VIP', 'BUSINESS'].includes(status))
+  if (['SUBMITTED', 'UNDER_REVIEW', 'VIP', 'BUSINESS'].includes(status))
     return 'warning';
   if (['HIDDEN', 'REJECTED', 'BANNED', 'EXPIRED', 'FAILED'].includes(status)) return 'danger';
   if (['ADMIN'].includes(status)) return 'default';
-  if (['FREE', 'DRAFT', 'INACTIVE', 'CLOSED'].includes(status)) return 'muted';
+  if (['FREE', 'INACTIVE', 'CLOSED'].includes(status)) return 'muted';
   return 'info';
 }
 

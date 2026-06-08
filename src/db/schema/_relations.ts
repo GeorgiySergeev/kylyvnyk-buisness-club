@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm';
 
 import { auditLogs } from './audit';
 import { businesses } from './business';
+import { businessApplications } from './business-application';
 import { clubCards } from './card';
 import { catalogItems } from './catalog';
 import { categories } from './category';
@@ -32,6 +33,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   permissionOverrides: many(userPermissionOverrides, { relationName: 'userPermissionOverrides' }),
   assignedRoles: many(userRoles, { relationName: 'assignedBy' }),
   assignedPermissionOverrides: many(userPermissionOverrides, { relationName: 'assignedByPermissionOverride' }),
+  businessApplications: many(businessApplications),
 }));
 
 export const profilesRelations = relations(profiles, ({ one }) => ({
@@ -53,6 +55,7 @@ export const countriesRelations = relations(countries, ({ many }) => ({
   cities: many(cities),
   profiles: many(profiles),
   businesses: many(businesses),
+  businessApplications: many(businessApplications),
 }));
 
 export const citiesRelations = relations(cities, ({ one, many }) => ({
@@ -72,6 +75,21 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
     relationName: 'subcategories',
   }),
   children: many(categories, { relationName: 'subcategories' }),
+}));
+
+export const businessApplicationsRelations = relations(businessApplications, ({ one }) => ({
+  user: one(users, {
+    fields: [businessApplications.userId],
+    references: [users.id],
+  }),
+  country: one(countries, {
+    fields: [businessApplications.countryId],
+    references: [countries.id],
+  }),
+  category: one(categories, {
+    fields: [businessApplications.categoryId],
+    references: [categories.id],
+  }),
 }));
 
 export const businessesRelations = relations(businesses, ({ one, many }) => ({

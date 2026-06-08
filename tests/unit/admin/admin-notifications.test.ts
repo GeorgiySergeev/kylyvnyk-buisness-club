@@ -11,9 +11,9 @@ test('buildAdminNotifications returns only mapped items sorted newest first with
       {
         createdAt: new Date('2026-06-01T09:00:00.000Z'),
         id: 'business-1',
-        name: 'Pending Business',
+        name: 'Review Business',
         ownerName: 'Owner One',
-        status: 'PENDING',
+        status: 'UNDER_REVIEW',
       },
     ],
     introductions: [
@@ -66,9 +66,9 @@ test('buildAdminNotifications returns only mapped items sorted newest first with
         entityType: 'business',
         href: '/en/admin/businesses/business-1',
         id: 'business:business-1',
-        status: 'PENDING',
+        status: 'UNDER_REVIEW',
         subtitle: 'Owner One',
-        title: 'Pending Business',
+        title: 'Review Business',
       },
     ],
   );
@@ -88,10 +88,10 @@ test('admin notifications menu state exposes badge and empty-state flags', () =>
         entityType: 'business',
         href: '/en/admin/businesses/business-1',
         id: 'business:business-1',
-        status: 'PENDING',
+        status: 'UNDER_REVIEW',
         subtitle: null,
         timestamp: '2026-06-01T09:00:00.000Z',
-        title: 'Pending Business',
+        title: 'Review Business',
       },
     ]),
     {

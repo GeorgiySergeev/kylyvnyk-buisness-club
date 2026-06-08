@@ -35,6 +35,13 @@ export const verifyCardNumberRateLimiter = new Ratelimit({
   prefix: "rl:verify-card:number",
 });
 
+export const partnerRegistrationRateLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "600 s"),
+  analytics: true,
+  prefix: "rl:partner-registration",
+});
+
 /**
  * Helper to check rate limit for a given identifier
  * Returns { success: boolean, limit: number, remaining: number, reset: number }
@@ -78,6 +85,24 @@ export async function checkVerifyCardRateLimit(input: { ip: string; number: stri
       cause: cause instanceof Error ? cause.message : String(cause),
       ip: input.ip,
       numberPrefix: input.number.trim().slice(0, 8).toUpperCase(),
+    });
+
+    return { success: true };
+  }
+}
+
+export async function checkPartnerRegistrationRateLimit(identifier: string) {
+  if (env.NODE_ENV === "test") {
+    return { success: true };
+  }
+
+  try {
+    const result = await partnerRegistrationRateLimiter.limit(identifier);
+    return { success: result.success };
+  } catch (cause) {
+    log.warn("Partner registration rate limiter error (fail-open)", {
+      cause: cause instanceof Error ? cause.message : String(cause),
+      identifier,
     });
 
     return { success: true };

@@ -85,7 +85,7 @@ export async function submitBusinessAction(
         name: parsed.data.name,
         phone: parsed.data.phone,
         slug,
-        status: 'PENDING',
+        status: 'UNDER_REVIEW',
         updatedAt: now,
         userId: user.id,
         website: parsed.data.website ?? null,
@@ -104,7 +104,7 @@ export async function submitBusinessAction(
       payload: {
         representativeName: parsed.data.representativeName,
         slug,
-        status: 'PENDING',
+        status: 'UNDER_REVIEW',
       },
     });
 

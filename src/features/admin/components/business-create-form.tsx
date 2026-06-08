@@ -22,7 +22,7 @@ const createBusinessFormSchema = z.object({
   website: z.string().trim().max(500),
   phone: z.string().trim().max(32),
   email: z.string().trim().max(200),
-  status: z.enum(['DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN', 'DECLINED']),
+  status: z.enum(['UNDER_REVIEW', 'PUBLISHED', 'HIDDEN']),
 });
 
 type CreateBusinessFormValues = z.infer<typeof createBusinessFormSchema>;
@@ -61,7 +61,7 @@ export function BusinessCreateForm({ labels, locale }: BusinessCreateFormProps) 
       ownerPhone: '',
       phone: '',
       slug: '',
-      status: 'DRAFT',
+      status: 'UNDER_REVIEW',
       website: '',
     },
     resolver: zodResolver(createBusinessFormSchema),
@@ -165,11 +165,9 @@ export function BusinessCreateForm({ labels, locale }: BusinessCreateFormProps) 
             id="status"
             {...register('status')}
           >
-            <option value="DRAFT">Draft</option>
-            <option value="PENDING">Pending</option>
+            <option value="UNDER_REVIEW">Under Review</option>
             <option value="PUBLISHED">Published</option>
             <option value="HIDDEN">Hidden</option>
-            <option value="DECLINED">Declined</option>
           </select>
         </div>
       </div>

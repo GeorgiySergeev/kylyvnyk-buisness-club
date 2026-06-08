@@ -38,7 +38,7 @@ export const businesses = pgTable(
     categoryId: integer("category_id").references(() => categories.id, {
       onDelete: "set null",
     }),
-    status: businessStatusEnum("status").notNull().default("DRAFT"),
+    status: businessStatusEnum("status").notNull().default("UNDER_REVIEW"),
     isTopPartner: boolean("is_top_partner").notNull().default(false),
     isRecommended: boolean("is_recommended").notNull().default(false),
     discountLabel: text("discount_label"),

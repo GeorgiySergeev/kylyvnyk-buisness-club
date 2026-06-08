@@ -68,7 +68,7 @@ export const importUsersSchema = z.object({
 
 export type ImportUserRow = z.infer<typeof importUserRowSchema>;
 
-export const businessStatusEnumSchema = z.enum(['DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN', 'DECLINED']);
+export const businessStatusEnumSchema = z.enum(['UNDER_REVIEW', 'PUBLISHED', 'HIDDEN']);
 
 export const createBusinessSchema = z.object({
   ownerPhone: z.string().trim().min(6).max(32),
@@ -84,7 +84,7 @@ export const createBusinessSchema = z.object({
   website: z.string().url().nullable().optional(),
   phone: z.string().trim().max(32).nullable().optional(),
   email: z.string().email().nullable().optional(),
-  status: businessStatusEnumSchema.default('DRAFT'),
+  status: businessStatusEnumSchema.default('UNDER_REVIEW'),
 });
 
 export const importBusinessRowSchema = z.object({
@@ -101,7 +101,7 @@ export const importBusinessRowSchema = z.object({
   website: z.string().url().nullable().optional(),
   phone: z.string().trim().max(32).nullable().optional(),
   email: z.string().email().nullable().optional(),
-  status: businessStatusEnumSchema.default('DRAFT'),
+  status: businessStatusEnumSchema.default('UNDER_REVIEW'),
 });
 
 export const importBusinessesSchema = z.object({
@@ -111,6 +111,10 @@ export const importBusinessesSchema = z.object({
 export const updateBusinessStatusSchema = z.object({
   businessId: z.string().uuid(),
   status: businessStatusEnumSchema,
+});
+
+export const updateBusinessApplicationSchema = z.object({
+  applicationId: z.string().uuid(),
 });
 
 export const toggleBusinessFeatureSchema = z.object({

@@ -33,6 +33,7 @@ function getEntityLabel(
   labels: AdminNotificationsMenuLabels,
 ): string {
   return entityType === 'business'
+    || entityType === 'business_application'
     ? labels.adminSearchTypeBusiness
     : labels.adminSearchTypeIntroduction;
 }

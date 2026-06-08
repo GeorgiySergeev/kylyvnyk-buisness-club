@@ -1,4 +1,4 @@
-import { desc } from 'drizzle-orm';
+import { desc, eq, isNull } from 'drizzle-orm';
 import { Building2, Download, Filter, Gauge, Plus, Star } from 'lucide-react';
 import Link from 'next/link';
 
@@ -13,7 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { db } from '@/db/client';
-import { businesses } from '@/db/schema';
+import { businessApplications, businesses } from '@/db/schema';
 import {
   AdminTableActionsCell,
   AdminTableActionsHead,
@@ -28,6 +28,7 @@ import {
   AdminSearchInput,
   AdminStatusBadge,
 } from '@/features/admin/components/admin-ui';
+import { BusinessApplicationActions } from '@/features/admin/components/business-application-actions';
 import { BusinessFeatureToggle } from '@/features/admin/components/business-feature-toggle';
 import { BusinessRowActions } from '@/features/admin/components/business-row-actions';
 import { BusinessesImportDialog } from '@/features/admin/components/businesses-import-dialog';
@@ -94,6 +95,20 @@ export default async function AdminBusinessesPage({
     },
   });
 
+  const pendingApplications = await db.query.businessApplications.findMany({
+    orderBy: [desc(businessApplications.createdAt)],
+    where: (table, { and }) =>
+      and(eq(table.status, 'UNDER_REVIEW'), isNull(table.deletedAt)),
+    with: {
+      category: {
+        columns: { name: true },
+      },
+      country: {
+        columns: { name: true },
+      },
+    },
+  });
+
   let filtered = allBusinesses;
 
   if (statusFilter) {
@@ -108,8 +123,10 @@ export default async function AdminBusinessesPage({
     );
   }
 
-  const statuses = ['ALL', 'DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN'] as const;
-  const pendingCount = allBusinesses.filter((business) => business.status === 'PENDING').length;
+  const statuses = ['ALL', 'UNDER_REVIEW', 'PUBLISHED', 'HIDDEN'] as const;
+  const pendingCount =
+    allBusinesses.filter((business) => business.status === 'UNDER_REVIEW').length +
+    pendingApplications.length;
   const publishedCount = allBusinesses.filter((business) => business.status === 'PUBLISHED').length;
   const featuredCount = allBusinesses.filter(
     (business) => business.isRecommended || business.isTopPartner,
@@ -192,6 +209,66 @@ export default async function AdminBusinessesPage({
           value={featuredCount}
         />
       </div>
+
+      <div className="flex items-center gap-2 text-ds-text-sm font-medium text-ds-text">
+        <Filter aria-hidden="true" className="size-4 text-ds-text-muted" />
+        {t('businessApplicationsTitle')}
+        <span className="text-ds-text-muted">({pendingApplications.length.toLocaleString()})</span>
+      </div>
+
+      <AdminDataTableShell>
+        {pendingApplications.length === 0 ? (
+          <div className="p-6">
+            <AdminEmptyState title={t('businessApplicationsEmpty')} />
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>{t('businessName')}</TableHead>
+                <TableHead>{t('businessApplicationApplicant')}</TableHead>
+                <TableHead>{t('businessApplicationContact')}</TableHead>
+                <TableHead>{t('location')}</TableHead>
+                <TableHead>{t('created')}</TableHead>
+                <AdminTableActionsHead label={t('actions')} />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pendingApplications.map((application) => (
+                <TableRow key={application.id}>
+                  <TableCell>
+                    <div className="font-medium text-foreground">{application.businessName}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {application.category?.name ?? t('emptyValue')}
+                    </div>
+                  </TableCell>
+                  <TableCell>{application.representativeName}</TableCell>
+                  <TableCell>
+                    <div>{application.email}</div>
+                    <div className="text-xs text-muted-foreground">{application.phone}</div>
+                    <div className="break-all text-xs text-muted-foreground">
+                      {application.websiteOrSocial}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {[application.cityName, application.country?.name].filter(Boolean).join(', ')}
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground">
+                    {application.createdAt.toLocaleDateString()}
+                  </TableCell>
+                  <AdminTableActionsCell>
+                    <BusinessApplicationActions
+                      applicationId={application.id}
+                      approveLabel={t('businessApplicationApprove')}
+                      hideLabel={t('businessApplicationHide')}
+                    />
+                  </AdminTableActionsCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </AdminDataTableShell>
 
       <div className="flex items-center gap-2 text-ds-text-sm font-medium text-ds-text">
         <Filter aria-hidden="true" className="size-4 text-ds-text-muted" />

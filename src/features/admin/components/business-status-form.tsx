@@ -34,14 +34,14 @@ export function BusinessStatusForm({ businessId, currentStatus }: BusinessStatus
     refresh();
   }
 
-  const statuses = ['DRAFT', 'PENDING', 'PUBLISHED', 'HIDDEN', 'DECLINED'] as const;
+  const statuses = ['UNDER_REVIEW', 'PUBLISHED', 'HIDDEN'] as const;
 
   return (
     <div className="space-y-4 rounded-ds-radius-lg border border-ds-border bg-ds-surface/80 p-4 shadow-sm">
       <Label className="text-ds-text">Status</Label>
       <div className="flex flex-wrap gap-2">
         {statuses.map((status) => {
-          const isDestructive = status === 'DECLINED';
+          const isDestructive = status === 'HIDDEN';
           return (
             <Button
               key={status}

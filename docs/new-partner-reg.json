@@ -1,0 +1,114 @@
+{
+  "formId": "business-partner-submission",
+  "title": "Submit Business",
+  "steps": [
+    {
+      "id": "business",
+      "title": "Расскажите о бизнесе",
+      "description": "Добавим компанию в каталог после проверки администрацией.",
+      "fields": [
+        {
+          "name": "businessName",
+          "type": "text",
+          "label": "Название бизнеса",
+          "placeholder": "Например, Neowebsphera Studio",
+          "required": true,
+          "minLength": 2,
+          "maxLength": 120
+        },
+        {
+          "name": "category",
+          "type": "select",
+          "label": "Категория",
+          "placeholder": "Выберите категорию",
+          "required": true,
+          "optionsSource": "categories"
+        }
+      ]
+    },
+    {
+      "id": "representative",
+      "title": "Контактное лицо",
+      "description": "Эти данные нужны для подтверждения заявки и связи по публикации.",
+      "fields": [
+        {
+          "name": "representativeName",
+          "type": "text",
+          "label": "Имя представителя",
+          "placeholder": "Ваше имя и фамилия",
+          "required": true,
+          "minLength": 2,
+          "maxLength": 120
+        },
+        {
+          "name": "email",
+          "type": "email",
+          "label": "Email",
+          "placeholder": "name@company.com",
+          "required": true
+        },
+        {
+          "name": "phone",
+          "type": "tel",
+          "label": "Телефон",
+          "placeholder": "+380 ...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "location",
+      "title": "Где вас найти",
+      "description": "Укажите город и ссылку на сайт или соцсеть, чтобы мы могли проверить бизнес.",
+      "fields": [
+        {
+          "name": "country",
+          "type": "select",
+          "label": "Страна",
+          "placeholder": "Выберите страну",
+          "required": true,
+          "optionsSource": "countries"
+        },
+        {
+          "name": "city",
+          "type": "text",
+          "label": "Город",
+          "placeholder": "Например, Warsaw",
+          "required": true,
+          "minLength": 2,
+          "maxLength": 120
+        },
+        {
+          "name": "websiteOrSocial",
+          "type": "url",
+          "label": "Сайт или соцсеть",
+          "placeholder": "https://...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "title": "Проверьте информацию",
+      "description": "После отправки заявка получит статус Under Review.",
+      "fields": [
+        {
+          "name": "confirmAuthority",
+          "type": "checkbox",
+          "label": "Подтверждаю, что представляю этот бизнес или имею право отправить заявку.",
+          "required": true
+        },
+        {
+          "name": "acceptLegal",
+          "type": "checkbox",
+          "label": "Соглашаюсь с Partner Rules, Terms of Use и Privacy Policy.",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "submit": {
+    "buttonLabel": "Отправить на проверку",
+    "initialStatus": "UNDER_REVIEW"
+  }
+}
