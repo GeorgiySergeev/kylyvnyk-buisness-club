@@ -6,7 +6,7 @@ import { headers } from 'next/headers';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { db } from '@/db/client';
 import { businessApplications } from '@/db/schema';
-import { getCurrentUser } from '@/features/auth/lib/current-user';
+import { getAuthIdentity } from '@/features/auth/lib/auth-identity';
 import { createPartnerRegistrationSchema } from '@/features/partner-registration/schemas/partner-registration.schema';
 import { createAuditLog } from '@/lib/audit';
 import { verifyTurnstileToken } from '@/lib/captcha/turnstile';
@@ -119,7 +119,7 @@ export async function submitPartnerRegistrationAction(
       };
     }
 
-    const user = await getCurrentUser();
+    const identity = await getAuthIdentity();
     const now = new Date();
 
     const [created] = await db
@@ -136,7 +136,7 @@ export async function submitPartnerRegistrationAction(
         representativeName: parsed.data.representativeName,
         status: 'UNDER_REVIEW',
         updatedAt: now,
-        userId: user?.id ?? null,
+        userId: identity?.providerUserId ?? null,
         websiteOrSocial: parsed.data.websiteOrSocial,
       })
       .returning({ id: businessApplications.id });
@@ -147,7 +147,7 @@ export async function submitPartnerRegistrationAction(
 
     await createAuditLog({
       action: 'BUSINESS_APPLICATION_SUBMITTED',
-      actorUserId: user?.id ?? null,
+      actorUserId: identity?.providerUserId ?? null,
       entityId: created.id,
       entityType: 'business_application',
       ipAddress: ip,

@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { cache } from 'react';
+
 import { resolveLocale } from '@/components/layout/navigation';
 
 import a11y from '../../../messages/en/a11y.json';
@@ -102,12 +104,12 @@ type Messages = typeof EN_MESSAGES;
 type Namespace = keyof Messages;
 export type Key<N extends Namespace> = keyof Messages[N] & string;
 
-export function getT<N extends Namespace>(
+export const getT = cache(<N extends Namespace>(
   namespace: N,
   locale?: string,
-): (key: Key<N>) => string {
+): ((key: Key<N>) => string) => {
   const resolvedLocale = resolveLocale(locale);
   const scopedMessages = MESSAGES_BY_LOCALE[resolvedLocale][namespace] as Messages[N];
 
   return (key) => scopedMessages[key] as string;
-}
+});
