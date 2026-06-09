@@ -15,7 +15,7 @@ function getRequestLocale(pathname: string) {
   return LOCALE_PATTERN.exec(pathname)?.[1] ?? 'en';
 }
 
-function isDevBypassRequest(request: NextRequest) {
+async function isDevBypassRequest(request: NextRequest) {
   if (process.env.NODE_ENV === 'production') {
     return false;
   }
@@ -24,7 +24,7 @@ function isDevBypassRequest(request: NextRequest) {
     return false;
   }
 
-  return Boolean(decodeDevPhoneAuthCookie(request.cookies.get(DEV_PHONE_AUTH_COOKIE)?.value));
+  return Boolean(await decodeDevPhoneAuthCookie(request.cookies.get(DEV_PHONE_AUTH_COOKIE)?.value));
 }
 
 function redirectToSignIn(request: NextRequest, locale: string, returnBackUrl: string) {
@@ -40,7 +40,7 @@ function redirectToSignIn(request: NextRequest, locale: string, returnBackUrl: s
 export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const locale = getRequestLocale(pathname);
-  const devBypass = isDevBypassRequest(request);
+  const devBypass = await isDevBypassRequest(request);
 
   let response = NextResponse.next({
     request,
@@ -70,7 +70,6 @@ export default async function middleware(request: NextRequest) {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({ request });
         cookiesToSet.forEach(({ name, value, options }) => {
           response.cookies.set(name, value, options);
         });

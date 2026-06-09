@@ -10,6 +10,7 @@ import { getCurrentUserWithRole } from '@/features/auth/lib/current-user';
 import { setUserMembershipTier } from '@/features/billing/lib/membership-access';
 import { BUSINESS_PLAN_CODE } from '@/features/billing/lib/plan-codes';
 import { generateUniqueBusinessSlug } from '@/features/business/lib/business-slug';
+import { slugifyBusinessName } from '@/features/business/lib/slugify-business-name';
 import { createAuditLog } from '@/lib/audit';
 import { log } from '@/lib/log';
 
@@ -23,8 +24,6 @@ import {
   toggleBusinessFeatureSchema,
   updateBusinessApplicationSchema,
 } from '../schemas/admin.schema';
-
-type ActionResult<T> = { data: T; ok: true } | { error: string; ok: false };
 
 function revalidateBusinessesPages() {
   SUPPORTED_LOCALES.forEach((locale) => {
@@ -191,12 +190,12 @@ export async function hideBusinessApplicationAction(
 
 export async function updateBusinessStatusAction(
   rawInput: unknown,
-): Promise<ActionResult<{ businessId: string; status: string }>> {
+): Promise<AdminActionResult<{ businessId: string; status: string }>> {
   const admin = await getCurrentUserWithRole('ADMIN');
-  if (!admin.ok) return { error: 'Unauthorized.', ok: false };
+  if (!admin.ok) return { code: 'unauthorized', error: 'Unauthorized.', ok: false };
 
   const parsed = updateBusinessStatusSchema.safeParse(rawInput);
-  if (!parsed.success) return { error: 'Invalid input.', ok: false };
+  if (!parsed.success) return { code: 'validation', error: 'Invalid input.', ok: false };
 
   const [updated] = await db
     .update(businesses)
@@ -204,7 +203,7 @@ export async function updateBusinessStatusAction(
     .where(eq(businesses.id, parsed.data.businessId))
     .returning({ id: businesses.id, status: businesses.status, userId: businesses.userId });
 
-  if (!updated) return { error: 'Business not found.', ok: false };
+  if (!updated) return { code: 'not_found', error: 'Business not found.', ok: false };
 
   if (parsed.data.status === 'PUBLISHED') {
     await setUserMembershipTier(updated.userId, BUSINESS_PLAN_CODE, new Date(), admin.data.id);
@@ -316,20 +315,20 @@ export async function restoreBusinessAction(
 
 export async function createBusinessAction(
   rawInput: unknown,
-): Promise<ActionResult<{ businessId: string }>> {
+): Promise<AdminActionResult<{ businessId: string }>> {
   const start = Date.now();
   const admin = await getCurrentUserWithRole('ADMIN');
 
   if (!admin.ok) {
     log.warn('Admin business create denied', { reason: admin.error });
-    return { error: 'Unauthorized. Admin access required.', ok: false };
+    return { code: 'unauthorized', error: 'Unauthorized. Admin access required.', ok: false };
   }
 
   const parsed = createBusinessSchema.safeParse(rawInput);
 
   if (!parsed.success) {
     log.warn('Admin business create validation failed', { userId: admin.data.id });
-    return { error: 'Invalid input.', ok: false };
+    return { code: 'validation', error: 'Invalid input.', ok: false };
   }
 
   const now = new Date();
@@ -341,10 +340,14 @@ export async function createBusinessAction(
     });
 
     if (!owner) {
-      return { error: `User with phone "${parsed.data.ownerPhone}" not found.`, ok: false };
+      return {
+        code: 'not_found',
+        error: `User with phone "${parsed.data.ownerPhone}" not found.`,
+        ok: false,
+      };
     }
 
-    const slug = parsed.data.slug ?? slugify(parsed.data.name);
+    const slug = parsed.data.slug ?? slugifyBusinessName(parsed.data.name);
 
     const [business] = await db
       .insert(businesses)
@@ -363,7 +366,7 @@ export async function createBusinessAction(
       })
       .returning({ id: businesses.id, name: businesses.name });
 
-    if (!business) return { error: 'Failed to create business.', ok: false };
+    if (!business) return { code: 'validation', error: 'Failed to create business.', ok: false };
 
     await createAuditLog({
       action: 'ADMIN_BUSINESS_CREATED',
@@ -383,20 +386,11 @@ export async function createBusinessAction(
   } catch (error) {
     const code = (error as { code?: string })?.code;
     if (code === '23505') {
-      return { error: 'Slug already exists.', ok: false };
+      return { code: 'conflict', error: 'Slug already exists.', ok: false };
     }
 
     throw error;
   }
-}
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 120);
 }
 
 export interface ImportBusinessesResult {
@@ -407,20 +401,20 @@ export interface ImportBusinessesResult {
 
 export async function importBusinessesAction(
   rawInput: unknown,
-): Promise<ActionResult<ImportBusinessesResult>> {
+): Promise<AdminActionResult<ImportBusinessesResult>> {
   const start = Date.now();
   const admin = await getCurrentUserWithRole('ADMIN');
 
   if (!admin.ok) {
     log.warn('Admin businesses import denied', { reason: admin.error });
-    return { error: 'Unauthorized. Admin access required.', ok: false };
+    return { code: 'unauthorized', error: 'Unauthorized. Admin access required.', ok: false };
   }
 
   const parsed = importBusinessesSchema.safeParse(rawInput);
 
   if (!parsed.success) {
     log.warn('Admin businesses import validation failed', { userId: admin.data.id });
-    return { error: 'Invalid input', ok: false };
+    return { code: 'validation', error: 'Invalid input', ok: false };
   }
 
   const errors: ImportBusinessesResult['errors'] = [];
@@ -442,7 +436,7 @@ export async function importBusinessesAction(
         continue;
       }
 
-      const slug = row.slug ?? slugify(row.name);
+      const slug = row.slug ?? slugifyBusinessName(row.name);
 
       const [business] = await db
         .insert(businesses)

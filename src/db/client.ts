@@ -55,9 +55,9 @@ const createClient = () => {
     prepare: false,
     fetch_types: !transactionPooler,
     max: transactionPooler ? resolvePoolMax(databaseUrl) : 5,
-    idle_timeout: 20,
+    idle_timeout: 300,
     max_lifetime: 60 * 10,
-    connect_timeout: 10,
+    connect_timeout: 15,
     connection: {
       statement_timeout: 15_000,
     },

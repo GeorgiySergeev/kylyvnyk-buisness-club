@@ -31,9 +31,15 @@ export async function guardPermission(
 
   if (!permitted) {
     const adminAccess = await isSuperAdmin(user.id);
-    if (!adminAccess) {
+
+    if (adminAccess) {
+      return user;
+    }
+
+    if (user.role !== 'ADMIN' && user.role !== 'OWNER') {
       redirect(localizeHref(locale, '/'));
     }
+
     redirect(localizeHref(locale, '/admin'));
   }
 

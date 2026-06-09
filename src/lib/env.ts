@@ -8,6 +8,7 @@ const nonEmptyStringSchema = z.string().trim().min(1);
 const envSchema = z.object({
   ALLOW_SEED: flagSchema,
   AUTH_DEV_PHONE_BYPASS_ENABLED: flagSchema,
+  AUTH_DEV_PHONE_BYPASS_SECRET: nonEmptyStringSchema.optional(),
   AUTH_DEV_2FA_BYPASS_ENABLED: flagSchema,
   CONFIRM_SEED: flagSchema,
   CRON_SECRET: nonEmptyStringSchema.optional(),

@@ -4,24 +4,32 @@ import { cookies, headers } from 'next/headers';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { getAuthIdentity, isAuthDevPhoneBypassEnabled } from '@/features/auth/lib/auth-identity';
-import { createCardForUser } from '@/features/auth/lib/card';
-import { findExistingUserByIdentity, findExistingUserByPhone } from '@/features/auth/lib/current-user';
+import { claimPreApprovedUser } from '@/features/auth/lib/claim-pre-approved-user';
+import { findExistingUserByPhone } from '@/features/auth/lib/current-user';
 import { DEV_PHONE_AUTH_COOKIE, encodeDevPhoneAuthCookie } from '@/features/auth/lib/dev-auth';
+import { resolveOtpSendFailureMessage } from '@/features/auth/lib/otp-send-error';
 import { phoneOtpRequestSchema, phoneOtpVerifySchema } from '@/features/auth/lib/phone';
-import { type AuthIntent,getAuthIntentError } from '@/features/auth/lib/phone-auth-intent';
+import {
+  type AuthIntent,
+  getAuthIntentError,
+  getPhoneAccessState,
+  shouldCreateSupabaseUserForOtp,
+} from '@/features/auth/lib/phone-auth-intent';
 import { resolvePostAuthRedirect } from '@/features/auth/lib/resolve-post-auth-redirect';
-import { syncAuthUser } from '@/features/auth/lib/sync-auth-user';
 import { verifyTurnstileToken } from '@/lib/captcha/turnstile';
 import { getT } from '@/lib/i18n/t-server';
+import { log } from '@/lib/log';
 import { checkSmsOtpRateLimit } from '@/lib/rate-limit/upstash';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 type AuthActionErrorCode =
   | 'ACCOUNT_ALREADY_EXISTS'
-  | 'ACCOUNT_NOT_FOUND'
+  | 'ACCOUNT_NOT_APPROVED'
+  | 'CAPTCHA_FAILED'
   | 'DEV_BYPASS_DISABLED'
-  | 'OTP_REQUEST_FAILED'
+  | 'OTP_SEND_FAILED'
   | 'OTP_VERIFY_FAILED'
+  | 'RATE_LIMITED'
   | 'UNAUTHORIZED'
   | 'VALIDATION_ERROR';
 
@@ -50,6 +58,32 @@ type RequestOtpResult =
   | { data: { phone: string }; ok: true }
   | { error: AuthActionError; ok: false };
 
+async function resolveIntentPolicyError(
+  locale: SupportedLocale,
+  intent: AuthIntent,
+  phone: string,
+): Promise<AuthActionError | null> {
+  const existingUser = await findExistingUserByPhone(phone);
+  const intentError = getAuthIntentError(intent, getPhoneAccessState(existingUser));
+  const tAuth = getT('auth', locale);
+
+  if (intentError === 'ACCOUNT_NOT_APPROVED') {
+    return {
+      code: 'ACCOUNT_NOT_APPROVED',
+      message: tAuth('phoneAuthAccountNotApproved'),
+    };
+  }
+
+  if (intentError === 'ACCOUNT_ALREADY_EXISTS') {
+    return {
+      code: 'ACCOUNT_ALREADY_EXISTS',
+      message: tAuth('phoneAuthAccountExists'),
+    };
+  }
+
+  return null;
+}
+
 export async function requestPhoneOtpAction(
   locale: SupportedLocale,
   intent: AuthIntent,
@@ -62,14 +96,15 @@ export async function requestPhoneOtpAction(
   }
 
   const tAuth = getT('auth', locale);
-
   const existingUser = await findExistingUserByPhone(parsed.data.phone);
-  const intentError = getAuthIntentError(intent, Boolean(existingUser));
-  if (intentError === 'ACCOUNT_NOT_FOUND') {
+  const accessState = getPhoneAccessState(existingUser);
+  const intentError = getAuthIntentError(intent, accessState);
+
+  if (intentError === 'ACCOUNT_NOT_APPROVED') {
     return {
       error: {
-        code: 'ACCOUNT_NOT_FOUND',
-        message: tAuth('phoneAuthAccountNotFound'),
+        code: 'ACCOUNT_NOT_APPROVED',
+        message: tAuth('phoneAuthAccountNotApproved'),
       },
       ok: false,
     };
@@ -85,28 +120,26 @@ export async function requestPhoneOtpAction(
     };
   }
 
-  // Rate Limiting
   const headerList = await headers();
   const ip = headerList.get('x-forwarded-for')?.split(',')[0].trim() || '127.0.0.1';
   const rateLimitId = `${parsed.data.phone}:${ip}`;
-  
+
   const rateLimitResult = await checkSmsOtpRateLimit(rateLimitId);
   if (!rateLimitResult.success) {
     return {
       error: {
-        code: 'OTP_REQUEST_FAILED',
+        code: 'RATE_LIMITED',
         message: tAuth('phoneAuthRateLimitError'),
       },
       ok: false,
     };
   }
 
-  // Turnstile Verification
   const isCaptchaValid = await verifyTurnstileToken(parsed.data.captchaToken || '', ip);
   if (!isCaptchaValid) {
     return {
       error: {
-        code: 'OTP_REQUEST_FAILED',
+        code: 'CAPTCHA_FAILED',
         message: tAuth('phoneAuthCaptchaError'),
       },
       ok: false,
@@ -114,15 +147,26 @@ export async function requestPhoneOtpAction(
   }
 
   const supabase = await createSupabaseServerClient();
+  const shouldCreateUser = shouldCreateSupabaseUserForOtp(accessState);
   const { error } = await supabase.auth.signInWithOtp({
     phone: parsed.data.phone,
+    options: {
+      shouldCreateUser,
+    },
   });
 
   if (error) {
+    log.warn('Supabase OTP send failed', {
+      accessState,
+      cause: error.message,
+      shouldCreateUser,
+      status: error.status,
+    });
+
     return {
       error: {
-        code: 'OTP_REQUEST_FAILED',
-        message: 'Could not send the SMS code. Please try again.',
+        code: 'OTP_SEND_FAILED',
+        message: resolveOtpSendFailureMessage(error.message, tAuth),
       },
       ok: false,
     };
@@ -138,7 +182,7 @@ export async function requestPhoneOtpAction(
 
 export async function verifyPhoneOtpAction(
   locale: SupportedLocale,
-  intent: AuthIntent,
+  _intent: AuthIntent,
   rawInput: unknown,
 ): Promise<AuthActionResult<{ redirectTo: string }>> {
   const parsed = phoneOtpVerifySchema.safeParse(rawInput);
@@ -147,6 +191,7 @@ export async function verifyPhoneOtpAction(
     return validationError(parsed.error.flatten().fieldErrors);
   }
 
+  const tAuth = getT('auth', locale);
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.verifyOtp({
     phone: parsed.data.phone,
@@ -158,7 +203,7 @@ export async function verifyPhoneOtpAction(
     return {
       error: {
         code: 'OTP_VERIFY_FAILED',
-        message: 'The code could not be verified. Please try again.',
+        message: tAuth('phoneAuthOtpVerifyFailed'),
       },
       ok: false,
     };
@@ -170,47 +215,28 @@ export async function verifyPhoneOtpAction(
     return {
       error: {
         code: 'UNAUTHORIZED',
-        message: 'The verified session could not be loaded. Please try again.',
+        message: tAuth('phoneAuthSessionLoadFailed'),
       },
       ok: false,
     };
   }
 
-  if (intent === 'sign-in') {
-    const user = await findExistingUserByIdentity(identity);
-    if (!user) {
-      await supabase.auth.signOut();
-      return {
-        error: {
-          code: 'ACCOUNT_NOT_FOUND',
-          message: getT('auth', locale)('phoneAuthAccountNotFound'),
-        },
-        ok: false,
-      };
-    }
+  const claimResult = await claimPreApprovedUser(identity);
 
-    const redirectTo = await resolvePostAuthRedirect(
-      locale,
-      user.id,
-      parsed.data.returnBackUrl,
-    );
-
+  if (!claimResult.ok) {
+    await supabase.auth.signOut();
     return {
-      data: {
-        redirectTo,
+      error: {
+        code: 'ACCOUNT_NOT_APPROVED',
+        message: tAuth('phoneAuthAccountNotApproved'),
       },
-      ok: true,
+      ok: false,
     };
-  }
-
-  const { isNew, user } = await syncAuthUser(identity);
-  if (isNew) {
-    await createCardForUser(user.id, user.phone);
   }
 
   const redirectTo = await resolvePostAuthRedirect(
     locale,
-    user.id,
+    claimResult.user.id,
     parsed.data.returnBackUrl,
   );
 
@@ -243,25 +269,11 @@ export async function devBypassPhoneAuthAction(
     };
   }
 
-  const existingUser = await findExistingUserByPhone(parsed.data.phone);
-  const tAuth = getT('auth', locale);
-  const intentError = getAuthIntentError(intent, Boolean(existingUser));
-  if (intentError === 'ACCOUNT_NOT_FOUND') {
-    return {
-      error: {
-        code: 'ACCOUNT_NOT_FOUND',
-        message: tAuth('phoneAuthAccountNotFound'),
-      },
-      ok: false,
-    };
-  }
+  const policyError = await resolveIntentPolicyError(locale, intent, parsed.data.phone);
 
-  if (intentError === 'ACCOUNT_ALREADY_EXISTS') {
+  if (policyError) {
     return {
-      error: {
-        code: 'ACCOUNT_ALREADY_EXISTS',
-        message: tAuth('phoneAuthAccountExists'),
-      },
+      error: policyError,
       ok: false,
     };
   }
@@ -272,22 +284,29 @@ export async function devBypassPhoneAuthAction(
     path: '/',
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
-    value: encodeDevPhoneAuthCookie(parsed.data.phone),
+    value: await encodeDevPhoneAuthCookie(parsed.data.phone),
   });
 
-  const { isNew, user } = await syncAuthUser({
+  const claimResult = await claimPreApprovedUser({
     devBypass: true,
     phone: parsed.data.phone,
     providerUserId: `dev:${parsed.data.phone}`,
   });
 
-  if (isNew) {
-    await createCardForUser(user.id, user.phone);
+  if (!claimResult.ok) {
+    (await cookies()).delete(DEV_PHONE_AUTH_COOKIE);
+    return {
+      error: {
+        code: 'ACCOUNT_NOT_APPROVED',
+        message: getT('auth', locale)('phoneAuthAccountNotApproved'),
+      },
+      ok: false,
+    };
   }
 
   const redirectTo = await resolvePostAuthRedirect(
     locale,
-    user.id,
+    claimResult.user.id,
     parsed.data.returnBackUrl,
   );
 

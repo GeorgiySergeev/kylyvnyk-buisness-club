@@ -42,6 +42,19 @@ describe('partner registration schema', () => {
     assert.equal(parsed.success, true);
   });
 
+  it('accepts common formatted phone numbers', () => {
+    const validPhones = ['+15550000001', '+357 56 898 655', '(555) 000-0001'];
+
+    for (const phone of validPhones) {
+      const parsed = schema.safeParse({
+        ...validInput,
+        phone,
+      });
+
+      assert.equal(parsed.success, true, phone);
+    }
+  });
+
   it('returns required field errors for the first step', () => {
     const parsed = schema.safeParse({
       ...validInput,
@@ -75,6 +88,23 @@ describe('partner registration schema', () => {
       assert.deepEqual(fields.email, [messages.emailInvalid]);
       assert.deepEqual(fields.phone, [messages.phoneRequired]);
       assert.deepEqual(fields.representativeName, [messages.representativeNameRequired]);
+    }
+  });
+
+  it('rejects malformed phone numbers', () => {
+    const invalidPhones = ['+3575689865565+6', 'abc1234567', '123456', ''];
+
+    for (const phone of invalidPhones) {
+      const parsed = schema.safeParse({
+        ...validInput,
+        phone,
+      });
+
+      assert.equal(parsed.success, false, phone);
+      if (!parsed.success) {
+        const fields = parsed.error.flatten().fieldErrors;
+        assert.deepEqual(fields.phone, [messages.phoneRequired]);
+      }
     }
   });
 

@@ -2,9 +2,9 @@ import { env } from "@/lib/env";
 import { log } from "@/lib/log";
 
 export async function verifyTurnstileToken(token: string, ip?: string): Promise<boolean> {
-  if (env.NODE_ENV !== "production") {
+  if (env.NODE_ENV !== "production" && env.AUTH_DEV_PHONE_BYPASS_ENABLED === "1") {
     if (!token || token === "XXXX.dummy.token.XXXX" || token.startsWith("10000000")) {
-      log.info("Bypassing Turnstile validation in non-production environment", { token });
+      log.info("Bypassing Turnstile validation in non-production environment");
       return true;
     }
   }

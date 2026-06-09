@@ -10,6 +10,31 @@ const redis = new Redis({
   token: env.UPSTASH_REDIS_REST_TOKEN,
 });
 
+function maskIdentifierSegment(value: string): string {
+  let hash = 0;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
+  }
+
+  return hash.toString(16).padStart(8, "0");
+}
+
+function maskRateLimitIdentifier(identifier: string): string {
+  const [phone = "", ip = ""] = identifier.split(":");
+  const phoneSuffix = phone.length > 4 ? `***${phone.slice(-4)}` : "****";
+  const ipFingerprint = ip ? maskIdentifierSegment(ip) : "none";
+
+  return `${phoneSuffix}:${ipFingerprint}`;
+}
+
+function maskVerifyCardRateLimitInput(input: { ip: string; number: string }) {
+  return {
+    ipFingerprint: maskIdentifierSegment(input.ip),
+    numberFingerprint: maskIdentifierSegment(input.number.trim().toUpperCase()),
+  };
+}
+
 /**
  * SMS OTP Rate Limiter
  * Limits to 3 requests per 120 seconds (2 minutes) per phone number/IP.
@@ -18,7 +43,7 @@ export const smsOtpRateLimiter = new Ratelimit({
   redis,
   limiter: Ratelimit.slidingWindow(3, "120 s"),
   analytics: true,
-  prefix: "kclub:sms-otp",
+  prefix: "rl:sms-otp",
 });
 
 export const verifyCardIpRateLimiter = new Ratelimit({
@@ -47,7 +72,6 @@ export const partnerRegistrationRateLimiter = new Ratelimit({
  * Returns { success: boolean, limit: number, remaining: number, reset: number }
  */
 export async function checkSmsOtpRateLimit(identifier: string) {
-  // Always bypass rate limits in non-production if needed, or keep enabled for local testing
   if (env.NODE_ENV === "test") {
     return { success: true, limit: 3, remaining: 3, reset: 0 };
   }
@@ -61,9 +85,15 @@ export async function checkSmsOtpRateLimit(identifier: string) {
       reset: result.reset,
     };
   } catch (error) {
-    log.error("Rate limiter error", { error, identifier });
-    // Fail-open to prevent Redis downtime from blocking user auth completely,
-    // but log a severe warning.
+    log.error("SMS OTP rate limiter error", {
+      cause: error instanceof Error ? error.message : String(error),
+      identifier: maskRateLimitIdentifier(identifier),
+    });
+
+    if (env.NODE_ENV === "production") {
+      return { success: false, limit: 3, remaining: 0, reset: 0 };
+    }
+
     return { success: true, limit: 3, remaining: 1, reset: 0 };
   }
 }
@@ -83,8 +113,7 @@ export async function checkVerifyCardRateLimit(input: { ip: string; number: stri
   } catch (cause) {
     log.warn("Verify card rate limiter error (fail-open)", {
       cause: cause instanceof Error ? cause.message : String(cause),
-      ip: input.ip,
-      numberPrefix: input.number.trim().slice(0, 8).toUpperCase(),
+      ...maskVerifyCardRateLimitInput(input),
     });
 
     return { success: true };

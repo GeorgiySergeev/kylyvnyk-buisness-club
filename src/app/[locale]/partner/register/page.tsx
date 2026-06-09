@@ -1,4 +1,5 @@
 import { asc } from 'drizzle-orm';
+import { cache } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
@@ -8,7 +9,9 @@ import { AuthPageHeader } from '@/features/auth/components/auth-page-header';
 import { PartnerRegistrationForm } from '@/features/partner-registration/components/partner-registration-form';
 import { getT } from '@/lib/i18n/t-server';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
+
+const getCachedT = cache((locale: SupportedLocale) => getT('partnerRegistration', locale));
 
 interface PartnerRegisterPageProps {
   params: Promise<{
@@ -18,7 +21,7 @@ interface PartnerRegisterPageProps {
 
 export default async function PartnerRegisterPage({ params }: PartnerRegisterPageProps) {
   const { locale } = await params;
-  const t = getT('partnerRegistration', locale);
+  const t = getCachedT(locale);
 
   const [categoryRows, countryRows] = await Promise.all([
     db.query.categories.findMany({ orderBy: [asc(categories.name)] }),
