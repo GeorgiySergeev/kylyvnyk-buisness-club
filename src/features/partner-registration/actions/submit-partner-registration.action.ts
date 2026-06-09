@@ -11,6 +11,7 @@ import { createPartnerRegistrationSchema } from '@/features/partner-registration
 import { createAuditLog } from '@/lib/audit';
 import { verifyTurnstileToken } from '@/lib/captcha/turnstile';
 import { getT } from '@/lib/i18n/t-server';
+import { log } from '@/lib/log';
 import { checkPartnerRegistrationRateLimit } from '@/lib/rate-limit/upstash';
 
 type PartnerRegistrationErrorCode =
@@ -70,55 +71,57 @@ export async function submitPartnerRegistrationAction(
     };
   }
 
-  const headerList = await headers();
-  const ip = getRequestIp(headerList);
-  const rateLimit = await checkPartnerRegistrationRateLimit(`${ip}:${parsed.data.email.toLowerCase()}`);
-
-  if (!rateLimit.success) {
-    return {
-      error: {
-        code: 'RATE_LIMITED',
-        message: t('rateLimitError'),
-      },
-      ok: false,
-    };
-  }
-
-  const captchaValid = await verifyTurnstileToken(parsed.data.captchaToken || '', ip);
-
-  if (!captchaValid) {
-    return {
-      error: {
-        code: 'CAPTCHA_FAILED',
-        message: t('captchaError'),
-      },
-      ok: false,
-    };
-  }
-
-  const existingApplication = await db.query.businessApplications.findFirst({
-    columns: { id: true },
-    where: and(
-      eq(businessApplications.businessName, parsed.data.businessName),
-      eq(businessApplications.email, parsed.data.email),
-      isNull(businessApplications.deletedAt),
-    ),
-  });
-
-  if (existingApplication) {
-    return {
-      error: {
-        code: 'DUPLICATE_SUBMISSION',
-        message: t('duplicateError'),
-      },
-      ok: false,
-    };
-  }
-
-  const user = await getCurrentUser();
-  const now = new Date();
-
   try {
+    const headerList = await headers();
+    const ip = getRequestIp(headerList);
+    const rateLimit = await checkPartnerRegistrationRateLimit(
+      `${ip}:${parsed.data.email.toLowerCase()}`,
+    );
+
+    if (!rateLimit.success) {
+      return {
+        error: {
+          code: 'RATE_LIMITED',
+          message: t('rateLimitError'),
+        },
+        ok: false,
+      };
+    }
+
+    const captchaValid = await verifyTurnstileToken(parsed.data.captchaToken || '', ip);
+
+    if (!captchaValid) {
+      return {
+        error: {
+          code: 'CAPTCHA_FAILED',
+          message: t('captchaError'),
+        },
+        ok: false,
+      };
+    }
+
+    const existingApplication = await db.query.businessApplications.findFirst({
+      columns: { id: true },
+      where: and(
+        eq(businessApplications.businessName, parsed.data.businessName),
+        eq(businessApplications.email, parsed.data.email),
+        isNull(businessApplications.deletedAt),
+      ),
+    });
+
+    if (existingApplication) {
+      return {
+        error: {
+          code: 'DUPLICATE_SUBMISSION',
+          message: t('duplicateError'),
+        },
+        ok: false,
+      };
+    }
+
+    const user = await getCurrentUser();
+    const now = new Date();
+
     const [created] = await db
       .insert(businessApplications)
       .values({
@@ -159,7 +162,11 @@ export async function submitPartnerRegistrationAction(
       data: { applicationId: created.id, status: 'UNDER_REVIEW' },
       ok: true,
     };
-  } catch {
+  } catch (cause) {
+    log.error('Partner registration submission failed', {
+      cause: cause instanceof Error ? cause.message : String(cause),
+    });
+
     return {
       error: {
         code: 'SERVER_ERROR',

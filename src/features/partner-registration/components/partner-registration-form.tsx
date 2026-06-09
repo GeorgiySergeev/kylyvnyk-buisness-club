@@ -453,7 +453,7 @@ function SelectField({
           <Select
             disabled={disabled}
             value={field.value ? String(field.value) : ''}
-            onValueChange={field.onChange}
+            onValueChange={(value) => field.onChange(Number(value))}
           >
             <SelectTrigger
               id={htmlFor}

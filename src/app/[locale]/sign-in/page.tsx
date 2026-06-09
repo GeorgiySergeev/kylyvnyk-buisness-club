@@ -59,7 +59,6 @@ export default async function SignInPage({ params, searchParams }: SignInPagePro
             returnBackUrl={returnBackUrl}
             labels={{
               accountExists: tAuth('phoneAuthGoToSignIn'),
-              accountNotFound: tAuth('phoneAuthGoToSignUp'),
               code: tAuth('phoneAuthCodeLabel'),
               codeHelp: tAuth('phoneAuthCodeHelp'),
               devBypass: tAuth('phoneAuthDevBypass'),

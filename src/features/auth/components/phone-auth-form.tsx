@@ -29,7 +29,6 @@ function normalizePhone(input: string): string {
 
 interface PhoneAuthLabels {
   accountExists: string;
-  accountNotFound: string;
   code: string;
   codeHelp: string;
   devBypass: string;
@@ -119,10 +118,7 @@ export function PhoneAuthForm({
 
         if (!result.ok) {
           setError(result.error.message);
-          if (
-            result.error.code === 'ACCOUNT_NOT_FOUND' ||
-            result.error.code === 'ACCOUNT_ALREADY_EXISTS'
-          ) {
+          if (result.error.code === 'ACCOUNT_ALREADY_EXISTS') {
             setErrorLink(getAuthErrorLink(result.error.code));
           }
           return;
@@ -155,10 +151,7 @@ export function PhoneAuthForm({
 
         if (!result.ok) {
           setError(result.error.message);
-          if (
-            result.error.code === 'ACCOUNT_NOT_FOUND' ||
-            result.error.code === 'ACCOUNT_ALREADY_EXISTS'
-          ) {
+          if (result.error.code === 'ACCOUNT_ALREADY_EXISTS') {
             setErrorLink(getAuthErrorLink(result.error.code));
           }
           return;
@@ -185,10 +178,7 @@ export function PhoneAuthForm({
 
         if (!result.ok) {
           setError(result.error.message);
-          if (
-            result.error.code === 'ACCOUNT_NOT_FOUND' ||
-            result.error.code === 'ACCOUNT_ALREADY_EXISTS'
-          ) {
+          if (result.error.code === 'ACCOUNT_ALREADY_EXISTS') {
             setErrorLink(getAuthErrorLink(result.error.code));
           }
           return;
@@ -224,7 +214,7 @@ export function PhoneAuthForm({
           {errorLink ? (
             <p className="mt-2">
               <Link className="underline underline-offset-2" href={`/${locale}${errorLink}`}>
-                {errorLink === '/sign-up' ? labels.accountNotFound : labels.accountExists}
+                {labels.accountExists}
               </Link>
             </p>
           ) : null}

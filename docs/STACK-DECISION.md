@@ -262,10 +262,13 @@ Use Supabase Auth for identity and SMS OTP sessions.
   Server Components.
 - `@supabase/supabase-js` is allowed only through Supabase Auth/SSR helpers.
   Product data remains Drizzle over `DATABASE_URL`.
-- `/[locale]/sign-in` is the single phone-first auth page. `/[locale]/sign-up`
-  redirects there.
-- Successful first phone auth creates a `users` row with `role = FREE`,
-  `status = ACTIVE`, `phone`, and `supabase_user_id`.
+- `/[locale]/sign-in` is the member sign-in page. `/[locale]/sign-up` is the
+  pre-approved claim page for phone numbers already provisioned in `users.phone`.
+- Public auth is **pre-approved only**: unknown phones cannot request SMS OTP or
+  create app users. Supabase OTP is sent with `shouldCreateUser: false`.
+- Successful phone auth links an existing pre-provisioned `users` row to
+  `supabase_user_id`, then idempotently ensures profile, free membership, and
+  club card records.
 - `users.role` remains the authorization source of truth.
 - Local/demo bypass is allowed only when `AUTH_DEV_PHONE_BYPASS_ENABLED=1` and
   `NODE_ENV !== "production"`.
