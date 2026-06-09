@@ -17,6 +17,7 @@ import { FREE_PLAN_CODE, type MembershipTierCode } from '@/features/billing/lib/
 import { createAuditLog } from '@/lib/audit';
 import { log } from '@/lib/log';
 
+import type { AdminActionResult } from '../lib/action-result';
 import {
   createUserSchema,
   importUsersSchema,
@@ -28,8 +29,6 @@ import {
   updateUserRoleSchema,
   updateUserStatusSchema,
 } from '../schemas/admin.schema';
-
-type ActionResult<T> = { data: T; ok: true } | { error: string; ok: false };
 
 function revalidateUsersPages(userId?: string, locale?: SupportedLocale) {
   const locales = locale ? [locale] : SUPPORTED_LOCALES;
@@ -44,13 +43,13 @@ function revalidateUsersPages(userId?: string, locale?: SupportedLocale) {
 export async function updateUserRoleAction(
   rawInput: unknown,
   locale: SupportedLocale,
-): Promise<ActionResult<{ userId: string; role: string }>> {
+): Promise<AdminActionResult<{ userId: string; role: string }>> {
   const start = Date.now();
   const admin = await getCurrentUserWithRole('ADMIN');
 
   if (!admin.ok) {
     log.warn('Admin user role update denied', { reason: admin.error });
-    return { error: 'Unauthorized. Admin access required.', ok: false };
+    return { code: 'unauthorized', error: 'Unauthorized. Admin access required.', ok: false };
   }
 
   const parsed = updateUserRoleSchema.safeParse(rawInput);
@@ -59,7 +58,11 @@ export async function updateUserRoleAction(
     log.warn('Admin user role update validation failed', {
       userId: admin.data.id,
     });
-    return { error: parsed.error.flatten().fieldErrors?.role?.[0] ?? 'Invalid input.', ok: false };
+    return {
+      code: 'validation',
+      error: parsed.error.flatten().fieldErrors?.role?.[0] ?? 'Invalid input.',
+      ok: false,
+    };
   }
 
   const now = new Date();
@@ -71,7 +74,7 @@ export async function updateUserRoleAction(
     .returning({ id: users.id, role: users.role });
 
   if (!updated) {
-    return { error: 'User not found.', ok: false };
+    return { code: 'not_found', error: 'User not found.', ok: false };
   }
 
   await createAuditLog({
@@ -94,13 +97,13 @@ export async function updateUserRoleAction(
 export async function updateUserMembershipAction(
   rawInput: unknown,
   locale: SupportedLocale,
-): Promise<ActionResult<{ userId: string; membershipTier: string }>> {
+): Promise<AdminActionResult<{ userId: string; membershipTier: string }>> {
   const start = Date.now();
   const admin = await getCurrentUserWithRole('ADMIN');
 
   if (!admin.ok) {
     log.warn('Admin user membership update denied', { reason: admin.error });
-    return { error: 'Unauthorized. Admin access required.', ok: false };
+    return { code: 'unauthorized', error: 'Unauthorized. Admin access required.', ok: false };
   }
 
   const parsed = updateUserMembershipSchema.safeParse(rawInput);
@@ -109,7 +112,7 @@ export async function updateUserMembershipAction(
     log.warn('Admin user membership update validation failed', {
       userId: admin.data.id,
     });
-    return { error: 'Invalid input.', ok: false };
+    return { code: 'validation', error: 'Invalid input.', ok: false };
   }
 
   await setUserMembershipTier(parsed.data.userId, parsed.data.membershipTier, new Date(), admin.data.id);
@@ -137,13 +140,13 @@ export async function updateUserMembershipAction(
 export async function updateUserStatusAction(
   rawInput: unknown,
   locale: SupportedLocale,
-): Promise<ActionResult<{ userId: string; status: string }>> {
+): Promise<AdminActionResult<{ userId: string; status: string }>> {
   const start = Date.now();
   const admin = await getCurrentUserWithRole('ADMIN');
 
   if (!admin.ok) {
     log.warn('Admin user status update denied', { reason: admin.error });
-    return { error: 'Unauthorized. Admin access required.', ok: false };
+    return { code: 'unauthorized', error: 'Unauthorized. Admin access required.', ok: false };
   }
 
   const parsed = updateUserStatusSchema.safeParse(rawInput);
@@ -153,13 +156,18 @@ export async function updateUserStatusAction(
       userId: admin.data.id,
     });
     return {
+      code: 'validation',
       error: parsed.error.flatten().fieldErrors?.status?.[0] ?? 'Invalid input.',
       ok: false,
     };
   }
 
   if (admin.data.id === parsed.data.userId && parsed.data.status !== 'ACTIVE') {
-    return { error: 'You cannot block or deactivate your own account.', ok: false };
+    return {
+      code: 'forbidden',
+      error: 'You cannot block or deactivate your own account.',
+      ok: false,
+    };
   }
 
   const now = new Date();
@@ -171,7 +179,7 @@ export async function updateUserStatusAction(
     .returning({ id: users.id, status: users.status });
 
   if (!updated) {
-    return { error: 'User not found.', ok: false };
+    return { code: 'not_found', error: 'User not found.', ok: false };
   }
 
   await createAuditLog({
@@ -193,12 +201,12 @@ export async function updateUserStatusAction(
 
 export async function updateUserDetailsAction(
   rawInput: unknown,
-): Promise<ActionResult<{ userId: string }>> {
+): Promise<AdminActionResult<{ userId: string }>> {
   const admin = await getCurrentUserWithRole('ADMIN');
-  if (!admin.ok) return { error: 'Unauthorized. Admin access required.', ok: false };
+  if (!admin.ok) return { code: 'unauthorized', error: 'Unauthorized. Admin access required.', ok: false };
 
   const parsed = updateUserDetailsSchema.safeParse(rawInput);
-  if (!parsed.success) return { error: 'Invalid input.', ok: false };
+  if (!parsed.success) return { code: 'validation', error: 'Invalid input.', ok: false };
 
   const { userId, ...fields } = parsed.data;
 
@@ -216,7 +224,7 @@ export async function updateUserDetailsAction(
       .where(eq(users.id, userId))
       .returning({ id: users.id });
 
-    if (!updated) return { error: 'User not found.', ok: false };
+    if (!updated) return { code: 'not_found', error: 'User not found.', ok: false };
 
     await createAuditLog({
       action: 'ADMIN_USER_UPDATED',
@@ -228,7 +236,11 @@ export async function updateUserDetailsAction(
   } catch (error) {
     const code = (error as { code?: string })?.code;
     if (code === '23505')
-      return { error: 'Phone, email, or Supabase user id already exists.', ok: false };
+      return {
+        code: 'conflict',
+        error: 'Phone, email, or Supabase user id already exists.',
+        ok: false,
+      };
     throw error;
   }
 
@@ -238,12 +250,12 @@ export async function updateUserDetailsAction(
 
 export async function updateUserProfileAction(
   rawInput: unknown,
-): Promise<ActionResult<{ userId: string }>> {
+): Promise<AdminActionResult<{ userId: string }>> {
   const admin = await getCurrentUserWithRole('ADMIN');
-  if (!admin.ok) return { error: 'Unauthorized. Admin access required.', ok: false };
+  if (!admin.ok) return { code: 'unauthorized', error: 'Unauthorized. Admin access required.', ok: false };
 
   const parsed = updateUserProfileSchema.safeParse(rawInput);
-  if (!parsed.success) return { error: 'Invalid input.', ok: false };
+  if (!parsed.success) return { code: 'validation', error: 'Invalid input.', ok: false };
 
   const { userId, ...fields } = parsed.data;
 
@@ -288,14 +300,14 @@ export async function updateUserProfileAction(
 
 export async function softDeleteUserAction(
   rawInput: unknown,
-): Promise<ActionResult<{ userId: string }>> {
+): Promise<AdminActionResult<{ userId: string }>> {
   const admin = await getCurrentUserWithRole('ADMIN');
-  if (!admin.ok) return { error: 'Unauthorized. Admin access required.', ok: false };
+  if (!admin.ok) return { code: 'unauthorized', error: 'Unauthorized. Admin access required.', ok: false };
   const parsed = softDeleteUserSchema.safeParse(rawInput);
-  if (!parsed.success) return { error: 'Invalid input.', ok: false };
+  if (!parsed.success) return { code: 'validation', error: 'Invalid input.', ok: false };
 
   if (admin.data.id === parsed.data.userId) {
-    return { error: 'You cannot delete your own account.', ok: false };
+    return { code: 'forbidden', error: 'You cannot delete your own account.', ok: false };
   }
 
   const [updated] = await db
@@ -304,7 +316,7 @@ export async function softDeleteUserAction(
     .where(eq(users.id, parsed.data.userId))
     .returning({ id: users.id });
 
-  if (!updated) return { error: 'User not found.', ok: false };
+  if (!updated) return { code: 'not_found', error: 'User not found.', ok: false };
 
   await createAuditLog({
     action: 'ADMIN_USER_SOFT_DELETED',
@@ -319,11 +331,11 @@ export async function softDeleteUserAction(
 
 export async function restoreUserAction(
   rawInput: unknown,
-): Promise<ActionResult<{ userId: string }>> {
+): Promise<AdminActionResult<{ userId: string }>> {
   const admin = await getCurrentUserWithRole('ADMIN');
-  if (!admin.ok) return { error: 'Unauthorized. Admin access required.', ok: false };
+  if (!admin.ok) return { code: 'unauthorized', error: 'Unauthorized. Admin access required.', ok: false };
   const parsed = restoreUserSchema.safeParse(rawInput);
-  if (!parsed.success) return { error: 'Invalid input.', ok: false };
+  if (!parsed.success) return { code: 'validation', error: 'Invalid input.', ok: false };
 
   const [updated] = await db
     .update(users)
@@ -331,7 +343,7 @@ export async function restoreUserAction(
     .where(eq(users.id, parsed.data.userId))
     .returning({ id: users.id });
 
-  if (!updated) return { error: 'User not found.', ok: false };
+  if (!updated) return { code: 'not_found', error: 'User not found.', ok: false };
 
   await createAuditLog({
     action: 'ADMIN_USER_RESTORED',
@@ -347,20 +359,20 @@ export async function restoreUserAction(
 export async function createUserAction(
   rawInput: unknown,
   locale: SupportedLocale,
-): Promise<ActionResult<{ userId: string }>> {
+): Promise<AdminActionResult<{ userId: string }>> {
   const start = Date.now();
   const admin = await getCurrentUserWithRole('ADMIN');
 
   if (!admin.ok) {
     log.warn('Admin user create denied', { reason: admin.error });
-    return { error: 'Unauthorized. Admin access required.', ok: false };
+    return { code: 'unauthorized', error: 'Unauthorized. Admin access required.', ok: false };
   }
 
   const parsed = createUserSchema.safeParse(rawInput);
 
   if (!parsed.success) {
     log.warn('Admin user create validation failed', { userId: admin.data.id });
-    return { error: 'Invalid input.', ok: false };
+    return { code: 'validation', error: 'Invalid input.', ok: false };
   }
 
   const now = new Date();
@@ -419,7 +431,7 @@ export async function createUserAction(
   } catch (error) {
     const code = (error as { code?: string })?.code;
     if (code === '23505') {
-      return { error: 'Phone or email already exists.', ok: false };
+      return { code: 'conflict', error: 'Phone or email already exists.', ok: false };
     }
 
     throw error;
@@ -434,20 +446,20 @@ export interface ImportUsersResult {
 
 export async function importUsersAction(
   rawInput: unknown,
-): Promise<ActionResult<ImportUsersResult>> {
+): Promise<AdminActionResult<ImportUsersResult>> {
   const start = Date.now();
   const admin = await getCurrentUserWithRole('ADMIN');
 
   if (!admin.ok) {
     log.warn('Admin users import denied', { reason: admin.error });
-    return { error: 'Unauthorized. Admin access required.', ok: false };
+    return { code: 'unauthorized', error: 'Unauthorized. Admin access required.', ok: false };
   }
 
   const parsed = importUsersSchema.safeParse(rawInput);
 
   if (!parsed.success) {
     log.warn('Admin users import validation failed', { userId: admin.data.id });
-    return { error: 'Invalid input', ok: false };
+    return { code: 'validation', error: 'Invalid input', ok: false };
   }
 
   const errors: ImportUsersResult['errors'] = [];

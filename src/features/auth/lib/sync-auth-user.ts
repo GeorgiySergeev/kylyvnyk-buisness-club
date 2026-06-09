@@ -36,7 +36,7 @@ export async function syncAuthUser(identity: AuthIdentity, displayName?: string)
   // This is the primary path for every sign-in after the first.
   // ON CONFLICT (supabase_user_id) → UPDATE keeps updatedAt fresh.
   // We include phone in the update so a previously phone-only row gets linked.
-  const [upsertedBySupabaseId] = await db
+  const [insertedBySupabaseId] = await db
     .insert(users)
     .values({
       displayName: displayName ?? null,
@@ -46,38 +46,41 @@ export async function syncAuthUser(identity: AuthIdentity, displayName?: string)
       supabaseUserId: identity.providerUserId,
       updatedAt: now,
     })
-    .onConflictDoUpdate({
-      target: users.supabaseUserId,
-      set: {
-        // Keep phone in sync in case it changed (e.g. Supabase re-auth).
-        phone: identity.phone,
-        supabaseUserId: identity.providerUserId,
-        updatedAt: now,
-      },
-    })
+    .onConflictDoNothing({ target: users.supabaseUserId })
     .returning();
 
-  if (upsertedBySupabaseId) {
-    // `createdAt` equals `now` only when this was a genuine INSERT.
-    // On an ON CONFLICT UPDATE the existing `createdAt` is preserved (< now).
-    const isNew = upsertedBySupabaseId.createdAt.getTime() >= now.getTime() - 1000;
+  if (insertedBySupabaseId) {
+    await db.insert(profiles).values({ userId: insertedBySupabaseId.id }).onConflictDoNothing();
+    await ensureFreeMembershipWhenNoActiveVip(insertedBySupabaseId.id, now);
 
-    await db.insert(profiles).values({ userId: upsertedBySupabaseId.id }).onConflictDoNothing();
-    await ensureFreeMembershipWhenNoActiveVip(upsertedBySupabaseId.id, now);
+    await db.insert(auditLogs).values({
+      action: 'USER_AUTH_CREATED',
+      actorUserId: insertedBySupabaseId.id,
+      entityId: insertedBySupabaseId.id,
+      entityType: 'user',
+      payload: {
+        authProvider: identity.devBypass ? 'dev-phone-bypass' : 'supabase',
+      },
+    });
 
-    if (isNew) {
-      await db.insert(auditLogs).values({
-        action: 'USER_AUTH_CREATED',
-        actorUserId: upsertedBySupabaseId.id,
-        entityId: upsertedBySupabaseId.id,
-        entityType: 'user',
-        payload: {
-          authProvider: identity.devBypass ? 'dev-phone-bypass' : 'supabase',
-        },
-      });
-    }
+    return { isNew: true, user: insertedBySupabaseId };
+  }
 
-    return { isNew, user: upsertedBySupabaseId };
+  const [updatedBySupabaseId] = await db
+    .update(users)
+    .set({
+      phone: identity.phone,
+      supabaseUserId: identity.providerUserId,
+      updatedAt: now,
+    })
+    .where(eq(users.supabaseUserId, identity.providerUserId))
+    .returning();
+
+  if (updatedBySupabaseId) {
+    await db.insert(profiles).values({ userId: updatedBySupabaseId.id }).onConflictDoNothing();
+    await ensureFreeMembershipWhenNoActiveVip(updatedBySupabaseId.id, now);
+
+    return { isNew: false, user: updatedBySupabaseId };
   }
 
 

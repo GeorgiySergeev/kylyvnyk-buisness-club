@@ -11,13 +11,16 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   const cronSecret = env.CRON_SECRET;
 
-  if (cronSecret) {
-    const authorization = request.headers.get('authorization');
+  if (!cronSecret) {
+    log.error('cron.stripe_reconcile.misconfigured');
+    return NextResponse.json({ error: 'Not found.' }, { status: 404 });
+  }
 
-    if (authorization !== `Bearer ${cronSecret}`) {
-      log.warn('cron.stripe_reconcile.unauthorized');
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
+  const authorization = request.headers.get('authorization');
+
+  if (authorization !== `Bearer ${cronSecret}`) {
+    log.warn('cron.stripe_reconcile.unauthorized');
+    return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
   }
 
   try {

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const findFirstMock = vi.fn();
 const insertMock = vi.fn();
-const getCurrentUserMock = vi.fn();
+const getAuthIdentityMock = vi.fn();
 const checkPartnerRegistrationRateLimitMock = vi.fn();
 const verifyTurnstileTokenMock = vi.fn();
 const createAuditLogMock = vi.fn();
@@ -26,8 +26,8 @@ vi.mock('@/db/client', () => ({
   },
 }));
 
-vi.mock('@/features/auth/lib/current-user', () => ({
-  getCurrentUser: getCurrentUserMock,
+vi.mock('@/features/auth/lib/auth-identity', () => ({
+  getAuthIdentity: getAuthIdentityMock,
 }));
 
 vi.mock('@/lib/rate-limit/upstash', () => ({
@@ -65,7 +65,7 @@ describe('submitPartnerRegistrationAction', () => {
     vi.resetModules();
     findFirstMock.mockReset();
     insertMock.mockReset();
-    getCurrentUserMock.mockReset();
+    getAuthIdentityMock.mockReset();
     checkPartnerRegistrationRateLimitMock.mockReset();
     verifyTurnstileTokenMock.mockReset();
     createAuditLogMock.mockReset();
@@ -73,7 +73,7 @@ describe('submitPartnerRegistrationAction', () => {
     checkPartnerRegistrationRateLimitMock.mockResolvedValue({ success: true });
     verifyTurnstileTokenMock.mockResolvedValue(true);
     findFirstMock.mockResolvedValue(null);
-    getCurrentUserMock.mockResolvedValue(null);
+    getAuthIdentityMock.mockResolvedValue(null);
     createAuditLogMock.mockResolvedValue(undefined);
     insertMock.mockReturnValue({
       values: vi.fn().mockReturnValue({
@@ -118,8 +118,35 @@ describe('submitPartnerRegistrationAction', () => {
     });
   });
 
+  it('returns a validation error for malformed phone input before side effects', async () => {
+    const { submitPartnerRegistrationAction } = await import(
+      '../../../src/features/partner-registration/actions/submit-partner-registration.action'
+    );
+
+    const result = await submitPartnerRegistrationAction('en', {
+      ...validInput,
+      phone: '+3575689865565+6',
+    });
+
+    expect(result).toEqual({
+      error: {
+        code: 'VALIDATION_ERROR',
+        fieldErrors: expect.objectContaining({
+          phone: ['errorPhone'],
+        }),
+        message: 'formError',
+      },
+      ok: false,
+    });
+    expect(checkPartnerRegistrationRateLimitMock).not.toHaveBeenCalled();
+    expect(verifyTurnstileTokenMock).not.toHaveBeenCalled();
+    expect(findFirstMock).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
+    expect(createAuditLogMock).not.toHaveBeenCalled();
+  });
+
   it('returns a server error when an unexpected dependency throws', async () => {
-    getCurrentUserMock.mockRejectedValue(new Error('Supabase unavailable'));
+    getAuthIdentityMock.mockRejectedValue(new Error('Supabase unavailable'));
 
     const { submitPartnerRegistrationAction } = await import(
       '../../../src/features/partner-registration/actions/submit-partner-registration.action'

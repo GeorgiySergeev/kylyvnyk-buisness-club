@@ -3,7 +3,7 @@ import 'server-only';
 import { cookies, headers } from 'next/headers';
 import { cache } from 'react';
 
-import { decodeDevPhoneAuthCookie,DEV_PHONE_AUTH_COOKIE } from '@/features/auth/lib/dev-auth';
+import { decodeDevPhoneAuthCookie, DEV_PHONE_AUTH_COOKIE } from '@/features/auth/lib/dev-auth';
 import { env } from '@/lib/env';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
@@ -21,7 +21,7 @@ export const getAuthIdentity = cache(async (): Promise<AuthIdentity | null> => {
   await headers();
 
   if (isAuthDevPhoneBypassEnabled()) {
-    const devPhone = decodeDevPhoneAuthCookie((await cookies()).get(DEV_PHONE_AUTH_COOKIE)?.value);
+    const devPhone = await decodeDevPhoneAuthCookie((await cookies()).get(DEV_PHONE_AUTH_COOKIE)?.value);
 
     if (devPhone) {
       return {

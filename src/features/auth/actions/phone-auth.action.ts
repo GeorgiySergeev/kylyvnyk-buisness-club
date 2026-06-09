@@ -284,7 +284,7 @@ export async function devBypassPhoneAuthAction(
     path: '/',
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
-    value: encodeDevPhoneAuthCookie(parsed.data.phone),
+    value: await encodeDevPhoneAuthCookie(parsed.data.phone),
   });
 
   const claimResult = await claimPreApprovedUser({

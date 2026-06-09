@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+const PHONE_ALLOWED_PATTERN = /^\+?[0-9\s\-()]+$/;
+const PHONE_MIN_DIGITS = 7;
+const PHONE_MAX_LENGTH = 32;
+
 export interface PartnerRegistrationValidationMessages {
   acceptLegalRequired: string;
   businessNameRequired: string;
@@ -23,7 +27,28 @@ export function createPartnerRegistrationSchema(messages: PartnerRegistrationVal
     confirmAuthority: z.boolean().refine(Boolean, messages.confirmAuthorityRequired),
     countryId: z.coerce.number().int().positive(messages.countryRequired),
     email: z.string().trim().email(messages.emailInvalid),
-    phone: z.string().trim().min(1, messages.phoneRequired).max(32),
+    phone: z.string().trim().superRefine((value, context) => {
+      if (!value) {
+        context.addIssue({
+          code: 'custom',
+          message: messages.phoneRequired,
+        });
+        return;
+      }
+
+      const digitCount = value.replace(/\D/g, '').length;
+
+      if (
+        value.length > PHONE_MAX_LENGTH ||
+        digitCount < PHONE_MIN_DIGITS ||
+        !PHONE_ALLOWED_PATTERN.test(value)
+      ) {
+        context.addIssue({
+          code: 'custom',
+          message: messages.phoneRequired,
+        });
+      }
+    }),
     representativeName: z.string().trim().min(1, messages.representativeNameRequired).max(120),
     websiteOrSocial: z.string().trim().superRefine((value, context) => {
       if (!value) {

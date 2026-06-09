@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, ne } from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import { clubCards, memberships } from '@/db/schema';
@@ -227,12 +227,13 @@ export async function setUserMembershipTier(
         updatedAt: now,
       })
       .where(
-        and(
-          eq(memberships.userId, userId),
-          eq(memberships.status, 'ACTIVE'),
-          isNull(memberships.deletedAt),
-        ),
-      );
+          and(
+            eq(memberships.userId, userId),
+            eq(memberships.status, 'ACTIVE'),
+            ne(memberships.planCode, FREE_PLAN_CODE),
+            isNull(memberships.deletedAt),
+          ),
+        );
 
     await ensureFreeMembership(userId, startsAt);
   }

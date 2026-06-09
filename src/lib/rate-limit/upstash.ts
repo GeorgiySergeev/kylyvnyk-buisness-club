@@ -28,6 +28,13 @@ function maskRateLimitIdentifier(identifier: string): string {
   return `${phoneSuffix}:${ipFingerprint}`;
 }
 
+function maskVerifyCardRateLimitInput(input: { ip: string; number: string }) {
+  return {
+    ipFingerprint: maskIdentifierSegment(input.ip),
+    numberFingerprint: maskIdentifierSegment(input.number.trim().toUpperCase()),
+  };
+}
+
 /**
  * SMS OTP Rate Limiter
  * Limits to 3 requests per 120 seconds (2 minutes) per phone number/IP.
@@ -106,8 +113,7 @@ export async function checkVerifyCardRateLimit(input: { ip: string; number: stri
   } catch (cause) {
     log.warn("Verify card rate limiter error (fail-open)", {
       cause: cause instanceof Error ? cause.message : String(cause),
-      ip: input.ip,
-      numberPrefix: input.number.trim().slice(0, 8).toUpperCase(),
+      ...maskVerifyCardRateLimitInput(input),
     });
 
     return { success: true };

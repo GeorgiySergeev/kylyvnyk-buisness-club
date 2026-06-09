@@ -119,6 +119,13 @@ server · optional flag · empty by default · local `.env.local` only · owner:
 tech lead · rotates: never · breaks: local/demo phone auth bypass. Production
 code rejects this bypass when `NODE_ENV=production`.
 
+#### `AUTH_DEV_PHONE_BYPASS_SECRET`
+
+server - optional secret - required only when `AUTH_DEV_PHONE_BYPASS_ENABLED=1`
+outside tests - local `.env.local` only - owner: tech lead - rotates: on local
+demo credential sharing or suspected leak - breaks: signed local/demo phone auth
+bypass cookies cannot be created or verified.
+
 #### `AUTH_DEV_2FA_BYPASS_ENABLED`
 
 server · optional flag · empty by default · owner: tech lead · rotates: never ·

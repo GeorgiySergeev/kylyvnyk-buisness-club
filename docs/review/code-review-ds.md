@@ -9,7 +9,7 @@
 
 ### 1. Dev auth bypass has no HMAC signature (`src/features/auth/lib/dev-auth.ts:3-5`)
 
-The `DEV_PHONE_AUTH_COOKIE` is a base64url-encoded phone number with **no cryptographic integrity check**. Anyone with local network access or via XSS can forge this cookie and impersonate any phone number in dev/test environments.
+The `DEV_PHONE_AUTH_COOKIE` is a base64url-encoded phone number with **no signed integrity check**. Anyone with local network access or via XSS can forge this cookie and impersonate any phone number in dev/test environments.
 
 ```ts
 export function encodeDevPhoneAuthCookie(phone: string): string {
