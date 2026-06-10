@@ -44,7 +44,7 @@ export function ResponsiveImage({
       <Image
         alt={alt}
         className={cn(
-          'object-cover duration-700 ease-in-out',
+          'object-cover duration-500 ease-out',
           isLoaded ? 'scale-100 blur-0 grayscale-0' : 'scale-105 blur-md grayscale',
           className,
         )}
