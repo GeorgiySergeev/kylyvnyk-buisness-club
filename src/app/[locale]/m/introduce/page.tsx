@@ -124,10 +124,10 @@ export default async function IntroducePage({ params }: IntroducePageProps) {
         </section>
 
         <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_24rem]">
-          <div className="card rounded-box border border-border bg-card shadow-sm">
-            <div className="card-body gap-5">
+          <div className="rounded-lg border border-border bg-card shadow-sm">
+            <div className="space-y-5 p-6">
               <div>
-                <h2 className="card-title text-xl">{t('formTitle')}</h2>
+                <h2 className="text-xl font-semibold text-foreground">{t('formTitle')}</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   {t('formDescription')}
                 </p>
@@ -153,11 +153,11 @@ export default async function IntroducePage({ params }: IntroducePageProps) {
                   locale={locale}
                 />
               ) : (
-                <div className="rounded-box border border-border bg-background/40 p-5">
-                  <h2 className="text-base font-semibold text-foreground">
+                <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-background/40 p-6 text-center">
+                  <p className="text-base font-semibold text-foreground">
                     {t('emptyBusinessesTitle')}
-                  </h2>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  </p>
+                  <p className="text-sm leading-6 text-muted-foreground">
                     {t('emptyBusinessesDescription')}
                   </p>
                 </div>
@@ -165,28 +165,28 @@ export default async function IntroducePage({ params }: IntroducePageProps) {
             </div>
           </div>
 
-          <aside className="card rounded-box border border-border bg-card shadow-sm">
-            <div className="card-body gap-5">
+          <aside className="rounded-lg border border-border bg-card shadow-sm">
+            <div className="space-y-5 p-6">
               <div>
-                <h2 className="card-title text-xl">{t('recentTitle')}</h2>
+                <h2 className="text-xl font-semibold text-foreground">{t('recentTitle')}</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   {t('recentDescription')}
                 </p>
               </div>
 
               {recentRequests.length > 0 ? (
-                <div className="overflow-hidden rounded-box border border-border">
-                  <table className="table table-sm">
+                <div className="overflow-hidden rounded-lg border border-border">
+                  <table className="w-full text-sm">
                     <thead>
-                      <tr>
-                        <th>{t('business')}</th>
-                        <th>{t('status')}</th>
+                      <tr className="border-b border-border bg-muted/30">
+                        <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('business')}</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('status')}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {recentRequests.map((request) => (
-                        <tr key={request.id}>
-                          <td>
+                        <tr className="border-b border-border last:border-b-0" key={request.id}>
+                          <td className="px-3 py-3">
                             <div className="font-medium text-foreground">
                               {request.businessName}
                             </div>
@@ -198,8 +198,8 @@ export default async function IntroducePage({ params }: IntroducePageProps) {
                               {t('created')}: {dateFormatter.format(request.createdAt)}
                             </div>
                           </td>
-                          <td>
-                            <span className="badge badge-outline rounded-field">
+                          <td className="px-3 py-3">
+                            <span className="inline-flex items-center rounded-md border border-border bg-background px-2 py-0.5 text-xs font-medium text-foreground">
                               {request.status}
                             </span>
                           </td>
@@ -209,10 +209,10 @@ export default async function IntroducePage({ params }: IntroducePageProps) {
                   </table>
                 </div>
               ) : (
-                <div className="rounded-box border border-border bg-background/40 p-5">
-                  <h2 className="text-base font-semibold text-foreground">
+                <div className="rounded-lg border border-border bg-background/40 p-5">
+                  <h3 className="text-base font-semibold text-foreground">
                     {t('recentEmptyTitle')}
-                  </h2>
+                  </h3>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">
                     {t('recentEmptyDescription')}
                   </p>

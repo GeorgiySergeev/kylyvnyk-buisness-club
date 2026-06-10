@@ -160,15 +160,14 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
         <form className="flex w-full gap-2 sm:max-w-md" method="GET">
           <AdminSearchInput name="q" placeholder={t('auditActionFilter')} value={searchTerm} />
           {actionFilter ? <input name="action" type="hidden" value={actionFilter} /> : null}
-          <Button className="h-9 rounded-md" size="sm" type="submit">
+          <Button className="h-11 rounded-md" type="submit">
             {t('search')}
           </Button>
         </form>
         <div className="flex flex-wrap gap-1.5">
           <Button
             asChild
-            className="h-8 rounded-md"
-            size="sm"
+            className="h-11 rounded-md"
             variant={!actionFilter ? 'default' : 'outline'}
           >
             <Link href={localizeHref(locale, '/admin/audit')}>{t('auditAll')}</Link>
@@ -176,9 +175,8 @@ export default async function AdminAuditPage({ params, searchParams }: AdminAudi
           {uniqueActions.map((item) => (
             <Button
               asChild
-              className="h-8 rounded-md"
+              className="h-11 rounded-md"
               key={item}
-              size="sm"
               variant={actionFilter === item ? 'default' : 'outline'}
             >
               <Link

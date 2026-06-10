@@ -50,17 +50,17 @@ export default async function DirectoryDetailPage({ params }: DirectoryDetailPag
                   </h1>
                   <div className="flex flex-wrap gap-2">
                     {business.category ? (
-                      <span className="badge badge-outline rounded-selector">
+                      <span className="inline-flex items-center rounded-md border border-border bg-background px-2 py-0.5 text-xs font-medium text-foreground">
                         {business.category.name}
                       </span>
                     ) : null}
                     {business.isTopPartner ? (
-                      <span className="badge badge-primary rounded-selector">
+                      <span className="rounded-md bg-ds-brand-subtle px-2 py-0.5 text-xs font-semibold text-ds-brand">
                         {t('topPartner')}
                       </span>
                     ) : null}
                     {business.isRecommended ? (
-                      <span className="badge badge-outline rounded-selector">
+                      <span className="inline-flex items-center rounded-md border border-border bg-background px-2 py-0.5 text-xs font-medium text-foreground">
                         {t('recommended')}
                       </span>
                     ) : null}
@@ -68,7 +68,7 @@ export default async function DirectoryDetailPage({ params }: DirectoryDetailPag
                 </div>
               </div>
 
-              <aside className="rounded-box border border-border bg-base-200 p-4">
+              <aside className="rounded-lg border border-border bg-ds-surface-2 p-4">
                 <dl className="space-y-4 text-sm">
                   <div>
                     <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -98,7 +98,7 @@ export default async function DirectoryDetailPage({ params }: DirectoryDetailPag
                           href={business.website}
                           target="_blank"
                           rel="noreferrer"
-                          className="link link-primary break-all"
+                          className="break-all text-ds-accent underline underline-offset-2 hover:text-ds-accent-hover"
                         >
                           {business.website}
                         </a>
@@ -110,14 +110,14 @@ export default async function DirectoryDetailPage({ params }: DirectoryDetailPag
             </div>
 
             <div className={user ? 'grid gap-4 md:grid-cols-[minmax(0,1fr)_20rem]' : 'grid gap-4'}>
-              <section className="rounded-box border border-border bg-background/40 p-5">
+              <section className="rounded-lg border border-border bg-background/40 p-5">
                 <h2 className="text-lg font-semibold text-foreground">{t('about')}</h2>
                 <p className="mt-3 text-sm leading-7 text-muted-foreground">
                   {business.description}
                 </p>
               </section>
               {user ? (
-                <section className="rounded-box border border-primary/30 bg-primary/5 p-5">
+                <section className="rounded-lg border border-ds-accent/30 bg-ds-accent-subtle p-5">
                   <h2 className="text-lg font-semibold text-foreground">{t('specialConditions')}</h2>
                   <p className="mt-3 text-sm leading-7 text-muted-foreground">
                     {business.discountLabel ?? t('specialConditionsFallback')}

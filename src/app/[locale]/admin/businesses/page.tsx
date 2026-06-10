@@ -167,8 +167,7 @@ export default async function AdminBusinessesPage({
             />
             <Button
               variant="outline"
-              size="sm"
-              className="h-9 gap-2 border-0 bg-card text-foreground"
+              className="h-11 gap-2 border-0 bg-card text-foreground"
               asChild
             >
               <a download href="/api/admin/businesses/export">
@@ -177,8 +176,7 @@ export default async function AdminBusinessesPage({
               </a>
             </Button>
             <Button
-              size="sm"
-              className="h-9 gap-2"
+              className="h-11 gap-2"
               asChild
             >
               <Link href={localizeHref(locale, '/admin/businesses/new')}>
@@ -280,7 +278,7 @@ export default async function AdminBusinessesPage({
         <form className="flex w-full gap-2 sm:max-w-md" method="GET">
           <AdminSearchInput name="q" placeholder={t('businessName')} value={searchTerm} />
           {statusFilter ? <input name="status" type="hidden" value={statusFilter} /> : null}
-          <Button className="h-9 rounded-md" size="sm" type="submit">
+           <Button className="h-11 rounded-md" type="submit">
             {t('search')}
           </Button>
         </form>
@@ -296,9 +294,8 @@ export default async function AdminBusinessesPage({
             return (
               <Button
                 asChild
-                className="h-8 rounded-md"
+                className="h-11 rounded-md"
                 key={item}
-                size="sm"
                 variant={isActive ? 'default' : 'outline'}
               >
                 <Link href={href}>{item}</Link>

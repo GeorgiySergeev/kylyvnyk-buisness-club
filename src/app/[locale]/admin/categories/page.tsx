@@ -191,7 +191,7 @@ export default async function AdminCategoriesPage({ params, searchParams }: Admi
               value={searchTerm}
             />
             {scopeFilter ? <input name="scope" type="hidden" value={scopeFilter} /> : null}
-            <Button className="h-9 rounded-md" size="sm" type="submit">
+            <Button className="h-11 rounded-md" type="submit">
               {t('search')}
             </Button>
           </form>
@@ -214,9 +214,8 @@ export default async function AdminCategoriesPage({ params, searchParams }: Admi
               return (
                 <Button
                   asChild
-                  className="h-8 rounded-md"
+                  className="h-11 rounded-md"
                   key={item}
-                  size="sm"
                   variant={isActive ? 'default' : 'outline'}
                 >
                   <Link href={href}>{label}</Link>

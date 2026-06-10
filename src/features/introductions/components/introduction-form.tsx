@@ -112,12 +112,7 @@ export function IntroductionForm({
     <form className="space-y-5" noValidate onSubmit={onSubmit}>
       {errors.root?.message ? (
         <div
-          className={cn(
-            'rounded-md border px-4 py-3 text-sm',
-            isDashboard
-              ? 'border-ds-error/40 bg-ds-error/10 text-ds-error'
-              : 'alert alert-error rounded-box',
-          )}
+          className="rounded-md border border-ds-error/40 bg-ds-error/10 px-4 py-3 text-sm text-ds-error"
           role="alert"
         >
           <span>{errors.root.message}</span>
@@ -126,12 +121,7 @@ export function IntroductionForm({
 
       {successMessage ? (
         <div
-          className={cn(
-            'rounded-md border px-4 py-3 text-sm',
-            isDashboard
-              ? 'border-ds-accent/40 bg-ds-accent/10 text-ds-accent'
-              : 'alert alert-success rounded-box',
-          )}
+          className="rounded-md border border-ds-accent/40 bg-ds-accent/10 px-4 py-3 text-sm text-ds-accent"
           role="status"
         >
           <span>{successMessage}</span>
@@ -149,7 +139,7 @@ export function IntroductionForm({
           aria-describedby={errors.targetBusinessId ? 'targetBusinessId-error' : undefined}
           aria-invalid={Boolean(errors.targetBusinessId)}
           className={cn(
-            isDashboard ? fieldSelectClass : 'select select-bordered min-h-11 w-full rounded-field bg-background',
+            isDashboard ? fieldSelectClass : 'min-h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring',
           )}
           disabled={pending || businesses.length === 0}
           id="targetBusinessId"
@@ -180,7 +170,7 @@ export function IntroductionForm({
           <input
             aria-describedby={errors.clientName ? 'clientName-error' : undefined}
             aria-invalid={Boolean(errors.clientName)}
-            className={cn(isDashboard ? dashboardFieldClass : 'input input-bordered min-h-11 w-full rounded-field bg-background')}
+            className={cn(isDashboard ? dashboardFieldClass : 'min-h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50')}
             disabled={pending}
             id="clientName"
             type="text"
@@ -203,7 +193,7 @@ export function IntroductionForm({
           <input
             aria-describedby="clientContact-help clientContact-error"
             aria-invalid={Boolean(errors.clientContact)}
-            className={cn(isDashboard ? dashboardFieldClass : 'input input-bordered min-h-11 w-full rounded-field bg-background')}
+            className={cn(isDashboard ? dashboardFieldClass : 'min-h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50')}
             disabled={pending}
             id="clientContact"
             type="text"
@@ -238,7 +228,7 @@ export function IntroductionForm({
             'min-h-28 w-full resize-y px-3 py-2 text-sm outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50',
             isDashboard
               ? 'rounded-ds-radius-md border border-ds-border bg-ds-surface text-ds-text placeholder:text-ds-text-muted focus-visible:border-ds-border focus-visible:ring-1 focus-visible:ring-ds-border/50'
-              : 'textarea textarea-bordered rounded-field bg-background',
+              : 'min-h-28 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
           )}
           disabled={pending}
           id="message"
@@ -267,14 +257,14 @@ export function IntroductionForm({
           {pending ? labels.submitting : labels.submit}
         </Button>
       ) : (
-        <button
-          className="btn btn-primary min-h-11 rounded-field"
+        <Button
+          className="w-full"
           disabled={pending || businesses.length === 0}
           type="submit"
         >
-          {pending ? <Loader2 aria-hidden="true" className="size-4 animate-spin" /> : null}
+          {pending ? <Loader2 aria-hidden="true" className="animate-spin" /> : null}
           {pending ? labels.submitting : labels.submit}
-        </button>
+        </Button>
       )}
     </form>
   );
