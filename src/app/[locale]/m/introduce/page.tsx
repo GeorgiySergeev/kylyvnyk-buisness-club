@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs';
 import { db } from '@/db/client';
 import { businesses, cities, countries, introductions } from '@/db/schema';
 import { guardOnboarded } from '@/features/auth/lib/role-guards';
@@ -113,9 +114,7 @@ export default async function IntroducePage({ params }: IntroducePageProps) {
     <PageWrapper>
       <div className="space-y-8">
         <section className="max-w-3xl space-y-4">
-          <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">
-            {t('eyebrow')}
-          </p>
+          <PageBreadcrumbs currentLabel={t('title')} locale={locale} />
           <div className="space-y-3">
             <h1 className="font-display text-4xl leading-tight text-foreground md:text-5xl">
               {t('title')}

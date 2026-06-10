@@ -11,6 +11,7 @@ import { localizeHref, type SupportedLocale } from '@/components/layout/navigati
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { RhfPhoneInput } from '@/components/ui/rhf-phone-input';
 import {
   Select,
   SelectContent,
@@ -43,6 +44,8 @@ export interface PartnerRegistrationLabels extends PartnerRegistrationValidation
   city: string;
   cityPlaceholder: string;
   confirmAuthority: string;
+  countrySearchPlaceholder: string;
+  countrySelectLabel: string;
   country: string;
   countryPlaceholder: string;
   email: string;
@@ -273,15 +276,18 @@ export function PartnerRegistrationForm({
             </Field>
 
             <Field error={errors.phone?.message} htmlFor="partner-phone" label={labels.phone}>
-              <Input
+              <RhfPhoneInput
+                control={control}
+                name="phone"
                 id="partner-phone"
-                className="min-h-11"
-                type="tel"
-                placeholder={labels.phonePlaceholder}
+                autoComplete="tel"
                 aria-describedby={errors.phone ? 'partner-phone-error' : undefined}
                 aria-invalid={Boolean(errors.phone)}
+                countrySearchPlaceholder={labels.countrySearchPlaceholder}
+                countrySelectLabel={labels.countrySelectLabel}
+                defaultCountry="ua"
                 disabled={pending}
-                {...register('phone')}
+                placeholder={labels.phonePlaceholder}
               />
             </Field>
           </>

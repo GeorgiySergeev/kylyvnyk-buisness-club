@@ -8,6 +8,7 @@ import { useRef, useState, useTransition } from 'react';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 
 import {
   devBypassPhoneAuthAction,
@@ -31,6 +32,8 @@ interface PhoneAuthLabels {
   accountExists: string;
   code: string;
   codeHelp: string;
+  countrySearchPlaceholder: string;
+  countrySelectLabel: string;
   devBypass: string;
   phone: string;
   phoneHelp: string;
@@ -227,16 +230,16 @@ export function PhoneAuthForm({
             <label htmlFor="phone" className="text-ds-text-sm font-medium text-ds-text">
               {labels.phone}
             </label>
-            <Input
+            <PhoneInput
               id="phone"
               name="phone"
               autoComplete="tel"
               inputMode="tel"
               aria-describedby={phoneError ? 'phone-error' : 'phone-help'}
               aria-invalid={phoneError ? true : undefined}
-              className={`min-h-11 rounded-ds-radius-md border-ds-border bg-transparent text-ds-text${
-                phoneError ? ' border-ds-error focus-visible:ring-ds-error/50' : ''
-              }`}
+              countrySearchPlaceholder={labels.countrySearchPlaceholder}
+              countrySelectLabel={labels.countrySelectLabel}
+              defaultCountry="ua"
               disabled={pending}
               value={phoneInput}
               onChange={(event) => {

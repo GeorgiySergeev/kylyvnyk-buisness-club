@@ -74,6 +74,8 @@ export default async function PartnerRegisterPage({ params }: PartnerRegisterPag
               emailPlaceholder: t('emailPlaceholder'),
               formError: t('formError'),
               next: t('next'),
+              countrySearchPlaceholder: t('phoneCountrySearchPlaceholder'),
+              countrySelectLabel: t('phoneCountrySelectLabel'),
               phone: t('phone'),
               phonePlaceholder: t('phonePlaceholder'),
               phoneRequired: t('errorPhone'),

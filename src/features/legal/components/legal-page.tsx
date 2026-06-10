@@ -1,8 +1,6 @@
-import Link from 'next/link';
-
 import type { SupportedLocale } from '@/components/layout/navigation';
-import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs';
 import { getT, type Key } from '@/lib/i18n/t-server';
 
 type LegalMessageKey = Key<'legal'>;
@@ -25,6 +23,7 @@ interface LegalSection {
 
 interface LegalPageConfig {
   description: LegalMessageKey;
+  numbered?: boolean;
   sections: LegalSection[];
   title: LegalMessageKey;
 }
@@ -55,10 +54,20 @@ const LEGAL_PAGES: Record<LegalDocument, LegalPageConfig> = {
   cookie: {
     title: 'cookieTitle',
     description: 'cookieDescription',
+    numbered: true,
     sections: [
-      { title: 'cookieUseTitle', body: 'cookieUseBody' },
-      { title: 'cookieTypesTitle', body: 'cookieTypesBody' },
-      { title: 'cookieControlTitle', body: 'cookieControlBody' },
+      { title: 'cookieGeneralTitle', body: 'cookieGeneralBody' },
+      { title: 'cookieWhatAreTitle', body: 'cookieWhatAreBody' },
+      { title: 'cookieCategoriesTitle', body: 'cookieCategoriesBody' },
+      { title: 'cookieEssentialTitle', body: 'cookieEssentialBody' },
+      { title: 'cookieAnalyticsTitle', body: 'cookieAnalyticsBody' },
+      { title: 'cookieFunctionalTitle', body: 'cookieFunctionalBody' },
+      { title: 'cookieMarketingTitle', body: 'cookieMarketingBody' },
+      { title: 'cookieThirdPartyTitle', body: 'cookieThirdPartyBody' },
+      { title: 'cookieManagementTitle', body: 'cookieManagementBody' },
+      { title: 'cookieChangesTitle', body: 'cookieChangesBody' },
+      { title: 'cookieContactTitle', body: 'cookieContactBody' },
+      { title: 'cookieLanguageTitle', body: 'cookieLanguageBody' },
     ],
   },
   refund: {
@@ -123,49 +132,60 @@ const LEGAL_PAGES: Record<LegalDocument, LegalPageConfig> = {
 interface LegalPageProps {
   document: LegalDocument;
   locale: SupportedLocale;
+  // optional raw HTML override for the page body (server-rendered)
+  contentHtml?: string;
+  titleText?: string;
+  descriptionText?: string;
 }
 
-export function LegalPage({ document, locale }: LegalPageProps) {
+export function LegalPage({
+  document,
+  locale,
+  contentHtml,
+  titleText,
+  descriptionText,
+}: LegalPageProps) {
   const t = getT('legal', locale);
   const page = LEGAL_PAGES[document];
+
+  const title = titleText ?? t(page.title);
+  const description = descriptionText ?? t(page.description);
 
   return (
     <PageWrapper>
       <article className="mx-auto max-w-4xl">
         <header className="space-y-5 border-b border-border pb-8">
-          <p className="text-xs font-semibold tracking-[0.32em] text-primary uppercase">
-            {t('eyebrow')}
-          </p>
+          <PageBreadcrumbs currentLabel={title} locale={locale} />
           <div className="space-y-4">
             <h1 className="font-display text-4xl leading-tight text-foreground md:text-6xl">
-              {t(page.title)}
+              {title}
             </h1>
-            <p className="max-w-3xl text-base leading-8 text-muted-foreground">
-              {t(page.description)}
+            <p className="max-w-3xl whitespace-pre-line text-base leading-8 text-muted-foreground">
+              {description}
             </p>
           </div>
         </header>
 
-        <div className="grid gap-4 py-8">
-          {page.sections.map((section) => (
-            <section
-              className="rounded-lg border border-border bg-card p-5 shadow-sm md:p-6"
-              key={section.title}
-            >
-              <h2 className="text-xl font-semibold text-foreground">{t(section.title)}</h2>
-              <p className="mt-3 text-sm leading-7 text-muted-foreground">{t(section.body)}</p>
-            </section>
-          ))}
+        <div className="py-8">
+          {contentHtml ? (
+            <div
+              className="legal-markdown-content max-w-none text-muted-foreground [&_.legal-md-doc-title]:font-display [&_.legal-md-doc-title]:text-2xl [&_.legal-md-doc-title]:text-foreground [&_.legal-md-meta_p]:text-sm [&_.legal-md-section:last-child_p:nth-last-child(-n+2)]:text-xs [&_.legal-md-section:last-child_p:nth-last-child(-n+2)]:leading-5 [&_.legal-md-section:last-child_p:nth-last-child(-n+2)]:text-muted-foreground/80 [&_.legal-md-section]:py-5 [&_.legal-md-section:first-child]:pt-0 [&_h2]:font-semibold [&_h2]:text-foreground [&_li]:leading-7 [&_p]:leading-7 [&_ul]:my-3 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5"
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
+            />
+          ) : (
+            page.sections.map((section, i) => (
+              <section className="py-5 first:pt-0" key={section.title}>
+                <h2 className="font-semibold text-foreground">
+                  {page.numbered ? `${i + 1}. ` : ''}{t(section.title)}
+                </h2>
+                <p className="mt-3 whitespace-pre-line leading-7 text-muted-foreground">{t(section.body)}</p>
+              </section>
+            ))
+          )}
         </div>
 
-        <footer className="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <footer className="border-t border-border pt-6">
           <p className="text-xs leading-6 text-muted-foreground">{t('lastUpdated')}</p>
-          <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-md border border-border px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            href={localizeHref(locale, '/')}
-          >
-            {t('backHome')}
-          </Link>
         </footer>
       </article>
     </PageWrapper>

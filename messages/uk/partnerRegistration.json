@@ -21,6 +21,8 @@
   "emailPlaceholder": "name@company.com",
   "phone": "Телефон",
   "phonePlaceholder": "+380 ...",
+  "phoneCountrySearchPlaceholder": "Пошук країни...",
+  "phoneCountrySelectLabel": "Код країни",
   "country": "Країна",
   "countryPlaceholder": "Виберіть країну",
   "city": "Місто",

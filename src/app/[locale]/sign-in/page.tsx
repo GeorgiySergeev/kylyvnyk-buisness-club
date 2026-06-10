@@ -61,6 +61,8 @@ export default async function SignInPage({ params, searchParams }: SignInPagePro
               accountExists: tAuth('phoneAuthGoToSignIn'),
               code: tAuth('phoneAuthCodeLabel'),
               codeHelp: tAuth('phoneAuthCodeHelp'),
+              countrySearchPlaceholder: tAuth('phoneAuthCountrySearchPlaceholder'),
+              countrySelectLabel: tAuth('phoneAuthCountrySelectLabel'),
               devBypass: tAuth('phoneAuthDevBypass'),
               phone: tAuth('phoneAuthPhoneLabel'),
               phoneHelp: tAuth('phoneAuthPhoneHelp'),

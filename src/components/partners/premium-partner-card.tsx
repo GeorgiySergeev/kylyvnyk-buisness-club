@@ -77,7 +77,7 @@ export function PremiumPartnerCard({ labels, partner }: PremiumPartnerCardProps)
               <span
                 aria-hidden="true"
                 className={cn(
-                  'inline-flex h-2.5 w-3.5 shrink-0 overflow-hidden rounded-sm [&_svg]:size-full',
+                  'inline-flex h-2.5 w-3.5 shrink-0 overflow-hidden rounded-none [&_svg]:size-full',
                 )}
                 dangerouslySetInnerHTML={{ __html: partner.flagSvg }}
               />

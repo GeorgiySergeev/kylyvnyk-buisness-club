@@ -6,5 +6,6 @@
   "mobileNavigation": "Mobile navigation",
   "openMenu": "Open menu",
   "closeMenu": "Close menu",
-  "userMenu": "User menu"
+  "userMenu": "User menu",
+  "breadcrumb": "Breadcrumb"
 }

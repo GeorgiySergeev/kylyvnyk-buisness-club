@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DEFAULT_PHONE_INPUT_LABELS, RhfPhoneInput } from '@/components/ui/rhf-phone-input';
 import { Label } from '@/components/ui/label';
 
 import { createBusinessAction } from '../actions/business-admin.action';
@@ -49,6 +50,7 @@ export function BusinessCreateForm({ labels, locale }: BusinessCreateFormProps) 
   const [pending, startTransition] = useTransition();
 
   const {
+    control,
     formState: { errors },
     handleSubmit,
     register,
@@ -202,11 +204,15 @@ export function BusinessCreateForm({ labels, locale }: BusinessCreateFormProps) 
 
         <div className="space-y-2">
           <Label htmlFor="phone">{labels.phone}</Label>
-          <Input
+          <RhfPhoneInput
+            control={control}
+            name="phone"
+            countrySearchPlaceholder={DEFAULT_PHONE_INPUT_LABELS.countrySearchPlaceholder}
+            countrySelectLabel={DEFAULT_PHONE_INPUT_LABELS.countrySelectLabel}
+            defaultCountry="ua"
             disabled={pending}
             id="phone"
             placeholder="+380501234567"
-            {...register('phone')}
           />
         </div>
 

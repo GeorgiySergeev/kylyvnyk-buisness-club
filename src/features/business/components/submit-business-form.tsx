@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { RhfPhoneInput } from '@/components/ui/rhf-phone-input';
 import { Textarea } from '@/components/ui/textarea';
 
 import { submitBusinessAction } from '../actions/submit-business.action';
@@ -32,6 +33,8 @@ interface SubmitBusinessFormLabels {
   email: string;
   formError: string;
   name: string;
+  countrySearchPlaceholder: string;
+  countrySelectLabel: string;
   optional: string;
   phone: string;
   representativeName: string;
@@ -62,6 +65,7 @@ export function SubmitBusinessForm({
   const [pending, startTransition] = useTransition();
 
   const {
+    control,
     formState: { errors },
     handleSubmit,
     register,
@@ -115,7 +119,18 @@ export function SubmitBusinessForm({
       </Field>
 
       <Field label={labels.phone} error={errors.phone?.message} htmlFor="business-phone">
-        <Input id="business-phone" className="min-h-11" disabled={pending} {...register('phone')} />
+        <RhfPhoneInput
+          control={control}
+          name="phone"
+          id="business-phone"
+          autoComplete="tel"
+          aria-describedby={errors.phone ? 'business-phone-error' : undefined}
+          aria-invalid={Boolean(errors.phone)}
+          countrySearchPlaceholder={labels.countrySearchPlaceholder}
+          countrySelectLabel={labels.countrySelectLabel}
+          defaultCountry="ua"
+          disabled={pending}
+        />
       </Field>
 
       <Field label={labels.country} error={errors.countryId?.message} htmlFor="business-country">

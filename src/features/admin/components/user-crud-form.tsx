@@ -6,6 +6,8 @@ import { useState, useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { DEFAULT_PHONE_INPUT_LABELS } from '@/components/ui/rhf-phone-input';
 import {
   restoreUserAction,
   softDeleteUserAction,
@@ -32,6 +34,7 @@ export function UserCrudForm({ current }: UserCrudFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [phone, setPhone] = useState(current.phone);
 
   function saveUser(formData: FormData) {
     startTransition(async () => {
@@ -81,7 +84,17 @@ export function UserCrudForm({ current }: UserCrudFormProps) {
     <div className="space-y-4">
       <form action={saveUser} className="grid gap-3 rounded-md border border-border/80 bg-card/70 p-3 md:grid-cols-2">
         <Input defaultValue={current.displayName ?? ''} name="displayName" placeholder="Display name" />
-        <Input defaultValue={current.phone} name="phone" placeholder="Phone" required />
+        <PhoneInput
+          countrySearchPlaceholder={DEFAULT_PHONE_INPUT_LABELS.countrySearchPlaceholder}
+          countrySelectLabel={DEFAULT_PHONE_INPUT_LABELS.countrySelectLabel}
+          defaultCountry="ua"
+          disabled={pending}
+          name="phone"
+          placeholder="+380501234567"
+          required
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
+        />
         <Input defaultValue={current.email ?? ''} name="email" placeholder="Email" type="email" />
         <Input defaultValue={current.supabaseUserId ?? ''} name="supabaseUserId" placeholder="Supabase user id" />
         <Button className="md:col-span-2" disabled={pending} type="submit" variant="outline">

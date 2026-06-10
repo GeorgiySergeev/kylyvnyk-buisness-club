@@ -2,7 +2,9 @@ import { and, eq, sql } from 'drizzle-orm';
 import { headers } from 'next/headers';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
+import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { db } from '@/db/client';
@@ -40,13 +42,15 @@ function VerifyCardView({ dto, locale }: { dto: PublicCardDto; locale: Supported
 
   return (
     <PageWrapper>
-      <section className="mx-auto max-w-2xl">
+      <section className="mx-auto max-w-2xl space-y-4">
+        <PageBreadcrumbs
+          currentLabel={dto.number}
+          locale={locale}
+          parents={[{ label: t('lookupTitle'), href: localizeHref(locale, '/verify-card') }]}
+        />
         <Card className="overflow-hidden border-primary/20 bg-card/95 shadow-2xl shadow-black/30">
           <CardHeader className="space-y-4 border-b border-border bg-gradient-to-br from-card via-card to-primary/10">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-xs font-semibold tracking-[0.32em] text-primary uppercase">
-                KYLYVNYK CLUB
-              </p>
+            <div className="flex flex-wrap items-center justify-end gap-3">
               <Badge
                 className={cn('uppercase tracking-wider', getVerifyCardStatusClassName(dto.status))}
                 variant="outline"

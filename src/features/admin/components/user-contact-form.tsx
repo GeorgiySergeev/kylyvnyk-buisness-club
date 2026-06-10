@@ -8,6 +8,7 @@ import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DEFAULT_PHONE_INPUT_LABELS, RhfPhoneInput } from '@/components/ui/rhf-phone-input';
 import { Label } from '@/components/ui/label';
 import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
 
@@ -49,6 +50,7 @@ export function UserContactForm({
   const [saved, setSaved] = useState(false);
 
   const {
+    control,
     formState: { errors, isDirty },
     handleSubmit,
     register,
@@ -114,13 +116,17 @@ export function UserContactForm({
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="phone">Phone</Label>
-          <Input
+          <RhfPhoneInput
+            control={control}
+            name="phone"
             aria-describedby={errors.phone ? 'phone-error' : undefined}
             aria-invalid={Boolean(errors.phone)}
+            countrySearchPlaceholder={DEFAULT_PHONE_INPUT_LABELS.countrySearchPlaceholder}
+            countrySelectLabel={DEFAULT_PHONE_INPUT_LABELS.countrySelectLabel}
+            defaultCountry="ua"
             disabled={pending}
             id="phone"
-            placeholder="+1 234 567 890"
-            {...register('phone')}
+            placeholder="+380501234567"
           />
           {errors.phone?.message ? (
             <p className="text-sm text-destructive" id="phone-error" role="alert">

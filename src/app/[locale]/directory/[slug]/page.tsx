@@ -1,10 +1,9 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
-import { Button } from '@/components/ui/button';
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs';
 import { getCurrentUser } from '@/features/auth/lib/current-user';
 import { getBusinessBySlug } from '@/features/directory/lib/get-business-by-slug';
 import { getT } from '@/lib/i18n/t-server';
@@ -35,17 +34,16 @@ export default async function DirectoryDetailPage({ params }: DirectoryDetailPag
   return (
     <PageWrapper>
       <article className="mx-auto max-w-5xl space-y-6">
-        <Button asChild variant="ghost" className="rounded-field px-0 text-muted-foreground">
-          <Link href={localizeHref(locale, '/directory')}>{t('backToDirectory')}</Link>
-        </Button>
+        <PageBreadcrumbs
+          currentLabel={business.name}
+          locale={locale}
+          parents={[{ label: t('title'), href: localizeHref(locale, '/directory') }]}
+        />
 
         <section className="card border border-border bg-card shadow-sm">
           <div className="card-body gap-6 p-5 md:p-8">
             <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_16rem] md:items-start">
               <div className="space-y-4">
-                <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">
-                  {t('detailEyebrow')}
-                </p>
                 <div className="space-y-3">
                   <h1 className="font-display text-4xl leading-tight text-foreground md:text-5xl">
                     {business.name}
