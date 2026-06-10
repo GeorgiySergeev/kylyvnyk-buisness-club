@@ -39,7 +39,7 @@ export function MobileBottomNav({ locale, labels }: MobileBottomNavProps) {
               aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'relative flex min-h-11 flex-col items-center gap-0.5 rounded-ds-radius-md px-ds-space-4 py-1.5',
-                'transition-all duration-150 active:scale-95',
+                                'transition-[color,background-color,transform,box-shadow,opacity] duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] touch-manipulation',
                 'focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none',
                 isActive ? 'text-ds-brand' : 'text-ds-text-muted hover:text-ds-text',
               )}

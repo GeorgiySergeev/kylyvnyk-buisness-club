@@ -12,7 +12,7 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        'group/card flex flex-col gap-4 overflow-hidden rounded-ds-radius-lg bg-ds-surface border border-ds-border py-ds-space-5 text-ds-text-sm text-ds-text shadow-ds-shadow-sm hover:border-ds-border-strong hover:shadow-ds-shadow-md transition-ds-transition-base has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-ds-radius-lg *:[img:last-child]:rounded-b-ds-radius-lg',
+        'group/card flex flex-col gap-4 overflow-hidden rounded-ds-radius-lg bg-ds-surface border border-ds-border py-ds-space-5 text-ds-text-sm text-ds-text shadow-ds-shadow-sm hover:border-ds-border-strong hover:shadow-ds-shadow-md transition-[box-shadow,border-color,transform,opacity] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-ds-radius-lg *:[img:last-child]:rounded-b-ds-radius-lg',
         className,
       )}
       {...props}

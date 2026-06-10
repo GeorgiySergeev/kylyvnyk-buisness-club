@@ -167,7 +167,7 @@ export function UserRoleForm({
               return (
                 <Button
                   className={cn(
-                    'min-w-24 gap-2 border transition-all',
+                    'min-w-24 gap-2 border transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150 ease-[cubic-bezier(0.16,1,0.3,1)]',
                     isActive ? colors.active : colors.idle,
                   )}
                   disabled={pending || isActive}
