@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs';
 import {
   PremiumPartnerCard,
   type PremiumPartnerCardViewModel,
@@ -120,9 +121,7 @@ export default async function DirectoryPage({ params, searchParams }: DirectoryP
       <div className="space-y-8">
         <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
           <div className="space-y-4">
-            <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">
-              {t('eyebrow')}
-            </p>
+            <PageBreadcrumbs currentLabel={t('title')} locale={locale} />
             <div className="max-w-3xl space-y-3">
               <h1 className="font-display text-4xl leading-tight text-foreground md:text-5xl">
                 {t('title')}

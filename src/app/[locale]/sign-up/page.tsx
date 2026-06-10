@@ -56,6 +56,8 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
               accountExists: tAuth('phoneAuthGoToSignIn'),
               code: tAuth('phoneAuthCodeLabel'),
               codeHelp: tAuth('phoneAuthCodeHelp'),
+              countrySearchPlaceholder: tAuth('phoneAuthCountrySearchPlaceholder'),
+              countrySelectLabel: tAuth('phoneAuthCountrySelectLabel'),
               devBypass: tAuth('phoneAuthDevBypass'),
               phone: tAuth('phoneAuthPhoneLabel'),
               phoneHelp: tAuth('phoneAuthPhoneHelp'),

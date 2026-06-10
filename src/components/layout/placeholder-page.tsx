@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { PageWrapper } from '@/components/layout/page-wrapper';
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs';
 import { getT } from '@/lib/i18n/t-server';
 
 interface PlaceholderPageProps {
@@ -27,9 +28,7 @@ export function PlaceholderPage({
     <PageWrapper>
       <section className="mx-auto max-w-3xl rounded-ds-radius-lg border border-ds-border bg-ds-surface p-ds-space-6 shadow-ds-shadow-lg sm:p-ds-space-8">
         <div className="space-y-5">
-          <p className="text-ds-text-xs font-semibold tracking-[0.32em] text-ds-brand uppercase">
-            {tPlaceholders(eyebrowKey)}
-          </p>
+          <PageBreadcrumbs currentLabel={tPlaceholders(titleKey)} locale={locale} />
           <h1 className="font-display text-3xl leading-tight text-ds-text sm:text-5xl">
             {tPlaceholders(titleKey)}
           </h1>

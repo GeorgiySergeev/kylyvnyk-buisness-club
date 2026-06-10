@@ -1,38 +1,10 @@
+import { deriveCountryCodeFromPhone } from '@/lib/phone/derive-iso2-from-phone';
+
 import type { CardMemberType } from '../../../db/schema/enums/card-status';
 
 const CROCKFORD_BASE32_ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 
-const PHONE_PREFIX_TO_COUNTRY: Record<string, string> = {
-  '380': 'UA',
-  '1': 'US',
-  '44': 'GB',
-  '49': 'DE',
-  '33': 'FR',
-  '39': 'IT',
-  '34': 'ES',
-  '48': 'PL',
-  '420': 'CZ',
-  '43': 'AT',
-  '41': 'CH',
-  '972': 'IL',
-  '61': 'AU',
-  '353': 'IE',
-  '46': 'SE',
-  '31': 'NL',
-  '45': 'DK',
-  '47': 'NO',
-  '358': 'FI',
-  '30': 'GR',
-  '351': 'PT',
-  '36': 'HU',
-  '40': 'RO',
-  '7': 'RU',
-  '90': 'TR',
-  '82': 'KR',
-  '81': 'JP',
-  '86': 'CN',
-  '91': 'IN',
-};
+export { deriveCountryCodeFromPhone };
 
 function getMemberTypePrefix(memberType: CardMemberType): string {
   if (memberType === 'BUSINESS') {
@@ -51,20 +23,6 @@ export function shouldRotateCardNumber(
   nextMemberType: CardMemberType,
 ) {
   return currentMemberType !== nextMemberType;
-}
-
-export function deriveCountryCodeFromPhone(phone: string): string {
-  const digits = phone.replace(/^\+/, '');
-
-  for (let i = 3; i >= 1; i--) {
-    const prefix = digits.slice(0, i);
-
-    if (PHONE_PREFIX_TO_COUNTRY[prefix]) {
-      return PHONE_PREFIX_TO_COUNTRY[prefix];
-    }
-  }
-
-  return 'INT';
 }
 
 export function generateCardEntropy(): string {
