@@ -157,10 +157,10 @@ export function LegalPage({
         <header className="space-y-5 border-b border-border pb-8">
           <PageBreadcrumbs currentLabel={title} locale={locale} />
           <div className="space-y-4">
-            <h1 className="font-display text-4xl leading-tight text-foreground md:text-6xl">
+            <h1 className="text-ds-display-2 font-bold text-foreground">
               {title}
             </h1>
-            <p className="max-w-3xl whitespace-pre-line text-base leading-8 text-muted-foreground">
+            <p className="max-w-prose whitespace-pre-line text-ds-text-base leading-8 text-muted-foreground">
               {description}
             </p>
           </div>

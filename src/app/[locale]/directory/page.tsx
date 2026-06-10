@@ -129,40 +129,46 @@ export default async function DirectoryPage({ params, searchParams }: DirectoryP
               <p className="text-base leading-7 text-muted-foreground">{t('description')}</p>
             </div>
           </div>
-          <div className="stats stats-vertical border border-border bg-card shadow-sm sm:stats-horizontal lg:stats-vertical">
-            <div className="stat">
-              <div className="stat-title text-muted-foreground">{t('resultsCount')}</div>
-              <div className="stat-value text-3xl text-primary">{businesses.length}</div>
-            </div>
+          <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{t('resultsCount')}</p>
+            <p className="mt-1 font-mono text-3xl font-semibold text-ds-brand">{businesses.length}</p>
           </div>
         </section>
 
         <form
-          className="card border border-border bg-card shadow-sm"
+          className="rounded-lg border border-border bg-card shadow-sm"
           action={localizeHref(locale, '/directory')}
         >
-          <div className="card-body grid gap-4 p-4 md:grid-cols-[minmax(0,1.4fr)_minmax(12rem,0.8fr)_minmax(12rem,0.8fr)_auto_auto] md:items-end">
-            <label className="form-control">
-              <span className="label pb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          <div className="grid gap-4 p-4 md:grid-cols-[minmax(0,1.4fr)_minmax(12rem,0.8fr)_minmax(12rem,0.8fr)_auto_auto] md:items-end">
+            <div>
+              <label
+                className="mb-1 block text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+                htmlFor="search-q"
+              >
                 {t('searchLabel')}
-              </span>
+              </label>
               <input
-                className="input input-bordered w-full rounded-field bg-background"
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 defaultValue={search ?? ''}
+                id="search-q"
                 maxLength={80}
                 name="q"
                 placeholder={t('searchPlaceholder')}
                 type="search"
               />
-            </label>
+            </div>
 
-            <label className="form-control">
-              <span className="label pb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <div>
+              <label
+                className="mb-1 block text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+                htmlFor="search-category"
+              >
                 {t('categoryLabel')}
-              </span>
+              </label>
               <select
-                className="select select-bordered w-full rounded-field bg-background"
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 defaultValue={categoryId ?? ''}
+                id="search-category"
                 name="category"
               >
                 <option value="">{t('allCategories')}</option>
@@ -172,15 +178,19 @@ export default async function DirectoryPage({ params, searchParams }: DirectoryP
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
 
-            <label className="form-control">
-              <span className="label pb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <div>
+              <label
+                className="mb-1 block text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+                htmlFor="search-country"
+              >
                 {t('countryLabel')}
-              </span>
+              </label>
               <select
-                className="select select-bordered w-full rounded-field bg-background"
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 defaultValue={countryId ?? ''}
+                id="search-country"
                 name="country"
               >
                 <option value="">{t('allCountries')}</option>
@@ -190,12 +200,12 @@ export default async function DirectoryPage({ params, searchParams }: DirectoryP
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
 
-            <Button type="submit" className="rounded-field">
+            <Button type="submit" className="h-10 rounded-md">
               {t('applyFilters')}
             </Button>
-            <Button asChild variant="outline" className="rounded-field">
+            <Button asChild variant="outline" className="h-10 rounded-md">
               <Link href={buildFilterHref(locale, {})}>{t('clearFilters')}</Link>
             </Button>
           </div>
@@ -216,16 +226,14 @@ export default async function DirectoryPage({ params, searchParams }: DirectoryP
             ))}
           </section>
         ) : (
-          <section className="card border border-border bg-card shadow-sm">
-            <div className="card-body items-start gap-3 p-6">
-              <h2 className="text-xl font-semibold text-foreground">{t('emptyTitle')}</h2>
-              <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                {t('emptyDescription')}
-              </p>
-              <Button asChild variant="outline" className="rounded-field">
-                <Link href={localizeHref(locale, '/directory')}>{t('clearFilters')}</Link>
-              </Button>
-            </div>
+          <section className="flex flex-col items-start gap-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+            <h2 className="text-xl font-semibold text-foreground">{t('emptyTitle')}</h2>
+            <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+              {t('emptyDescription')}
+            </p>
+            <Button asChild variant="outline" className="h-10 rounded-md">
+              <Link href={localizeHref(locale, '/directory')}>{t('clearFilters')}</Link>
+            </Button>
           </section>
         )}
       </div>

@@ -40,10 +40,10 @@ export function ErrorFallback({
             Error {errorCode}
           </p>
         )}
-        <h1 className="font-sans text-2xl font-bold tracking-tight text-ds-text sm:text-3xl">
+        <h1 className="text-ds-display-3 font-bold tracking-tight text-ds-text">
           {title}
         </h1>
-        <p className="text-ds-text-sm leading-relaxed text-ds-text-muted sm:text-ds-text-base">
+        <p className="max-w-prose text-ds-text-sm leading-relaxed text-ds-text-muted sm:text-ds-text-base">
           {description}
         </p>
       </div>

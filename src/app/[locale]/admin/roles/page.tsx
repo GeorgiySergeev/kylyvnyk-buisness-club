@@ -67,7 +67,7 @@ export default async function AdminRolesPage({ params }: RolesPageProps) {
       <AdminPageHeader
         actions={
           canCreate ? (
-            <Button asChild className="h-9 gap-2" size="sm">
+             <Button asChild className="h-11 gap-2">
               <Link href={localizeHref(locale, '/admin/roles/new')}>
                 <ShieldPlus className="size-4" />
                 <span className="hidden sm:inline">{t('createRole')}</span>

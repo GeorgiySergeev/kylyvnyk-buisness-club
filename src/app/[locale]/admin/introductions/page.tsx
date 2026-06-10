@@ -183,7 +183,7 @@ export default async function AdminIntroductionsPage({
           {statusFilter && statusFilter !== 'ALL' ? (
             <input name="status" type="hidden" value={statusFilter} />
           ) : null}
-          <Button className="h-9 rounded-md" size="sm" type="submit">
+           <Button className="h-11 rounded-md" type="submit">
             {t('search')}
           </Button>
         </form>
@@ -201,8 +201,7 @@ export default async function AdminIntroductionsPage({
               <Button
                 key={item}
                 asChild
-                className="h-8 rounded-md"
-                size="sm"
+                className="h-11 rounded-md"
                 variant={isActive ? 'default' : 'outline'}
               >
                 <Link href={href}>{item}</Link>
@@ -260,7 +259,7 @@ export default async function AdminIntroductionsPage({
                   <p className="mt-1 px-1 text-xs text-muted-foreground">{row.message}</p>
                 ) : null}
                 <div className="mt-3 px-1">
-                  <Button asChild className="h-9 rounded-md" size="sm" variant="outline">
+                  <Button asChild className="h-11 rounded-md" variant="outline">
                     <Link href={localizeHref(locale, `/admin/introductions/${row.id}`)}>
                       {t('view')}
                     </Link>

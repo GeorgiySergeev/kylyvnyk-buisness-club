@@ -35,7 +35,7 @@ export function DashboardPageHeader({ description, eyebrow, title }: DashboardPa
         </span>
         <h1
           id="dashboard-title"
-          className="font-sans text-3xl font-bold tracking-tight text-ds-text sm:text-4xl md:text-[2.75rem] md:leading-tight"
+          className="text-ds-display-1 font-bold tracking-tight text-ds-text"
         >
           {title}
         </h1>

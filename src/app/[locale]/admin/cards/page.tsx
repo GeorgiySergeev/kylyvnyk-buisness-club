@@ -142,7 +142,7 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
         <form className="flex w-full gap-2 sm:max-w-md" method="GET">
           <AdminSearchInput name="q" placeholder={t('cardNumber')} value={searchTerm} />
           {statusFilter ? <input name="status" type="hidden" value={statusFilter} /> : null}
-          <Button className="h-9 rounded-md" size="sm" type="submit">
+           <Button className="h-11 rounded-md" type="submit">
             {t('search')}
           </Button>
         </form>
@@ -157,9 +157,8 @@ export default async function AdminCardsPage({ params, searchParams }: AdminCard
             return (
               <Button
                 asChild
-                className="h-8 rounded-md"
+                className="h-11 rounded-md"
                 key={item}
-                size="sm"
                 variant={isActive ? 'default' : 'outline'}
               >
                 <Link href={href}>{item}</Link>

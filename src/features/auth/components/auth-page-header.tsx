@@ -17,16 +17,16 @@ export function AuthPageHeader({
       <div className="kc-how-it-works-bg pointer-events-none absolute inset-0" aria-hidden="true" />
 
       <div className="relative space-y-4 text-center">
-        <span className="block text-[11px] font-normal uppercase tracking-[0.2em] text-fg/45 sm:text-xs">
+        <span className="block text-ds-text-xs font-normal uppercase tracking-[0.2em] text-ds-text-faint">
           {eyebrow}
         </span>
         <h1
           id={titleId}
-          className="font-sans text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-[2.75rem] md:leading-tight"
+          className="text-ds-display-1 font-bold tracking-tight text-ds-text"
         >
           {title}
         </h1>
-        <p className="mx-auto max-w-2xl text-sm leading-relaxed text-fg/50 sm:text-base">{description}</p>
+        <p className="mx-auto max-w-2xl text-ds-text-sm leading-relaxed text-ds-text-muted sm:text-ds-text-base">{description}</p>
       </div>
     </section>
   );

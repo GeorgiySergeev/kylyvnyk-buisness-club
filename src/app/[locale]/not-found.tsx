@@ -45,10 +45,10 @@ export default async function LocaleNotFound({ params }: LocaleNotFoundProps) {
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ds-text-faint">
           404
         </p>
-        <h1 className="font-sans text-2xl font-bold tracking-tight text-ds-text sm:text-3xl">
+        <h1 className="text-ds-display-3 font-bold tracking-tight text-ds-text">
           {t('notFoundTitle')}
         </h1>
-        <p className="text-ds-text-sm leading-relaxed text-ds-text-muted sm:text-ds-text-base">
+        <p className="max-w-prose text-ds-text-sm leading-relaxed text-ds-text-muted sm:text-ds-text-base">
           {t('notFoundDescription')}
         </p>
       </div>

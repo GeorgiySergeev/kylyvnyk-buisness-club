@@ -162,7 +162,7 @@ export function AdminSearchInput({
     <div className="relative min-w-0 flex-1 sm:min-w-64">
       <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ds-text-muted" />
       <Input
-        className="h-9 border-ds-border bg-ds-bg pl-9 text-ds-text-sm"
+        className="h-11 border-ds-border bg-ds-bg pl-9 text-ds-text-sm"
         defaultValue={value}
         name={name}
         placeholder={placeholder}
@@ -243,11 +243,16 @@ export function AdminMobileCard({
   return inner;
 }
 
+import { Inbox } from 'lucide-react';
+
 export function AdminEmptyState({ description, title }: { description?: string; title: string }) {
   return (
-    <div className="rounded-ds-radius-md border border-dashed border-ds-border bg-ds-surface p-ds-space-8 text-center">
-      <p className="text-ds-text-sm font-medium text-ds-text">{title}</p>
-      {description ? <p className="mt-1 text-ds-text-sm text-ds-text-muted">{description}</p> : null}
+    <div className="flex flex-col items-center gap-4 rounded-ds-radius-md border border-dashed border-ds-border bg-ds-surface p-ds-space-8 text-center">
+      <Inbox aria-hidden="true" className="size-8 text-ds-text-faint" strokeWidth={1.5} />
+      <div>
+        <p className="text-ds-text-sm font-medium text-ds-text">{title}</p>
+        {description ? <p className="mt-1 text-ds-text-sm text-ds-text-muted">{description}</p> : null}
+      </div>
     </div>
   );
 }
