@@ -313,6 +313,21 @@ flag · optional · `"KCLUB <hello@kclub.example.com>"` · — · owner: tech
 lead · rotates: on domain or brand change · breaks: emails sent from
 default Resend domain (unbranded).
 
+#### `SUBSCRIBE_WEBHOOK_URL` (optional)
+
+server · optional · — · A webhook or third-party subscribe API endpoint that receives
+POST `{ "email": "..." }` payloads from `/api/subscribe`. If unset,
+`/api/subscribe` will log submissions to the server console. Owner: growth/marketing.
+Rotates: when the receiving endpoint changes. Breaks: external delivery of
+newsletter signups (app still accepts subscriptions locally).
+
+#### `SUBSCRIBE_API_KEY` (optional)
+
+server · optional · — · Bearer token or API key sent in the `Authorization: Bearer <key>` header
+when calling `SUBSCRIBE_WEBHOOK_URL`. Owner: growth/marketing. Rotates: on leak or
+endpoint key rotation. Breaks: webhook may reject requests, causing 502 from
+`/api/subscribe`.
+
 ---
 
 ### Internal flags
