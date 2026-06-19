@@ -11,8 +11,8 @@ import { localizeHref, type SupportedLocale } from '@/components/layout/navigati
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { DEFAULT_PHONE_INPUT_LABELS, RhfPhoneInput } from '@/components/ui/rhf-phone-input';
 import { Label } from '@/components/ui/label';
+import { DEFAULT_PHONE_INPUT_LABELS, RhfPhoneInput } from '@/components/ui/rhf-phone-input';
 import { createUserAction } from '@/features/admin/actions/user-admin.action';
 
 const createUserFormSchema = z.object({

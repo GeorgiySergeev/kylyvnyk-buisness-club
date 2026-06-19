@@ -8,8 +8,8 @@ import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { DEFAULT_PHONE_INPUT_LABELS, RhfPhoneInput } from '@/components/ui/rhf-phone-input';
 import { Label } from '@/components/ui/label';
+import { DEFAULT_PHONE_INPUT_LABELS, RhfPhoneInput } from '@/components/ui/rhf-phone-input';
 import { useAdminMutation } from '@/features/admin/hooks/use-admin-mutation';
 
 import { updateUserDetailsAction, updateUserProfileAction } from '../actions/user-admin.action';

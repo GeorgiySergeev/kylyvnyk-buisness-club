@@ -10,8 +10,8 @@ import { z } from 'zod';
 import { localizeHref, type SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { DEFAULT_PHONE_INPUT_LABELS, RhfPhoneInput } from '@/components/ui/rhf-phone-input';
 import { Label } from '@/components/ui/label';
+import { DEFAULT_PHONE_INPUT_LABELS, RhfPhoneInput } from '@/components/ui/rhf-phone-input';
 
 import { createBusinessAction } from '../actions/business-admin.action';
 
