@@ -1,6 +1,25 @@
 import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
+const isDev = process.env.NODE_ENV === 'development';
+const isSentryEnabled = !isDev && (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'preview');
+
+const CSP_HEADER = `
+  default-src 'self';
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://challenges.cloudflare.com https://js.stripe.com https://plausible.io;
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' blob: data: https://images.unsplash.com https://*.supabase.co;
+  font-src 'self' data:;
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+  frame-ancestors 'none';
+  frame-src 'self' https://challenges.cloudflare.com https://js.stripe.com;
+  connect-src 'self' *.supabase.co https://challenges.cloudflare.com https://api.stripe.com *.sentry.io *.ingest.sentry.io https://plausible.io;
+  block-all-mixed-content;
+  upgrade-insecure-requests;
+`.replace(/\s{2,}/g, ' ').trim();
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -15,29 +34,13 @@ const nextConfig: NextConfig = {
     ],
   },
   async headers() {
-    const cspHeader = `
-      default-src 'self';
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://challenges.cloudflare.com https://js.stripe.com https://plausible.io;
-      style-src 'self' 'unsafe-inline';
-      img-src 'self' blob: data: https://images.unsplash.com https://*.supabase.co;
-      font-src 'self' data:;
-      object-src 'none';
-      base-uri 'self';
-      form-action 'self';
-      frame-ancestors 'none';
-      frame-src 'self' https://challenges.cloudflare.com https://js.stripe.com;
-      connect-src 'self' *.supabase.co https://challenges.cloudflare.com https://api.stripe.com *.sentry.io *.ingest.sentry.io https://plausible.io;
-      block-all-mixed-content;
-      upgrade-insecure-requests;
-    `.replace(/\s{2,}/g, ' ').trim();
-
     return [
       {
         source: '/(.*)',
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: cspHeader,
+            value: CSP_HEADER,
           },
           {
             key: 'X-Frame-Options',
@@ -65,40 +68,18 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
-  // For all available options, see:
-  // https://www.npmjs.com/package/@sentry/webpack-plugin#options
-
-  org: "neowebsphera",
-
-  project: "javascript-nextjs",
-
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
-
-  // For all available options, see:
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
-  widenClientFileUpload: true,
-
-  // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-  // This can increase your server load as well as your hosting bill.
-  // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
-  // side errors will fail.
-  tunnelRoute: "/monitoring",
-
-  webpack: {
-    // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
-    // See the following for more information:
-    // https://docs.sentry.io/product/crons/
-    // https://vercel.com/docs/cron-jobs
-    automaticVercelMonitors: true,
-
-    // Tree-shaking options for reducing bundle size
-    treeshake: {
-      // Automatically tree-shake Sentry logger statements to reduce bundle size
-      removeDebugLogging: true,
-    },
-  },
-});
+export default isSentryEnabled
+  ? withSentryConfig(nextConfig, {
+      org: "neowebsphera",
+      project: "javascript-nextjs",
+      silent: !process.env.CI,
+      widenClientFileUpload: true,
+      tunnelRoute: "/monitoring",
+      webpack: {
+        automaticVercelMonitors: true,
+        treeshake: {
+          removeDebugLogging: true,
+        },
+      },
+    })
+  : nextConfig;

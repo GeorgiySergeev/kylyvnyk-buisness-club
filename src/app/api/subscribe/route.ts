@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: "invalid_payload", issues: err.errors }, { status: 400 });
+      return NextResponse.json({ error: "invalid_payload", issues: err.issues }, { status: 400 });
     }
     console.error("/api/subscribe error", err);
     return NextResponse.json({ error: "server_error" }, { status: 500 });

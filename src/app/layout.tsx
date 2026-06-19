@@ -58,6 +58,27 @@ export default function RootLayout({
         oxanium.variable,
       )}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Remove browser extension attributes before hydration
+                const removeExtensionAttrs = () => {
+                  document.querySelectorAll('[bis_skin_checked]').forEach(el => {
+                    el.removeAttribute('bis_skin_checked');
+                  });
+                };
+                removeExtensionAttrs();
+                // Also run on DOMContentLoaded for late-injected attributes
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', removeExtensionAttrs);
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body suppressHydrationWarning>
         <a href="#main-content" className="kc-skip-link">
           {tA11y('skipToContent')}
