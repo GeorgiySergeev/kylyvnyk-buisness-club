@@ -65,7 +65,7 @@ const createClient = () => {
 
   return drizzle(sql, {
     schema: { ...schema, ...relations },
-    logger: env.NODE_ENV === "development",
+    logger: false,
   });
 };
 
