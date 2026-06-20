@@ -93,6 +93,11 @@ export async function POST(request: Request) {
       .set({ processedAt: new Date(), succeeded: true })
       .where(eq(stripeEvents.eventId, event.id));
   } catch (error) {
+    await db
+      .update(stripeEvents)
+      .set({ processedAt: new Date(), succeeded: false })
+      .where(eq(stripeEvents.eventId, event.id));
+
     log.error('stripe.webhook.process_failed', {
       eventId: event.id,
       message: error instanceof Error ? error.message : 'unknown',

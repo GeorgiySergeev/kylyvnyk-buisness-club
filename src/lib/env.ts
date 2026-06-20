@@ -37,6 +37,34 @@ const envSchema = z.object({
   TURNSTILE_SECRET_KEY: nonEmptyStringSchema,
   UPSTASH_REDIS_REST_TOKEN: nonEmptyStringSchema,
   UPSTASH_REDIS_REST_URL: nonEmptyStringSchema,
+}).superRefine((value, ctx) => {
+  if (value.NODE_ENV === 'production' && !value.CRON_SECRET) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'must be set in production',
+      path: ['CRON_SECRET'],
+    });
+  }
+
+  if (value.NODE_ENV === 'production' && value.AUTH_DEV_PHONE_BYPASS_ENABLED === '1') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'must not be enabled in production',
+      path: ['AUTH_DEV_PHONE_BYPASS_ENABLED'],
+    });
+  }
+
+  if (
+    value.AUTH_DEV_PHONE_BYPASS_ENABLED === '1' &&
+    value.NODE_ENV !== 'test' &&
+    (!value.AUTH_DEV_PHONE_BYPASS_SECRET || value.AUTH_DEV_PHONE_BYPASS_SECRET.length < 32)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'must be at least 32 characters when bypass is enabled',
+      path: ['AUTH_DEV_PHONE_BYPASS_SECRET'],
+    });
+  }
 });
 
 type EnvShape = z.infer<typeof envSchema>;

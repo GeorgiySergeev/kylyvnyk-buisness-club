@@ -42,8 +42,11 @@ export async function GET(request: Request) {
     status: searchParams.get('status') ?? undefined,
   };
 
-  const allUsers = await fetchAdminUsers();
-  const filtered = filterAdminUsers(allUsers, filters);
+  const allUsers = await fetchAdminUsers({
+    q: filters.q,
+    status: filters.status,
+  });
+  const filtered = filterAdminUsers(allUsers, { plan: filters.plan });
   const csv = usersToCsv(filtered);
   const exportedAt = new Date();
 

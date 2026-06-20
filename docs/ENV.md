@@ -122,9 +122,10 @@ code rejects this bypass when `NODE_ENV=production`.
 #### `AUTH_DEV_PHONE_BYPASS_SECRET`
 
 server - optional secret - required only when `AUTH_DEV_PHONE_BYPASS_ENABLED=1`
-outside tests - local `.env.local` only - owner: tech lead - rotates: on local
-demo credential sharing or suspected leak - breaks: signed local/demo phone auth
-bypass cookies cannot be created or verified.
+outside tests - must be at least 32 characters - local `.env.local` only -
+owner: tech lead - rotates: on local demo credential sharing or suspected leak -
+breaks: signed local/demo phone auth bypass cookies cannot be created or
+verified.
 
 #### `AUTH_DEV_2FA_BYPASS_ENABLED`
 
@@ -194,11 +195,11 @@ copy/flow changes · breaks: Customer Portal session creation fails.
 
 #### `CRON_SECRET`
 
-server · optional · — · Vercel Dashboard → Project → Settings → Environment
-Variables · owner: platform owner · rotates: on suspected leak · breaks:
+server · required in production, optional in development/test · — · Vercel
+Dashboard → Project → Settings → Environment Variables · owner: platform owner ·
+rotates: on suspected leak · breaks: app boot in production when missing, or
 daily Stripe reconciliation cron (`/api/cron/stripe-reconcile`) rejects all
-requests with 401 when set; when unset the endpoint runs without auth
-(acceptable only in development/preview).
+requests with 401 when the bearer token is wrong.
 
 Set to a random string (e.g. `openssl rand -hex 32`). Vercel injects it
 as `Bearer <CRON_SECRET>` in the `Authorization` header on every cron

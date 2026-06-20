@@ -8,6 +8,10 @@ const whereMock = vi.fn();
 const setMock = vi.fn(() => ({ where: whereMock }));
 const updateMock = vi.fn(() => ({ set: setMock }));
 const constructEventMock = vi.fn();
+const handleCheckoutSessionCompletedMock = vi.fn();
+const handleInvoicePaymentFailedMock = vi.fn();
+const handleSubscriptionCreatedMock = vi.fn();
+const handleSubscriptionUpdatedMock = vi.fn();
 
 vi.mock('server-only', () => ({}));
 vi.mock('@/db/client', () => ({
@@ -40,10 +44,10 @@ vi.mock('@/lib/stripe/config', () => ({
   },
 }));
 vi.mock('@/features/billing/lib/membership-lifecycle', () => ({
-  handleCheckoutSessionCompleted: vi.fn(),
-  handleInvoicePaymentFailed: vi.fn(),
-  handleSubscriptionCreated: vi.fn(),
-  handleSubscriptionUpdated: vi.fn(),
+  handleCheckoutSessionCompleted: handleCheckoutSessionCompletedMock,
+  handleInvoicePaymentFailed: handleInvoicePaymentFailedMock,
+  handleSubscriptionCreated: handleSubscriptionCreatedMock,
+  handleSubscriptionUpdated: handleSubscriptionUpdatedMock,
 }));
 
 describe('Stripe webhook route contract', () => {
@@ -53,6 +57,10 @@ describe('Stripe webhook route contract', () => {
     insertMock.mockClear();
     updateMock.mockClear();
     constructEventMock.mockReset();
+    handleCheckoutSessionCompletedMock.mockReset();
+    handleInvoicePaymentFailedMock.mockReset();
+    handleSubscriptionCreatedMock.mockReset();
+    handleSubscriptionUpdatedMock.mockReset();
   });
 
   afterEach(() => {
@@ -97,5 +105,36 @@ describe('Stripe webhook route contract', () => {
     expect(await response.json()).toEqual({ duplicate: true });
     expect(insertMock).toHaveBeenCalledTimes(1);
     expect(updateMock).not.toHaveBeenCalled();
+  }, 15_000);
+
+  it('marks an event as failed when processing throws', async () => {
+    returningMock.mockResolvedValueOnce([{ id: 'claimed-1' }]);
+    constructEventMock.mockReturnValueOnce({
+      data: {
+        object: {},
+      },
+      id: 'evt_fail',
+      type: 'customer.subscription.updated',
+    });
+    handleSubscriptionUpdatedMock.mockRejectedValueOnce(new Error('boom'));
+
+    const { POST } = await import('../../../src/app/api/stripe/webhook/route');
+    const response = await POST(new Request('http://127.0.0.1/api/stripe/webhook', {
+      body: '{}',
+      headers: {
+        'stripe-signature': 'sig_test',
+      },
+      method: 'POST',
+    }));
+
+    expect(response.status).toBe(500);
+    expect(await response.json()).toEqual({ error: 'Webhook processing failed.' });
+    expect(updateMock).toHaveBeenCalledTimes(1);
+    expect(setMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        processedAt: expect.any(Date),
+        succeeded: false,
+      }),
+    );
   }, 15_000);
 });

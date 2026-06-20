@@ -5,17 +5,6 @@ export const DEV_PHONE_AUTH_COOKIE = 'kclub_dev_phone_auth';
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-type WebHasher = {
-  importKey: (
-    format: 'raw',
-    keyData: Uint8Array,
-    algorithm: { hash: 'SHA-256'; name: 'HMAC' },
-    extractable: false,
-    keyUsages: ['sign'],
-  ) => Promise<unknown>;
-  sign: (algorithm: 'HMAC', key: unknown, data: Uint8Array) => Promise<ArrayBuffer>;
-};
-
 function getDevPhoneAuthSecret(): string | null {
   if (process.env.AUTH_DEV_PHONE_BYPASS_SECRET) {
     return process.env.AUTH_DEV_PHONE_BYPASS_SECRET;
@@ -41,16 +30,13 @@ function base64UrlDecode(value: string): Uint8Array {
   return Uint8Array.from(binary, (char) => char.charCodeAt(0));
 }
 
-function getWebHasher(): WebHasher {
-  const maybeHasher = (globalThis as unknown as Record<string, { subtle?: WebHasher }>)[
-    `${'cry'}${'pto'}`
-  ]?.subtle;
-
-  if (!maybeHasher) {
+function getWebHasher(): SubtleCrypto {
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) {
     throw new Error('Web HMAC API is unavailable.');
   }
 
-  return maybeHasher;
+  return subtle;
 }
 
 async function signDevPhoneAuthPayload(payload: string, secret: string): Promise<string> {

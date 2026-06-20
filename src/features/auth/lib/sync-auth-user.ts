@@ -31,100 +31,129 @@ import type { AuthIdentity } from './auth-identity';
  */
 export async function syncAuthUser(identity: AuthIdentity, displayName?: string) {
   const now = new Date();
+  const authProvider = identity.devBypass ? 'dev-phone-bypass' : 'supabase';
 
-  // ── Phase 1: Atomic upsert keyed on supabase_user_id ─────────────────────
-  // This is the primary path for every sign-in after the first.
-  // ON CONFLICT (supabase_user_id) → UPDATE keeps updatedAt fresh.
-  // We include phone in the update so a previously phone-only row gets linked.
-  const [insertedBySupabaseId] = await db
-    .insert(users)
-    .values({
-      displayName: displayName ?? null,
-      phone: identity.phone,
-      role: 'MEMBER',
-      status: 'ACTIVE',
-      supabaseUserId: identity.providerUserId,
-      updatedAt: now,
-    })
-    .onConflictDoNothing({ target: users.supabaseUserId })
-    .returning();
-
-  if (insertedBySupabaseId) {
-    await db.insert(profiles).values({ userId: insertedBySupabaseId.id }).onConflictDoNothing();
-    await ensureFreeMembershipWhenNoActiveVip(insertedBySupabaseId.id, now);
-
-    await db.insert(auditLogs).values({
-      action: 'USER_AUTH_CREATED',
-      actorUserId: insertedBySupabaseId.id,
-      entityId: insertedBySupabaseId.id,
-      entityType: 'user',
-      payload: {
-        authProvider: identity.devBypass ? 'dev-phone-bypass' : 'supabase',
-      },
-    });
-
-    return { isNew: true, user: insertedBySupabaseId };
-  }
-
-  const [updatedBySupabaseId] = await db
-    .update(users)
-    .set({
-      phone: identity.phone,
-      supabaseUserId: identity.providerUserId,
-      updatedAt: now,
-    })
-    .where(eq(users.supabaseUserId, identity.providerUserId))
-    .returning();
-
-  if (updatedBySupabaseId) {
-    await db.insert(profiles).values({ userId: updatedBySupabaseId.id }).onConflictDoNothing();
-    await ensureFreeMembershipWhenNoActiveVip(updatedBySupabaseId.id, now);
-
-    return { isNew: false, user: updatedBySupabaseId };
-  }
-
-
-  // ── Phase 2: Fallback — row exists by phone but supabaseUserId differs ────
-  // This handles the first login of a pre-provisioned (phone-only) user.
-  const [upsertedByPhone] = await db
-    .insert(users)
-    .values({
-      displayName: displayName ?? null,
-      phone: identity.phone,
-      role: 'MEMBER',
-      status: 'ACTIVE',
-      supabaseUserId: identity.providerUserId,
-      updatedAt: now,
-    })
-    .onConflictDoUpdate({
-      target: users.phone,
-      set: {
+  const result = await db.transaction(async (tx) => {
+    // ── Phase 1: Atomic upsert keyed on supabase_user_id ────────────────────
+    // This is the primary path for every sign-in after the first.
+    // ON CONFLICT (supabase_user_id) → UPDATE keeps updatedAt fresh.
+    // We include phone in the update so a previously phone-only row gets linked.
+    const [insertedBySupabaseId] = await tx
+      .insert(users)
+      .values({
+        displayName: displayName ?? null,
+        phone: identity.phone,
+        role: 'MEMBER',
+        status: 'ACTIVE',
         supabaseUserId: identity.providerUserId,
         updatedAt: now,
-      },
-    })
-    .returning();
+      })
+      .onConflictDoNothing({ target: users.supabaseUserId })
+      .returning();
 
-  if (upsertedByPhone) {
-    await db.insert(profiles).values({ userId: upsertedByPhone.id }).onConflictDoNothing();
-    await ensureFreeMembershipWhenNoActiveVip(upsertedByPhone.id, now);
+    if (insertedBySupabaseId) {
+      await tx.insert(profiles).values({ userId: insertedBySupabaseId.id }).onConflictDoNothing();
 
-    return { isNew: false, user: upsertedByPhone };
-  }
+      await tx.insert(auditLogs).values({
+        action: 'USER_AUTH_CREATED',
+        actorUserId: insertedBySupabaseId.id,
+        entityId: insertedBySupabaseId.id,
+        entityType: 'user',
+        payload: { authProvider },
+      });
+      await tx.insert(auditLogs).values({
+        action: 'USER_AUTH_SIGN_IN',
+        actorUserId: insertedBySupabaseId.id,
+        entityId: insertedBySupabaseId.id,
+        entityType: 'user',
+        payload: { authProvider },
+      });
 
-  // ── Phase 3: Last-resort read ─────────────────────────────────────────────
-  // Should be unreachable, but guards against unexpected DB behaviour.
-  const fallback = await db.query.users.findFirst({
-    where: and(
-      isNull(users.deletedAt),
-      or(eq(users.phone, identity.phone), eq(users.supabaseUserId, identity.providerUserId)),
-    ),
+      return { isNew: true, user: insertedBySupabaseId };
+    }
+
+    const [updatedBySupabaseId] = await tx
+      .update(users)
+      .set({
+        phone: identity.phone,
+        supabaseUserId: identity.providerUserId,
+        updatedAt: now,
+      })
+      .where(eq(users.supabaseUserId, identity.providerUserId))
+      .returning();
+
+    if (updatedBySupabaseId) {
+      await tx.insert(profiles).values({ userId: updatedBySupabaseId.id }).onConflictDoNothing();
+      await tx.insert(auditLogs).values({
+        action: 'USER_AUTH_SIGN_IN',
+        actorUserId: updatedBySupabaseId.id,
+        entityId: updatedBySupabaseId.id,
+        entityType: 'user',
+        payload: { authProvider },
+      });
+
+      return { isNew: false, user: updatedBySupabaseId };
+    }
+
+    // ── Phase 2: Fallback — row exists by phone but supabaseUserId differs ──
+    // This handles the first login of a pre-provisioned (phone-only) user.
+    const [upsertedByPhone] = await tx
+      .insert(users)
+      .values({
+        displayName: displayName ?? null,
+        phone: identity.phone,
+        role: 'MEMBER',
+        status: 'ACTIVE',
+        supabaseUserId: identity.providerUserId,
+        updatedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: users.phone,
+        set: {
+          supabaseUserId: identity.providerUserId,
+          updatedAt: now,
+        },
+      })
+      .returning();
+
+    if (upsertedByPhone) {
+      await tx.insert(profiles).values({ userId: upsertedByPhone.id }).onConflictDoNothing();
+      await tx.insert(auditLogs).values({
+        action: 'USER_AUTH_SIGN_IN',
+        actorUserId: upsertedByPhone.id,
+        entityId: upsertedByPhone.id,
+        entityType: 'user',
+        payload: { authProvider },
+      });
+
+      return { isNew: false, user: upsertedByPhone };
+    }
+
+    // ── Phase 3: Last-resort read ────────────────────────────────────────────
+    // Should be unreachable, but guards against unexpected DB behaviour.
+    const fallback = await tx.query.users.findFirst({
+      where: and(
+        isNull(users.deletedAt),
+        or(eq(users.phone, identity.phone), eq(users.supabaseUserId, identity.providerUserId)),
+      ),
+    });
+
+    if (!fallback) {
+      throw new Error('syncAuthUser: failed to upsert or locate user record.');
+    }
+
+    await tx.insert(profiles).values({ userId: fallback.id }).onConflictDoNothing();
+    await tx.insert(auditLogs).values({
+      action: 'USER_AUTH_SIGN_IN',
+      actorUserId: fallback.id,
+      entityId: fallback.id,
+      entityType: 'user',
+      payload: { authProvider },
+    });
+
+    return { isNew: false, user: fallback };
   });
 
-  if (!fallback) {
-    throw new Error('syncAuthUser: failed to upsert or locate user record.');
-  }
-
-  return { isNew: false, user: fallback };
+  await ensureFreeMembershipWhenNoActiveVip(result.user.id, now);
+  return result;
 }
-

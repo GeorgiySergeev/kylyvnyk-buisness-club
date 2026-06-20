@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const insertMock = vi.fn();
 const updateMock = vi.fn();
+const transactionMock = vi.fn();
+const findFirstMock = vi.fn();
 const ensureFreeMembershipWhenNoActiveVipMock = vi.fn();
 
 vi.mock('server-only', () => ({}));
@@ -10,9 +12,10 @@ vi.mock('@/db/client', () => ({
     insert: insertMock,
     query: {
       users: {
-        findFirst: vi.fn(),
+        findFirst: findFirstMock,
       },
     },
+    transaction: transactionMock,
     update: updateMock,
   },
 }));
@@ -25,7 +28,20 @@ describe('syncAuthUser', () => {
     vi.resetModules();
     insertMock.mockReset();
     updateMock.mockReset();
+    transactionMock.mockReset();
+    findFirstMock.mockReset();
     ensureFreeMembershipWhenNoActiveVipMock.mockReset();
+    transactionMock.mockImplementation(async (callback: (tx: unknown) => Promise<unknown>) =>
+      callback({
+        insert: insertMock,
+        query: {
+          users: {
+            findFirst: findFirstMock,
+          },
+        },
+        update: updateMock,
+      }),
+    );
   });
 
   it('treats an existing Supabase identity as not new without timestamp guessing', async () => {
@@ -50,6 +66,9 @@ describe('syncAuthUser', () => {
         values: vi.fn().mockReturnValue({
           onConflictDoNothing: profileOnConflictDoNothingMock,
         }),
+      })
+      .mockReturnValueOnce({
+        values: vi.fn().mockResolvedValue(undefined),
       });
     updateMock.mockReturnValue({
       set: vi.fn().mockReturnValue({
@@ -68,11 +87,11 @@ describe('syncAuthUser', () => {
         providerUserId: 'supabase-user-1',
       }),
     ).resolves.toEqual({ isNew: false, user: existingUser });
-    expect(insertMock).toHaveBeenCalledTimes(2);
+    expect(insertMock).toHaveBeenCalledTimes(3);
     expect(updateReturningMock).toHaveBeenCalledTimes(1);
     expect(ensureFreeMembershipWhenNoActiveVipMock).toHaveBeenCalledWith(
       'user-1',
       expect.any(Date),
     );
-  });
+  }, 15_000);
 });

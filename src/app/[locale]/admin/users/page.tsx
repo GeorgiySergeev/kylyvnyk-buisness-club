@@ -30,6 +30,8 @@ import {
 } from '@/features/admin/components/users-list-pagination';
 import { UsersPageActions } from '@/features/admin/components/users-page-actions';
 import {
+  countAdminUsers,
+  countRecentAdminUsers,
   fetchAdminUsers,
   filterAdminUsers,
   formatAdminUserMembership,
@@ -76,29 +78,55 @@ export default async function AdminUsersPage({ params, searchParams }: AdminUser
   const planFilter = plan?.trim() ?? '';
   const statusFilter = status?.trim() ?? '';
 
-  const allUsers = await fetchAdminUsers();
-
-  const filtered = filterAdminUsers(allUsers, {
-    plan: planFilter,
-    q: searchTerm,
-    status: statusFilter,
-  });
-
-  const totalCount = allUsers.length;
-  const filteredCount = filtered.length;
-  const activeCount = allUsers.filter((u) => u.status === 'ACTIVE').length;
-  const newUsersCount = allUsers.filter(
-    (user) => user.createdAt.getTime() >= Date.now() - 30 * 24 * 60 * 60 * 1000,
-  ).length;
-
   const pageSize = parseUsersPageSize(pageSizeParam);
   const requestedPage = parseUsersPageNumber(pageParam);
-  const totalPages = Math.max(1, Math.ceil(filteredCount / pageSize));
-  const page = Math.min(requestedPage, totalPages);
-  const pageStart = (page - 1) * pageSize;
-  const pageUsers = filtered.slice(pageStart, pageStart + pageSize);
-  const startRow = filteredCount === 0 ? 0 : pageStart + 1;
-  const endRow = Math.min(pageStart + pageSize, filteredCount);
+  const [totalCount, activeCount, newUsersCount] = await Promise.all([
+    countAdminUsers(),
+    countAdminUsers({ status: 'ACTIVE' }),
+    countRecentAdminUsers(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
+  ]);
+
+  let filteredCount = 0;
+  let pageUsers: Awaited<ReturnType<typeof fetchAdminUsers>> = [];
+  let page = 1;
+  let startRow = 0;
+  let endRow = 0;
+  let totalPages = 1;
+
+  if (planFilter) {
+    const allUsers = await fetchAdminUsers({
+      q: searchTerm,
+      status: statusFilter,
+    });
+    const filtered = filterAdminUsers(allUsers, { plan: planFilter });
+    filteredCount = filtered.length;
+    totalPages = Math.max(1, Math.ceil(filteredCount / pageSize));
+    page = Math.min(requestedPage, totalPages);
+    const pageStart = (page - 1) * pageSize;
+    pageUsers = filtered.slice(pageStart, pageStart + pageSize);
+    startRow = filteredCount === 0 ? 0 : pageStart + 1;
+    endRow = Math.min(pageStart + pageSize, filteredCount);
+  } else {
+    filteredCount = await countAdminUsers({
+      q: searchTerm,
+      status: statusFilter,
+    });
+    totalPages = Math.max(1, Math.ceil(filteredCount / pageSize));
+    page = Math.min(requestedPage, totalPages);
+    const pageStart = (page - 1) * pageSize;
+    pageUsers = await fetchAdminUsers(
+      {
+        q: searchTerm,
+        status: statusFilter,
+      },
+      {
+        limit: pageSize,
+        offset: pageStart,
+      },
+    );
+    startRow = filteredCount === 0 ? 0 : pageStart + 1;
+    endRow = Math.min(pageStart + pageSize, filteredCount);
+  }
   const usersBasePath = localizeHref(locale, '/admin/users');
 
   return (
