@@ -64,7 +64,7 @@ Legend: **Public** = no sign-in; **Auth** = signed-in member; **VIP** = active V
 ### Public marketing
 
 | Page                 | Route                            | Access | Notes                                                                   |
-| -------------------- | -------------------------------- | ------ | ----------------------------------------------------------------------- |
+| ----------------------| ----------------------------------| --------| -------------------------------------------------------------------------|
 | Home (guest)         | `/{locale}`                      | Public | Hero, stats, top partners, how it works, CTAs                           |
 | Home (member)        | `/{locale}`                      | Auth   | Same URL; member-aware header and shortcuts                             |
 | Partner catalog      | `/{locale}/directory`            | Public | Filters: country, city, category; only `PUBLISHED` businesses           |
