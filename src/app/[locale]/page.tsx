@@ -79,7 +79,7 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
 
   return (
     <div className="main-content">
-      <div className="mx-auto max-w-(--kc-max-w) space-y-6 border-0 px-4 xs:space-y-8 md:border md:border-border md:px-12 lg:space-y-12 container">
+      <div className="mx-auto max-w-(--kc-max-w) space-y-[30px] border-0 px-4 md:border md:border-border md:px-12 container">
         <HeroSection
           locale={locale}
           isAuthenticated={isAuthenticated}

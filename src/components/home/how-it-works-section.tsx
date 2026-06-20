@@ -17,12 +17,13 @@ export function HowItWorksSection({ eyebrow, steps, subtitle, title }: HowItWork
   return (
     <section
       aria-labelledby="how-it-works-title"
-      className="relative -mx-4 overflow-hidden px-4 py-16 xs:py-20 sm:py-24 md:-mx-12 md:px-12 md:py-28 mb-0 "
+      className="relative -mx-4 overflow-hidden px-4 py-[30px] md:-mx-12 md:px-12 mb-0"
+      style={{ paddingBlock: '30px' }}
     >
       <div className=" pointer-events-none absolute inset-0" aria-hidden="true" />
 
       <div className="relative mx-auto max-w-5xl">
-        <div className="mb-12 space-y-4 text-center sm:mb-16 md:mb-20">
+        <div className="mb-6 space-y-4 text-center">
           <span className="block text-[11px] font-normal uppercase tracking-[0.2em] text-ds-text-faint sm:text-ds-text-xs">
             {eyebrow}
           </span>

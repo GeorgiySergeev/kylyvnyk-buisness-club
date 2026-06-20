@@ -60,12 +60,13 @@ export function HeroSection({
   return (
     <section
       aria-labelledby="hero-title"
-      className="relative -mx-4 overflow-hidden px-4 pb-16 pt-12 xs:pb-20 xs:pt-16 sm:pb-24 sm:pt-20 md:-mx-12 md:px-12  mb-0 "
+      className="relative -mx-4 overflow-hidden px-4 py-[30px] md:-mx-12 md:px-12 mb-0"
+      style={{ paddingBlock: '30px' }}
     >
       <div className=" pointer-events-none absolute inset-0" aria-hidden="true" />
 
       <div className="relative mx-auto max-w-5xl">
-        <div className="mb-12 space-y-4 text-center sm:mb-16 md:mb-20">
+        <div className="mb-6 space-y-4 text-center">
           <span className="block text-[11px] font-normal uppercase tracking-[0.2em] text-ds-text-faint sm:text-ds-text-xs">
             {heroEyebrow}
           </span>
@@ -136,7 +137,7 @@ export function HeroSection({
         </div>
 
         {isAuthenticated ? (
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-6 border-t border-ds-border pt-10 sm:mt-12 sm:gap-8 sm:pt-12">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-6 border-t border-ds-border pt-5">
             <Link
               href={localizeHref(locale, '/m/dashboard')}
               className="inline-flex items-center gap-ds-space-2 text-ds-text-sm font-semibold text-ds-text transition-ds-transition-fast hover:text-ds-text-muted focus-visible:ring-2 focus-visible:ring-ds-accent focus-visible:outline-none"
