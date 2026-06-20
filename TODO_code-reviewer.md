@@ -10,13 +10,13 @@
 
 ## Context
 
-| Attribute | Value |
-|---|---|
-| Runtime | Node.js / Edge (Next.js RSC + Route Handlers) |
-| Auth | Supabase Phone OTP + HMAC-signed dev-bypass cookie |
-| DB | PostgreSQL via Drizzle ORM |
-| Payments | Stripe (webhooks + cron reconciliation) |
-| Scope | `src/features/auth/lib/*`, `src/features/admin/lib/*`, `src/app/api/stripe/webhook/route.ts`, `src/app/api/cron/stripe-reconcile/route.ts`, `src/lib/env.ts`, `.env.sentry-build-plugin` |
+| Attribute | Value                                                                                                                                                                                    |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime   | Node.js / Edge (Next.js RSC + Route Handlers)                                                                                                                                            |
+| Auth      | Supabase Phone OTP + HMAC-signed dev-bypass cookie                                                                                                                                       |
+| DB        | PostgreSQL via Drizzle ORM                                                                                                                                                               |
+| Payments  | Stripe (webhooks + cron reconciliation)                                                                                                                                                  |
+| Scope     | `src/features/auth/lib/*`, `src/features/admin/lib/*`, `src/app/api/stripe/webhook/route.ts`, `src/app/api/cron/stripe-reconcile/route.ts`, `src/lib/env.ts`, `.env.sentry-build-plugin` |
 
 ---
 
@@ -51,6 +51,7 @@
   - **Recommendation**:
     1. **Rotate the token immediately** in Sentry → Settings → Auth Tokens.
     2. Remove the file from git history:
+
     ```bash
     git rm --cached .env.sentry-build-plugin
     echo ".env.sentry-build-plugin" >> .gitignore
@@ -59,7 +60,8 @@
     npx bfg --delete-files .env.sentry-build-plugin
     git push --force
     ```
-    3. Set `SENTRY_AUTH_TOKEN` as a CI/CD environment secret (Vercel / GitHub Actions).
+
+    1. Set `SENTRY_AUTH_TOKEN` as a CI/CD environment secret (Vercel / GitHub Actions).
 
 ---
 
@@ -68,17 +70,17 @@
   - **Location**: `src/features/auth/lib/dev-auth.ts` · `src/lib/env.ts`
   - **Description**: The env flag `AUTH_DEV_PHONE_BYPASS_ENABLED` can activate a cookie-based phone auth bypass in any environment including production. If this flag is mistakenly set (or left set) in production and `AUTH_DEV_PHONE_BYPASS_SECRET` is weak or predictable, an attacker can forge a valid cookie and authenticate as any phone number in the system without an OTP.
   - **Recommendation**: Add a hard guard that throws at startup if the bypass is enabled outside `development` or `test`:
+
     ```typescript
     // src/lib/env.ts or src/features/auth/lib/dev-auth.ts startup check
     if (
       process.env.AUTH_DEV_PHONE_BYPASS_ENABLED === '1' &&
       process.env.NODE_ENV === 'production'
     ) {
-      throw new Error(
-        'AUTH_DEV_PHONE_BYPASS_ENABLED must not be set in production.'
-      );
+      throw new Error('AUTH_DEV_PHONE_BYPASS_ENABLED must not be set in production.');
     }
     ```
+
   - Also enforce minimum secret length (≥32 chars) in `envSchema`.
 
 ---
@@ -88,6 +90,7 @@
   - **Location**: `src/features/auth/lib/return-back-url.ts`, `src/features/auth/lib/resolve-post-auth-redirect.ts`
   - **Description**: The `returnBackUrl` is read from query params and used as a redirect destination after sign-in. If the value is not validated against an allowlist of internal paths, an attacker can craft a link like `/sign-in?returnBack=https://evil.com` and redirect authenticated users to a phishing site after login.
   - **Recommendation**:
+
     ```typescript
     function isSafeReturnUrl(url: string): boolean {
       try {
@@ -107,6 +110,7 @@
   - **Location**: `src/features/admin/lib/users-list.ts` → `escapeCsvField()` · `usersToCsv()`
   - **Description**: `escapeCsvField` wraps values in quotes and escapes internal quotes, but does **not** strip or escape leading formula characters (`=`, `+`, `-`, `@`, `\t`, `\r`). A user who sets their `displayName` to `=CMD|' /C calc'!A0` can execute arbitrary formulas when an admin opens the exported CSV in Excel or LibreOffice.
   - **Recommendation**:
+
     ```typescript
     function escapeCsvField(value: string): string {
       // Sanitize formula injection
@@ -132,19 +136,14 @@
   - **Location**: `src/features/admin/lib/users-list.ts` → `fetchAdminUsers()`
   - **Description**: `fetchAdminUsers()` loads **all non-deleted users** with their memberships and profiles into memory in a single query (`findMany` with no `limit`). Filtering (`filterAdminUsers`) is then done entirely in JavaScript. At 10k+ users this will exhaust Node.js heap, cause slow SSR responses, and potentially OOM the server.
   - **Recommendation**: Move filtering and pagination to the database level:
+
     ```typescript
-    export async function fetchAdminUsers(
-      filters: UsersListFilters,
-      page: number,
-      pageSize = 50,
-    ) {
+    export async function fetchAdminUsers(filters: UsersListFilters, page: number, pageSize = 50) {
       const conditions = [isNull(users.deletedAt)];
       if (filters.status) conditions.push(eq(users.status, filters.status));
       if (filters.q) {
         const term = `%${filters.q}%`;
-        conditions.push(
-          or(ilike(users.displayName, term), ilike(users.phone, term))
-        );
+        conditions.push(or(ilike(users.displayName, term), ilike(users.phone, term)));
       }
       return db.query.users.findMany({
         where: and(...conditions),
@@ -163,6 +162,7 @@
   - **Location**: `src/features/auth/lib/sync-auth-user.ts`
   - **Description**: Every sign-in triggers up to 4 sequential DB queries (Phase 1 insert → Phase 1 update → Phase 2 upsert → Phase 3 fallback read), plus additional inserts for `profiles`, membership, and audit log — all without a transaction wrapper. On cold sessions this adds ~50–150ms of serial latency. More critically, if the server crashes between the `users` upsert and the `auditLogs` insert, the audit record is silently lost.
   - **Recommendation**: Wrap all related writes in a single Drizzle transaction:
+
     ```typescript
     await db.transaction(async (tx) => {
       const [user] = await tx.insert(users).values({...}).onConflictDoUpdate({...}).returning();
@@ -180,6 +180,7 @@
   - **Location**: `src/features/auth/lib/admin-access.ts` → `decideMemberRouteAccess()`
   - **Description**: The function returns `'ALLOW'` for `GUEST` and `MANAGER` roles without checking `hasMfa`. This is inconsistent with `decideAdminRouteAccess`, which enforces MFA for all privileged roles. If `MANAGER` ever gains access to sensitive member data, this becomes a security gap.
   - **Recommendation**: Add explicit MFA enforcement or document why GUEST/MANAGER are exempt:
+
     ```typescript
     export function decideMemberRouteAccess(input: {
       hasMfa: boolean;
@@ -201,6 +202,7 @@
   - **Location**: `src/features/auth/lib/dev-auth.ts` → `getWebHasher()`
   - **Description**: The property name `'crypto'` is split into `'cry' + 'pto'` to avoid static analysis or linter detection. While it may have been intentional to bypass a specific linting rule, this is a code smell — it obscures intent, confuses future maintainers, and may indicate an attempt to hide something from security scanners.
   - **Recommendation**: Access `globalThis.crypto.subtle` directly and suppress the lint rule with a comment:
+
     ```typescript
     function getWebHasher(): SubtleCrypto {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -217,6 +219,7 @@
   - **Location**: `src/features/auth/lib/sync-auth-user.ts` — Phase 1 update path, Phase 2 upsert path
   - **Description**: `USER_AUTH_CREATED` audit log is only written when a **new** user row is inserted. Returning users who go through Phase 1 UPDATE or Phase 2 upsert never get any audit entry. This makes it impossible to detect suspicious repeated sign-ins, brute-force attempts, or session hijacking after the fact.
   - **Recommendation**: Add a `USER_AUTH_SIGN_IN` audit event on every authentication:
+
     ```typescript
     await db.insert(auditLogs).values({
       action: 'USER_AUTH_SIGN_IN',
@@ -234,6 +237,7 @@
   - **Location**: `src/lib/env.ts` · `src/app/api/cron/stripe-reconcile/route.ts`
   - **Description**: `CRON_SECRET` is declared as `optional()` in `envSchema`. The cron route handles the missing-secret case by returning 404 — safe but silently disables the reconciliation job without any startup-time warning. If this variable is accidentally unset in production, reconciliation will silently stop running and billing data will drift.
   - **Recommendation**: Make `CRON_SECRET` required in production:
+
     ```typescript
     CRON_SECRET: process.env.NODE_ENV === 'production'
       ? nonEmptyStringSchema
@@ -247,6 +251,7 @@
   - **Location**: `src/app/api/stripe/webhook/route.ts` — catch block
   - **Description**: When event processing fails, the function returns HTTP 500 but the idempotency row stays in `stripeEvents` with `processedAt = NULL`. On Stripe retry, `INSERT ... ON CONFLICT DO NOTHING` treats it as a duplicate and returns `{ duplicate: true, status: 200 }`. Stripe stops retrying. A permanently failing event will never be reprocessed.
   - **Recommendation**: On catch, mark the event as failed so retries are accepted:
+
     ```typescript
     } catch (error) {
       await db.update(stripeEvents)
@@ -279,6 +284,7 @@
 ## Proposed Code Changes (Priority Order)
 
 ### PATCH-1: Remove committed Sentry token
+
 ```diff
 --- a/.env.sentry-build-plugin
 +++ /dev/null
@@ -287,6 +293,7 @@
 -...
 -SENTRY_AUTH_TOKEN=sntrys_eyJpYXQiOjE3ODA0...
 ```
+
 ```diff
 --- a/.gitignore
 +++ b/.gitignore
@@ -294,6 +301,7 @@
 ```
 
 ### PATCH-2: Production guard for dev bypass
+
 ```diff
 --- a/src/features/auth/lib/dev-auth.ts
 +++ b/src/features/auth/lib/dev-auth.ts
@@ -306,6 +314,7 @@
 ```
 
 ### PATCH-3: CSV injection prevention
+
 ```diff
 --- a/src/features/admin/lib/users-list.ts
 +++ b/src/features/admin/lib/users-list.ts
@@ -352,21 +361,21 @@ npx tsc --noEmit
 
 ## Effort & Priority Assessment
 
-| ID | Title | Severity | Effort | Priority |
-|---|---|---|---|---|
-| CR-ITEM-1.1 | Sentry token leaked | 🔴 Critical | 30 min | **P0 — Immediate** |
-| CR-ITEM-1.2 | Dev bypass in production | 🔴 Critical | 1h | **P0 — Immediate** |
-| CR-ITEM-1.3 | Open redirect | 🔴 Critical | 2h | **P0 — Before deploy** |
-| CR-ITEM-1.4 | CSV injection | 🔴 Critical | 1h | **P0 — Before deploy** |
-| CR-ITEM-2.1 | Unbounded admin query | 🟠 High | 4h | **P1 — This sprint** |
-| CR-ITEM-2.2 | syncAuthUser waterfall | 🟠 High | 3h | **P1 — This sprint** |
-| CR-ITEM-3.1 | MFA logic gap MANAGER | 🟡 Medium | 1h | **P2** |
-| CR-ITEM-3.2 | Obfuscated crypto access | 🟡 Medium | 30 min | **P2** |
-| CR-ITEM-3.3 | Missing sign-in audit log | 🟡 Medium | 2h | **P2** |
-| CR-ITEM-3.4 | CRON_SECRET optional | 🟡 Medium | 30 min | **P2** |
-| CR-ITEM-3.5 | Stripe retry blocked | 🟡 Medium | 1h | **P2** |
-| CR-ITEM-4.1 | Suspended user UX | 🟢 Low | 2h | **P3** |
-| CR-ITEM-4.2 | WebHasher types | 🟢 Low | 30 min | **P3** |
+| ID          | Title                     | Severity    | Effort | Priority               |
+| ----------- | ------------------------- | ----------- | ------ | ---------------------- |
+| CR-ITEM-1.1 | Sentry token leaked       | 🔴 Critical | 30 min | **P0 — Immediate**     |
+| CR-ITEM-1.2 | Dev bypass in production  | 🔴 Critical | 1h     | **P0 — Immediate**     |
+| CR-ITEM-1.3 | Open redirect             | 🔴 Critical | 2h     | **P0 — Before deploy** |
+| CR-ITEM-1.4 | CSV injection             | 🔴 Critical | 1h     | **P0 — Before deploy** |
+| CR-ITEM-2.1 | Unbounded admin query     | 🟠 High     | 4h     | **P1 — This sprint**   |
+| CR-ITEM-2.2 | syncAuthUser waterfall    | 🟠 High     | 3h     | **P1 — This sprint**   |
+| CR-ITEM-3.1 | MFA logic gap MANAGER     | 🟡 Medium   | 1h     | **P2**                 |
+| CR-ITEM-3.2 | Obfuscated crypto access  | 🟡 Medium   | 30 min | **P2**                 |
+| CR-ITEM-3.3 | Missing sign-in audit log | 🟡 Medium   | 2h     | **P2**                 |
+| CR-ITEM-3.4 | CRON_SECRET optional      | 🟡 Medium   | 30 min | **P2**                 |
+| CR-ITEM-3.5 | Stripe retry blocked      | 🟡 Medium   | 1h     | **P2**                 |
+| CR-ITEM-4.1 | Suspended user UX         | 🟢 Low      | 2h     | **P3**                 |
+| CR-ITEM-4.2 | WebHasher types           | 🟢 Low      | 30 min | **P3**                 |
 
 ---
 
