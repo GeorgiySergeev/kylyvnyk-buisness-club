@@ -1,5 +1,7 @@
-import React from "react";
 import "server-only";
+
+import React from "react";
+
 import AboutUs from "../../components/premium/AboutUs";
 import FAQ from "../../components/premium/FAQ";
 import Follow from "../../components/premium/Follow";

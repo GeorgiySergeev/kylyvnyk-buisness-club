@@ -10,8 +10,8 @@
 type PublicCardDTO = {
   number: string;
   memberName: string | null;
-  memberType: "VIP" | "BUSINESS" | "FREE" | null;
-  status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "NOT_FOUND";
+  memberType: 'VIP' | 'BUSINESS' | 'FREE' | null;
+  status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'NOT_FOUND';
   expiresAt: string | null;
 };
 ```
@@ -55,11 +55,11 @@ if (!card) {
 ## Playwright assertion (required for every public route)
 
 ```ts
-test("verify-card returns only allowed PII keys", async ({ request }) => {
-  const res = await request.get("/api/cards/lookup/VIP-UA-SEED00001");
+test('verify-card returns only allowed PII keys', async ({ request }) => {
+  const res = await request.get('/api/cards/lookup/VIP-UA-SEED00001');
   const body = await res.json();
   expect(Object.keys(body).sort()).toEqual(
-    ["expiresAt", "memberName", "memberType", "number", "status"].sort()
+    ['expiresAt', 'memberName', 'memberType', 'number', 'status'].sort(),
   );
 });
 ```

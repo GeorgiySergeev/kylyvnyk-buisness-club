@@ -2,7 +2,7 @@ import type { SupportedLocale } from '@/components/layout/navigation';
 import { localizeHref } from '@/components/layout/navigation';
 import { getT } from '@/lib/i18n/t-server';
 
-import { Breadcrumbs, type BreadcrumbItem } from './breadcrumbs';
+import { type BreadcrumbItem, Breadcrumbs } from './breadcrumbs';
 
 interface PageBreadcrumbsProps {
   className?: string;

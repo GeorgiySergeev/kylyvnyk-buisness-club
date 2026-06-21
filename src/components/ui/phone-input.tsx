@@ -1,21 +1,21 @@
 'use client';
 
 import {
+  type ChangeEvent,
+  type InputHTMLAttributes,
   forwardRef,
   useEffect,
   useRef,
   useState,
-  type ChangeEvent,
-  type InputHTMLAttributes,
 } from 'react';
 
 import { CountryPhoneSelect } from '@/components/ui/country-phone-select';
 import { detectBrowserCountry } from '@/lib/geo/browser-country';
 import {
   DEFAULT_PHONE_COUNTRY,
+  type PhoneCountry,
   getCountryByDialPrefix,
   getCountryByIso2,
-  type PhoneCountry,
 } from '@/lib/phone/countries';
 import { deriveIso2FromPhone } from '@/lib/phone/derive-iso2-from-phone';
 import { cn } from '@/lib/utils';

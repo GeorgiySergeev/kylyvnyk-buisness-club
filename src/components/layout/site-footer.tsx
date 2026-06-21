@@ -1,4 +1,3 @@
-// src/components/layout/site-footer.tsx
 import { ArrowRight, Mail, Phone } from 'lucide-react';
 import Link from 'next/link';
 

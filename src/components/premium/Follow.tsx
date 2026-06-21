@@ -25,7 +25,7 @@ export default function Follow() {
       } else {
         setStatus("error");
       }
-    } catch (err) {
+    } catch {
       setStatus("error");
     }
   }
@@ -55,7 +55,7 @@ export default function Follow() {
           {status === "pending" ? "Sending…" : "Subscribe"}
         </button>
       </form>
-      {status === "success" && <p className="mt-3 text-sm text-green-600">Thanks! We'll be in touch.</p>}
+      {status === "success" && <p className="mt-3 text-sm text-green-600">Thanks! We&apos;ll be in touch.</p>}
       {status === "error" && <p className="mt-3 text-sm text-red-600">Please enter a valid email.</p>}
     </aside>
   );

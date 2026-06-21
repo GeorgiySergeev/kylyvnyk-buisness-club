@@ -1,15 +1,16 @@
 'use client';
 
+import { useRef, useState, useTransition } from 'react';
+
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useRef, useState, useTransition } from 'react';
 
 import type { SupportedLocale } from '@/components/layout/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PhoneInput } from '../../../components/ui/phone-input';
 
+import { PhoneInput } from '../../../components/ui/phone-input';
 import {
   devBypassPhoneAuthAction,
   requestPhoneOtpAction,
@@ -84,9 +85,7 @@ export function PhoneAuthForm({
   }
 
   function getFormValue(name: string) {
-    const value = formRef.current
-      ? new FormData(formRef.current).get(name)
-      : null;
+    const value = formRef.current ? new FormData(formRef.current).get(name) : null;
 
     return typeof value === 'string' ? value : '';
   }
@@ -249,11 +248,7 @@ export function PhoneAuthForm({
               placeholder={labels.phonePlaceholder}
             />
             {phoneError ? (
-              <p
-                id="phone-error"
-                role="alert"
-                className="text-ds-text-sm text-ds-error"
-              >
+              <p id="phone-error" role="alert" className="text-ds-text-sm text-ds-error">
                 {phoneError}
               </p>
             ) : (
@@ -261,9 +256,7 @@ export function PhoneAuthForm({
                 {labels.phoneHelp}
               </p>
             )}
-            {!devBypassEnabled && (
-              <TurnstileWidget key={turnstileKey} onVerify={setCaptchaToken} />
-            )}
+            {!devBypassEnabled && <TurnstileWidget key={turnstileKey} onVerify={setCaptchaToken} />}
           </div>
         </>
       ) : null}

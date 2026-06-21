@@ -9,7 +9,6 @@ import { getT } from '@/lib/i18n/t-server';
 
 interface PlaceholderPageProps {
   descriptionKey: Parameters<ReturnType<typeof getT<'placeholders'>>>[0];
-  eyebrowKey: Parameters<ReturnType<typeof getT<'placeholders'>>>[0];
   locale: SupportedLocale;
   primaryActionKey: Parameters<ReturnType<typeof getT<'placeholders'>>>[0];
   titleKey: Parameters<ReturnType<typeof getT<'placeholders'>>>[0];
@@ -17,7 +16,6 @@ interface PlaceholderPageProps {
 
 export function PlaceholderPage({
   descriptionKey,
-  eyebrowKey,
   locale,
   primaryActionKey,
   titleKey,
